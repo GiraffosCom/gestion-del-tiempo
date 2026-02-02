@@ -179,9 +179,10 @@
             }
         }
 
-        // Check if already logged in
+        // Check if already logged in (only redirect if NOT demo user)
         const currentUser = JSON.parse(localStorage.getItem('gestion-currentUser'));
-        if (currentUser) {
+        if (currentUser && !currentUser.isDemo) {
+            // Only auto-redirect for real logged-in users, not demo
             window.location.href = 'app.html';
         }
 
