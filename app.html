@@ -567,39 +567,93 @@
         </div>
     </div>
 
-    <!-- Modal para Foto de Perfil -->
+    <!-- Modal para Perfil Completo -->
     <div id="photoModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closePhotoModal()">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all" onclick="event.stopPropagation()">
-            <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">📸 Foto de Perfil</h3>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-800">👤 Mi Perfil</h3>
+                <button onclick="closePhotoModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+            </div>
 
-            <!-- Vista normal (sin edición) -->
+            <!-- Vista normal (sin edición de foto) -->
             <div id="photoNormalView">
-                <!-- Preview actual -->
-                <div class="flex justify-center mb-6">
-                    <div id="photoPreview" class="w-32 h-32 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center text-white text-4xl font-bold border-4 border-purple-200 overflow-hidden">
-                        <!-- Se llena dinámicamente -->
+                <!-- Foto de perfil -->
+                <div class="flex justify-center mb-4">
+                    <div class="relative">
+                        <div id="photoPreview" class="w-24 h-24 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center text-white text-3xl font-bold border-4 border-purple-200 overflow-hidden">
+                            <!-- Se llena dinámicamente -->
+                        </div>
+                        <label class="absolute bottom-0 right-0 w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-purple-600 transition shadow-lg">
+                            <span class="text-white text-sm">📷</span>
+                            <input type="file" id="photoInput" accept="image/*" class="hidden" onchange="handlePhotoUpload(event)">
+                        </label>
                     </div>
                 </div>
 
-                <!-- Opciones -->
-                <div class="space-y-3">
-                    <label class="flex items-center justify-center gap-3 w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium cursor-pointer hover:opacity-90 transition">
-                        <span>📁 Subir foto</span>
-                        <input type="file" id="photoInput" accept="image/*" class="hidden" onchange="handlePhotoUpload(event)">
-                    </label>
+                <!-- Campos del perfil -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Nombre completo</label>
+                        <input type="text" id="profileName" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none" placeholder="Tu nombre">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Correo electrónico</label>
+                        <input type="email" id="profileEmail" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none" placeholder="tu@email.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Teléfono</label>
+                        <input type="tel" id="profilePhone" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none" placeholder="+56 9 1234 5678">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Fecha de nacimiento</label>
+                        <input type="date" id="profileBirthdate" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Género</label>
+                        <select id="profileGender" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none">
+                            <option value="">Seleccionar...</option>
+                            <option value="female">Femenino</option>
+                            <option value="male">Masculino</option>
+                            <option value="other">Otro</option>
+                            <option value="prefer_not">Prefiero no decir</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Bio / Motivación</label>
+                        <textarea id="profileBio" rows="2" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none resize-none" placeholder="¿Cuál es tu motivación?"></textarea>
+                    </div>
+                </div>
 
-                    <label class="flex items-center justify-center gap-3 w-full py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-medium cursor-pointer hover:opacity-90 transition">
-                        <span>📷 Tomar foto</span>
-                        <input type="file" id="cameraInput" accept="image/*" capture="user" class="hidden" onchange="handlePhotoUpload(event)">
-                    </label>
+                <!-- Opciones de foto -->
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <p class="text-sm text-gray-500 mb-2">Foto de perfil</p>
+                    <div class="flex gap-2">
+                        <label class="flex-1 flex items-center justify-center gap-2 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm cursor-pointer hover:bg-gray-200 transition">
+                            <span>📁 Subir</span>
+                            <input type="file" accept="image/*" class="hidden" onchange="handlePhotoUpload(event)">
+                        </label>
+                        <label class="flex-1 flex items-center justify-center gap-2 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm cursor-pointer hover:bg-gray-200 transition">
+                            <span>📷 Cámara</span>
+                            <input type="file" id="cameraInput" accept="image/*" capture="user" class="hidden" onchange="handlePhotoUpload(event)">
+                        </label>
+                        <button onclick="removePhoto()" id="removePhotoBtn" class="px-3 py-2 text-red-500 rounded-lg text-sm hover:bg-red-50 transition hidden">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
 
-                    <button onclick="removePhoto()" id="removePhotoBtn" class="w-full py-3 border-2 border-red-200 text-red-500 rounded-xl font-medium hover:bg-red-50 transition hidden">
-                        🗑️ Eliminar foto
+                <!-- Botones -->
+                <div class="flex gap-3 mt-6">
+                    <button onclick="closePhotoModal()" class="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">
+                        Cancelar
+                    </button>
+                    <button onclick="saveFullProfile()" class="flex-1 px-4 py-3 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl font-medium hover:opacity-90 transition">
+                        💾 Guardar
                     </button>
                 </div>
             </div>
 
-            <!-- Vista de edición (ajustar posición) -->
+            <!-- Vista de edición de foto (ajustar posición) -->
             <div id="photoEditView" class="hidden">
                 <p class="text-sm text-gray-500 text-center mb-3">👆 Arrastra para ajustar la posición</p>
 
@@ -628,14 +682,10 @@
                         Cancelar
                     </button>
                     <button onclick="saveCrop()" class="flex-1 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-medium hover:opacity-90 transition">
-                        ✓ Guardar
+                        ✓ Aplicar
                     </button>
                 </div>
             </div>
-
-            <button onclick="closePhotoModal()" class="w-full mt-4 py-2 text-gray-500 hover:text-gray-700 transition">
-                Cerrar
-            </button>
         </div>
     </div>
 
@@ -1383,6 +1433,14 @@
             containerSize: 192 // 48 * 4 = w-48
         };
 
+        function getUserProfile() {
+            return JSON.parse(getStorage('user-profile') || '{}');
+        }
+
+        function saveUserProfile(profile) {
+            setStorage('user-profile', JSON.stringify(profile));
+        }
+
         function openPhotoModal() {
             const modal = document.getElementById('photoModal');
             const preview = document.getElementById('photoPreview');
@@ -1401,7 +1459,46 @@
                 removeBtn.classList.add('hidden');
             }
 
+            // Cargar datos del perfil
+            const profile = getUserProfile();
+            document.getElementById('profileName').value = profile.name || currentUser.name || '';
+            document.getElementById('profileEmail').value = profile.email || currentUser.email || '';
+            document.getElementById('profilePhone').value = profile.phone || '';
+            document.getElementById('profileBirthdate').value = profile.birthdate || '';
+            document.getElementById('profileGender').value = profile.gender || '';
+            document.getElementById('profileBio').value = profile.bio || '';
+
             modal.classList.remove('hidden');
+        }
+
+        function saveFullProfile() {
+            const profile = {
+                name: document.getElementById('profileName').value.trim(),
+                email: document.getElementById('profileEmail').value.trim(),
+                phone: document.getElementById('profilePhone').value.trim(),
+                birthdate: document.getElementById('profileBirthdate').value,
+                gender: document.getElementById('profileGender').value,
+                bio: document.getElementById('profileBio').value.trim()
+            };
+
+            saveUserProfile(profile);
+
+            // Actualizar el nombre del usuario actual si cambió
+            if (profile.name && profile.name !== currentUser.name) {
+                currentUser.name = profile.name;
+                // Actualizar en la lista de usuarios
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const userIdx = users.findIndex(u => u.email === currentUser.email);
+                if (userIdx >= 0) {
+                    users[userIdx].name = profile.name;
+                    localStorage.setItem('users', JSON.stringify(users));
+                }
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            }
+
+            closePhotoModal();
+            addNotification('Perfil actualizado correctamente', '✅');
+            render();
         }
 
         function closePhotoModal() {
