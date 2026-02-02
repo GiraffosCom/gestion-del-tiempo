@@ -2456,7 +2456,7 @@
                 </div>
 
                 <!-- Content -->
-                <main class="max-w-4xl mx-auto px-4 py-6">
+                <main class="max-w-4xl mx-auto px-4 py-3">
                     ${activeTab === 'agenda' ? renderAgenda(schedule, gym, dateKey, dailyProgress, isCustomized) : ''}
                     ${activeTab === 'habits' ? renderHabits(dateKey) : ''}
                     ${activeTab === 'gym' ? renderGym(gym, dayIndex, weekNum) : ''}
@@ -2520,7 +2520,7 @@
                         <div class="flex flex-col sm:flex-row gap-3">
                             <div class="relative flex-1">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
-                                <input type="text" id="searchInput" oninput="filterActivities()" placeholder="Buscar actividades..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none text-sm">
+                                <input type="text" id="searchInput" value="${searchQuery}" oninput="filterActivities()" placeholder="Buscar actividades..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none text-sm">
                             </div>
                             <div class="flex gap-2 overflow-x-auto no-scrollbar">
                                 <button onclick="setFilter('')" class="filter-btn px-3 py-2 rounded-lg text-xs font-medium transition whitespace-nowrap ${!activeFilter ? 'bg-purple-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
@@ -3315,6 +3315,13 @@
             const input = document.getElementById('searchInput');
             searchQuery = input ? input.value : '';
             render();
+            setTimeout(() => {
+                const newInput = document.getElementById('searchInput');
+                if (newInput) {
+                    newInput.focus();
+                    newInput.setSelectionRange(newInput.value.length, newInput.value.length);
+                }
+            }, 0);
         }
 
         function setFilter(category) {
