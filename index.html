@@ -3,1540 +3,512 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plan Arantxa Ramírez - Miss Universo Vitacura 2026</title>
+    <title>Gestión del Tiempo - Organiza tu vida, alcanza tus metas</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Poppins', sans-serif; }
-        .gradient-text { background: linear-gradient(135deg, #ec4899, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .gradient-text { background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .gradient-bg { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+        .gradient-bg-pink { background: linear-gradient(135deg, #ec4899, #8b5cf6); }
         .card-hover { transition: all 0.3s ease; }
-        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
-        .progress-bar { transition: width 0.5s ease; }
-        .tab-active { background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; }
-        .checked-item { opacity: 0.6; transform: scale(0.98); }
-        .habit-checked { background: linear-gradient(135deg, #fdf2f8, #f3e8ff); border-color: #c084fc; }
-        .progress-ring { transition: stroke-dashoffset 0.5s ease; }
-        .modal-backdrop { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
-        .btn-icon { transition: all 0.2s; }
-        .btn-icon:hover { transform: scale(1.1); }
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #ec4899, #8b5cf6); border-radius: 10px; }
-        .glow { box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); }
-        .photo-glow { box-shadow: 0 0 20px rgba(236, 72, 153, 0.4), 0 0 40px rgba(139, 92, 246, 0.3); }
+        .card-hover:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .float { animation: float 3s ease-in-out infinite; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .fade-in { animation: fadeIn 0.8s ease-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .pulse-slow { animation: pulse 3s infinite; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .blob {
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            animation: blob 8s ease-in-out infinite;
+        }
+        @keyframes blob {
+            0%, 100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+            50% { border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%; }
+        }
+        .progress-ring { transition: stroke-dashoffset 1s ease; }
+        .feature-icon {
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover .feature-icon {
+            transform: scale(1.2) rotate(5deg);
+        }
+        html { scroll-behavior: smooth; }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-rose-50 via-purple-50 to-blue-50">
-    <div id="app"></div>
+<body class="min-h-screen bg-white">
 
-    <!-- Modal para Editar Actividad -->
-    <div id="editModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">✏️ Editar Actividad</h3>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Hora</label>
-                    <input type="text" id="editTime" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: 08:30">
+    <!-- Navbar -->
+    <nav class="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md z-50 border-b border-gray-100">
+        <div class="max-w-6xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-3xl">⏰</span>
+                    <span class="text-xl font-bold gradient-text">Gestión del Tiempo</span>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Actividad</label>
-                    <input type="text" id="editActivity" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="Descripción de la actividad">
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#funciones" class="text-gray-600 hover:text-purple-600 transition">Funciones</a>
+                    <a href="#como-funciona" class="text-gray-600 hover:text-purple-600 transition">Cómo funciona</a>
+                    <a href="#beneficios" class="text-gray-600 hover:text-purple-600 transition">Beneficios</a>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Duración</label>
-                    <input type="text" id="editDuration" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: 1 hr">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Categoría</label>
-                    <select id="editCategory" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none">
-                        <option value="habitos">☀️ Hábitos</option>
-                        <option value="nutricion">🥗 Nutrición</option>
-                        <option value="fisico">💪 Físico</option>
-                        <option value="personal">📚 Personal</option>
-                        <option value="digital">📱 Digital</option>
-                        <option value="espiritual">🧘 Espiritual</option>
-                        <option value="descanso">😴 Descanso</option>
-                    </select>
-                </div>
-            </div>
-            <div class="flex gap-3 mt-6">
-                <button onclick="closeEditModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="saveEdit()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
+                <a href="login.html" class="px-6 py-2 gradient-bg text-white rounded-full font-medium hover:opacity-90 transition shadow-lg shadow-purple-200">
+                    Comenzar gratis
+                </a>
             </div>
         </div>
-    </div>
-
-    <!-- Modal para Confirmar Borrado -->
-    <div id="deleteModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all">
-            <div class="text-center">
-                <span class="text-5xl">🗑️</span>
-                <h3 class="text-xl font-bold text-gray-800 mt-3">¿Eliminar elemento?</h3>
-                <p class="text-gray-500 mt-2" id="deleteActivityName">Esta acción no se puede deshacer</p>
-            </div>
-            <div class="flex gap-3 mt-6">
-                <button onclick="closeDeleteModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="confirmDelete()" class="flex-1 px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition font-medium">Eliminar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para Agregar Nueva Actividad -->
-    <div id="addModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">➕ Nueva Actividad</h3>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Hora</label>
-                    <input type="text" id="addTime" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: 08:30">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Actividad</label>
-                    <input type="text" id="addActivity" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="Descripción de la actividad">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Duración</label>
-                    <input type="text" id="addDuration" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: 1 hr">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Categoría</label>
-                    <select id="addCategory" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none">
-                        <option value="habitos">☀️ Hábitos</option>
-                        <option value="nutricion">🥗 Nutrición</option>
-                        <option value="fisico">💪 Físico</option>
-                        <option value="personal">📚 Personal</option>
-                        <option value="digital">📱 Digital</option>
-                        <option value="espiritual">🧘 Espiritual</option>
-                        <option value="descanso">😴 Descanso</option>
-                    </select>
-                </div>
-            </div>
-            <div class="flex gap-3 mt-6">
-                <button onclick="closeAddModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="saveNewActivity()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Agregar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para Editar Hábito -->
-    <div id="editHabitModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">✏️ Editar Hábito</h3>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Emoji</label>
-                    <input type="text" id="editHabitIcon" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: ☀️">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Nombre del hábito</label>
-                    <input type="text" id="editHabitName" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: Despertar 7:00 AM">
-                </div>
-            </div>
-            <div class="flex gap-3 mt-6">
-                <button onclick="closeEditHabitModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="saveHabitEdit()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para Agregar Hábito -->
-    <div id="addHabitModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">➕ Nuevo Hábito</h3>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Emoji</label>
-                    <input type="text" id="addHabitIcon" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: ☀️">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Nombre del hábito</label>
-                    <input type="text" id="addHabitName" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: Despertar 7:00 AM">
-                </div>
-            </div>
-            <div class="flex gap-3 mt-6">
-                <button onclick="closeAddHabitModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="saveNewHabit()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Agregar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para Editar Ejercicio Gym -->
-    <div id="editGymModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">✏️ Editar Ejercicio</h3>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Ejercicio</label>
-                    <input type="text" id="editGymExercise" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: Hip Thrust con barra 4x12">
-                </div>
-            </div>
-            <div class="flex gap-3 mt-6">
-                <button onclick="closeEditGymModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="saveGymEdit()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para Agregar Ejercicio Gym -->
-    <div id="addGymModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">➕ Nuevo Ejercicio</h3>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Ejercicio</label>
-                    <input type="text" id="addGymExercise" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: Hip Thrust con barra 4x12">
-                </div>
-            </div>
-            <div class="flex gap-3 mt-6">
-                <button onclick="closeAddGymModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="saveNewGymExercise()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Agregar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para Editar Comida -->
-    <div id="editMealModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all max-h-[90vh] overflow-y-auto">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">✏️ Editar Comida</h3>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Hora</label>
-                    <input type="text" id="editMealTime" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: 07:45">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Nombre</label>
-                    <input type="text" id="editMealName" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: Desayuno">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Emoji</label>
-                    <input type="text" id="editMealEmoji" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: 🌅">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Opciones (una por línea)</label>
-                    <textarea id="editMealOptions" rows="4" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="Opción 1&#10;Opción 2&#10;Opción 3"></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Macros</label>
-                    <input type="text" id="editMealMacros" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: P:30g | C:45g | G:15g">
-                </div>
-            </div>
-            <div class="flex gap-3 mt-6">
-                <button onclick="closeEditMealModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="saveMealEdit()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para Agregar Comida -->
-    <div id="addMealModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all max-h-[90vh] overflow-y-auto">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">➕ Nueva Comida</h3>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Hora</label>
-                    <input type="text" id="addMealTime" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: 07:45">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Nombre</label>
-                    <input type="text" id="addMealName" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: Desayuno">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Emoji</label>
-                    <input type="text" id="addMealEmoji" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: 🌅">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Opciones (una por línea)</label>
-                    <textarea id="addMealOptions" rows="4" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="Opción 1&#10;Opción 2&#10;Opción 3"></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Macros</label>
-                    <input type="text" id="addMealMacros" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: P:30g | C:45g | G:15g">
-                </div>
-            </div>
-            <div class="flex gap-3 mt-6">
-                <button onclick="closeAddMealModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="saveNewMeal()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Agregar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para Editar Meta Semanal -->
-    <div id="editGoalModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all max-h-[90vh] overflow-y-auto">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">✏️ Editar Meta Semanal</h3>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Semana</label>
-                    <input type="number" id="editGoalWeek" min="1" max="12" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: 1">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Fechas</label>
-                    <input type="text" id="editGoalDates" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: 2-8 Feb">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">💪 Meta Física</label>
-                    <input type="text" id="editGoalFisica" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">📚 Meta Personal</label>
-                    <input type="text" id="editGoalPersonal" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">📱 Meta Digital</label>
-                    <input type="text" id="editGoalDigital" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">🧘 Meta Espiritual</label>
-                    <input type="text" id="editGoalEspiritual" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none">
-                </div>
-            </div>
-            <div class="flex gap-3 mt-6">
-                <button onclick="closeEditGoalModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="saveGoalEdit()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Data
-        const startDate = new Date(2026, 1, 2);
-        const endDate = new Date(2026, 2, 30);
-        let currentDate = new Date(startDate);
-        let activeTab = 'agenda';
-        let checkedHabits = JSON.parse(localStorage.getItem('arantxa-habits') || '{}');
-        let completedActivities = JSON.parse(localStorage.getItem('arantxa-activities') || '{}');
-        let customSchedules = JSON.parse(localStorage.getItem('arantxa-custom-schedules') || '{}');
-        let customHabits = JSON.parse(localStorage.getItem('arantxa-custom-habits') || 'null');
-        let customGym = JSON.parse(localStorage.getItem('arantxa-custom-gym') || '{}');
-        let customMeals = JSON.parse(localStorage.getItem('arantxa-custom-meals') || 'null');
-        let customGoals = JSON.parse(localStorage.getItem('arantxa-custom-goals') || 'null');
-
-        let editingIndex = null;
-        let deletingIndex = null;
-        let deleteType = 'activity';
-
-        const daysSpanish = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-        const monthsSpanish = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-
-        const defaultGymFocus = {
-            0: { name: "Descanso Activo", icon: "🧘", exercises: ["Yoga suave 30-45min", "Estiramientos profundos 20min", "Caminata ligera opcional", "Meditación con movimiento 15min"] },
-            1: { name: "Glúteos + Cuádriceps", icon: "🍑", exercises: ["Hip Thrust con barra 4x12", "Sentadilla profunda 4x10", "Prensa inclinada 4x12", "Zancadas caminando 3x12", "Extensión cuádriceps 3x15", "Abductores máquina 3x20"] },
-            2: { name: "Isquios + Glúteos", icon: "🦵", exercises: ["Peso muerto rumano 4x10", "Curl femoral acostada 4x12", "Patada glúteo polea 3x15", "Puente glúteos elevado 4x15", "Good mornings 3x12", "Hip abduction 3x20"] },
-            3: { name: "Tren Superior + Core", icon: "💪", exercises: ["Press pecho mancuernas 3x12", "Remo mancuerna 3x12", "Press hombro 3x12", "Curl bíceps 3x15", "Tríceps polea 3x15", "Plancha 3x30seg + Crunches 3x20"] },
-            4: { name: "Piernas + HIIT", icon: "🔥", exercises: ["Sentadilla búlgara 4x10", "Leg press pies juntos 4x12", "Step ups con peso 3x12", "Curl femoral sentada 3x15", "HIIT: Burpees, Jumping jacks 4 rondas"] },
-            5: { name: "Glúteos (énfasis) + Brazos", icon: "✨", exercises: ["Hip thrust unilateral 4x12", "Sumo squat mancuerna 4x15", "Kickbacks polea 3x15", "Frog pumps 3x25", "Curl martillo 3x12", "Fondos tríceps 3x12"] },
-            6: { name: "Baile + Stretching", icon: "💃", exercises: ["Clase baile/gimnasia 60-90min", "Estiramiento dinámico 15min", "Foam roller piernas 15min", "Yoga flow 20min"] }
-        };
-
-        function getGymFocus(dayIndex) {
-            if (customGym[dayIndex]) {
-                return customGym[dayIndex];
-            }
-            return defaultGymFocus[dayIndex];
-        }
-
-        const defaultHabits = [
-            { id: 1, name: "Despertar 7:00 AM", icon: "☀️" },
-            { id: 2, name: "Agua al despertar (500ml)", icon: "💧" },
-            { id: 3, name: "Suplementos tomados", icon: "💊" },
-            { id: 4, name: "Meditación 30 min", icon: "🧘" },
-            { id: 5, name: "Afirmaciones positivas", icon: "✨" },
-            { id: 6, name: "Desayuno proteico", icon: "🥗" },
-            { id: 7, name: "Clase de inglés", icon: "🇬🇧" },
-            { id: 8, name: "Skincare AM", icon: "🧴" },
-            { id: 9, name: "Entrenamiento completado", icon: "💪" },
-            { id: 10, name: "Post-entreno proteico", icon: "🥤" },
-            { id: 11, name: "Contenido RRSS creado", icon: "📸" },
-            { id: 12, name: "Publicado en RRSS", icon: "📱" },
-            { id: 13, name: "Interacción audiencia", icon: "💬" },
-            { id: 14, name: "Cena sin azúcar", icon: "🥦" },
-            { id: 15, name: "Skincare PM + celulitis", icon: "🌙" },
-            { id: 16, name: "Gratitud (3 cosas)", icon: "🙏" },
-            { id: 17, name: "En cama 22:00", icon: "😴" },
-            { id: 18, name: "3L agua bebidos", icon: "💦" }
-        ];
-
-        function getHabits() {
-            return customHabits || defaultHabits;
-        }
-
-        const defaultMeals = [
-            { time: "07:45", name: "Desayuno", emoji: "🌅", options: ["Avena + proteína + frutos rojos", "Huevos revueltos + verduras + tostada integral", "Smoothie bowl proteico con semillas"], macros: "P:30g | C:45g | G:15g" },
-            { time: "10:30", name: "Snack AM", emoji: "🍎", options: ["Yogurt griego + nueces", "Fruta + almendras", "Batido verde proteico"], macros: "P:15g | C:20g | G:10g" },
-            { time: "12:00", name: "Almuerzo", emoji: "🥗", options: ["Proteína 150g (pollo/pescado/pavo)", "Carbohidrato complejo 1 taza", "Vegetales variados ilimitados", "Grasa saludable (aguacate)"], macros: "P:40g | C:50g | G:15g" },
-            { time: "16:00", name: "Post-Entreno", emoji: "💪", options: ["Proteína whey + banana + leche vegetal", "Yogurt griego + granola sin azúcar"], macros: "P:30g | C:30g | G:5g" },
-            { time: "20:00", name: "Cena", emoji: "🌙", options: ["Proteína magra 120g", "Vegetales al vapor o ensalada grande", "Sin carbohidratos pesados"], macros: "P:35g | C:20g | G:12g" }
-        ];
-
-        function getMeals() {
-            return customMeals || defaultMeals;
-        }
-
-        const defaultWeeklyGoals = [
-            { week: 1, dates: "2-8 Feb", fisica: "Establecer rutina gym. Medir peso inicial", personal: "Inicio inglés intensivo + pasarela", digital: "Crear web básica", espiritual: "Establecer meditación diaria" },
-            { week: 2, dates: "9-15 Feb", fisica: "Ajustar plan nutricional. -0.5kg grasa", personal: "Mejorar pronunciación inglés", digital: "5 posts. Contactar marcas", espiritual: "Journaling diario" },
-            { week: 3, dates: "16-22 Feb", fisica: "Incrementar peso en glúteos", personal: "Conversaciones básicas inglés", digital: "12K seguidores. Portafolio", espiritual: "Bajar autoexigencia" },
-            { week: 4, dates: "23 Feb-1 Mar", fisica: "Definición visible piernas", personal: "Presentación en inglés", digital: "15K. Primera colaboración", espiritual: "Sin episodios nerviosismo" },
-            { week: 5, dates: "2-8 Mar", fisica: "Abdominales marcados", personal: "Fluidez conversacional", digital: "Blog semanal. 5%+ engagement", espiritual: "Manejo emocional estable" },
-            { week: 6, dates: "9-15 Mar", fisica: "Glúteos definidos. Verificar 58kg", personal: "Speech en inglés listo", digital: "17K. Contenido viral", espiritual: "Autoconfianza alta" },
-            { week: 7, dates: "16-22 Mar", fisica: "Cuerpo óptimo. Piel radiante", personal: "Inglés intermedio-alto", digital: "19K. Portafolio completo", espiritual: "Nervios controlados" },
-            { week: 8, dates: "23-30 Mar", fisica: "🎯 58kg, definición total", personal: "🎯 Inglés fluido, pasarela 100%", digital: "🎯 20K+, marca sólida", espiritual: "🎯 Confianza total" }
-        ];
-
-        function getWeeklyGoals() {
-            return customGoals || defaultWeeklyGoals;
-        }
-
-        const categoryColors = {
-            habitos: { bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-700", badge: "bg-amber-100" },
-            nutricion: { bg: "bg-green-50", border: "border-green-200", text: "text-green-700", badge: "bg-green-100" },
-            fisico: { bg: "bg-rose-50", border: "border-rose-200", text: "text-rose-700", badge: "bg-rose-100" },
-            personal: { bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-700", badge: "bg-blue-100" },
-            digital: { bg: "bg-purple-50", border: "border-purple-200", text: "text-purple-700", badge: "bg-purple-100" },
-            espiritual: { bg: "bg-indigo-50", border: "border-indigo-200", text: "text-indigo-700", badge: "bg-indigo-100" },
-            descanso: { bg: "bg-slate-50", border: "border-slate-200", text: "text-slate-700", badge: "bg-slate-100" }
-        };
-
-        function getDefaultSchedule(dayIndex) {
-            if (dayIndex === 0) return getSundaySchedule();
-            if (dayIndex === 6) return getSaturdaySchedule();
-            return getWeekdaySchedule(dayIndex);
-        }
-
-        function getSchedule(dayIndex, dateKey) {
-            if (customSchedules[dateKey]) {
-                return customSchedules[dateKey];
-            }
-            return getDefaultSchedule(dayIndex);
-        }
-
-        function saveCustomSchedule(dateKey, schedule) {
-            customSchedules[dateKey] = schedule;
-            localStorage.setItem('arantxa-custom-schedules', JSON.stringify(customSchedules));
-        }
-
-        function getWeekdaySchedule(dayIndex) {
-            const gym = getGymFocus(dayIndex);
-            const schedule = [
-                { time: "06:45", activity: "Despertar + Agua tibia con limón 🍋", duration: "15 min", category: "habitos" },
-                { time: "07:00", activity: "Suplementos: Creatina + Omega 3 + Vitamina C", duration: "15 min", category: "nutricion" },
-                { time: "07:15", activity: "Meditación guiada + Afirmaciones ✨", duration: "30 min", category: "espiritual" },
-                { time: "07:45", activity: "Desayuno proteico", duration: "45 min", category: "nutricion" },
-                { time: "08:30", activity: "Clase de Inglés Intensivo 🇬🇧", duration: "2 hrs", category: "personal" },
-                { time: "10:30", activity: "Snack saludable + Hidratación", duration: "30 min", category: "nutricion" },
-                { time: "11:00", activity: "Skincare facial + Cuidado capilar 💆‍♀️", duration: "1 hr", category: "fisico" },
-                { time: "12:00", activity: "Almuerzo balanceado", duration: "1 hr", category: "nutricion" },
-                { time: "13:00", activity: "Descanso / Lectura / Journaling 📖", duration: "1 hr", category: "espiritual" },
-                { time: "14:00", activity: `Gimnasio: ${gym.name} ${gym.icon}`, duration: "2 hrs", category: "fisico" },
-                { time: "16:00", activity: "Batido proteico post-entreno 🥤", duration: "30 min", category: "nutricion" }
-            ];
-
-            if ([1, 3, 5].includes(dayIndex)) {
-                schedule.push({ time: "16:30", activity: "Clase de Pasarela (estilo Sheynnis Palacios) 👠", duration: "1.5 hrs", category: "personal" });
-            } else {
-                schedule.push({ time: "16:30", activity: "Coaching Oratoria con Coni 🎤", duration: "1.5 hrs", category: "personal" });
-            }
-
-            schedule.push(
-                { time: "18:00", activity: "Creación contenido RRSS 📸", duration: "1 hr", category: "digital" },
-                { time: "19:00", activity: "Publicar + Interactuar audiencia 📱", duration: "30 min", category: "digital" },
-                { time: "19:30", activity: "Revisar métricas + Planificar 📊", duration: "30 min", category: "digital" },
-                { time: "20:00", activity: "Cena saludable", duration: "1 hr", category: "nutricion" },
-                { time: "21:00", activity: "Skincare nocturno + Tratamiento celulitis 🌙", duration: "30 min", category: "fisico" },
-                { time: "21:30", activity: "Gratitud + Preparar mañana 🙏", duration: "30 min", category: "espiritual" },
-                { time: "22:00", activity: "DORMIR 😴 (9 horas)", duration: "9 hrs", category: "descanso" }
-            );
-
-            return schedule;
-        }
-
-        function getSaturdaySchedule() {
-            return [
-                { time: "07:00", activity: "Despertar + Hidratación 💧", duration: "15 min", category: "habitos" },
-                { time: "07:15", activity: "Suplementos matutinos", duration: "15 min", category: "nutricion" },
-                { time: "07:30", activity: "Meditación + Afirmaciones ✨", duration: "30 min", category: "espiritual" },
-                { time: "08:00", activity: "Desayuno proteico", duration: "1 hr", category: "nutricion" },
-                { time: "09:00", activity: "Clase de Baile / Gimnasia 💃", duration: "1.5 hrs", category: "personal" },
-                { time: "10:30", activity: "Snack + Hidratación", duration: "30 min", category: "nutricion" },
-                { time: "11:00", activity: "Sesión fotos / Contenido semanal 📸", duration: "2 hrs", category: "digital" },
-                { time: "13:00", activity: "Almuerzo", duration: "1 hr", category: "nutricion" },
-                { time: "14:00", activity: "Descanso / Autocuidado 💆‍♀️", duration: "1 hr", category: "espiritual" },
-                { time: "15:00", activity: "Trabajo en Página Web / Portafolio 💻", duration: "2 hrs", category: "digital" },
-                { time: "17:00", activity: "Cardio suave + Stretching 🧘", duration: "1 hr", category: "fisico" },
-                { time: "18:00", activity: "Programar contenido semanal", duration: "1 hr", category: "digital" },
-                { time: "19:00", activity: "Tiempo libre / Social 👯‍♀️", duration: "1 hr", category: "personal" },
-                { time: "20:00", activity: "Cena", duration: "1 hr", category: "nutricion" },
-                { time: "21:00", activity: "Rutina nocturna + Planificación 🌙", duration: "1 hr", category: "espiritual" },
-                { time: "22:00", activity: "DORMIR 😴", duration: "9 hrs", category: "descanso" }
-            ];
-        }
-
-        function getSundaySchedule() {
-            return [
-                { time: "08:00", activity: "Despertar natural + Hidratación ☀️", duration: "15 min", category: "habitos" },
-                { time: "08:15", activity: "Omega 3 + Vitamina C (descanso creatina)", duration: "15 min", category: "nutricion" },
-                { time: "08:30", activity: "Meditación extendida + Visualización 🧘", duration: "1 hr", category: "espiritual" },
-                { time: "09:30", activity: "Brunch saludable 🥑", duration: "1 hr", category: "nutricion" },
-                { time: "10:30", activity: "Spa personal: mascarillas, tratamientos ✨", duration: "1.5 hrs", category: "fisico" },
-                { time: "12:00", activity: "Revisar metas + Ajustar plan 🎯", duration: "1 hr", category: "personal" },
-                { time: "13:00", activity: "Almuerzo liviano", duration: "1 hr", category: "nutricion" },
-                { time: "14:00", activity: "Siesta / Descanso profundo 😴", duration: "1 hr", category: "descanso" },
-                { time: "15:00", activity: "Yoga + Stretching profundo 🧘", duration: "1 hr", category: "fisico" },
-                { time: "16:00", activity: "Inglés: películas/series 🎬", duration: "1 hr", category: "personal" },
-                { time: "17:00", activity: "Preparar outfits de la semana 👗", duration: "1 hr", category: "personal" },
-                { time: "18:00", activity: "RRSS: Responder mensajes + Stories 📱", duration: "1 hr", category: "digital" },
-                { time: "19:00", activity: "Tiempo familiar / Social 💕", duration: "1 hr", category: "personal" },
-                { time: "20:00", activity: "Cena liviana", duration: "1 hr", category: "nutricion" },
-                { time: "21:00", activity: "Rutina nocturna 🌙", duration: "30 min", category: "fisico" },
-                { time: "21:30", activity: "Lectura + Gratitud + Intenciones ✨", duration: "30 min", category: "espiritual" },
-                { time: "22:00", activity: "DORMIR 😴", duration: "9 hrs", category: "descanso" }
-            ];
-        }
-
-        function getDateKey(date = currentDate) {
-            return date.toISOString().split('T')[0];
-        }
-
-        function getWeekNumber(date = currentDate) {
-            return Math.min(8, Math.max(1, Math.floor((date - startDate) / (7 * 24 * 60 * 60 * 1000)) + 1));
-        }
-
-        function getDayNumber(date = currentDate) {
-            return Math.floor((date - startDate) / (24 * 60 * 60 * 1000)) + 1;
-        }
-
-        function getDailyProgress(date = currentDate) {
-            const dateKey = getDateKey(date);
-            const schedule = getSchedule(date.getDay(), dateKey);
-            const totalActivities = schedule.length;
-            if (totalActivities === 0) return 0;
-            let completed = 0;
-
-            for (let i = 0; i < totalActivities; i++) {
-                if (completedActivities[`${dateKey}-${i}`]) {
-                    completed++;
-                }
-            }
-
-            return Math.round((completed / totalActivities) * 100);
-        }
-
-        function getWeeklyProgress() {
-            const weekNum = getWeekNumber();
-            const weekStart = new Date(startDate);
-            weekStart.setDate(weekStart.getDate() + (weekNum - 1) * 7);
-
-            let totalActivities = 0;
-            let completedCount = 0;
-
-            for (let i = 0; i < 7; i++) {
-                const dayDate = new Date(weekStart);
-                dayDate.setDate(dayDate.getDate() + i);
-
-                if (dayDate > endDate) break;
-
-                const dateKey = getDateKey(dayDate);
-                const schedule = getSchedule(dayDate.getDay(), dateKey);
-                totalActivities += schedule.length;
-
-                for (let j = 0; j < schedule.length; j++) {
-                    if (completedActivities[`${dateKey}-${j}`]) {
-                        completedCount++;
-                    }
-                }
-            }
-
-            return totalActivities > 0 ? Math.round((completedCount / totalActivities) * 100) : 0;
-        }
-
-        function getTotalProgress() {
-            let totalActivities = 0;
-            let completedCount = 0;
-
-            const tempDate = new Date(startDate);
-            while (tempDate <= endDate) {
-                const dateKey = getDateKey(tempDate);
-                const schedule = getSchedule(tempDate.getDay(), dateKey);
-                totalActivities += schedule.length;
-
-                for (let j = 0; j < schedule.length; j++) {
-                    if (completedActivities[`${dateKey}-${j}`]) {
-                        completedCount++;
-                    }
-                }
-
-                tempDate.setDate(tempDate.getDate() + 1);
-            }
-
-            return totalActivities > 0 ? Math.round((completedCount / totalActivities) * 100) : 0;
-        }
-
-        function navigateDay(direction) {
-            const newDate = new Date(currentDate);
-            newDate.setDate(newDate.getDate() + direction);
-            if (newDate >= startDate && newDate <= endDate) {
-                currentDate = newDate;
-                render();
-            }
-        }
-
-        function setTab(tab) {
-            activeTab = tab;
-            render();
-        }
-
-        function toggleHabit(habitId) {
-            const key = `${getDateKey()}-${habitId}`;
-            checkedHabits[key] = !checkedHabits[key];
-            localStorage.setItem('arantxa-habits', JSON.stringify(checkedHabits));
-            render();
-        }
-
-        function toggleActivity(index) {
-            const key = `${getDateKey()}-${index}`;
-            completedActivities[key] = !completedActivities[key];
-            localStorage.setItem('arantxa-activities', JSON.stringify(completedActivities));
-            render();
-        }
-
-        // ========== ACTIVITY MODALS ==========
-        function openEditModal(index) {
-            event.stopPropagation();
-            editingIndex = index;
-            const dateKey = getDateKey();
-            const schedule = getSchedule(currentDate.getDay(), dateKey);
-            const item = schedule[index];
-
-            document.getElementById('editTime').value = item.time;
-            document.getElementById('editActivity').value = item.activity;
-            document.getElementById('editDuration').value = item.duration;
-            document.getElementById('editCategory').value = item.category;
-
-            document.getElementById('editModal').classList.remove('hidden');
-        }
-
-        function closeEditModal() {
-            document.getElementById('editModal').classList.add('hidden');
-            editingIndex = null;
-        }
-
-        function saveEdit() {
-            const dateKey = getDateKey();
-            let schedule = getSchedule(currentDate.getDay(), dateKey);
-
-            if (!customSchedules[dateKey]) {
-                schedule = JSON.parse(JSON.stringify(schedule));
-            }
-
-            schedule[editingIndex] = {
-                time: document.getElementById('editTime').value,
-                activity: document.getElementById('editActivity').value,
-                duration: document.getElementById('editDuration').value,
-                category: document.getElementById('editCategory').value
-            };
-
-            schedule.sort((a, b) => a.time.localeCompare(b.time));
-
-            saveCustomSchedule(dateKey, schedule);
-            closeEditModal();
-            render();
-        }
-
-        function openDeleteModal(index, type = 'activity') {
-            event.stopPropagation();
-            deletingIndex = index;
-            deleteType = type;
-
-            let itemName = '';
-            if (type === 'activity') {
-                const dateKey = getDateKey();
-                const schedule = getSchedule(currentDate.getDay(), dateKey);
-                itemName = schedule[index].activity;
-            } else if (type === 'habit') {
-                itemName = getHabits()[index].name;
-            } else if (type === 'gym') {
-                const dayIndex = currentDate.getDay();
-                itemName = getGymFocus(dayIndex).exercises[index];
-            } else if (type === 'meal') {
-                itemName = getMeals()[index].name;
-            } else if (type === 'goal') {
-                itemName = `Semana ${getWeeklyGoals()[index].week}`;
-            }
-
-            document.getElementById('deleteActivityName').textContent = `"${itemName}"`;
-            document.getElementById('deleteModal').classList.remove('hidden');
-        }
-
-        function closeDeleteModal() {
-            document.getElementById('deleteModal').classList.add('hidden');
-            deletingIndex = null;
-        }
-
-        function confirmDelete() {
-            if (deleteType === 'activity') {
-                deleteActivity();
-            } else if (deleteType === 'habit') {
-                deleteHabit();
-            } else if (deleteType === 'gym') {
-                deleteGymExercise();
-            } else if (deleteType === 'meal') {
-                deleteMeal();
-            } else if (deleteType === 'goal') {
-                deleteGoal();
-            }
-            closeDeleteModal();
-            render();
-        }
-
-        function deleteActivity() {
-            const dateKey = getDateKey();
-            let schedule = getSchedule(currentDate.getDay(), dateKey);
-
-            if (!customSchedules[dateKey]) {
-                schedule = JSON.parse(JSON.stringify(schedule));
-            }
-
-            schedule.splice(deletingIndex, 1);
-
-            const newCompleted = {};
-            Object.keys(completedActivities).forEach(key => {
-                if (key.startsWith(dateKey)) {
-                    const idx = parseInt(key.split('-').pop());
-                    if (idx < deletingIndex) {
-                        newCompleted[key] = completedActivities[key];
-                    } else if (idx > deletingIndex) {
-                        newCompleted[`${dateKey}-${idx - 1}`] = completedActivities[key];
-                    }
-                } else {
-                    newCompleted[key] = completedActivities[key];
-                }
-            });
-            completedActivities = newCompleted;
-            localStorage.setItem('arantxa-activities', JSON.stringify(completedActivities));
-
-            saveCustomSchedule(dateKey, schedule);
-        }
-
-        function openAddModal() {
-            document.getElementById('addTime').value = '';
-            document.getElementById('addActivity').value = '';
-            document.getElementById('addDuration').value = '';
-            document.getElementById('addCategory').value = 'personal';
-            document.getElementById('addModal').classList.remove('hidden');
-        }
-
-        function closeAddModal() {
-            document.getElementById('addModal').classList.add('hidden');
-        }
-
-        function saveNewActivity() {
-            const time = document.getElementById('addTime').value;
-            const activity = document.getElementById('addActivity').value;
-            const duration = document.getElementById('addDuration').value;
-            const category = document.getElementById('addCategory').value;
-
-            if (!time || !activity) {
-                alert('Por favor completa la hora y la actividad');
-                return;
-            }
-
-            const dateKey = getDateKey();
-            let schedule = getSchedule(currentDate.getDay(), dateKey);
-
-            if (!customSchedules[dateKey]) {
-                schedule = JSON.parse(JSON.stringify(schedule));
-            }
-
-            schedule.push({ time, activity, duration, category });
-            schedule.sort((a, b) => a.time.localeCompare(b.time));
-
-            saveCustomSchedule(dateKey, schedule);
-            closeAddModal();
-            render();
-        }
-
-        function resetDay() {
-            if (confirm('¿Restaurar el plan original de este día? Se perderán los cambios.')) {
-                const dateKey = getDateKey();
-                delete customSchedules[dateKey];
-                localStorage.setItem('arantxa-custom-schedules', JSON.stringify(customSchedules));
-
-                Object.keys(completedActivities).forEach(key => {
-                    if (key.startsWith(dateKey)) {
-                        delete completedActivities[key];
-                    }
-                });
-                localStorage.setItem('arantxa-activities', JSON.stringify(completedActivities));
-
-                render();
-            }
-        }
-
-        // ========== HABIT MODALS ==========
-        function openEditHabitModal(index) {
-            event.stopPropagation();
-            editingIndex = index;
-            const habit = getHabits()[index];
-
-            document.getElementById('editHabitIcon').value = habit.icon;
-            document.getElementById('editHabitName').value = habit.name;
-
-            document.getElementById('editHabitModal').classList.remove('hidden');
-        }
-
-        function closeEditHabitModal() {
-            document.getElementById('editHabitModal').classList.add('hidden');
-            editingIndex = null;
-        }
-
-        function saveHabitEdit() {
-            let habits = customHabits || JSON.parse(JSON.stringify(defaultHabits));
-
-            habits[editingIndex] = {
-                id: habits[editingIndex].id,
-                icon: document.getElementById('editHabitIcon').value,
-                name: document.getElementById('editHabitName').value
-            };
-
-            customHabits = habits;
-            localStorage.setItem('arantxa-custom-habits', JSON.stringify(customHabits));
-            closeEditHabitModal();
-            render();
-        }
-
-        function deleteHabit() {
-            let habits = customHabits || JSON.parse(JSON.stringify(defaultHabits));
-            habits.splice(deletingIndex, 1);
-            customHabits = habits;
-            localStorage.setItem('arantxa-custom-habits', JSON.stringify(customHabits));
-        }
-
-        function openAddHabitModal() {
-            document.getElementById('addHabitIcon').value = '⭐';
-            document.getElementById('addHabitName').value = '';
-            document.getElementById('addHabitModal').classList.remove('hidden');
-        }
-
-        function closeAddHabitModal() {
-            document.getElementById('addHabitModal').classList.add('hidden');
-        }
-
-        function saveNewHabit() {
-            const icon = document.getElementById('addHabitIcon').value;
-            const name = document.getElementById('addHabitName').value;
-
-            if (!name) {
-                alert('Por favor ingresa el nombre del hábito');
-                return;
-            }
-
-            let habits = customHabits || JSON.parse(JSON.stringify(defaultHabits));
-            const newId = Math.max(...habits.map(h => h.id)) + 1;
-            habits.push({ id: newId, icon, name });
-
-            customHabits = habits;
-            localStorage.setItem('arantxa-custom-habits', JSON.stringify(customHabits));
-            closeAddHabitModal();
-            render();
-        }
-
-        function resetHabits() {
-            if (confirm('¿Restaurar los hábitos originales?')) {
-                customHabits = null;
-                localStorage.removeItem('arantxa-custom-habits');
-                render();
-            }
-        }
-
-        // ========== GYM MODALS ==========
-        function openEditGymModal(index) {
-            event.stopPropagation();
-            editingIndex = index;
-            const dayIndex = currentDate.getDay();
-            const gym = getGymFocus(dayIndex);
-
-            document.getElementById('editGymExercise').value = gym.exercises[index];
-
-            document.getElementById('editGymModal').classList.remove('hidden');
-        }
-
-        function closeEditGymModal() {
-            document.getElementById('editGymModal').classList.add('hidden');
-            editingIndex = null;
-        }
-
-        function saveGymEdit() {
-            const dayIndex = currentDate.getDay();
-            let gym = customGym[dayIndex] || JSON.parse(JSON.stringify(defaultGymFocus[dayIndex]));
-
-            gym.exercises[editingIndex] = document.getElementById('editGymExercise').value;
-
-            customGym[dayIndex] = gym;
-            localStorage.setItem('arantxa-custom-gym', JSON.stringify(customGym));
-            closeEditGymModal();
-            render();
-        }
-
-        function deleteGymExercise() {
-            const dayIndex = currentDate.getDay();
-            let gym = customGym[dayIndex] || JSON.parse(JSON.stringify(defaultGymFocus[dayIndex]));
-            gym.exercises.splice(deletingIndex, 1);
-            customGym[dayIndex] = gym;
-            localStorage.setItem('arantxa-custom-gym', JSON.stringify(customGym));
-        }
-
-        function openAddGymModal() {
-            document.getElementById('addGymExercise').value = '';
-            document.getElementById('addGymModal').classList.remove('hidden');
-        }
-
-        function closeAddGymModal() {
-            document.getElementById('addGymModal').classList.add('hidden');
-        }
-
-        function saveNewGymExercise() {
-            const exercise = document.getElementById('addGymExercise').value;
-
-            if (!exercise) {
-                alert('Por favor ingresa el ejercicio');
-                return;
-            }
-
-            const dayIndex = currentDate.getDay();
-            let gym = customGym[dayIndex] || JSON.parse(JSON.stringify(defaultGymFocus[dayIndex]));
-            gym.exercises.push(exercise);
-
-            customGym[dayIndex] = gym;
-            localStorage.setItem('arantxa-custom-gym', JSON.stringify(customGym));
-            closeAddGymModal();
-            render();
-        }
-
-        function resetGym() {
-            if (confirm('¿Restaurar la rutina original de este día?')) {
-                const dayIndex = currentDate.getDay();
-                delete customGym[dayIndex];
-                localStorage.setItem('arantxa-custom-gym', JSON.stringify(customGym));
-                render();
-            }
-        }
-
-        // ========== MEAL MODALS ==========
-        function openEditMealModal(index) {
-            event.stopPropagation();
-            editingIndex = index;
-            const meal = getMeals()[index];
-
-            document.getElementById('editMealTime').value = meal.time;
-            document.getElementById('editMealName').value = meal.name;
-            document.getElementById('editMealEmoji').value = meal.emoji;
-            document.getElementById('editMealOptions').value = meal.options.join('\n');
-            document.getElementById('editMealMacros').value = meal.macros;
-
-            document.getElementById('editMealModal').classList.remove('hidden');
-        }
-
-        function closeEditMealModal() {
-            document.getElementById('editMealModal').classList.add('hidden');
-            editingIndex = null;
-        }
-
-        function saveMealEdit() {
-            let meals = customMeals || JSON.parse(JSON.stringify(defaultMeals));
-
-            meals[editingIndex] = {
-                time: document.getElementById('editMealTime').value,
-                name: document.getElementById('editMealName').value,
-                emoji: document.getElementById('editMealEmoji').value,
-                options: document.getElementById('editMealOptions').value.split('\n').filter(o => o.trim()),
-                macros: document.getElementById('editMealMacros').value
-            };
-
-            meals.sort((a, b) => a.time.localeCompare(b.time));
-
-            customMeals = meals;
-            localStorage.setItem('arantxa-custom-meals', JSON.stringify(customMeals));
-            closeEditMealModal();
-            render();
-        }
-
-        function deleteMeal() {
-            let meals = customMeals || JSON.parse(JSON.stringify(defaultMeals));
-            meals.splice(deletingIndex, 1);
-            customMeals = meals;
-            localStorage.setItem('arantxa-custom-meals', JSON.stringify(customMeals));
-        }
-
-        function openAddMealModal() {
-            document.getElementById('addMealTime').value = '';
-            document.getElementById('addMealName').value = '';
-            document.getElementById('addMealEmoji').value = '🍽️';
-            document.getElementById('addMealOptions').value = '';
-            document.getElementById('addMealMacros').value = '';
-            document.getElementById('addMealModal').classList.remove('hidden');
-        }
-
-        function closeAddMealModal() {
-            document.getElementById('addMealModal').classList.add('hidden');
-        }
-
-        function saveNewMeal() {
-            const time = document.getElementById('addMealTime').value;
-            const name = document.getElementById('addMealName').value;
-
-            if (!time || !name) {
-                alert('Por favor completa la hora y el nombre');
-                return;
-            }
-
-            let meals = customMeals || JSON.parse(JSON.stringify(defaultMeals));
-            meals.push({
-                time,
-                name,
-                emoji: document.getElementById('addMealEmoji').value || '🍽️',
-                options: document.getElementById('addMealOptions').value.split('\n').filter(o => o.trim()),
-                macros: document.getElementById('addMealMacros').value
-            });
-
-            meals.sort((a, b) => a.time.localeCompare(b.time));
-
-            customMeals = meals;
-            localStorage.setItem('arantxa-custom-meals', JSON.stringify(customMeals));
-            closeAddMealModal();
-            render();
-        }
-
-        function resetMeals() {
-            if (confirm('¿Restaurar el plan de comidas original?')) {
-                customMeals = null;
-                localStorage.removeItem('arantxa-custom-meals');
-                render();
-            }
-        }
-
-        // ========== GOAL MODALS ==========
-        function openEditGoalModal(index) {
-            event.stopPropagation();
-            editingIndex = index;
-            const goal = getWeeklyGoals()[index];
-
-            document.getElementById('editGoalWeek').value = goal.week;
-            document.getElementById('editGoalDates').value = goal.dates;
-            document.getElementById('editGoalFisica').value = goal.fisica;
-            document.getElementById('editGoalPersonal').value = goal.personal;
-            document.getElementById('editGoalDigital').value = goal.digital;
-            document.getElementById('editGoalEspiritual').value = goal.espiritual;
-
-            document.getElementById('editGoalModal').classList.remove('hidden');
-        }
-
-        function closeEditGoalModal() {
-            document.getElementById('editGoalModal').classList.add('hidden');
-            editingIndex = null;
-        }
-
-        function saveGoalEdit() {
-            let goals = customGoals || JSON.parse(JSON.stringify(defaultWeeklyGoals));
-
-            goals[editingIndex] = {
-                week: parseInt(document.getElementById('editGoalWeek').value),
-                dates: document.getElementById('editGoalDates').value,
-                fisica: document.getElementById('editGoalFisica').value,
-                personal: document.getElementById('editGoalPersonal').value,
-                digital: document.getElementById('editGoalDigital').value,
-                espiritual: document.getElementById('editGoalEspiritual').value
-            };
-
-            goals.sort((a, b) => a.week - b.week);
-
-            customGoals = goals;
-            localStorage.setItem('arantxa-custom-goals', JSON.stringify(customGoals));
-            closeEditGoalModal();
-            render();
-        }
-
-        function deleteGoal() {
-            let goals = customGoals || JSON.parse(JSON.stringify(defaultWeeklyGoals));
-            goals.splice(deletingIndex, 1);
-            customGoals = goals;
-            localStorage.setItem('arantxa-custom-goals', JSON.stringify(customGoals));
-        }
-
-        function resetGoals() {
-            if (confirm('¿Restaurar las metas originales?')) {
-                customGoals = null;
-                localStorage.removeItem('arantxa-custom-goals');
-                render();
-            }
-        }
-
-        function renderProgressCircle(percent, size, strokeWidth, color, label) {
-            const radius = (size - strokeWidth) / 2;
-            const circumference = radius * 2 * Math.PI;
-            const offset = circumference - (percent / 100) * circumference;
-
-            return `
-                <div class="flex flex-col items-center">
-                    <div class="relative" style="width: ${size}px; height: ${size}px;">
-                        <svg class="transform -rotate-90" width="${size}" height="${size}">
-                            <circle cx="${size/2}" cy="${size/2}" r="${radius}" stroke="#e5e7eb" stroke-width="${strokeWidth}" fill="none"/>
-                            <circle cx="${size/2}" cy="${size/2}" r="${radius}" stroke="url(#gradient-${label})" stroke-width="${strokeWidth}" fill="none" stroke-linecap="round" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" class="progress-ring"/>
-                            <defs>
-                                <linearGradient id="gradient-${label}" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" style="stop-color:${color === 'rose' ? '#ec4899' : color === 'purple' ? '#8b5cf6' : '#06b6d4'}"/>
-                                    <stop offset="100%" style="stop-color:${color === 'rose' ? '#f43f5e' : color === 'purple' ? '#a855f7' : '#0891b2'}"/>
-                                </linearGradient>
-                            </defs>
-                        </svg>
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <span class="text-lg font-bold text-gray-800">${percent}%</span>
-                        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 px-4 overflow-hidden relative">
+        <!-- Background blobs -->
+        <div class="absolute top-20 left-10 w-72 h-72 bg-purple-200 opacity-30 blob blur-3xl"></div>
+        <div class="absolute bottom-10 right-10 w-96 h-96 bg-blue-200 opacity-30 blob blur-3xl"></div>
+        <div class="absolute top-40 right-20 w-64 h-64 bg-pink-200 opacity-30 blob blur-3xl"></div>
+
+        <div class="max-w-6xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="fade-in">
+                    <span class="inline-block px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium mb-6">
+                        ✨ La app que transforma tu productividad
+                    </span>
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
+                        Organiza tu vida,<br>
+                        <span class="gradient-text">alcanza tus metas</span>
+                    </h1>
+                    <p class="text-xl text-gray-600 mb-8 leading-relaxed">
+                        Planifica tu día, desarrolla hábitos poderosos y visualiza tu progreso hacia tus objetivos más ambiciosos.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="login.html" class="px-8 py-4 gradient-bg text-white rounded-xl font-semibold text-lg hover:opacity-90 transition shadow-xl shadow-purple-300 text-center">
+                            Crear mi plan gratis →
+                        </a>
+                        <a href="#demo" class="px-8 py-4 bg-gray-100 text-gray-700 rounded-xl font-semibold text-lg hover:bg-gray-200 transition text-center flex items-center justify-center gap-2">
+                            <span>▶️</span> Ver demo
+                        </a>
                     </div>
-                    <span class="text-xs text-gray-500 mt-1 font-medium">${label}</span>
-                </div>
-            `;
-        }
-
-        function render() {
-            const dayIndex = currentDate.getDay();
-            const weekNum = getWeekNumber();
-            const dayNum = getDayNumber();
-            const dateKey = getDateKey();
-            const dailyProgress = getDailyProgress();
-            const weeklyProgress = getWeeklyProgress();
-            const totalProgress = getTotalProgress();
-            const schedule = getSchedule(dayIndex, dateKey);
-            const gym = getGymFocus(dayIndex);
-            const isCustomized = !!customSchedules[dateKey];
-
-            const app = document.getElementById('app');
-            app.innerHTML = `
-                <!-- Header -->
-                <header class="bg-white/90 backdrop-blur-sm shadow-sm sticky top-0 z-50">
-                    <div class="max-w-4xl mx-auto px-3 py-2">
-                        <div class="flex items-center gap-3">
-                            <div class="relative flex-shrink-0">
-                                <img src="arantxa-vision.jpg" alt="Arantxa" class="w-12 h-12 rounded-full object-cover border-2 border-purple-200 photo-glow" style="object-position: center 20%;">
-                                <span class="absolute -bottom-0.5 -right-0.5 text-sm">👑</span>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <h1 class="text-base font-bold gradient-text">✨ Arantxa Ramírez</h1>
-                                <p class="text-xs text-gray-500">Miss Universo Chile 2026</p>
-                            </div>
-                            <div class="flex flex-col items-end gap-1 text-xs flex-shrink-0">
-                                <span class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium">Semana ${weekNum}/8</span>
-                                <span class="px-2 py-0.5 bg-rose-100 text-rose-700 rounded-full font-medium">Día ${dayNum}/57</span>
-                            </div>
+                    <div class="flex items-center gap-6 mt-8">
+                        <div class="flex -space-x-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-pink-400 to-purple-400 border-2 border-white flex items-center justify-center text-white text-xs">AR</div>
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400 border-2 border-white flex items-center justify-center text-white text-xs">JM</div>
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 border-2 border-white flex items-center justify-center text-white text-xs">LC</div>
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-green-400 to-teal-400 border-2 border-white flex items-center justify-center text-white text-xs">+5k</div>
                         </div>
-                    </div>
-                </header>
-
-                <!-- Progress Dashboard -->
-                <div class="bg-white/80 backdrop-blur-sm border-b">
-                    <div class="max-w-4xl mx-auto px-4 py-5">
-                        <div class="flex justify-around items-center">
-                            ${renderProgressCircle(dailyProgress, 80, 8, 'rose', 'HOY')}
-                            ${renderProgressCircle(weeklyProgress, 80, 8, 'purple', 'SEMANA')}
-                            ${renderProgressCircle(totalProgress, 80, 8, 'cyan', 'TOTAL')}
-                        </div>
-                        <div class="mt-4 text-center">
-                            <p class="text-sm text-gray-500">
-                                ${totalProgress === 100 ? '🏆 ¡PROGRAMA COMPLETADO! ¡Eres una campeona!' :
-                                  totalProgress >= 75 ? '🔥 ¡Vas increíble! La corona te espera' :
-                                  totalProgress >= 50 ? '💪 ¡Más de la mitad! Sigue así' :
-                                  totalProgress >= 25 ? '✨ ¡Buen progreso! No te detengas' :
-                                  '🌟 ¡Cada día cuenta! Tú puedes'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Date Navigation -->
-                <div class="bg-white/60 backdrop-blur-sm border-b">
-                    <div class="max-w-4xl mx-auto px-4 py-4">
-                        <div class="flex items-center justify-between">
-                            <button onclick="navigateDay(-1)" class="p-3 hover:bg-white rounded-full transition text-2xl ${currentDate <= startDate ? 'opacity-30' : ''}">◀️</button>
-                            <div class="text-center">
-                                <p class="text-2xl font-bold text-gray-800">${daysSpanish[dayIndex]}</p>
-                                <p class="text-gray-500">${currentDate.getDate()} de ${monthsSpanish[currentDate.getMonth()]} 2026</p>
-                                ${isCustomized ? '<span class="text-xs text-purple-500">✏️ Personalizado</span>' : ''}
-                            </div>
-                            <button onclick="navigateDay(1)" class="p-3 hover:bg-white rounded-full transition text-2xl ${currentDate >= endDate ? 'opacity-30' : ''}">▶️</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tabs -->
-                <div class="bg-white/40 border-b sticky top-[88px] z-40">
-                    <div class="max-w-4xl mx-auto px-4">
-                        <div class="flex gap-2 overflow-x-auto py-3 no-scrollbar">
-                            ${['agenda', 'habits', 'gym', 'meals', 'goals'].map(tab => `
-                                <button onclick="setTab('${tab}')" class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${activeTab === tab ? 'tab-active shadow-md' : 'bg-white/80 text-gray-600 hover:bg-white'}">
-                                    ${tab === 'agenda' ? '📅 Agenda' : tab === 'habits' ? '✅ Hábitos' : tab === 'gym' ? '💪 Gym' : tab === 'meals' ? '🥗 Comidas' : '🎯 Metas'}
-                                </button>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Content -->
-                <main class="max-w-4xl mx-auto px-4 py-6">
-                    ${activeTab === 'agenda' ? renderAgenda(schedule, gym, dateKey, dailyProgress, isCustomized) : ''}
-                    ${activeTab === 'habits' ? renderHabits(dateKey) : ''}
-                    ${activeTab === 'gym' ? renderGym(gym, dayIndex, weekNum) : ''}
-                    ${activeTab === 'meals' ? renderMeals() : ''}
-                    ${activeTab === 'goals' ? renderGoals(weekNum) : ''}
-                </main>
-
-                <!-- Footer -->
-                <footer class="bg-white/80 backdrop-blur-sm border-t mt-8">
-                    <div class="max-w-4xl mx-auto px-4 py-6 text-center">
-                        <p class="text-lg font-medium text-gray-700">"El éxito es la suma de pequeños esfuerzos repetidos día tras día"</p>
-                        <p class="text-purple-500 mt-2 text-xl">✨ ¡Tú puedes, Arantxa! ✨</p>
-                    </div>
-                </footer>
-            `;
-        }
-
-        function renderAgenda(schedule, gym, dateKey, dailyProgress, isCustomized) {
-            const completedCount = schedule.filter((_, idx) => completedActivities[`${dateKey}-${idx}`]).length;
-
-            return `
-                <div class="space-y-3">
-                    <div class="bg-gradient-to-r from-rose-500 to-purple-600 rounded-2xl p-5 text-white shadow-lg mb-4">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-4">
-                                <span class="text-5xl">${gym.icon}</span>
-                                <div>
-                                    <p class="font-bold text-xl">${gym.name}</p>
-                                    <p class="text-white/80 text-sm">${schedule.length} actividades hoy</p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-4xl font-bold">${dailyProgress}%</p>
-                                <p class="text-white/80 text-sm">${completedCount}/${schedule.length} completadas</p>
-                            </div>
-                        </div>
-                        <div class="mt-4 h-2 bg-white/20 rounded-full overflow-hidden">
-                            <div class="h-full bg-white rounded-full progress-bar" style="width: ${dailyProgress}%"></div>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-2 mb-4">
-                        <button onclick="openAddModal()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-purple-100">
-                            <span class="text-xl">➕</span> Agregar Actividad
-                        </button>
-                        ${isCustomized ? `
-                            <button onclick="resetDay()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-gray-500 border-2 border-gray-100">
-                                <span class="text-xl">🔄</span> Restaurar
-                            </button>
-                        ` : ''}
-                    </div>
-
-                    ${schedule.map((item, idx) => {
-                        const colors = categoryColors[item.category] || categoryColors.personal;
-                        const isCompleted = completedActivities[`${dateKey}-${idx}`];
-                        return `
-                            <div class="${colors.bg} ${colors.border} border rounded-xl p-4 transition-all card-hover ${isCompleted ? 'checked-item' : ''}">
-                                <div class="flex items-start gap-4">
-                                    <div onclick="toggleActivity(${idx})" class="w-12 h-12 rounded-full ${isCompleted ? 'bg-green-500' : colors.badge} flex items-center justify-center flex-shrink-0 text-xl transition-all cursor-pointer hover:scale-110 ${isCompleted ? 'text-white' : ''}">
-                                        ${isCompleted ? '✓' : '○'}
-                                    </div>
-                                    <div class="flex-1 min-w-0" onclick="toggleActivity(${idx})" style="cursor: pointer;">
-                                        <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                            <span class="font-mono text-sm text-gray-500">${item.time}</span>
-                                            <span class="text-xs px-2 py-0.5 rounded-full ${colors.badge} ${colors.text}">${item.duration}</span>
-                                        </div>
-                                        <p class="font-medium ${isCompleted ? 'line-through text-gray-400' : 'text-gray-800'}">${item.activity}</p>
-                                    </div>
-                                    <div class="flex gap-1 flex-shrink-0">
-                                        <button onclick="openEditModal(${idx})" class="btn-icon w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200" title="Editar">
-                                            ✏️
-                                        </button>
-                                        <button onclick="openDeleteModal(${idx}, 'activity')" class="btn-icon w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-200" title="Eliminar">
-                                            🗑️
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
-
-                    ${schedule.length === 0 ? `
-                        <div class="text-center py-12 text-gray-400">
-                            <span class="text-5xl block mb-4">📝</span>
-                            <p>No hay actividades para este día</p>
-                            <p class="text-sm">Presiona "Agregar Actividad" para comenzar</p>
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        }
-
-        function renderHabits(dateKey) {
-            const habits = getHabits();
-            const completedCount = habits.filter(h => checkedHabits[`${dateKey}-${h.id}`]).length;
-            const progress = Math.round((completedCount / habits.length) * 100);
-            const isCustomized = customHabits !== null;
-
-            return `
-                <div class="space-y-4">
-                    <div class="bg-white rounded-2xl p-5 shadow-sm">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="font-bold text-lg text-gray-800">Hábitos del día</h3>
-                            <span class="text-2xl font-bold text-purple-600">${completedCount}/${habits.length}</span>
-                        </div>
-                        <div class="h-4 bg-gray-100 rounded-full overflow-hidden">
-                            <div class="h-full bg-gradient-to-r from-rose-400 to-purple-500 progress-bar" style="width: ${progress}%"></div>
-                        </div>
-                        <p class="text-center mt-3 text-sm text-gray-500">
-                            ${progress === 100 ? '🎉 ¡Todos los hábitos completados!' : progress >= 80 ? '💪 ¡Casi perfecto!' : progress >= 50 ? '✨ ¡Vas muy bien!' : '🌟 ¡Sigue adelante!'}
+                        <p class="text-gray-500 text-sm">
+                            <span class="font-semibold text-gray-700">+5,000 personas</span> ya transformaron su vida
                         </p>
                     </div>
-
-                    <div class="flex gap-2 mb-4">
-                        <button onclick="openAddHabitModal()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-purple-100">
-                            <span class="text-xl">➕</span> Agregar Hábito
-                        </button>
-                        ${isCustomized ? `
-                            <button onclick="resetHabits()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-gray-500 border-2 border-gray-100">
-                                <span class="text-xl">🔄</span> Restaurar
-                            </button>
-                        ` : ''}
-                    </div>
-
-                    <div class="grid gap-3">
-                        ${habits.map((habit, idx) => {
-                            const isChecked = checkedHabits[`${dateKey}-${habit.id}`];
-                            return `
-                                <div class="flex items-center gap-2 p-4 rounded-xl border-2 transition-all ${isChecked ? 'habit-checked' : 'bg-white border-gray-100 hover:border-gray-200'}">
-                                    <button onclick="toggleHabit(${habit.id})" class="flex items-center gap-4 flex-1 text-left">
-                                        <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0 ${isChecked ? 'bg-purple-500 border-purple-500 text-white' : 'border-gray-300'}">
-                                            ${isChecked ? '✓' : ''}
-                                        </div>
-                                        <span class="text-2xl">${habit.icon}</span>
-                                        <span class="font-medium ${isChecked ? 'text-purple-700' : 'text-gray-700'}">${habit.name}</span>
-                                    </button>
-                                    <div class="flex gap-1 flex-shrink-0">
-                                        <button onclick="openEditHabitModal(${idx})" class="btn-icon w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200 text-sm" title="Editar">
-                                            ✏️
-                                        </button>
-                                        <button onclick="openDeleteModal(${idx}, 'habit')" class="btn-icon w-9 h-9 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-200 text-sm" title="Eliminar">
-                                            🗑️
-                                        </button>
-                                    </div>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
                 </div>
-            `;
-        }
 
-        function renderGym(gym, dayIndex, weekNum) {
-            const isCustomized = !!customGym[dayIndex];
-
-            return `
-                <div class="space-y-4">
-                    <div class="bg-gradient-to-br from-rose-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
-                        <div class="flex items-center gap-4">
-                            <span class="text-6xl">${gym.icon}</span>
-                            <div>
-                                <h3 class="text-2xl font-bold">${gym.name}</h3>
-                                <p class="opacity-90">${daysSpanish[dayIndex]} - Semana ${weekNum}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-2 mb-4">
-                        <button onclick="openAddGymModal()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-purple-100">
-                            <span class="text-xl">➕</span> Agregar Ejercicio
-                        </button>
-                        ${isCustomized ? `
-                            <button onclick="resetGym()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-gray-500 border-2 border-gray-100">
-                                <span class="text-xl">🔄</span> Restaurar
-                            </button>
-                        ` : ''}
-                    </div>
-
-                    <div class="bg-white rounded-2xl p-5 shadow-sm">
-                        <h4 class="font-bold text-gray-800 mb-4 flex items-center gap-2">💪 Ejercicios del día</h4>
-                        <div class="space-y-3">
-                            ${gym.exercises.map((ex, idx) => `
-                                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                                    <span class="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">${idx + 1}</span>
-                                    <span class="text-gray-700 flex-1">${ex}</span>
-                                    <div class="flex gap-1 flex-shrink-0">
-                                        <button onclick="openEditGymModal(${idx})" class="btn-icon w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200 text-sm" title="Editar">
-                                            ✏️
-                                        </button>
-                                        <button onclick="openDeleteModal(${idx}, 'gym')" class="btn-icon w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-200 text-sm" title="Eliminar">
-                                            🗑️
-                                        </button>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-
-                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5">
-                        <h4 class="font-bold text-amber-800 mb-2">💡 Tips del día</h4>
-                        <ul class="text-amber-700 text-sm space-y-2">
-                            <li>• Descanso entre series: 60-90 segundos</li>
-                            <li>• Mantén la conexión mente-músculo</li>
-                            <li>• Hidratación constante durante el entreno</li>
-                            <li>• Batido proteico dentro de 30 min post-gym</li>
-                        </ul>
-                    </div>
-
-                    <div class="bg-rose-50 border border-rose-200 rounded-2xl p-5">
-                        <h4 class="font-bold text-rose-800 mb-2">🎯 Objetivos físicos</h4>
-                        <ul class="text-rose-700 text-sm space-y-2">
-                            <li>• Peso ideal: 58 kg</li>
-                            <li>• Glúteos más grandes y definidos</li>
-                            <li>• Cuádriceps e isquios trabajados</li>
-                            <li>• Abdominales marcados</li>
-                        </ul>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderMeals() {
-            const meals = getMeals();
-            const isCustomized = customMeals !== null;
-
-            return `
-                <div class="space-y-4">
-                    <div class="flex gap-2 mb-4">
-                        <button onclick="openAddMealModal()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-purple-100">
-                            <span class="text-xl">➕</span> Agregar Comida
-                        </button>
-                        ${isCustomized ? `
-                            <button onclick="resetMeals()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-gray-500 border-2 border-gray-100">
-                                <span class="text-xl">🔄</span> Restaurar
-                            </button>
-                        ` : ''}
-                    </div>
-
-                    ${meals.map((meal, idx) => `
-                        <div class="bg-white rounded-2xl p-5 shadow-sm card-hover">
-                            <div class="flex items-center gap-3 mb-3">
-                                <span class="text-4xl">${meal.emoji}</span>
-                                <div class="flex-1">
-                                    <h4 class="font-bold text-gray-800">${meal.name}</h4>
-                                    <p class="text-sm text-gray-500">${meal.time}</p>
-                                </div>
-                                <span class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium">${meal.macros}</span>
-                                <div class="flex gap-1 flex-shrink-0">
-                                    <button onclick="openEditMealModal(${idx})" class="btn-icon w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200 text-sm" title="Editar">
-                                        ✏️
-                                    </button>
-                                    <button onclick="openDeleteModal(${idx}, 'meal')" class="btn-icon w-9 h-9 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-200 text-sm" title="Eliminar">
-                                        🗑️
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="space-y-2">
-                                ${meal.options.map(opt => `
-                                    <div class="flex items-center gap-2 text-gray-600">
-                                        <span class="w-2 h-2 bg-purple-400 rounded-full flex-shrink-0"></span>
-                                        <span>${opt}</span>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `).join('')}
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-red-50 border border-red-200 rounded-2xl p-5">
-                            <h4 class="font-bold text-red-700 mb-3">❌ Prohibidos</h4>
-                            <ul class="text-red-600 space-y-2">
-                                <li>• Azúcar refinada</li>
-                                <li>• Bebidas azucaradas</li>
-                                <li>• Frituras</li>
-                                <li>• Harinas blancas</li>
-                                <li>• Alcohol</li>
-                            </ul>
-                        </div>
-                        <div class="bg-green-50 border border-green-200 rounded-2xl p-5">
-                            <h4 class="font-bold text-green-700 mb-3">✅ Suplementos</h4>
-                            <ul class="text-green-600 space-y-2">
-                                <li>• Creatina: 5g AM</li>
-                                <li>• Omega 3: 1000mg</li>
-                                <li>• Vitamina C: 1000mg</li>
-                                <li>• Proteína: 25-30g</li>
-                                <li>• Agua: 3L mínimo</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderGoals(currentWeek) {
-            const goals = getWeeklyGoals();
-            const isCustomized = customGoals !== null;
-
-            return `
-                <div class="space-y-4">
-                    <div class="flex gap-2 mb-4">
-                        ${isCustomized ? `
-                            <button onclick="resetGoals()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-gray-500 border-2 border-gray-100">
-                                <span class="text-xl">🔄</span> Restaurar Metas Originales
-                            </button>
-                        ` : ''}
-                    </div>
-
-                    ${goals.map((goal, idx) => `
-                        <div class="rounded-2xl p-5 shadow-sm transition-all ${
-                            goal.week === currentWeek
-                                ? 'bg-gradient-to-r from-rose-500 to-purple-600 text-white ring-4 ring-purple-200 glow'
-                                : goal.week < currentWeek
-                                ? 'bg-gray-100 opacity-70'
-                                : 'bg-white'
-                        }">
+                <!-- App Preview -->
+                <div class="relative float">
+                    <div class="bg-white rounded-3xl shadow-2xl p-4 border border-gray-100">
+                        <div class="bg-gradient-to-br from-purple-50 to-blue-50 rounded-2xl p-6">
+                            <!-- Mini app preview -->
                             <div class="flex items-center gap-3 mb-4">
-                                <span class="w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
-                                    goal.week === currentWeek ? 'bg-white/20' : goal.week < currentWeek ? 'bg-green-100 text-green-600' : 'bg-purple-100 text-purple-600'
-                                }">
-                                    ${goal.week < currentWeek ? '✓' : goal.week}
-                                </span>
-                                <div class="flex-1">
-                                    <h4 class="font-bold text-lg">Semana ${goal.week}</h4>
-                                    <p class="text-sm ${goal.week === currentWeek ? 'text-white/80' : 'text-gray-500'}">${goal.dates}</p>
+                                <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white text-xl">👤</div>
+                                <div>
+                                    <p class="font-bold text-gray-800">Tu nombre aquí</p>
+                                    <p class="text-sm text-gray-500">Camino a tus metas</p>
                                 </div>
-                                ${goal.week === currentWeek ? '<span class="px-3 py-1 bg-white/20 rounded-full text-sm animate-pulse">📍 Estás aquí</span>' : ''}
-                                <button onclick="openEditGoalModal(${idx})" class="btn-icon w-10 h-10 rounded-full ${goal.week === currentWeek ? 'bg-white/20 text-white hover:bg-white/30' : 'bg-blue-100 text-blue-600 hover:bg-blue-200'} flex items-center justify-center" title="Editar">
-                                    ✏️
-                                </button>
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                                <div class="p-3 rounded-xl ${goal.week === currentWeek ? 'bg-white/10' : 'bg-rose-50'}">
-                                    <p class="font-medium mb-1 ${goal.week === currentWeek ? '' : 'text-rose-700'}">💪 Física</p>
-                                    <p class="${goal.week === currentWeek ? 'text-white/90' : 'text-gray-600'}">${goal.fisica}</p>
+                            <!-- Progress circles -->
+                            <div class="flex justify-around my-6">
+                                <div class="text-center">
+                                    <div class="w-16 h-16 rounded-full border-4 border-pink-400 flex items-center justify-center bg-white shadow-lg">
+                                        <span class="font-bold text-pink-500">85%</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2">Hoy</p>
                                 </div>
-                                <div class="p-3 rounded-xl ${goal.week === currentWeek ? 'bg-white/10' : 'bg-blue-50'}">
-                                    <p class="font-medium mb-1 ${goal.week === currentWeek ? '' : 'text-blue-700'}">📚 Personal</p>
-                                    <p class="${goal.week === currentWeek ? 'text-white/90' : 'text-gray-600'}">${goal.personal}</p>
+                                <div class="text-center">
+                                    <div class="w-16 h-16 rounded-full border-4 border-purple-400 flex items-center justify-center bg-white shadow-lg">
+                                        <span class="font-bold text-purple-500">72%</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2">Semana</p>
                                 </div>
-                                <div class="p-3 rounded-xl ${goal.week === currentWeek ? 'bg-white/10' : 'bg-purple-50'}">
-                                    <p class="font-medium mb-1 ${goal.week === currentWeek ? '' : 'text-purple-700'}">📱 Digital</p>
-                                    <p class="${goal.week === currentWeek ? 'text-white/90' : 'text-gray-600'}">${goal.digital}</p>
+                                <div class="text-center">
+                                    <div class="w-16 h-16 rounded-full border-4 border-blue-400 flex items-center justify-center bg-white shadow-lg">
+                                        <span class="font-bold text-blue-500">45%</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2">Total</p>
                                 </div>
-                                <div class="p-3 rounded-xl ${goal.week === currentWeek ? 'bg-white/10' : 'bg-indigo-50'}">
-                                    <p class="font-medium mb-1 ${goal.week === currentWeek ? '' : 'text-indigo-700'}">🧘 Espiritual</p>
-                                    <p class="${goal.week === currentWeek ? 'text-white/90' : 'text-gray-600'}">${goal.espiritual}</p>
+                            </div>
+                            <!-- Tasks -->
+                            <div class="space-y-2">
+                                <div class="bg-white rounded-xl p-3 flex items-center gap-3 shadow-sm">
+                                    <span class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-500">✓</span>
+                                    <span class="text-sm text-gray-600 line-through">Meditación 30 min</span>
+                                </div>
+                                <div class="bg-white rounded-xl p-3 flex items-center gap-3 shadow-sm">
+                                    <span class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-500">✓</span>
+                                    <span class="text-sm text-gray-600 line-through">Ejercicio completado</span>
+                                </div>
+                                <div class="bg-white rounded-xl p-3 flex items-center gap-3 shadow-sm border-2 border-purple-200">
+                                    <span class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">○</span>
+                                    <span class="text-sm text-gray-700 font-medium">Estudiar inglés 1hr</span>
                                 </div>
                             </div>
                         </div>
-                    `).join('')}
+                    </div>
+                    <!-- Floating badges -->
+                    <div class="absolute -top-4 -right-4 bg-white rounded-xl shadow-lg p-3 flex items-center gap-2">
+                        <span class="text-2xl">🔥</span>
+                        <div>
+                            <p class="text-xs text-gray-500">Racha</p>
+                            <p class="font-bold text-gray-800">15 días</p>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-4 -left-4 bg-white rounded-xl shadow-lg p-3 flex items-center gap-2">
+                        <span class="text-2xl">🎯</span>
+                        <div>
+                            <p class="text-xs text-gray-500">Metas</p>
+                            <p class="font-bold text-gray-800">8/10</p>
+                        </div>
+                    </div>
                 </div>
-            `;
-        }
+            </div>
+        </div>
+    </section>
 
-        // Initial render
-        render();
-    </script>
+    <!-- Logos / Social proof -->
+    <section class="py-12 bg-gray-50 border-y border-gray-100">
+        <div class="max-w-6xl mx-auto px-4">
+            <p class="text-center text-gray-400 text-sm mb-8">USADO POR PERSONAS QUE BUSCAN TRANSFORMAR SU VIDA</p>
+            <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60">
+                <span class="text-2xl">🏃 Atletas</span>
+                <span class="text-2xl">👩‍💼 Emprendedores</span>
+                <span class="text-2xl">📚 Estudiantes</span>
+                <span class="text-2xl">👑 Reinas de belleza</span>
+                <span class="text-2xl">💼 Profesionales</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="funciones" class="py-20 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <span class="inline-block px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium mb-4">
+                    🚀 Funcionalidades
+                </span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    Todo lo que necesitas para<br><span class="gradient-text">alcanzar tus objetivos</span>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Herramientas poderosas diseñadas para ayudarte a organizar tu tiempo y maximizar tu potencial.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="feature-card bg-white rounded-2xl p-8 shadow-lg shadow-gray-100 border border-gray-100 card-hover">
+                    <div class="feature-icon w-16 h-16 bg-gradient-to-r from-pink-500 to-rose-500 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-lg shadow-pink-200">
+                        📅
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Agenda Diaria Inteligente</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Planifica cada hora de tu día con actividades personalizadas. Marca como completadas y ve tu progreso en tiempo real.
+                    </p>
+                    <ul class="mt-4 space-y-2">
+                        <li class="flex items-center gap-2 text-sm text-gray-500">
+                            <span class="text-green-500">✓</span> Horarios personalizables
+                        </li>
+                        <li class="flex items-center gap-2 text-sm text-gray-500">
+                            <span class="text-green-500">✓</span> Editar y eliminar tareas
+                        </li>
+                        <li class="flex items-center gap-2 text-sm text-gray-500">
+                            <span class="text-green-500">✓</span> Categorías por color
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="feature-card bg-white rounded-2xl p-8 shadow-lg shadow-gray-100 border border-gray-100 card-hover">
+                    <div class="feature-icon w-16 h-16 bg-gradient-to-r from-purple-500 to-violet-500 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-lg shadow-purple-200">
+                        ✅
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Checklist de Hábitos</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Desarrolla hábitos poderosos con un seguimiento diario. Personaliza tus hábitos según tus metas.
+                    </p>
+                    <ul class="mt-4 space-y-2">
+                        <li class="flex items-center gap-2 text-sm text-gray-500">
+                            <span class="text-green-500">✓</span> Hábitos ilimitados
+                        </li>
+                        <li class="flex items-center gap-2 text-sm text-gray-500">
+                            <span class="text-green-500">✓</span> Seguimiento por día
+                        </li>
+                        <li class="flex items-center gap-2 text-sm text-gray-500">
+                            <span class="text-green-500">✓</span> Emojis personalizados
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="feature-card bg-white rounded-2xl p-8 shadow-lg shadow-gray-100 border border-gray-100 card-hover">
+                    <div class="feature-icon w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-lg shadow-blue-200">
+                        📊
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Progreso Visual</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Visualiza tu avance con círculos de progreso: diario, semanal y total. Mantente motivado viendo tus logros.
+                    </p>
+                    <ul class="mt-4 space-y-2">
+                        <li class="flex items-center gap-2 text-sm text-gray-500">
+                            <span class="text-green-500">✓</span> Progreso en tiempo real
+                        </li>
+                        <li class="flex items-center gap-2 text-sm text-gray-500">
+                            <span class="text-green-500">✓</span> Estadísticas semanales
+                        </li>
+                        <li class="flex items-center gap-2 text-sm text-gray-500">
+                            <span class="text-green-500">✓</span> Motivación visual
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="feature-card bg-white rounded-2xl p-8 shadow-lg shadow-gray-100 border border-gray-100 card-hover">
+                    <div class="feature-icon w-16 h-16 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-lg shadow-orange-200">
+                        💪
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Rutinas de Ejercicio</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Organiza tus entrenamientos por día. Agrega, edita y personaliza tus ejercicios según tus objetivos físicos.
+                    </p>
+                    <ul class="mt-4 space-y-2">
+                        <li class="flex items-center gap-2 text-sm text-gray-500">
+                            <span class="text-green-500">✓</span> Rutinas por día
+                        </li>
+                        <li class="flex items-center gap-2 text-sm text-gray-500">
+                            <span class="text-green-500">✓</span> Ejercicios editables
+                        </li>
+                        <li class="flex items-center gap-2 text-sm text-gray-500">
+                            <span class="text-green-500">✓</span> Tips de entrenamiento
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="feature-card bg-white rounded-2xl p-8 shadow-lg shadow-gray-100 border border-gray-100 card-hover">
+                    <div class="feature-icon w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-lg shadow-green-200">
+                        🥗
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Plan de Alimentación</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Organiza tus comidas con horarios, opciones y macros. Personaliza tu nutrición según tus necesidades.
+                    </p>
+                    <ul class="mt-4 space-y-2">
+                        <li class="flex items-center gap-2 text-sm text-gray-500">
+                            <span class="text-green-500">✓</span> Comidas personalizables
+                        </li>
+                        <li class="flex items-center gap-2 text-sm text-gray-500">
+                            <span class="text-green-500">✓</span> Control de macros
+                        </li>
+                        <li class="flex items-center gap-2 text-sm text-gray-500">
+                            <span class="text-green-500">✓</span> Múltiples opciones
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="feature-card bg-white rounded-2xl p-8 shadow-lg shadow-gray-100 border border-gray-100 card-hover">
+                    <div class="feature-icon w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-lg shadow-indigo-200">
+                        🎯
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Metas Semanales</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Define objetivos semanales en diferentes áreas: físico, personal, digital y espiritual. Mantén el enfoque.
+                    </p>
+                    <ul class="mt-4 space-y-2">
+                        <li class="flex items-center gap-2 text-sm text-gray-500">
+                            <span class="text-green-500">✓</span> 4 áreas de vida
+                        </li>
+                        <li class="flex items-center gap-2 text-sm text-gray-500">
+                            <span class="text-green-500">✓</span> Seguimiento semanal
+                        </li>
+                        <li class="flex items-center gap-2 text-sm text-gray-500">
+                            <span class="text-green-500">✓</span> Metas editables
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it works -->
+    <section id="como-funciona" class="py-20 px-4 bg-gradient-to-br from-purple-50 to-blue-50">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <span class="inline-block px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium mb-4">
+                    ⚡ Cómo funciona
+                </span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    En 3 simples pasos
+                </h2>
+                <p class="text-xl text-gray-600">
+                    Comienza a transformar tu vida en minutos
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="w-20 h-20 gradient-bg rounded-full flex items-center justify-center text-3xl text-white mx-auto mb-6 shadow-xl shadow-purple-300">
+                        1
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Define tu objetivo</h3>
+                    <p class="text-gray-600">
+                        ¿Qué quieres lograr? Bajar de peso, aprender un idioma, prepararte para una competencia... cualquier meta es válida.
+                    </p>
+                </div>
+                <div class="text-center">
+                    <div class="w-20 h-20 gradient-bg rounded-full flex items-center justify-center text-3xl text-white mx-auto mb-6 shadow-xl shadow-purple-300">
+                        2
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Personaliza tu plan</h3>
+                    <p class="text-gray-600">
+                        Ajusta tu agenda, hábitos, rutinas y metas según tus necesidades. Todo es 100% editable y flexible.
+                    </p>
+                </div>
+                <div class="text-center">
+                    <div class="w-20 h-20 gradient-bg rounded-full flex items-center justify-center text-3xl text-white mx-auto mb-6 shadow-xl shadow-purple-300">
+                        3
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Ejecuta y celebra</h3>
+                    <p class="text-gray-600">
+                        Sigue tu plan día a día, marca tus logros y observa cómo te acercas a tu meta. ¡El éxito está en la consistencia!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section id="beneficios" class="py-20 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <span class="inline-block px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium mb-4">
+                        💎 Beneficios
+                    </span>
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                        Por qué miles de personas eligen nuestra app
+                    </h2>
+
+                    <div class="space-y-6">
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
+                                🧠
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900 mb-1">Claridad mental</h4>
+                                <p class="text-gray-600">Deja de pensar qué hacer y enfócate en hacerlo. Tu plan está listo cada día.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
+                                📈
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900 mb-1">Resultados medibles</h4>
+                                <p class="text-gray-600">Ve tu progreso en números. Los porcentajes te mantienen motivado y enfocado.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
+                                🎨
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900 mb-1">100% personalizable</h4>
+                                <p class="text-gray-600">Edita todo: horarios, hábitos, ejercicios, comidas y metas. Tu plan, tus reglas.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
+                                💾
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900 mb-1">Guarda automáticamente</h4>
+                                <p class="text-gray-600">Todos tus cambios se guardan en tu navegador. Nunca pierdas tu progreso.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial -->
+                <div class="bg-gradient-to-br from-purple-600 to-pink-600 rounded-3xl p-8 text-white shadow-2xl">
+                    <div class="flex items-center gap-4 mb-6">
+                        <img src="arantxa-vision.jpg" alt="Usuario" class="w-16 h-16 rounded-full object-cover border-4 border-white/30" style="object-position: center 20%;">
+                        <div>
+                            <p class="font-bold text-lg">Arantxa Ramírez</p>
+                            <p class="text-white/80 text-sm">Miss Universo Chile 2026</p>
+                        </div>
+                    </div>
+                    <p class="text-xl leading-relaxed mb-6">
+                        "Esta app transformó mi preparación para Miss Universo. Tener todo organizado me dio la claridad para enfocarme en cada detalle de mi camino hacia la corona."
+                    </p>
+                    <div class="flex gap-1">
+                        <span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section id="empezar" class="py-20 px-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="gradient-bg rounded-3xl p-12 text-center text-white shadow-2xl shadow-purple-300 relative overflow-hidden">
+                <!-- Decorative elements -->
+                <div class="absolute top-0 left-0 w-40 h-40 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+                <div class="absolute bottom-0 right-0 w-60 h-60 bg-white/10 rounded-full translate-x-1/2 translate-y-1/2"></div>
+
+                <div class="relative">
+                    <span class="text-6xl mb-6 block">🚀</span>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">
+                        ¿Listo para transformar tu vida?
+                    </h2>
+                    <p class="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+                        Únete a miles de personas que ya están alcanzando sus metas con nuestra app de gestión del tiempo.
+                    </p>
+                    <a href="login.html" class="inline-block px-10 py-4 bg-white text-purple-600 rounded-xl font-bold text-lg hover:bg-gray-100 transition shadow-xl">
+                        Crear mi plan ahora - ¡Es gratis!
+                    </a>
+                    <p class="text-white/70 text-sm mt-4">
+                        Sin registro • Sin tarjeta de crédito • 100% gratis
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <span class="text-3xl">⏰</span>
+                    <span class="text-xl font-bold">Gestión del Tiempo</span>
+                </div>
+                <p class="text-gray-400">
+                    © 2026 Gestión del Tiempo. Hecho con 💜 para ayudarte a alcanzar tus metas.
+                </p>
+                <div class="flex gap-4">
+                    <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition">📸</a>
+                    <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition">🐦</a>
+                    <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition">💼</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
 </body>
 </html>
