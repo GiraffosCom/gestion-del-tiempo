@@ -2542,26 +2542,22 @@
 
                 <!-- Date Navigation -->
                 <div class="bg-white/60 backdrop-blur-sm border-b">
-                    <div class="max-w-4xl mx-auto px-4 py-4">
+                    <div class="max-w-4xl mx-auto px-4 py-2">
                         <div class="flex items-center justify-between">
-                            <button onclick="navigateDay(-1)" class="p-3 hover:bg-white rounded-full transition text-2xl ${currentDate <= startDate ? 'opacity-30' : ''}">◀️</button>
-                            <div class="text-center cursor-pointer hover:bg-white/50 px-4 py-2 rounded-xl transition" onclick="openCalendarModal()">
-                                <p class="text-2xl font-bold text-gray-800">${daysSpanish[dayIndex]}</p>
-                                <p class="text-gray-500 flex items-center justify-center gap-2">
-                                    <span>📅</span>
-                                    ${currentDate.getDate()} de ${monthsSpanish[currentDate.getMonth()]} 2026
-                                </p>
+                            <button onclick="navigateDay(-1)" class="p-2 hover:bg-white rounded-full transition text-xl ${currentDate <= startDate ? 'opacity-30' : ''}">◀️</button>
+                            <div class="text-center cursor-pointer hover:bg-white/50 px-3 py-1 rounded-xl transition" onclick="openCalendarModal()">
+                                <p class="text-lg font-bold text-gray-800">${daysSpanish[dayIndex]} <span class="font-normal text-gray-500 text-sm">📅 ${currentDate.getDate()} ${monthsSpanish[currentDate.getMonth()]}</span></p>
                                 ${isCustomized ? '<span class="text-xs text-purple-500">✏️ Personalizado</span>' : ''}
                             </div>
-                            <button onclick="navigateDay(1)" class="p-3 hover:bg-white rounded-full transition text-2xl ${currentDate >= endDate ? 'opacity-30' : ''}">▶️</button>
+                            <button onclick="navigateDay(1)" class="p-2 hover:bg-white rounded-full transition text-xl ${currentDate >= endDate ? 'opacity-30' : ''}">▶️</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Tabs -->
-                <div class="bg-white/40 border-b sticky top-[88px] z-40">
+                <div class="bg-white/40 border-b sticky top-[56px] z-40">
                     <div class="max-w-4xl mx-auto px-4">
-                        <div class="flex gap-2 overflow-x-auto py-3 no-scrollbar">
+                        <div class="flex gap-2 overflow-x-auto py-2 no-scrollbar">
                             ${['agenda', 'habits', 'gym', 'meals', 'goals', 'notes', 'stats'].map(tab => `
                                 <button onclick="setTab('${tab}')" class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${activeTab === tab ? 'tab-active shadow-md' : 'bg-white/80 text-gray-600 hover:bg-white'}">
                                     ${tab === 'agenda' ? '📅 Agenda' : tab === 'habits' ? '✅ Hábitos' : tab === 'gym' ? '💪 Gym' : tab === 'meals' ? '🥗 Comidas' : tab === 'goals' ? '🎯 Metas' : tab === 'notes' ? '📝 Notas' : '📊 Estadísticas'}
