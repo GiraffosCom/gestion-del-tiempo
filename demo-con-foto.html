@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo - Plan Arantxa Ramírez</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Poppins', sans-serif; }
+        .gradient-text { background: linear-gradient(135deg, #ec4899, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .vision-card {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(139, 92, 246, 0.1));
+            backdrop-filter: blur(10px);
+        }
+        .glow-border {
+            box-shadow: 0 0 30px rgba(236, 72, 153, 0.3), 0 0 60px rgba(139, 92, 246, 0.2);
+        }
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-rose-50 via-purple-50 to-blue-50">
+
+    <!-- OPCIÓN 1: Banner Hero Grande -->
+    <section class="mb-8">
+        <h2 class="text-center text-gray-400 text-sm py-2 bg-gray-100">⬇️ OPCIÓN 1: Banner Hero Grande</h2>
+        <div class="relative h-80 overflow-hidden">
+            <img src="arantxa-vision.jpg" alt="Arantxa Miss Universo" class="w-full h-full object-cover object-top">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+                <h1 class="text-3xl font-bold mb-2">✨ Arantxa Ramírez</h1>
+                <p class="text-white/90">Camino a Miss Universo Chile 2026</p>
+                <div class="flex gap-2 mt-3">
+                    <span class="px-3 py-1 bg-white/20 backdrop-blur rounded-full text-sm">Semana 1/8</span>
+                    <span class="px-3 py-1 bg-white/20 backdrop-blur rounded-full text-sm">Día 1/57</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- OPCIÓN 2: Header Compacto con Foto Circular -->
+    <section class="mb-8">
+        <h2 class="text-center text-gray-400 text-sm py-2 bg-gray-100">⬇️ OPCIÓN 2: Header Compacto con Foto Circular</h2>
+        <header class="bg-white/90 backdrop-blur-sm shadow-sm">
+            <div class="max-w-4xl mx-auto px-4 py-4">
+                <div class="flex items-center gap-4">
+                    <div class="relative">
+                        <img src="arantxa-vision.jpg" alt="Arantxa" class="w-20 h-20 rounded-full object-cover border-4 border-purple-200 glow-border">
+                        <span class="absolute -bottom-1 -right-1 text-2xl">👑</span>
+                    </div>
+                    <div class="flex-1">
+                        <h1 class="text-2xl font-bold gradient-text">✨ Arantxa Ramírez</h1>
+                        <p class="text-sm text-gray-500">Camino a Miss Universo Chile 2026</p>
+                    </div>
+                    <div class="flex flex-col items-end gap-1 text-sm">
+                        <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full font-medium">Semana 1/8</span>
+                        <span class="px-3 py-1 bg-rose-100 text-rose-700 rounded-full font-medium">Día 1/57</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </section>
+
+    <!-- OPCIÓN 3: Tarjeta de Visión/Motivación -->
+    <section class="mb-8">
+        <h2 class="text-center text-gray-400 text-sm py-2 bg-gray-100">⬇️ OPCIÓN 3: Tarjeta de Visión (debajo del header)</h2>
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <header class="bg-white/90 backdrop-blur-sm shadow-sm rounded-t-2xl p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold gradient-text">✨ Arantxa Ramírez</h1>
+                        <p class="text-sm text-gray-500">Camino a Miss Universo Chile 2026</p>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm">
+                        <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full font-medium">Semana 1/8</span>
+                        <span class="px-3 py-1 bg-rose-100 text-rose-700 rounded-full font-medium">Día 1/57</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Vision Card -->
+            <div class="vision-card rounded-b-2xl p-4 border border-purple-100">
+                <div class="flex items-center gap-4">
+                    <div class="relative flex-shrink-0 overflow-hidden rounded-xl glow-border">
+                        <img src="arantxa-vision.jpg" alt="Visualización" class="w-32 h-40 object-cover object-top">
+                        <div class="absolute inset-0 overflow-hidden">
+                            <div class="shimmer absolute inset-0"></div>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-purple-600 font-semibold text-sm mb-1">🎯 MI VISIÓN</p>
+                        <p class="text-gray-700 font-medium text-lg leading-snug">"Soy Miss Universo Chile 2026"</p>
+                        <p class="text-gray-500 text-sm mt-2">Cada día me acerco más a mi corona ✨</p>
+                        <div class="flex gap-2 mt-3">
+                            <span class="text-xs px-2 py-1 bg-rose-100 text-rose-600 rounded-full">👑 La corona me espera</span>
+                            <span class="text-xs px-2 py-1 bg-purple-100 text-purple-600 rounded-full">💪 57 días de transformación</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- OPCIÓN 4: Footer Motivacional -->
+    <section class="mb-8">
+        <h2 class="text-center text-gray-400 text-sm py-2 bg-gray-100">⬇️ OPCIÓN 4: Footer Motivacional</h2>
+        <footer class="bg-gradient-to-r from-rose-500 to-purple-600 text-white">
+            <div class="max-w-4xl mx-auto px-4 py-6">
+                <div class="flex items-center gap-6">
+                    <img src="arantxa-vision.jpg" alt="Arantxa" class="w-24 h-32 object-cover object-top rounded-xl shadow-lg border-2 border-white/30">
+                    <div>
+                        <p class="text-2xl font-bold mb-2">"El éxito es la suma de pequeños esfuerzos"</p>
+                        <p class="text-white/80">Cada día cuenta. ¡Tú puedes, Arantxa! ✨👑</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </section>
+
+    <!-- Instrucciones -->
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6">
+            <h3 class="font-bold text-amber-800 mb-3">📸 Instrucciones:</h3>
+            <ol class="text-amber-700 space-y-2">
+                <li>1. Guarda tu foto como <code class="bg-amber-100 px-2 py-1 rounded">arantxa-vision.jpg</code> en la misma carpeta</li>
+                <li>2. Abre este archivo en tu navegador</li>
+                <li>3. Elige cuál opción te gusta más</li>
+                <li>4. Dime el número y lo implemento en la app principal 🚀</li>
+            </ol>
+        </div>
+    </div>
+
+</body>
+</html>
