@@ -393,6 +393,18 @@
         </div>
     </div>
 
+    <!-- Modal Felicitaciones -->
+    <div id="congratsModal" class="fixed inset-0 modal-backdrop z-[200] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all text-center">
+            <div id="congratsEmoji" class="text-7xl mb-4"></div>
+            <h3 id="congratsTitle" class="text-2xl font-bold text-gray-800 mb-2"></h3>
+            <p id="congratsMessage" class="text-gray-600 mb-6"></p>
+            <button onclick="closeCongratsModal()" class="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium hover:opacity-90 transition">
+                ¡Gracias! 🙌
+            </button>
+        </div>
+    </div>
+
     <!-- Modal Calendario -->
     <div id="calendarModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeCalendarModal()">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-4 transform transition-all" onclick="event.stopPropagation()">
@@ -1126,6 +1138,85 @@
             }
         }
 
+        // Congratulations Modal Functions
+        const congratsShown = JSON.parse(getStorage('congrats-shown') || '{}');
+
+        function closeCongratsModal() {
+            document.getElementById('congratsModal').classList.add('hidden');
+        }
+
+        function showCongrats(type, emoji, title, message) {
+            document.getElementById('congratsEmoji').textContent = emoji;
+            document.getElementById('congratsTitle').textContent = title;
+            document.getElementById('congratsMessage').textContent = message;
+            document.getElementById('congratsModal').classList.remove('hidden');
+
+            // Mostrar celebración extra grande
+            showBigCelebration();
+        }
+
+        function showBigCelebration() {
+            const emojis = ['🎉', '🎊', '🥳', '⭐', '✨', '🌟', '🏆', '👑', '💪', '🔥', '💖', '🎆', '🎇'];
+            const container = document.createElement('div');
+            container.className = 'fixed inset-0 pointer-events-none z-[150]';
+            document.body.appendChild(container);
+
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const emoji = document.createElement('div');
+                    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    emoji.style.cssText = `
+                        position: absolute;
+                        font-size: ${30 + Math.random() * 40}px;
+                        left: ${Math.random() * 100}%;
+                        top: -60px;
+                        animation: celebrationFall 2s ease-out forwards;
+                    `;
+                    container.appendChild(emoji);
+                }, i * 80);
+            }
+
+            setTimeout(() => container.remove(), 3500);
+        }
+
+        function checkAndShowCongrats(dailyProgress, weeklyProgress, totalProgress) {
+            const dateKey = getDateKey();
+            const weekKey = `week-${getWeekNumber()}`;
+
+            // Día completo (100%)
+            if (dailyProgress === 100 && !congratsShown[dateKey]) {
+                congratsShown[dateKey] = true;
+                setStorage('congrats-shown', JSON.stringify(congratsShown));
+                setTimeout(() => {
+                    showCongrats('day', '🌟', '¡Día completado!',
+                        '¡Increíble! Completaste todas las tareas del día. ¡Sigue así!');
+                }, 500);
+                return;
+            }
+
+            // Semana completa (100%)
+            if (weeklyProgress === 100 && !congratsShown[weekKey]) {
+                congratsShown[weekKey] = true;
+                setStorage('congrats-shown', JSON.stringify(congratsShown));
+                setTimeout(() => {
+                    showCongrats('week', '🏆', '¡Semana perfecta!',
+                        '¡WOW! Completaste toda la semana. ¡Eres imparable!');
+                }, 500);
+                return;
+            }
+
+            // Plan completo (100%)
+            if (totalProgress === 100 && !congratsShown['plan-complete']) {
+                congratsShown['plan-complete'] = true;
+                setStorage('congrats-shown', JSON.stringify(congratsShown));
+                setTimeout(() => {
+                    showCongrats('plan', '👑', '¡¡PLAN COMPLETADO!!',
+                        '¡LO LOGRASTE! Completaste todo tu plan. ¡Eres una leyenda! 🎉🎊🥳');
+                }, 500);
+                return;
+            }
+        }
+
         function setTab(tab) {
             activeTab = tab;
             render();
@@ -1140,6 +1231,10 @@
             // Mostrar celebración si se completó
             if (!wasCompleted && checkedHabits[key]) {
                 showCelebration();
+                // Verificar si se completó día/semana/plan
+                setTimeout(() => {
+                    checkAndShowCongrats(getDailyProgress(), getWeeklyProgress(), getTotalProgress());
+                }, 1000);
             }
             render();
         }
@@ -1153,6 +1248,10 @@
             // Mostrar celebración si se completó
             if (!wasCompleted && completedActivities[key]) {
                 showCelebration();
+                // Verificar si se completó día/semana/plan
+                setTimeout(() => {
+                    checkAndShowCongrats(getDailyProgress(), getWeeklyProgress(), getTotalProgress());
+                }, 1000);
             }
             render();
         }
