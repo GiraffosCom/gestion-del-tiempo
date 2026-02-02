@@ -393,6 +393,37 @@
         </div>
     </div>
 
+    <!-- Modal Calendario -->
+    <div id="calendarModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeCalendarModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-4 transform transition-all" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4">
+                <button onclick="changeCalendarMonth(-1)" class="p-2 hover:bg-gray-100 rounded-full transition">◀️</button>
+                <h3 id="calendarTitle" class="text-lg font-bold text-gray-800"></h3>
+                <button onclick="changeCalendarMonth(1)" class="p-2 hover:bg-gray-100 rounded-full transition">▶️</button>
+            </div>
+
+            <!-- Días de la semana -->
+            <div class="grid grid-cols-7 gap-1 mb-2">
+                <div class="text-center text-xs font-medium text-gray-500 py-1">Dom</div>
+                <div class="text-center text-xs font-medium text-gray-500 py-1">Lun</div>
+                <div class="text-center text-xs font-medium text-gray-500 py-1">Mar</div>
+                <div class="text-center text-xs font-medium text-gray-500 py-1">Mié</div>
+                <div class="text-center text-xs font-medium text-gray-500 py-1">Jue</div>
+                <div class="text-center text-xs font-medium text-gray-500 py-1">Vie</div>
+                <div class="text-center text-xs font-medium text-gray-500 py-1">Sáb</div>
+            </div>
+
+            <!-- Días del mes -->
+            <div id="calendarDays" class="grid grid-cols-7 gap-1">
+                <!-- Se genera dinámicamente -->
+            </div>
+
+            <button onclick="goToToday()" class="w-full mt-4 py-2 text-purple-600 font-medium hover:bg-purple-50 rounded-xl transition">
+                📍 Ir a hoy
+            </button>
+        </div>
+    </div>
+
     <script>
         // Check login
         const currentUser = JSON.parse(localStorage.getItem('gestion-currentUser'));
@@ -1010,6 +1041,88 @@
             if (newDate >= startDate && newDate <= endDate) {
                 currentDate = newDate;
                 render();
+            }
+        }
+
+        // Calendar Modal Functions
+        let calendarMonth = new Date();
+
+        function openCalendarModal() {
+            calendarMonth = new Date(currentDate);
+            renderCalendar();
+            document.getElementById('calendarModal').classList.remove('hidden');
+        }
+
+        function closeCalendarModal() {
+            document.getElementById('calendarModal').classList.add('hidden');
+        }
+
+        function changeCalendarMonth(direction) {
+            calendarMonth.setMonth(calendarMonth.getMonth() + direction);
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                               'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+            document.getElementById('calendarTitle').textContent =
+                `${monthNames[calendarMonth.getMonth()]} ${calendarMonth.getFullYear()}`;
+
+            const container = document.getElementById('calendarDays');
+            container.innerHTML = '';
+
+            // Primer día del mes
+            const firstDay = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1);
+            const lastDay = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 0);
+
+            // Días vacíos al inicio
+            for (let i = 0; i < firstDay.getDay(); i++) {
+                container.innerHTML += '<div></div>';
+            }
+
+            // Días del mes
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const date = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), day);
+                const isInRange = date >= startDate && date <= endDate;
+                const isSelected = date.toDateString() === currentDate.toDateString();
+                const isToday = date.toDateString() === new Date().toDateString();
+
+                let classes = 'w-10 h-10 flex items-center justify-center rounded-full text-sm transition ';
+
+                if (!isInRange) {
+                    classes += 'text-gray-300 cursor-not-allowed';
+                } else if (isSelected) {
+                    classes += 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold cursor-pointer';
+                } else if (isToday) {
+                    classes += 'border-2 border-purple-400 text-purple-600 font-medium cursor-pointer hover:bg-purple-50';
+                } else {
+                    classes += 'text-gray-700 cursor-pointer hover:bg-gray-100';
+                }
+
+                container.innerHTML += `
+                    <button class="${classes}"
+                            ${isInRange ? `onclick="selectDate(${date.getFullYear()}, ${date.getMonth()}, ${day})"` : 'disabled'}>
+                        ${day}
+                    </button>
+                `;
+            }
+        }
+
+        function selectDate(year, month, day) {
+            currentDate = new Date(year, month, day);
+            closeCalendarModal();
+            render();
+        }
+
+        function goToToday() {
+            const today = new Date();
+            if (today >= startDate && today <= endDate) {
+                currentDate = today;
+                closeCalendarModal();
+                render();
+            } else {
+                alert('Hoy está fuera del rango de tu plan');
             }
         }
 
@@ -1701,9 +1814,12 @@
                     <div class="max-w-4xl mx-auto px-4 py-4">
                         <div class="flex items-center justify-between">
                             <button onclick="navigateDay(-1)" class="p-3 hover:bg-white rounded-full transition text-2xl ${currentDate <= startDate ? 'opacity-30' : ''}">◀️</button>
-                            <div class="text-center">
+                            <div class="text-center cursor-pointer hover:bg-white/50 px-4 py-2 rounded-xl transition" onclick="openCalendarModal()">
                                 <p class="text-2xl font-bold text-gray-800">${daysSpanish[dayIndex]}</p>
-                                <p class="text-gray-500">${currentDate.getDate()} de ${monthsSpanish[currentDate.getMonth()]} 2026</p>
+                                <p class="text-gray-500 flex items-center justify-center gap-2">
+                                    <span>📅</span>
+                                    ${currentDate.getDate()} de ${monthsSpanish[currentDate.getMonth()]} 2026
+                                </p>
                                 ${isCustomized ? '<span class="text-xs text-purple-500">✏️ Personalizado</span>' : ''}
                             </div>
                             <button onclick="navigateDay(1)" class="p-3 hover:bg-white rounded-full transition text-2xl ${currentDate >= endDate ? 'opacity-30' : ''}">▶️</button>
