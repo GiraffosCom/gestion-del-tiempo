@@ -652,9 +652,22 @@
 
     <!-- Modal Plantillas -->
     <div id="templateModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeTemplateModal()">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all max-h-[80vh] overflow-y-auto" onclick="event.stopPropagation()">
-            <h3 class="text-xl font-bold text-gray-800 mb-2">📋 Plantillas de Día</h3>
-            <p class="text-gray-500 text-sm mb-4">Guarda y reutiliza horarios</p>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 transform transition-all max-h-[85vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <h3 class="text-xl font-bold text-gray-800 mb-2">📋 Plantillas</h3>
+            <p class="text-gray-500 text-sm mb-4">Carga planes completos o guarda tus propios horarios</p>
+
+            <!-- Community Templates Section -->
+            <div class="mb-6">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-lg">👥</span>
+                    <h4 class="font-semibold text-gray-800">Plantillas de la Comunidad</h4>
+                </div>
+                <div id="communityTemplatesList" class="space-y-3">
+                    <!-- Community templates will be rendered here -->
+                </div>
+            </div>
+
+            <hr class="my-4 border-gray-200">
 
             <!-- Save current as template -->
             <div class="bg-gradient-to-r from-rose-50 to-purple-50 rounded-xl p-4 mb-4">
@@ -667,9 +680,15 @@
                 </div>
             </div>
 
-            <!-- Templates list -->
-            <div id="templatesList" class="space-y-2">
-                <!-- Templates will be rendered here -->
+            <!-- My Templates list -->
+            <div class="mb-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-lg">📁</span>
+                    <h4 class="font-semibold text-gray-800">Mis Plantillas</h4>
+                </div>
+                <div id="templatesList" class="space-y-2">
+                    <!-- Templates will be rendered here -->
+                </div>
             </div>
 
             <button onclick="closeTemplateModal()" class="w-full mt-4 py-3 text-gray-500 font-medium hover:bg-gray-50 rounded-xl transition">
@@ -1151,6 +1170,65 @@
             return customGoals || defaultWeeklyGoals;
         }
 
+        // Community Templates - Plantillas de usuarios que otros pueden cargar
+        const communityTemplates = [
+            {
+                id: 'arantxa_miss_universo',
+                name: 'Plan Miss Universo - Arantxa',
+                author: 'Arantxa Ramírez',
+                description: 'Plan de 90 días para preparación Miss Universo: fitness, inglés, pasarela y redes sociales.',
+                icon: '👑',
+                duration: 90,
+                goal: 'salud',
+                gymFocus: {
+                    0: { name: "Descanso Activo", icon: "🧘", exercises: ["Yoga suave 30-45min", "Estiramientos profundos 20min", "Caminata ligera opcional", "Meditación con movimiento 15min"] },
+                    1: { name: "Glúteos + Cuádriceps", icon: "🍑", exercises: ["Hip Thrust con barra 4x12", "Sentadilla profunda 4x10", "Prensa inclinada 4x12", "Zancadas caminando 3x12", "Extensión cuádriceps 3x15", "Abductores máquina 3x20"] },
+                    2: { name: "Isquios + Glúteos", icon: "🦵", exercises: ["Peso muerto rumano 4x10", "Curl femoral acostada 4x12", "Patada glúteo polea 3x15", "Puente glúteos elevado 4x15", "Good mornings 3x12", "Hip abduction 3x20"] },
+                    3: { name: "Tren Superior + Core", icon: "💪", exercises: ["Press pecho mancuernas 3x12", "Remo mancuerna 3x12", "Press hombro 3x12", "Curl bíceps 3x15", "Tríceps polea 3x15", "Plancha 3x30seg + Crunches 3x20"] },
+                    4: { name: "Piernas + HIIT", icon: "🔥", exercises: ["Sentadilla búlgara 4x10", "Leg press pies juntos 4x12", "Step ups con peso 3x12", "Curl femoral sentada 3x15", "HIIT: Burpees, Jumping jacks 4 rondas"] },
+                    5: { name: "Glúteos (énfasis) + Brazos", icon: "✨", exercises: ["Hip thrust unilateral 4x12", "Sumo squat mancuerna 4x15", "Kickbacks polea 3x15", "Frog pumps 3x25", "Curl martillo 3x12", "Fondos tríceps 3x12"] },
+                    6: { name: "Baile + Stretching", icon: "💃", exercises: ["Clase baile/gimnasia 60-90min", "Estiramiento dinámico 15min", "Foam roller piernas 15min", "Yoga flow 20min"] }
+                },
+                habits: [
+                    { id: 1, name: "Despertar 7:00 AM", icon: "☀️" },
+                    { id: 2, name: "Agua al despertar (500ml)", icon: "💧" },
+                    { id: 3, name: "Suplementos tomados", icon: "💊" },
+                    { id: 4, name: "Meditación 30 min", icon: "🧘" },
+                    { id: 5, name: "Afirmaciones positivas", icon: "✨" },
+                    { id: 6, name: "Desayuno proteico", icon: "🥗" },
+                    { id: 7, name: "Clase de inglés", icon: "🇬🇧" },
+                    { id: 8, name: "Skincare AM", icon: "🧴" },
+                    { id: 9, name: "Entrenamiento completado", icon: "💪" },
+                    { id: 10, name: "Post-entreno proteico", icon: "🥤" },
+                    { id: 11, name: "Contenido RRSS creado", icon: "📸" },
+                    { id: 12, name: "Publicado en RRSS", icon: "📱" },
+                    { id: 13, name: "Interacción audiencia", icon: "💬" },
+                    { id: 14, name: "Cena sin azúcar", icon: "🥦" },
+                    { id: 15, name: "Skincare PM + celulitis", icon: "🌙" },
+                    { id: 16, name: "Gratitud (3 cosas)", icon: "🙏" },
+                    { id: 17, name: "En cama 22:00", icon: "😴" },
+                    { id: 18, name: "3L agua bebidos", icon: "💦" }
+                ],
+                meals: [
+                    { time: "07:45", name: "Desayuno", emoji: "🌅", options: ["Avena + proteína + frutos rojos", "Huevos revueltos + verduras + tostada integral", "Smoothie bowl proteico con semillas"], macros: "P:30g | C:45g | G:15g" },
+                    { time: "10:30", name: "Snack AM", emoji: "🍎", options: ["Yogurt griego + nueces", "Fruta + almendras", "Batido verde proteico"], macros: "P:15g | C:20g | G:10g" },
+                    { time: "12:00", name: "Almuerzo", emoji: "🥗", options: ["Proteína 150g (pollo/pescado/pavo)", "Carbohidrato complejo 1 taza", "Vegetales variados ilimitados", "Grasa saludable (aguacate)"], macros: "P:40g | C:50g | G:15g" },
+                    { time: "16:00", name: "Post-Entreno", emoji: "💪", options: ["Proteína whey + banana + leche vegetal", "Yogurt griego + granola sin azúcar"], macros: "P:30g | C:30g | G:5g" },
+                    { time: "20:00", name: "Cena", emoji: "🌙", options: ["Proteína magra 120g", "Vegetales al vapor o ensalada grande", "Sin carbohidratos pesados"], macros: "P:35g | C:20g | G:12g" }
+                ],
+                weeklyGoals: [
+                    { week: 1, dates: "Semana 1", fisica: "Establecer rutina gym. Medir peso inicial", personal: "Inicio inglés intensivo + pasarela", digital: "Crear web básica", espiritual: "Establecer meditación diaria" },
+                    { week: 2, dates: "Semana 2", fisica: "Ajustar plan nutricional. -0.5kg grasa", personal: "Mejorar pronunciación inglés", digital: "5 posts. Contactar marcas", espiritual: "Journaling diario" },
+                    { week: 3, dates: "Semana 3", fisica: "Incrementar peso en glúteos", personal: "Conversaciones básicas inglés", digital: "12K seguidores. Portafolio", espiritual: "Bajar autoexigencia" },
+                    { week: 4, dates: "Semana 4", fisica: "Definición visible piernas", personal: "Presentación en inglés", digital: "15K. Primera colaboración", espiritual: "Sin episodios nerviosismo" },
+                    { week: 5, dates: "Semana 5", fisica: "Abdominales marcados", personal: "Fluidez conversacional", digital: "Blog semanal. 5%+ engagement", espiritual: "Manejo emocional estable" },
+                    { week: 6, dates: "Semana 6", fisica: "Glúteos definidos. Verificar 58kg", personal: "Speech en inglés listo", digital: "17K. Contenido viral", espiritual: "Autoconfianza alta" },
+                    { week: 7, dates: "Semana 7", fisica: "Cuerpo óptimo. Piel radiante", personal: "Inglés intermedio-alto", digital: "19K. Portafolio completo", espiritual: "Nervios controlados" },
+                    { week: 8, dates: "Semana 8", fisica: "🎯 58kg, definición total", personal: "🎯 Inglés fluido, pasarela 100%", digital: "🎯 20K+, marca sólida", espiritual: "🎯 Confianza total" }
+                ]
+            }
+        ];
+
         const categoryColors = {
             habitos: { bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-700", badge: "bg-amber-100" },
             nutricion: { bg: "bg-green-50", border: "border-green-200", text: "text-green-700", badge: "bg-green-100" },
@@ -1167,7 +1245,7 @@
             return getWeekdaySchedule(dayIndex);
         }
 
-        function getSchedule(dayIndex, dateKey) {
+        function getSchedule(dayIndex = currentDate.getDay(), dateKey = getDateKey(currentDate)) {
             if (customSchedules[dateKey]) {
                 return customSchedules[dateKey];
             }
@@ -3443,11 +3521,127 @@
 
         function openTemplateModal() {
             document.getElementById('templateModal').classList.remove('hidden');
+            renderCommunityTemplates();
             renderTemplatesList();
         }
 
         function closeTemplateModal() {
             document.getElementById('templateModal').classList.add('hidden');
+        }
+
+        function renderCommunityTemplates() {
+            const container = document.getElementById('communityTemplatesList');
+
+            container.innerHTML = communityTemplates.map(template => `
+                <div class="bg-gradient-to-r from-amber-50 via-orange-50 to-rose-50 rounded-xl p-4 border-2 border-amber-200 hover:border-amber-300 transition cursor-pointer group">
+                    <div class="flex items-start gap-3">
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-2xl shadow-lg group-hover:scale-105 transition">
+                            ${template.icon}
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <h5 class="font-bold text-gray-800">${template.name}</h5>
+                                <span class="px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">${template.duration} días</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-2">por ${template.author}</p>
+                            <p class="text-sm text-gray-600 mb-3">${template.description}</p>
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <span class="px-2 py-1 bg-rose-100 text-rose-600 rounded-lg text-xs">💪 ${Object.keys(template.gymFocus).length} rutinas gym</span>
+                                <span class="px-2 py-1 bg-green-100 text-green-600 rounded-lg text-xs">✅ ${template.habits.length} hábitos</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-600 rounded-lg text-xs">🥗 ${template.meals.length} comidas</span>
+                                <span class="px-2 py-1 bg-purple-100 text-purple-600 rounded-lg text-xs">🎯 ${template.weeklyGoals.length} semanas</span>
+                            </div>
+                            <button onclick="previewUserTemplate('${template.id}')" class="w-full py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg text-sm font-medium hover:opacity-90 transition flex items-center justify-center gap-2">
+                                <span>✨</span> Ver y Cargar Plan Completo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function previewUserTemplate(templateId) {
+            const template = communityTemplates.find(t => t.id === templateId);
+            if (!template) return;
+
+            const previewHtml = `
+                <div class="text-center mb-4">
+                    <span class="text-5xl">${template.icon}</span>
+                    <h3 class="text-xl font-bold text-gray-800 mt-2">${template.name}</h3>
+                    <p class="text-sm text-gray-500">por ${template.author}</p>
+                </div>
+
+                <div class="bg-amber-50 rounded-xl p-4 mb-4">
+                    <p class="text-sm text-amber-800 font-medium mb-2">⚠️ Esto cargará:</p>
+                    <ul class="text-sm text-amber-700 space-y-1">
+                        <li>• Rutinas de gimnasio personalizadas</li>
+                        <li>• Lista de ${template.habits.length} hábitos diarios</li>
+                        <li>• Plan de ${template.meals.length} comidas</li>
+                        <li>• Metas semanales (${template.weeklyGoals.length} semanas)</li>
+                    </ul>
+                </div>
+
+                <p class="text-gray-600 text-sm text-center mb-4">
+                    Tus datos actuales se mantendrán. Los nuevos datos se agregarán como tu configuración personalizada.
+                </p>
+
+                <div class="flex gap-3">
+                    <button onclick="closePreviewModal()" class="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition font-medium">
+                        Cancelar
+                    </button>
+                    <button onclick="applyUserTemplate('${template.id}')" class="flex-1 px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl hover:opacity-90 transition font-bold">
+                        🚀 Cargar Plan
+                    </button>
+                </div>
+            `;
+
+            let previewModal = document.getElementById('previewTemplateModal');
+            if (!previewModal) {
+                previewModal = document.createElement('div');
+                previewModal.id = 'previewTemplateModal';
+                previewModal.className = 'fixed inset-0 modal-backdrop z-[60] flex items-center justify-center p-4';
+                previewModal.onclick = function(e) { if (e.target === this) closePreviewModal(); };
+                document.body.appendChild(previewModal);
+            }
+
+            previewModal.innerHTML = `
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all" onclick="event.stopPropagation()">
+                    ${previewHtml}
+                </div>
+            `;
+            previewModal.classList.remove('hidden');
+        }
+
+        function closePreviewModal() {
+            const modal = document.getElementById('previewTemplateModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function applyUserTemplate(templateId) {
+            const template = communityTemplates.find(t => t.id === templateId);
+            if (!template) return;
+
+            for (const [day, routine] of Object.entries(template.gymFocus)) {
+                customGym[parseInt(day)] = { ...routine };
+            }
+            setStorage('custom-gym', JSON.stringify(customGym));
+
+            customHabits = [...template.habits];
+            setStorage('custom-habits', JSON.stringify(customHabits));
+
+            customMeals = [...template.meals];
+            setStorage('custom-meals', JSON.stringify(customMeals));
+
+            customGoals = [...template.weeklyGoals];
+            setStorage('custom-goals', JSON.stringify(customGoals));
+
+            closePreviewModal();
+            closeTemplateModal();
+
+            createCelebration();
+            showNotification(`👑 ¡Plan "${template.name}" cargado exitosamente!`);
+
+            render();
         }
 
         function saveTemplate() {
@@ -3570,11 +3764,18 @@
                             <p class="text-sm text-gray-500">Desmarcar todas las actividades completadas</p>
                         </div>
                     </button>
-                    <button onclick="cleanDayActivities()" class="w-full flex items-center gap-3 p-4 border-2 border-gray-100 rounded-xl hover:border-red-300 hover:bg-red-50 transition">
-                        <span class="text-2xl">🗑️</span>
+                    <button onclick="clearDayActivities()" class="w-full flex items-center gap-3 p-4 border-2 border-gray-100 rounded-xl hover:border-orange-300 hover:bg-orange-50 transition">
+                        <span class="text-2xl">🧹</span>
                         <div class="text-left">
-                            <p class="font-medium text-gray-800">Eliminar actividades personalizadas</p>
-                            <p class="text-sm text-gray-500">Restaurar el día a las actividades por defecto</p>
+                            <p class="font-medium text-gray-800">Vaciar actividades del día</p>
+                            <p class="text-sm text-gray-500">Eliminar TODAS las actividades de hoy (dejar vacío)</p>
+                        </div>
+                    </button>
+                    <button onclick="cleanDayActivities()" class="w-full flex items-center gap-3 p-4 border-2 border-gray-100 rounded-xl hover:border-blue-300 hover:bg-blue-50 transition">
+                        <span class="text-2xl">🔄</span>
+                        <div class="text-left">
+                            <p class="font-medium text-gray-800">Restaurar actividades por defecto</p>
+                            <p class="text-sm text-gray-500">Volver al horario predeterminado del día</p>
                         </div>
                     </button>
                     <button onclick="cleanAllProgress()" class="w-full flex items-center gap-3 p-4 border-2 border-red-100 rounded-xl hover:border-red-400 hover:bg-red-50 transition">
@@ -3641,6 +3842,23 @@
 
                 setStorage('activities', JSON.stringify(completedActivities));
                 showNotification('✅ Progreso del día limpiado');
+                closeCleanModal();
+                render();
+            }
+        }
+
+        function clearDayActivities() {
+            if (confirm('¿Vaciar TODAS las actividades de hoy? El día quedará sin actividades.')) {
+                const dateKey = getDateKey(currentDate);
+                customSchedules[dateKey] = [];
+                setStorage('custom-schedules', JSON.stringify(customSchedules));
+                Object.keys(completedActivities).forEach(key => {
+                    if (key.startsWith(dateKey)) {
+                        delete completedActivities[key];
+                    }
+                });
+                setStorage('activities', JSON.stringify(completedActivities));
+                showNotification('🧹 Actividades del día eliminadas');
                 closeCleanModal();
                 render();
             }
