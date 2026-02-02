@@ -745,6 +745,13 @@
                         <label class="block text-sm font-medium text-gray-600 mb-1">Bio / Motivación</label>
                         <textarea id="profileBio" rows="2" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none resize-none" placeholder="¿Cuál es tu motivación?"></textarea>
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">🌐 Idioma / Language</label>
+                        <select id="profileLanguage" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none">
+                            <option value="es">🇪🇸 Español</option>
+                            <option value="en">🇺🇸 English</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Opciones de foto -->
@@ -1336,6 +1343,316 @@
             return localStorage.getItem(`${userKey}-${key}`);
         }
 
+        // ==================== TRANSLATIONS SYSTEM ====================
+        const translations = {
+            es: {
+                // Navigation & Tabs
+                agenda: 'Agenda',
+                habits: 'Hábitos',
+                gym: 'Gym',
+                nutrition: 'Nutrición',
+                goals: 'Metas',
+                statistics: 'Estadísticas',
+                expenses: 'Gastos',
+
+                // Common Actions
+                save: 'Guardar',
+                cancel: 'Cancelar',
+                delete: 'Eliminar',
+                edit: 'Editar',
+                add: 'Agregar',
+                close: 'Cerrar',
+                search: 'Buscar',
+                filter: 'Filtrar',
+                loading: 'Cargando...',
+
+                // Time
+                today: 'Hoy',
+                yesterday: 'Ayer',
+                tomorrow: 'Mañana',
+                week: 'Semana',
+                month: 'Mes',
+
+                // Days
+                monday: 'Lunes',
+                tuesday: 'Martes',
+                wednesday: 'Miércoles',
+                thursday: 'Jueves',
+                friday: 'Viernes',
+                saturday: 'Sábado',
+                sunday: 'Domingo',
+
+                // Agenda
+                activities: 'actividades',
+                completed: 'completadas',
+                addActivity: 'Agregar Actividad',
+                editActivity: 'Editar Actividad',
+                activityTime: 'Hora',
+                activityName: 'Actividad',
+                activityDuration: 'Duración',
+                activityCategory: 'Categoría',
+                noActivities: 'No hay actividades para este día',
+
+                // Habits
+                dailyHabits: 'Hábitos Diarios',
+                habitCompleted: 'Completado',
+                addHabit: 'Agregar Hábito',
+                editHabit: 'Editar Hábito',
+                habitName: 'Nombre del hábito',
+                habitIcon: 'Icono',
+
+                // Gym
+                todayRoutine: 'Rutina de Hoy',
+                exercises: 'ejercicios',
+                sets: 'series',
+                addExercise: 'Agregar Ejercicio',
+                editExercise: 'Editar Ejercicio',
+                restTimer: 'Temporizador de Descanso',
+
+                // Nutrition
+                meals: 'Comidas',
+                macros: 'Macros',
+                calories: 'Calorías',
+                protein: 'Proteína',
+                carbs: 'Carbohidratos',
+                fats: 'Grasas',
+                addMeal: 'Agregar Comida',
+                editMeal: 'Editar Comida',
+
+                // Goals
+                weeklyGoals: 'Metas Semanales',
+                physical: 'Físico',
+                personal: 'Personal',
+                digital: 'Digital',
+                spiritual: 'Espiritual',
+
+                // Progress
+                progress: 'Progreso',
+                dailyProgress: 'Progreso Diario',
+                weeklyProgress: 'Progreso Semanal',
+                totalProgress: 'Progreso Total',
+
+                // Profile
+                profile: 'Perfil',
+                name: 'Nombre',
+                email: 'Correo electrónico',
+                phone: 'Teléfono',
+                birthdate: 'Fecha de nacimiento',
+                gender: 'Género',
+                female: 'Femenino',
+                male: 'Masculino',
+                other: 'Otro',
+                preferNotSay: 'Prefiero no decir',
+                bio: 'Bio / Motivación',
+                language: 'Idioma',
+                profilePhoto: 'Foto de perfil',
+                upload: 'Subir',
+                camera: 'Cámara',
+
+                // Settings
+                settings: 'Configuración',
+                darkMode: 'Modo Oscuro',
+                notifications: 'Notificaciones',
+                exportData: 'Exportar Datos',
+                logout: 'Cerrar Sesión',
+
+                // Pomodoro
+                pomodoroTimer: 'Pomodoro Timer',
+                pomodorosToday: 'Pomodoros hoy',
+                start: 'Iniciar',
+                pause: 'Pausar',
+                reset: 'Reiniciar',
+
+                // Messages
+                savedSuccessfully: 'Guardado correctamente',
+                deletedSuccessfully: 'Eliminado correctamente',
+                confirmDelete: '¿Estás seguro de eliminar?',
+                selectOption: 'Seleccionar...',
+
+                // Templates
+                templates: 'Plantillas',
+                loadTemplate: 'Cargar Plantilla',
+                replaceAll: 'Reemplazar todo',
+                addToExisting: 'Agregar a lo existente',
+
+                // Expenses
+                scanReceipt: 'Escanear Recibo',
+                addExpense: 'Agregar Gasto',
+                totalExpenses: 'Total Gastos',
+
+                // Share
+                shareAchievements: 'Compartir Logros',
+                shareMessage: '¡Mira mi progreso!'
+            },
+            en: {
+                // Navigation & Tabs
+                agenda: 'Schedule',
+                habits: 'Habits',
+                gym: 'Gym',
+                nutrition: 'Nutrition',
+                goals: 'Goals',
+                statistics: 'Statistics',
+                expenses: 'Expenses',
+
+                // Common Actions
+                save: 'Save',
+                cancel: 'Cancel',
+                delete: 'Delete',
+                edit: 'Edit',
+                add: 'Add',
+                close: 'Close',
+                search: 'Search',
+                filter: 'Filter',
+                loading: 'Loading...',
+
+                // Time
+                today: 'Today',
+                yesterday: 'Yesterday',
+                tomorrow: 'Tomorrow',
+                week: 'Week',
+                month: 'Month',
+
+                // Days
+                monday: 'Monday',
+                tuesday: 'Tuesday',
+                wednesday: 'Wednesday',
+                thursday: 'Thursday',
+                friday: 'Friday',
+                saturday: 'Saturday',
+                sunday: 'Sunday',
+
+                // Agenda
+                activities: 'activities',
+                completed: 'completed',
+                addActivity: 'Add Activity',
+                editActivity: 'Edit Activity',
+                activityTime: 'Time',
+                activityName: 'Activity',
+                activityDuration: 'Duration',
+                activityCategory: 'Category',
+                noActivities: 'No activities for this day',
+
+                // Habits
+                dailyHabits: 'Daily Habits',
+                habitCompleted: 'Completed',
+                addHabit: 'Add Habit',
+                editHabit: 'Edit Habit',
+                habitName: 'Habit name',
+                habitIcon: 'Icon',
+
+                // Gym
+                todayRoutine: "Today's Routine",
+                exercises: 'exercises',
+                sets: 'sets',
+                addExercise: 'Add Exercise',
+                editExercise: 'Edit Exercise',
+                restTimer: 'Rest Timer',
+
+                // Nutrition
+                meals: 'Meals',
+                macros: 'Macros',
+                calories: 'Calories',
+                protein: 'Protein',
+                carbs: 'Carbs',
+                fats: 'Fats',
+                addMeal: 'Add Meal',
+                editMeal: 'Edit Meal',
+
+                // Goals
+                weeklyGoals: 'Weekly Goals',
+                physical: 'Physical',
+                personal: 'Personal',
+                digital: 'Digital',
+                spiritual: 'Spiritual',
+
+                // Progress
+                progress: 'Progress',
+                dailyProgress: 'Daily Progress',
+                weeklyProgress: 'Weekly Progress',
+                totalProgress: 'Total Progress',
+
+                // Profile
+                profile: 'Profile',
+                name: 'Name',
+                email: 'Email',
+                phone: 'Phone',
+                birthdate: 'Birthdate',
+                gender: 'Gender',
+                female: 'Female',
+                male: 'Male',
+                other: 'Other',
+                preferNotSay: 'Prefer not to say',
+                bio: 'Bio / Motivation',
+                language: 'Language',
+                profilePhoto: 'Profile Photo',
+                upload: 'Upload',
+                camera: 'Camera',
+
+                // Settings
+                settings: 'Settings',
+                darkMode: 'Dark Mode',
+                notifications: 'Notifications',
+                exportData: 'Export Data',
+                logout: 'Logout',
+
+                // Pomodoro
+                pomodoroTimer: 'Pomodoro Timer',
+                pomodorosToday: 'Pomodoros today',
+                start: 'Start',
+                pause: 'Pause',
+                reset: 'Reset',
+
+                // Messages
+                savedSuccessfully: 'Saved successfully',
+                deletedSuccessfully: 'Deleted successfully',
+                confirmDelete: 'Are you sure you want to delete?',
+                selectOption: 'Select...',
+
+                // Templates
+                templates: 'Templates',
+                loadTemplate: 'Load Template',
+                replaceAll: 'Replace all',
+                addToExisting: 'Add to existing',
+
+                // Expenses
+                scanReceipt: 'Scan Receipt',
+                addExpense: 'Add Expense',
+                totalExpenses: 'Total Expenses',
+
+                // Share
+                shareAchievements: 'Share Achievements',
+                shareMessage: 'Check out my progress!'
+            }
+        };
+
+        // Get current language
+        function getLang() {
+            const profile = JSON.parse(getStorage('user-profile') || '{}');
+            return profile.language || 'es';
+        }
+
+        // Translation function
+        function t(key) {
+            const lang = getLang();
+            return translations[lang][key] || translations['es'][key] || key;
+        }
+
+        // Get day name translated
+        function getDayName(dayIndex) {
+            const days = {
+                0: t('sunday'),
+                1: t('monday'),
+                2: t('tuesday'),
+                3: t('wednesday'),
+                4: t('thursday'),
+                5: t('friday'),
+                6: t('saturday')
+            };
+            return days[dayIndex] || '';
+        }
+
+        // ==================== END TRANSLATIONS ====================
+
         // Theme Colors based on Gender
         function getUserGender() {
             const profile = JSON.parse(getStorage('user-profile') || '{}');
@@ -1719,6 +2036,7 @@
             document.getElementById('profileBirthdate').value = profile.birthdate || '';
             document.getElementById('profileGender').value = profile.gender || '';
             document.getElementById('profileBio').value = profile.bio || '';
+            document.getElementById('profileLanguage').value = profile.language || 'es';
 
             modal.classList.remove('hidden');
         }
@@ -1730,7 +2048,8 @@
                 phone: document.getElementById('profilePhone').value.trim(),
                 birthdate: document.getElementById('profileBirthdate').value,
                 gender: document.getElementById('profileGender').value,
-                bio: document.getElementById('profileBio').value.trim()
+                bio: document.getElementById('profileBio').value.trim(),
+                language: document.getElementById('profileLanguage').value
             };
 
             saveUserProfile(profile);
@@ -1749,7 +2068,7 @@
             }
 
             closePhotoModal();
-            addNotification('Perfil actualizado correctamente', '✅');
+            addNotification(t('savedSuccessfully'), '✅');
             applyTheme(); // Aplicar tema según género
             render();
         }
@@ -3594,33 +3913,46 @@
         let mealsSubTab = 'goal'; // Default to goal (META)
 
         // ==================== UNIFIED TAB SYSTEM ====================
-        // Main tabs configuration
-        const mainTabsConfig = {
-            agenda: { emoji: '📅', label: 'Agenda', color: 'blue' },
-            habits: { emoji: '✅', label: 'Hábitos', color: 'green' },
-            gym: { emoji: '💪', label: 'Gym', color: 'rose' },
-            meals: { emoji: '🥗', label: 'Nutrición', color: 'orange' },
-            goals: { emoji: '🎯', label: 'Metas', color: 'purple' },
-            notes: { emoji: '📝', label: 'Notas', color: 'yellow' },
-            gastos: { emoji: '💰', label: 'Gastos', color: 'emerald' },
-            stats: { emoji: '📊', label: 'Stats', color: 'indigo' }
-        };
+        // Main tabs configuration (uses translation keys)
+        function getMainTabsConfig() {
+            return {
+                agenda: { emoji: '📅', label: t('agenda'), color: 'blue' },
+                habits: { emoji: '✅', label: t('habits'), color: 'green' },
+                gym: { emoji: '💪', label: t('gym'), color: 'rose' },
+                meals: { emoji: '🥗', label: t('nutrition'), color: 'orange' },
+                goals: { emoji: '🎯', label: t('goals'), color: 'purple' },
+                notes: { emoji: '📝', label: getLang() === 'en' ? 'Notes' : 'Notas', color: 'yellow' },
+                gastos: { emoji: '💰', label: t('expenses'), color: 'emerald' },
+                stats: { emoji: '📊', label: t('statistics'), color: 'indigo' }
+            };
+        }
+
+        // For backwards compatibility
+        const mainTabsConfig = getMainTabsConfig();
 
         // Gym sub-tabs configuration
-        const gymTabsConfig = {
-            profile: { emoji: '📊', label: 'Perfil', color: 'blue' },
-            workout: { emoji: '🏋️', label: 'Entreno', color: 'rose' },
-            macros: { emoji: '🥗', label: 'Macros', color: 'green' },
-            history: { emoji: '📈', label: 'Historial', color: 'purple' }
-        };
+        function getGymTabsConfig() {
+            return {
+                profile: { emoji: '📊', label: t('profile'), color: 'blue' },
+                workout: { emoji: '🏋️', label: getLang() === 'en' ? 'Workout' : 'Entreno', color: 'rose' },
+                macros: { emoji: '🥗', label: t('macros'), color: 'green' },
+                history: { emoji: '📈', label: getLang() === 'en' ? 'History' : 'Historial', color: 'purple' }
+            };
+        }
+
+        const gymTabsConfig = getGymTabsConfig();
 
         // Nutrition sub-tabs configuration
-        const nutritionTabsConfig = {
-            goal: { emoji: '🎯', label: 'Meta', color: 'purple' },
-            plan: { emoji: '🍽️', label: 'Plan', color: 'orange' },
-            protein: { emoji: '🥩', label: 'Proteína', color: 'green' },
-            guide: { emoji: '📋', label: 'Guía', color: 'blue' }
-        };
+        function getNutritionTabsConfig() {
+            return {
+                goal: { emoji: '🎯', label: getLang() === 'en' ? 'Goal' : 'Meta', color: 'purple' },
+                plan: { emoji: '🍽️', label: getLang() === 'en' ? 'Plan' : 'Plan', color: 'orange' },
+                protein: { emoji: '🥩', label: t('protein'), color: 'green' },
+                guide: { emoji: '📋', label: getLang() === 'en' ? 'Guide' : 'Guía', color: 'blue' }
+            };
+        }
+
+        const nutritionTabsConfig = getNutritionTabsConfig();
 
         // Generic function to get tab order
         function getTabsOrder(key, defaultOrder) {
@@ -4704,7 +5036,8 @@
                     <div class="max-w-4xl mx-auto px-4 py-2">
                         <div data-tabs-container="main" class="flex gap-2 overflow-x-auto no-scrollbar py-1 relative" style="scroll-behavior: smooth; -webkit-overflow-scrolling: touch;">
                             ${getMainTabsOrder().map((tabId, index) => {
-                                const tab = mainTabsConfig[tabId];
+                                const tabsConfig = getMainTabsConfig();
+                                const tab = tabsConfig[tabId];
                                 if (!tab) return '';
                                 const isActive = activeTab === tabId;
                                 return `
@@ -4943,7 +5276,8 @@
                     <!-- Sub-tabs -->
                     <div data-tabs-container="gym" class="flex gap-2 p-1.5 bg-gradient-to-r from-rose-100 to-purple-100 rounded-2xl relative overflow-x-auto no-scrollbar shadow-sm border border-rose-200/50">
                         ${gymTabsOrder.map((tabId, index) => {
-                            const tab = gymTabsConfig[tabId];
+                            const tabsConfig = getGymTabsConfig();
+                            const tab = tabsConfig[tabId];
                             if (!tab) return '';
                             const isActive = gymSubTab === tabId;
                             return `
@@ -6201,7 +6535,8 @@
                     <!-- Sub-tabs for Nutrition section (draggable) -->
                     <div data-tabs-container="nutrition" class="flex gap-2 p-1.5 bg-gradient-to-r from-green-100 to-orange-100 rounded-2xl relative overflow-x-auto no-scrollbar shadow-sm border border-green-200/50">
                         ${tabsOrder.map((tabId, index) => {
-                            const tab = nutritionTabsConfig[tabId];
+                            const tabsConfig = getNutritionTabsConfig();
+                            const tab = tabsConfig[tabId];
                             if (!tab) return '';
                             const isActive = mealsSubTab === tabId;
                             return `
