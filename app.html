@@ -776,6 +776,22 @@
             }
         }
 
+        function toggleSettingsMenu() {
+            const menu = document.getElementById('settingsMenu');
+            if (menu) {
+                menu.classList.toggle('hidden');
+            }
+        }
+
+        // Close settings menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('settingsMenu');
+            const settingsBtn = e.target.closest('[onclick*="toggleSettingsMenu"]');
+            if (menu && !menu.contains(e.target) && !settingsBtn) {
+                menu.classList.add('hidden');
+            }
+        });
+
         // Profile Photo Functions
         let cropperState = {
             image: null,
@@ -2443,15 +2459,31 @@
                                     <span class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium">S${weekNum}/${totalWeeks}</span>
                                     <span class="px-2 py-0.5 bg-rose-100 text-rose-700 rounded-full font-medium">D${dayNum}/${userDuration}</span>
                                 </div>
-                                <button onclick="openExportModal()" class="p-2 text-gray-400 hover:text-green-500 transition" title="Exportar datos">
-                                    📥
-                                </button>
-                                <button onclick="toggleDarkMode()" class="p-2 text-gray-400 hover:text-yellow-500 transition" title="Cambiar tema">
-                                    ${isDarkMode() ? '☀️' : '🌙'}
-                                </button>
-                                <button onclick="logout()" class="p-2 text-gray-400 hover:text-red-500 transition" title="Cerrar sesión">
-                                    🚪
-                                </button>
+                                <!-- Settings Menu -->
+                                <div class="relative">
+                                    <button onclick="toggleSettingsMenu()" class="p-2 text-gray-400 hover:text-purple-500 transition text-xl" title="Configuración">
+                                        ⚙️
+                                    </button>
+                                    <div id="settingsMenu" class="hidden absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
+                                        <button onclick="toggleDarkMode(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left">
+                                            <span class="text-xl">${isDarkMode() ? '☀️' : '🌙'}</span>
+                                            <span class="text-gray-700">${isDarkMode() ? 'Modo claro' : 'Modo oscuro'}</span>
+                                        </button>
+                                        <button onclick="openExportModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left">
+                                            <span class="text-xl">📥</span>
+                                            <span class="text-gray-700">Exportar datos</span>
+                                        </button>
+                                        <button onclick="openTemplateModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left">
+                                            <span class="text-xl">📋</span>
+                                            <span class="text-gray-700">Plantillas</span>
+                                        </button>
+                                        <hr class="my-2 border-gray-100">
+                                        <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition text-left">
+                                            <span class="text-xl">🚪</span>
+                                            <span class="text-red-600">Cerrar sesión</span>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
