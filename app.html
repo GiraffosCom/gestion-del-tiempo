@@ -1324,6 +1324,59 @@
         </div>
     </div>
 
+    <!-- Modal Reinicio Total -->
+    <div id="resetModal" class="fixed inset-0 modal-backdrop z-[60] hidden flex items-center justify-center p-4" onclick="closeResetModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <div class="text-center">
+                <span class="text-5xl">⚠️</span>
+                <h3 class="text-xl font-bold text-gray-800 mt-3">Reiniciar Datos</h3>
+                <p class="text-gray-500 mt-2">Selecciona el nivel de reinicio</p>
+            </div>
+
+            <div class="space-y-3 mt-6">
+                <!-- Opción 1: Limpiar progreso -->
+                <button onclick="resetProgress()" class="w-full flex items-center gap-3 p-4 border-2 border-gray-100 rounded-xl hover:border-yellow-300 hover:bg-yellow-50 transition text-left">
+                    <span class="text-3xl">🧹</span>
+                    <div>
+                        <p class="font-medium text-gray-800">Limpiar todo el progreso</p>
+                        <p class="text-sm text-gray-500">Desmarcar todas las actividades, hábitos y ejercicios completados</p>
+                    </div>
+                </button>
+
+                <!-- Opción 2: Restaurar valores por defecto -->
+                <button onclick="resetToDefaults()" class="w-full flex items-center gap-3 p-4 border-2 border-gray-100 rounded-xl hover:border-orange-300 hover:bg-orange-50 transition text-left">
+                    <span class="text-3xl">🔄</span>
+                    <div>
+                        <p class="font-medium text-gray-800">Restaurar valores por defecto</p>
+                        <p class="text-sm text-gray-500">Eliminar personalizaciones y volver a la configuración inicial</p>
+                    </div>
+                </button>
+
+                <!-- Opción 3: Reinicio parcial (mantener perfil) -->
+                <button onclick="resetKeepProfile()" class="w-full flex items-center gap-3 p-4 border-2 border-orange-200 rounded-xl hover:border-orange-400 hover:bg-orange-50 transition text-left">
+                    <span class="text-3xl">🔃</span>
+                    <div>
+                        <p class="font-medium text-orange-700">Empezar de nuevo (mantener perfil)</p>
+                        <p class="text-sm text-gray-500">Borrar TODO excepto tu perfil y datos personales</p>
+                    </div>
+                </button>
+
+                <!-- Opción 4: Reinicio total -->
+                <button onclick="resetTotal()" class="w-full flex items-center gap-3 p-4 border-2 border-red-200 rounded-xl hover:border-red-400 hover:bg-red-50 transition text-left">
+                    <span class="text-3xl">💥</span>
+                    <div>
+                        <p class="font-medium text-red-600">REINICIO TOTAL</p>
+                        <p class="text-sm text-gray-500">Borrar ABSOLUTAMENTE TODO y empezar desde cero</p>
+                    </div>
+                </button>
+            </div>
+
+            <button onclick="closeResetModal()" class="w-full mt-4 py-3 text-gray-500 font-medium hover:bg-gray-50 rounded-xl transition">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
     <script>
         // Check login
         const currentUser = JSON.parse(localStorage.getItem('gestion-currentUser'));
@@ -4955,6 +5008,11 @@
                                             </div>
                                         </button>
                                         <hr class="my-2 border-gray-100">
+                                        <p class="px-4 py-1 text-xs text-gray-400 font-medium uppercase">Zona de Peligro</p>
+                                        <button onclick="openResetModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-orange-50 transition text-left">
+                                            <span class="text-xl">🔄</span>
+                                            <span class="text-orange-600">Reiniciar datos</span>
+                                        </button>
                                         <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-red-50 transition text-left">
                                             <span class="text-xl">🚪</span>
                                             <span class="text-red-600">Cerrar sesión</span>
@@ -7873,6 +7931,140 @@
             document.getElementById('cleanModal').classList.add('hidden');
             cleanSection = '';
         }
+
+        // ==================== RESET FUNCTIONS ====================
+        function openResetModal() {
+            document.getElementById('resetModal').classList.remove('hidden');
+        }
+
+        function closeResetModal() {
+            document.getElementById('resetModal').classList.add('hidden');
+        }
+
+        function resetProgress() {
+            const confirmMsg = getLang() === 'en'
+                ? 'Clear ALL completed progress? (activities, habits, exercises)'
+                : '¿Limpiar TODO el progreso completado? (actividades, hábitos, ejercicios)';
+
+            if (confirm(confirmMsg)) {
+                // Clear all completed activities
+                setStorage('activities', '{}');
+                completedActivities = {};
+
+                // Clear all habit completions
+                setStorage('habits-completed', '{}');
+                habitsCompleted = {};
+
+                // Clear gym completions
+                setStorage('gym-completed', '{}');
+
+                closeResetModal();
+                addNotification(getLang() === 'en' ? 'All progress cleared' : 'Todo el progreso limpiado', '🧹');
+                render();
+            }
+        }
+
+        function resetToDefaults() {
+            const confirmMsg = getLang() === 'en'
+                ? 'Restore default settings? Custom schedules, habits, and meals will be deleted.'
+                : '¿Restaurar valores por defecto? Se eliminarán horarios, hábitos y comidas personalizadas.';
+
+            if (confirm(confirmMsg)) {
+                // Clear custom schedules
+                setStorage('custom-schedules', '{}');
+                customSchedules = {};
+
+                // Clear custom habits (but keep default ones)
+                setStorage('custom-habits', '[]');
+
+                // Clear custom gym routines
+                setStorage('custom-gym', '{}');
+
+                // Clear custom meals
+                setStorage('custom-meals', '{}');
+
+                // Clear tab orders
+                setStorage('tabs-order-main', null);
+                setStorage('tabs-order-gym', null);
+                setStorage('tabs-order-nutrition', null);
+
+                // Clear active template schedules
+                setStorage('active-template-schedules', null);
+
+                closeResetModal();
+                addNotification(getLang() === 'en' ? 'Default settings restored' : 'Valores por defecto restaurados', '🔄');
+                render();
+            }
+        }
+
+        function resetKeepProfile() {
+            const confirmMsg = getLang() === 'en'
+                ? '⚠️ START OVER?\n\nThis will DELETE everything except your profile:\n- All progress\n- All customizations\n- All habits and meals\n- All goals and notes\n\nYour profile data will be kept.\n\nAre you sure?'
+                : '⚠️ ¿EMPEZAR DE NUEVO?\n\nEsto ELIMINARÁ todo excepto tu perfil:\n- Todo el progreso\n- Todas las personalizaciones\n- Todos los hábitos y comidas\n- Todas las metas y notas\n\nTus datos de perfil se mantendrán.\n\n¿Estás seguro?';
+
+            if (confirm(confirmMsg)) {
+                // Save profile data before reset
+                const profile = getUserProfile();
+                const photo = getStorage('user-photo');
+
+                // Get all keys for this user
+                const keysToDelete = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith(userKey + '-') &&
+                        key !== `${userKey}-user-profile` &&
+                        key !== `${userKey}-user-photo`) {
+                        keysToDelete.push(key);
+                    }
+                }
+
+                // Delete all user data except profile
+                keysToDelete.forEach(key => localStorage.removeItem(key));
+
+                // Reset in-memory variables
+                completedActivities = {};
+                habitsCompleted = {};
+                customSchedules = {};
+
+                closeResetModal();
+                addNotification(getLang() === 'en' ? 'Fresh start! Profile kept.' : '¡Nuevo comienzo! Perfil mantenido.', '🔃');
+                render();
+            }
+        }
+
+        function resetTotal() {
+            const confirmMsg = getLang() === 'en'
+                ? '💥 TOTAL RESET?\n\nThis will DELETE ABSOLUTELY EVERYTHING:\n- All your data\n- Your profile\n- All progress\n- Everything!\n\nYou will start completely from zero.\n\nTHIS CANNOT BE UNDONE!\n\nType "RESET" to confirm:'
+                : '💥 ¿REINICIO TOTAL?\n\nEsto ELIMINARÁ ABSOLUTAMENTE TODO:\n- Todos tus datos\n- Tu perfil\n- Todo el progreso\n- ¡Todo!\n\nEmpezarás completamente desde cero.\n\n¡ESTO NO SE PUEDE DESHACER!\n\nEscribe "RESET" para confirmar:';
+
+            const userInput = prompt(confirmMsg);
+
+            if (userInput && userInput.toUpperCase() === 'RESET') {
+                // Get all keys for this user
+                const keysToDelete = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith(userKey + '-')) {
+                        keysToDelete.push(key);
+                    }
+                }
+
+                // Delete all user data
+                keysToDelete.forEach(key => localStorage.removeItem(key));
+
+                // Reset in-memory variables
+                completedActivities = {};
+                habitsCompleted = {};
+                customSchedules = {};
+
+                closeResetModal();
+
+                // Show notification and reload
+                alert(getLang() === 'en' ? '✅ Total reset complete. The page will reload.' : '✅ Reinicio total completado. La página se recargará.');
+                window.location.reload();
+            }
+        }
+        // ==================== END RESET FUNCTIONS ====================
 
         function cleanDayProgress() {
             if (confirm('¿Desmarcar todas las actividades completadas de hoy?')) {
