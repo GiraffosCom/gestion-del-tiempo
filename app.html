@@ -408,37 +408,68 @@
             document.getElementById('photoModal').classList.add('hidden');
         }
 
+        // Comprimir imagen con múltiples pasadas hasta alcanzar el tamaño objetivo
+        function compressImage(img, maxSize, maxKB) {
+            const canvas = document.createElement('canvas');
+            canvas.width = maxSize;
+            canvas.height = maxSize;
+            const ctx = canvas.getContext('2d');
+
+            // Recortar al centro (cuadrado)
+            const minDim = Math.min(img.width, img.height);
+            const sx = (img.width - minDim) / 2;
+            const sy = (img.height - minDim) / 2;
+
+            ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, maxSize, maxSize);
+
+            // Comprimir iterativamente hasta alcanzar el tamaño objetivo
+            let quality = 0.7;
+            let photoData = canvas.toDataURL('image/jpeg', quality);
+            let sizeKB = (photoData.length * 3/4) / 1024;
+
+            // Reducir calidad si es necesario
+            while (sizeKB > maxKB && quality > 0.1) {
+                quality -= 0.1;
+                photoData = canvas.toDataURL('image/jpeg', quality);
+                sizeKB = (photoData.length * 3/4) / 1024;
+            }
+
+            // Si aún es muy grande, reducir tamaño del canvas
+            if (sizeKB > maxKB) {
+                const smallerSize = Math.floor(maxSize * 0.7);
+                canvas.width = smallerSize;
+                canvas.height = smallerSize;
+                ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, smallerSize, smallerSize);
+                photoData = canvas.toDataURL('image/jpeg', 0.5);
+            }
+
+            return photoData;
+        }
+
         function handlePhotoUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            // Validar tamaño (max 2MB)
-            if (file.size > 2 * 1024 * 1024) {
-                alert('La imagen es muy grande. Máximo 2MB.');
+            // Validar tamaño (max 5MB original)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('La imagen es muy grande. Máximo 5MB.');
                 return;
             }
 
+            // Mostrar loading
+            document.getElementById('photoPreview').innerHTML = '<span class="text-2xl animate-pulse">⏳</span>';
+
             const reader = new FileReader();
             reader.onload = function(e) {
-                // Crear imagen para redimensionar
                 const img = new Image();
                 img.onload = function() {
-                    // Redimensionar a 200x200 para ahorrar espacio
-                    const canvas = document.createElement('canvas');
-                    const size = 200;
-                    canvas.width = size;
-                    canvas.height = size;
-                    const ctx = canvas.getContext('2d');
+                    // Comprimir imagen
+                    const photoData = compressImage(img, 150, 30); // 150px, max 30KB
 
-                    // Recortar al centro (cuadrado)
-                    const minDim = Math.min(img.width, img.height);
-                    const sx = (img.width - minDim) / 2;
-                    const sy = (img.height - minDim) / 2;
+                    // Mostrar tamaño final
+                    const sizeKB = Math.round((photoData.length * 3/4) / 1024);
+                    console.log(`Foto comprimida: ${sizeKB}KB`);
 
-                    ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
-
-                    // Guardar como base64
-                    const photoData = canvas.toDataURL('image/jpeg', 0.8);
                     setStorage('profile-photo', photoData);
 
                     // Actualizar preview
