@@ -1068,6 +1068,58 @@
             return totalActivities > 0 ? Math.round((completedCount / totalActivities) * 100) : 0;
         }
 
+        // Calcular racha de días consecutivos con 100%
+        function getStreak() {
+            let streak = 0;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Empezar desde ayer (o hoy si ya completó)
+            const checkDate = new Date(today);
+
+            // Si hoy aún no tiene 100%, empezar desde ayer
+            const todayProgress = getDailyProgress(today);
+            if (todayProgress < 100) {
+                checkDate.setDate(checkDate.getDate() - 1);
+            }
+
+            // Contar días hacia atrás con 100%
+            while (checkDate >= startDate) {
+                const dayProgress = getDailyProgress(checkDate);
+                if (dayProgress === 100) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
+
+            return streak;
+        }
+
+        // Calcular mejor racha histórica
+        function getBestStreak() {
+            let bestStreak = 0;
+            let currentStreak = 0;
+
+            const tempDate = new Date(startDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            while (tempDate <= today && tempDate <= endDate) {
+                const dayProgress = getDailyProgress(tempDate);
+                if (dayProgress === 100) {
+                    currentStreak++;
+                    bestStreak = Math.max(bestStreak, currentStreak);
+                } else {
+                    currentStreak = 0;
+                }
+                tempDate.setDate(tempDate.getDate() + 1);
+            }
+
+            return bestStreak;
+        }
+
         function navigateDay(direction) {
             const newDate = new Date(currentDate);
             newDate.setDate(newDate.getDate() + direction);
@@ -2013,6 +2065,8 @@
             const dailyProgress = getDailyProgress();
             const weeklyProgress = getWeeklyProgress();
             const totalProgress = getTotalProgress();
+            const currentStreak = getStreak();
+            const bestStreak = getBestStreak();
             const schedule = getSchedule(dayIndex, dateKey);
             const gym = getGymFocus(dayIndex);
             const isCustomized = !!customSchedules[dateKey];
@@ -2054,12 +2108,31 @@
                             ${renderProgressCircle(weeklyProgress, 80, 8, 'purple', 'SEMANA')}
                             ${renderProgressCircle(totalProgress, 80, 8, 'cyan', 'TOTAL')}
                         </div>
-                        <div class="mt-4 text-center">
+
+                        <!-- Racha de días -->
+                        <div class="mt-4 flex justify-center gap-6">
+                            <div class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-100 to-yellow-100 rounded-xl">
+                                <span class="text-2xl">🔥</span>
+                                <div>
+                                    <p class="text-lg font-bold text-orange-600">${currentStreak}</p>
+                                    <p class="text-xs text-orange-500">Racha actual</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl">
+                                <span class="text-2xl">🏆</span>
+                                <div>
+                                    <p class="text-lg font-bold text-purple-600">${bestStreak}</p>
+                                    <p class="text-xs text-purple-500">Mejor racha</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 text-center">
                             <p class="text-sm text-gray-500">
                                 ${totalProgress === 100 ? '🏆 ¡PROGRAMA COMPLETADO! ¡Eres una campeona!' :
-                                  totalProgress >= 75 ? '🔥 ¡Vas increíble! La corona te espera' :
-                                  totalProgress >= 50 ? '💪 ¡Más de la mitad! Sigue así' :
-                                  totalProgress >= 25 ? '✨ ¡Buen progreso! No te detengas' :
+                                  currentStreak >= 7 ? '🔥 ¡' + currentStreak + ' días seguidos! ¡Imparable!' :
+                                  currentStreak >= 3 ? '💪 ¡' + currentStreak + ' días de racha! ¡Sigue así!' :
+                                  totalProgress >= 50 ? '✨ ¡Más de la mitad! No te detengas' :
                                   '🌟 ¡Cada día cuenta! Tú puedes'}
                             </p>
                         </div>
