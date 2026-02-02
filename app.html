@@ -4804,64 +4804,124 @@
             let date = '';
             let items = [];
 
-            // Try to find store name (usually first non-empty line)
-            if (lines.length > 0) {
-                store = lines[0].replace(/[^a-záéíóúñA-ZÁÉÍÓÚÑ\s]/g, '').trim();
+            console.log('OCR Text:', text); // Debug
+
+            // Try to find store name - look for EMPRESA keyword or similar
+            const storePatterns = [
+                /EMPRESA[:\s]*(.+)/i,
+                /RAZON\s*SOCIAL[:\s]*(.+)/i,
+                /COMERCIO[:\s]*(.+)/i
+            ];
+
+            for (const pattern of storePatterns) {
+                const match = text.match(pattern);
+                if (match) {
+                    store = match[1].replace(/[^a-záéíóúñA-ZÁÉÍÓÚÑ\s]/g, '').trim();
+                    break;
+                }
             }
 
-            // Try to find total (look for patterns like TOTAL, Total, $, etc)
+            // Fallback: use first line that looks like a name (not RUT, not BOLETA)
+            if (!store) {
+                for (const line of lines) {
+                    const cleanLine = line.trim();
+                    if (!cleanLine.match(/^(RUT|BOLETA|N°|FECHA|CANTIDAD|TOTAL|IVA|\d)/i) && cleanLine.length > 3) {
+                        store = cleanLine.replace(/[^a-záéíóúñA-ZÁÉÍÓÚÑ\s]/g, '').trim();
+                        if (store.length > 3) break;
+                    }
+                }
+            }
+
+            // Try to find total - improved patterns for Chilean receipts
             const totalPatterns = [
-                /TOTAL[:\s]*\$?\s*([\d.,]+)/i,
-                /TOTAL\s*A\s*PAGAR[:\s]*\$?\s*([\d.,]+)/i,
-                /MONTO[:\s]*\$?\s*([\d.,]+)/i,
-                /\$\s*([\d.,]+)\s*$/m
+                /TOTAL\s*[:\s]*\$?\s*([\d]+[.,][\d]{3})/i,      // TOTAL : $ 6.190
+                /TOTAL\s*[:\s]*\$?\s*([\d.,]+)/i,               // TOTAL: $6190
+                /TOTAL\s+A\s+PAGAR\s*[:\s]*\$?\s*([\d.,]+)/i,   // TOTAL A PAGAR
+                /MONTO\s*TOTAL\s*[:\s]*\$?\s*([\d.,]+)/i,       // MONTO TOTAL
+                /MONTO\s*[:\s]*\$?\s*([\d.,]+)/i,               // MONTO
+                /\$\s*([\d]+[.,][\d]{3})\s*$/m                   // $ 6.190 at end of line
             ];
 
             for (const pattern of totalPatterns) {
                 const match = text.match(pattern);
                 if (match) {
-                    total = match[1].replace(/\./g, '').replace(',', '.');
+                    // For Chilean pesos: dots are thousand separators, no decimals
+                    // Convert "6.190" to "6190"
+                    total = match[1].replace(/\./g, '').replace(/,/g, '');
+                    console.log('Found total:', match[1], '-> parsed as:', total);
                     break;
                 }
             }
 
-            // Try to find date
+            // Try to find date - improved patterns including YYYY-MM-DD
             const datePatterns = [
-                /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/,
+                /FECHA\s*(?:EMISION)?[:\s]*(\d{4})-(\d{2})-(\d{2})/i,  // FECHA EMISION: 2020-08-16
+                /(\d{4})-(\d{2})-(\d{2})/,                              // 2020-08-16
+                /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/,               // 16/08/2020
+                /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2})/,               // 16/08/20
                 /(\d{1,2})\s+(?:de\s+)?(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)[a-z]*\s+(?:de\s+)?(\d{2,4})/i
             ];
 
             for (const pattern of datePatterns) {
                 const match = text.match(pattern);
                 if (match) {
-                    // Convert to YYYY-MM-DD
-                    if (match[2].length <= 2) {
+                    // Check if it's YYYY-MM-DD format (year comes first)
+                    if (match[1].length === 4) {
+                        // Already in YYYY-MM-DD format
+                        date = `${match[1]}-${match[2]}-${match[3]}`;
+                    } else if (match[2].length <= 2 && !isNaN(match[2])) {
+                        // DD/MM/YYYY or DD-MM-YYYY format
                         let day = match[1].padStart(2, '0');
                         let month = match[2].padStart(2, '0');
                         let year = match[3].length === 2 ? '20' + match[3] : match[3];
                         date = `${year}-${month}-${day}`;
                     } else {
+                        // DD mes YYYY format (e.g., "16 agosto 2020")
                         const monthMap = {ene: '01', feb: '02', mar: '03', abr: '04', may: '05', jun: '06', jul: '07', ago: '08', sep: '09', oct: '10', nov: '11', dic: '12'};
                         let day = match[1].padStart(2, '0');
                         let month = monthMap[match[2].toLowerCase().substring(0, 3)] || '01';
                         let year = match[3].length === 2 ? '20' + match[3] : match[3];
                         date = `${year}-${month}-${day}`;
                     }
+                    console.log('Found date:', match[0], '-> parsed as:', date);
                     break;
                 }
             }
 
             // Extract potential items (lines with numbers that look like prices)
-            const pricePattern = /(.+?)\s+\$?([\d.,]+)\s*$/;
+            // Chilean format: CANTIDAD  DESCRIPCION  VALOR (e.g., "1  Cafe 50 gr.  1.500")
+            const itemPatterns = [
+                /^\d+\s+(.+?)\s+([\d]+[.,][\d]{3})\s*$/,  // 1  Cafe 50 gr.  1.500
+                /^\d+\s+(.+?)\s+\$?([\d.,]+)\s*$/,         // 1  Item  $1500
+                /^(.+?)\s+\$?([\d]+[.,][\d]{3})\s*$/,      // Item  1.500
+                /^(.+?)\s+([\d]{1,3}(?:[.,]\d{3})+)\s*$/   // Item  1.500 or 10.500
+            ];
+
             lines.forEach(line => {
-                if (!line.toLowerCase().includes('total') && !line.toLowerCase().includes('subtotal')) {
-                    const match = line.match(pricePattern);
-                    if (match && match[1].trim().length > 2) {
-                        items.push(`${match[1].trim()} - $${match[2]}`);
+                const lowerLine = line.toLowerCase();
+                if (!lowerLine.includes('total') &&
+                    !lowerLine.includes('subtotal') &&
+                    !lowerLine.includes('iva') &&
+                    !lowerLine.includes('rut') &&
+                    !lowerLine.includes('boleta') &&
+                    !lowerLine.includes('fecha') &&
+                    !lowerLine.includes('cantidad')) {
+
+                    for (const pattern of itemPatterns) {
+                        const match = line.match(pattern);
+                        if (match && match[1].trim().length > 2) {
+                            const itemName = match[1].trim().replace(/^\d+\s*/, ''); // Remove leading quantity
+                            const itemPrice = match[2];
+                            if (itemName.length > 2) {
+                                items.push(`${itemName} - $${itemPrice}`);
+                            }
+                            break;
+                        }
                     }
                 }
             });
 
+            console.log('Parsed receipt:', { store, total, date, items });
             return { store, total, date, items, description: items.length > 0 ? items.slice(0, 3).join(', ') : '' };
         }
 
