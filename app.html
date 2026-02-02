@@ -8008,19 +8008,37 @@
                 : '⚠️ ¿EMPEZAR DE NUEVO?\n\nEsto ELIMINARÁ todo excepto tu perfil:\n- Todo el progreso\n- Todas las personalizaciones\n- Todos los hábitos y comidas\n- Todas las metas y notas\n\nTus datos de perfil se mantendrán.\n\n¿Estás seguro?';
 
             if (confirm(confirmMsg)) {
-                // Get all keys for this user and delete all except profile and photo
-                const keysToDelete = [];
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (key && key.startsWith(userKey + '-') &&
-                        key !== `${userKey}-user-profile` &&
-                        key !== `${userKey}-profile-photo`) {
-                        keysToDelete.push(key);
-                    }
-                }
+                // Set empty values to override defaults (not just delete keys)
+                // Progress
+                setStorage('activities', '{}');
+                setStorage('habits', '{}');
+                setStorage('congrats-shown', '{}');
 
-                // Delete all user data except profile and photo
-                keysToDelete.forEach(key => localStorage.removeItem(key));
+                // Custom data - empty arrays so defaults don't show
+                setStorage('custom-schedules', '{}');
+                setStorage('custom-habits', '[]');
+                setStorage('custom-gym', '{}');
+                setStorage('custom-meals', '[]');
+                setStorage('custom-goals', '[]');
+
+                // Other data
+                removeStorage('day-templates');
+                removeStorage('active-template-schedules');
+                removeStorage('tabs-order-main');
+                removeStorage('tabs-order-gym');
+                removeStorage('tabs-order-nutrition');
+                removeStorage('weight-history');
+                removeStorage('workout-logs');
+                removeStorage('physical-profile');
+                removeStorage('macros-profile');
+                removeStorage('protein-logs');
+                removeStorage('protein-config');
+                removeStorage('protein-favorites');
+                removeStorage('expenses');
+                removeStorage('notifications');
+                removeStorage('dark-mode');
+                removeStorage('floating-buttons');
+                removeStorage('dashboard-visible');
 
                 // Reload page to reset all in-memory variables
                 alert(getLang() === 'en' ? '🔃 Fresh start! Profile kept. Page will reload.' : '🔃 ¡Nuevo comienzo! Perfil mantenido. La página se recargará.');
@@ -8048,11 +8066,14 @@
                 // Delete all user data
                 keysToDelete.forEach(key => localStorage.removeItem(key));
 
+                // Also clear the current user session (log out)
+                localStorage.removeItem('gestion-currentUser');
+
                 closeResetModal();
 
-                // Show notification and reload
-                alert(getLang() === 'en' ? '✅ Total reset complete. The page will reload.' : '✅ Reinicio total completado. La página se recargará.');
-                window.location.reload();
+                // Show notification and redirect to login
+                alert(getLang() === 'en' ? '✅ Total reset complete. You will be redirected to login.' : '✅ Reinicio total completado. Serás redirigido al login.');
+                window.location.href = 'login.html';
             }
         }
         // ==================== END RESET FUNCTIONS ====================
