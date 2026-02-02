@@ -686,8 +686,38 @@
     <div id="pomodoroModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closePomodoroModal()">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all" onclick="event.stopPropagation()">
             <div class="text-center">
-                <h3 class="text-xl font-bold text-gray-800 mb-2">🍅 Pomodoro Timer</h3>
+                <div class="flex items-center justify-center gap-2 mb-2">
+                    <h3 class="text-xl font-bold text-gray-800">🍅 Pomodoro Timer</h3>
+                    <button onclick="togglePomodoroInfo()" class="w-6 h-6 bg-gray-100 hover:bg-purple-100 text-gray-500 hover:text-purple-600 rounded-full flex items-center justify-center text-sm font-bold transition" title="¿Qué es Pomodoro?">
+                        i
+                    </button>
+                </div>
                 <p class="text-gray-500 text-sm mb-4">Enfócate en tus tareas</p>
+
+                <!-- Info Panel -->
+                <div id="pomodoroInfoPanel" class="hidden mb-4 p-4 bg-gradient-to-br from-rose-50 to-purple-50 rounded-xl text-left border border-purple-100">
+                    <h4 class="font-bold text-purple-800 mb-2 text-sm">🍅 ¿Qué es la Técnica Pomodoro?</h4>
+                    <p class="text-gray-600 text-xs mb-3">Es un método de gestión del tiempo que mejora tu concentración y productividad.</p>
+                    <div class="space-y-2 text-xs text-gray-700">
+                        <div class="flex gap-2">
+                            <span class="text-purple-500 font-bold">1.</span>
+                            <span>Elige una tarea a realizar</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <span class="text-purple-500 font-bold">2.</span>
+                            <span>Trabaja 25 minutos sin distracciones</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <span class="text-purple-500 font-bold">3.</span>
+                            <span>Toma un descanso corto (5 min)</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <span class="text-purple-500 font-bold">4.</span>
+                            <span>Cada 4 pomodoros, descansa 15-30 min</span>
+                        </div>
+                    </div>
+                    <p class="text-purple-600 text-xs mt-3 font-medium">💡 El nombre viene de un temporizador de cocina con forma de tomate (pomodoro en italiano)</p>
+                </div>
 
                 <!-- Timer Display -->
                 <div id="pomodoroDisplay" class="text-6xl font-mono font-bold bg-gradient-to-r from-rose-500 to-purple-600 bg-clip-text text-transparent my-6">
@@ -4341,6 +4371,11 @@
 
         function closePomodoroModal() {
             document.getElementById('pomodoroModal').classList.add('hidden');
+        }
+
+        function togglePomodoroInfo() {
+            const panel = document.getElementById('pomodoroInfoPanel');
+            panel.classList.toggle('hidden');
         }
 
         function setPomodoroTime(minutes) {
