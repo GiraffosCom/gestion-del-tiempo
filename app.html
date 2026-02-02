@@ -3081,16 +3081,28 @@
         // State for meals/nutrition subsection
         let mealsSubTab = 'goal'; // Default to goal (META)
 
-        // Nutrition tabs configuration with drag-and-drop support
-        function getNutritionTabsOrder() {
-            const defaultOrder = ['goal', 'plan', 'protein', 'guide'];
-            return JSON.parse(getStorage('nutrition-tabs-order') || JSON.stringify(defaultOrder));
-        }
+        // ==================== UNIFIED TAB SYSTEM ====================
+        // Main tabs configuration
+        const mainTabsConfig = {
+            agenda: { emoji: '📅', label: 'Agenda', color: 'blue' },
+            habits: { emoji: '✅', label: 'Hábitos', color: 'green' },
+            gym: { emoji: '💪', label: 'Gym', color: 'rose' },
+            meals: { emoji: '🥗', label: 'Nutrición', color: 'orange' },
+            goals: { emoji: '🎯', label: 'Metas', color: 'purple' },
+            notes: { emoji: '📝', label: 'Notas', color: 'yellow' },
+            gastos: { emoji: '💰', label: 'Gastos', color: 'emerald' },
+            stats: { emoji: '📊', label: 'Stats', color: 'indigo' }
+        };
 
-        function saveNutritionTabsOrder(order) {
-            setStorage('nutrition-tabs-order', JSON.stringify(order));
-        }
+        // Gym sub-tabs configuration
+        const gymTabsConfig = {
+            profile: { emoji: '📊', label: 'Perfil', color: 'blue' },
+            workout: { emoji: '🏋️', label: 'Entreno', color: 'rose' },
+            macros: { emoji: '🥗', label: 'Macros', color: 'green' },
+            history: { emoji: '📈', label: 'Historial', color: 'purple' }
+        };
 
+        // Nutrition sub-tabs configuration
         const nutritionTabsConfig = {
             goal: { emoji: '🎯', label: 'Meta', color: 'purple' },
             plan: { emoji: '🍽️', label: 'Plan', color: 'orange' },
@@ -3098,35 +3110,62 @@
             guide: { emoji: '📋', label: 'Guía', color: 'blue' }
         };
 
+        // Generic function to get tab order
+        function getTabsOrder(key, defaultOrder) {
+            return JSON.parse(getStorage(`tabs-order-${key}`) || JSON.stringify(defaultOrder));
+        }
+
+        // Generic function to save tab order
+        function saveTabsOrder(key, order) {
+            setStorage(`tabs-order-${key}`, JSON.stringify(order));
+        }
+
+        // Specific getters for backwards compatibility
+        function getMainTabsOrder() {
+            return getTabsOrder('main', ['agenda', 'habits', 'gym', 'meals', 'goals', 'notes', 'gastos', 'stats']);
+        }
+        function getGymTabsOrder() {
+            return getTabsOrder('gym', ['profile', 'workout', 'macros', 'history']);
+        }
+        function getNutritionTabsOrder() {
+            return getTabsOrder('nutrition', ['goal', 'plan', 'protein', 'guide']);
+        }
+
+        // ==================== GENERIC DRAG & DROP SYSTEM ====================
         let draggedTab = null;
         let dragStartX = 0;
         let longPressTimer = null;
         let isDragging = false;
+        let currentDragContainer = null; // Track which container we're dragging in
+        let currentDragType = null; // 'main', 'gym', 'nutrition'
 
-        // Tab drag handlers
-        function handleTabTouchStart(event, tabId) {
+        // Generic tab drag handlers
+        function handleTabTouchStart(event, tabId, containerType) {
             const touch = event.touches[0];
             dragStartX = touch.clientX;
+            currentDragType = containerType;
             longPressTimer = setTimeout(() => {
-                startDragging(tabId, event.target);
-            }, 500); // 500ms long press
-        }
-
-        function handleTabMouseDown(event, tabId) {
-            dragStartX = event.clientX;
-            longPressTimer = setTimeout(() => {
-                startDragging(tabId, event.target);
+                startDragging(tabId, event.target, containerType);
             }, 500);
         }
 
-        function startDragging(tabId, element) {
+        function handleTabMouseDown(event, tabId, containerType) {
+            dragStartX = event.clientX;
+            currentDragType = containerType;
+            longPressTimer = setTimeout(() => {
+                startDragging(tabId, event.target, containerType);
+            }, 500);
+        }
+
+        function startDragging(tabId, element, containerType) {
             isDragging = true;
             draggedTab = tabId;
+            currentDragType = containerType;
+            currentDragContainer = element.closest('[data-tabs-container]');
             element.style.opacity = '0.5';
             element.style.transform = 'scale(1.05)';
             document.body.style.cursor = 'grabbing';
 
-            // Vibrate on mobile if available
             if (navigator.vibrate) {
                 navigator.vibrate(50);
             }
@@ -3134,7 +3173,6 @@
 
         function handleTabTouchMove(event) {
             if (!isDragging) {
-                // Cancel long press if moved too much
                 const touch = event.touches[0];
                 if (Math.abs(touch.clientX - dragStartX) > 10) {
                     clearTimeout(longPressTimer);
@@ -3148,17 +3186,15 @@
         }
 
         function updateDragPosition(clientX) {
-            const container = document.getElementById('nutritionTabsContainer');
-            if (!container) return;
+            if (!currentDragContainer) return;
 
-            const tabs = container.querySelectorAll('button[data-tab]');
-            const indicator = document.getElementById('dragIndicator');
+            const tabs = currentDragContainer.querySelectorAll('button[data-tab]');
+            const indicator = currentDragContainer.querySelector('.drag-indicator');
 
             let insertIndex = -1;
             tabs.forEach((tab, index) => {
                 const rect = tab.getBoundingClientRect();
                 const midPoint = rect.left + rect.width / 2;
-
                 if (clientX < midPoint && insertIndex === -1) {
                     insertIndex = index;
                 }
@@ -3166,12 +3202,11 @@
 
             if (insertIndex === -1) insertIndex = tabs.length;
 
-            // Show indicator
             if (indicator && insertIndex >= 0) {
                 const targetTab = tabs[Math.min(insertIndex, tabs.length - 1)];
                 if (targetTab) {
                     const rect = targetTab.getBoundingClientRect();
-                    const containerRect = container.getBoundingClientRect();
+                    const containerRect = currentDragContainer.getBoundingClientRect();
                     indicator.classList.remove('hidden');
                     if (insertIndex < tabs.length) {
                         indicator.style.left = (rect.left - containerRect.left - 2) + 'px';
@@ -3184,29 +3219,24 @@
 
         function handleTabTouchEnd(event) {
             clearTimeout(longPressTimer);
-
             if (!isDragging) return;
-
             const touch = event.changedTouches[0];
             finishDragging(touch.clientX);
         }
 
         function handleTabMouseUp(event) {
             clearTimeout(longPressTimer);
-
             if (!isDragging) return;
-
             finishDragging(event.clientX);
         }
 
         function finishDragging(clientX) {
-            const container = document.getElementById('nutritionTabsContainer');
-            if (!container || !draggedTab) {
+            if (!currentDragContainer || !draggedTab || !currentDragType) {
                 resetDragState();
                 return;
             }
 
-            const tabs = container.querySelectorAll('button[data-tab]');
+            const tabs = currentDragContainer.querySelectorAll('button[data-tab]');
             let insertIndex = tabs.length;
 
             tabs.forEach((tab, index) => {
@@ -3217,15 +3247,31 @@
                 }
             });
 
-            // Reorder tabs
-            const currentOrder = getNutritionTabsOrder();
+            // Get the correct order based on container type
+            let currentOrder;
+            if (currentDragType === 'main') {
+                currentOrder = getMainTabsOrder();
+            } else if (currentDragType === 'gym') {
+                currentOrder = getGymTabsOrder();
+            } else {
+                currentOrder = getNutritionTabsOrder();
+            }
+
             const draggedIndex = currentOrder.indexOf(draggedTab);
 
             if (draggedIndex !== -1 && draggedIndex !== insertIndex) {
                 currentOrder.splice(draggedIndex, 1);
                 if (insertIndex > draggedIndex) insertIndex--;
                 currentOrder.splice(insertIndex, 0, draggedTab);
-                saveNutritionTabsOrder(currentOrder);
+
+                // Save based on container type
+                if (currentDragType === 'main') {
+                    saveTabsOrder('main', currentOrder);
+                } else if (currentDragType === 'gym') {
+                    saveTabsOrder('gym', currentOrder);
+                } else {
+                    saveTabsOrder('nutrition', currentOrder);
+                }
             }
 
             resetDragState();
@@ -3235,21 +3281,54 @@
         function resetDragState() {
             isDragging = false;
             draggedTab = null;
+            currentDragContainer = null;
+            currentDragType = null;
             document.body.style.cursor = '';
 
-            const indicator = document.getElementById('dragIndicator');
-            if (indicator) indicator.classList.add('hidden');
-
+            document.querySelectorAll('.drag-indicator').forEach(ind => ind.classList.add('hidden'));
             document.querySelectorAll('button[data-tab]').forEach(tab => {
                 tab.style.opacity = '';
                 tab.style.transform = '';
             });
         }
 
-        // Cancel drag on mouse leave
         document.addEventListener('mouseup', () => {
             if (isDragging) resetDragState();
         });
+
+        // ==================== RENDER SUB-TABS HELPER ====================
+        function renderSubTabs(config, order, activeTab, setterFn, containerType, accentColor = 'purple') {
+            return `
+                <div data-tabs-container="${containerType}" class="flex gap-1 p-1 bg-gray-100 rounded-xl relative overflow-x-auto no-scrollbar">
+                    ${order.map((tabId, index) => {
+                        const tab = config[tabId];
+                        if (!tab) return '';
+                        const isActive = activeTab === tabId;
+                        return `
+                            <button
+                                data-tab="${tabId}"
+                                data-index="${index}"
+                                onclick="if(!isDragging) { ${setterFn}('${tabId}'); render(); }"
+                                ontouchstart="handleTabTouchStart(event, '${tabId}', '${containerType}')"
+                                ontouchmove="handleTabTouchMove(event)"
+                                ontouchend="handleTabTouchEnd(event)"
+                                onmousedown="handleTabMouseDown(event, '${tabId}', '${containerType}')"
+                                onmouseup="handleTabMouseUp(event)"
+                                class="flex-1 py-2 px-2 rounded-lg text-xs font-medium transition select-none whitespace-nowrap ${isActive ? 'bg-white shadow text-' + tab.color + '-600' : 'text-gray-500 hover:bg-gray-50'}"
+                                style="touch-action: none;">
+                                ${tab.emoji} ${tab.label}
+                            </button>
+                        `;
+                    }).join('')}
+                    <div class="drag-indicator hidden absolute top-0 bottom-0 w-0.5 bg-${accentColor}-500 rounded-full z-10"></div>
+                </div>
+                <p class="text-xs text-gray-400 text-center mt-1">💡 Mantén presionado para reordenar</p>
+            `;
+        }
+
+        // Setters for sub-tabs
+        function setGymSubTabValue(tabId) { gymSubTab = tabId; }
+        function setMealsSubTabValue(tabId) { mealsSubTab = tabId; }
 
         let selectedRPE = null;
 
@@ -4110,14 +4189,31 @@
 
                 <!-- Tabs -->
                 <div class="bg-white/40 border-b sticky top-[56px] z-40 mt-1">
-                    <div class="max-w-4xl mx-auto px-4">
-                        <div class="flex gap-2 overflow-x-auto py-3 no-scrollbar">
-                            ${['agenda', 'habits', 'gym', 'meals', 'goals', 'notes', 'gastos', 'stats'].map(tab => `
-                                <button onclick="setTab('${tab}')" class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${activeTab === tab ? 'tab-active shadow-md' : 'bg-white/80 text-gray-600 hover:bg-white'}">
-                                    ${tab === 'agenda' ? '📅 Agenda' : tab === 'habits' ? '✅ Hábitos' : tab === 'gym' ? '💪 Gym' : tab === 'meals' ? '🥗 Nutrición' : tab === 'goals' ? '🎯 Metas' : tab === 'notes' ? '📝 Notas' : tab === 'gastos' ? '💰 Gastos' : '📊 Estadísticas'}
-                                </button>
-                            `).join('')}
+                    <div class="max-w-4xl mx-auto px-4 py-2">
+                        <div data-tabs-container="main" class="flex gap-1 overflow-x-auto no-scrollbar bg-gray-100/80 p-1 rounded-xl relative">
+                            ${getMainTabsOrder().map((tabId, index) => {
+                                const tab = mainTabsConfig[tabId];
+                                if (!tab) return '';
+                                const isActive = activeTab === tabId;
+                                return `
+                                    <button
+                                        data-tab="${tabId}"
+                                        data-index="${index}"
+                                        onclick="if(!isDragging) setTab('${tabId}')"
+                                        ontouchstart="handleTabTouchStart(event, '${tabId}', 'main')"
+                                        ontouchmove="handleTabTouchMove(event)"
+                                        ontouchend="handleTabTouchEnd(event)"
+                                        onmousedown="handleTabMouseDown(event, '${tabId}', 'main')"
+                                        onmouseup="handleTabMouseUp(event)"
+                                        class="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition whitespace-nowrap select-none ${isActive ? 'bg-white shadow-md text-purple-600' : 'text-gray-600 hover:bg-white/50'}"
+                                        style="touch-action: none;">
+                                        ${tab.emoji} <span class="hidden sm:inline">${tab.label}</span>
+                                    </button>
+                                `;
+                            }).join('')}
+                            <div class="drag-indicator hidden absolute top-0 bottom-0 w-0.5 bg-purple-500 rounded-full z-10"></div>
                         </div>
+                        <p class="text-xs text-gray-400 text-center mt-1">💡 Mantén presionado para reordenar</p>
                     </div>
                 </div>
 
@@ -4323,23 +4419,35 @@
                 const weightHistory = getWeightHistory();
                 const todayWorkout = getTodayWorkout();
 
+                const gymTabsOrder = getGymTabsOrder();
+
                 return `
                 <div class="space-y-4">
                     <!-- Sub-tabs -->
-                    <div class="bg-white rounded-xl p-1 flex gap-1 shadow-sm overflow-x-auto no-scrollbar">
-                        <button onclick="setGymSubTab('profile')" class="flex-1 py-2 px-2 rounded-lg text-xs font-medium transition whitespace-nowrap ${gymSubTab === 'profile' ? 'bg-gradient-to-r from-rose-500 to-purple-600 text-white' : 'text-gray-600 hover:bg-gray-100'}">
-                            📊 Perfil
-                        </button>
-                        <button onclick="setGymSubTab('workout')" class="flex-1 py-2 px-2 rounded-lg text-xs font-medium transition whitespace-nowrap ${gymSubTab === 'workout' ? 'bg-gradient-to-r from-rose-500 to-purple-600 text-white' : 'text-gray-600 hover:bg-gray-100'}">
-                            🏋️ Entreno
-                        </button>
-                        <button onclick="setGymSubTab('macros')" class="flex-1 py-2 px-2 rounded-lg text-xs font-medium transition whitespace-nowrap ${gymSubTab === 'macros' ? 'bg-gradient-to-r from-rose-500 to-purple-600 text-white' : 'text-gray-600 hover:bg-gray-100'}">
-                            🥗 Macros
-                        </button>
-                        <button onclick="setGymSubTab('history')" class="flex-1 py-2 px-2 rounded-lg text-xs font-medium transition whitespace-nowrap ${gymSubTab === 'history' ? 'bg-gradient-to-r from-rose-500 to-purple-600 text-white' : 'text-gray-600 hover:bg-gray-100'}">
-                            📈 Historial
-                        </button>
+                    <div data-tabs-container="gym" class="flex gap-1 p-1 bg-gray-100 rounded-xl relative overflow-x-auto no-scrollbar">
+                        ${gymTabsOrder.map((tabId, index) => {
+                            const tab = gymTabsConfig[tabId];
+                            if (!tab) return '';
+                            const isActive = gymSubTab === tabId;
+                            return `
+                                <button
+                                    data-tab="${tabId}"
+                                    data-index="${index}"
+                                    onclick="if(!isDragging) { setGymSubTabValue('${tabId}'); render(); }"
+                                    ontouchstart="handleTabTouchStart(event, '${tabId}', 'gym')"
+                                    ontouchmove="handleTabTouchMove(event)"
+                                    ontouchend="handleTabTouchEnd(event)"
+                                    onmousedown="handleTabMouseDown(event, '${tabId}', 'gym')"
+                                    onmouseup="handleTabMouseUp(event)"
+                                    class="flex-1 py-2 px-2 rounded-lg text-xs font-medium transition select-none whitespace-nowrap ${isActive ? 'bg-white shadow text-' + tab.color + '-600' : 'text-gray-500 hover:bg-gray-50'}"
+                                    style="touch-action: none;">
+                                    ${tab.emoji} ${tab.label}
+                                </button>
+                            `;
+                        }).join('')}
+                        <div class="drag-indicator hidden absolute top-0 bottom-0 w-0.5 bg-rose-500 rounded-full z-10"></div>
                     </div>
+                    <p class="text-xs text-gray-400 text-center">💡 Mantén presionado para reordenar</p>
 
                     ${gymSubTab === 'profile' ? renderGymProfile(profile, latestWeight, weightHistory) : ''}
                     ${gymSubTab === 'workout' ? renderGymWorkout(gym, dayIndex, todayWorkout) : ''}
@@ -5575,31 +5683,30 @@
             return `
                 <div class="space-y-4">
                     <!-- Sub-tabs for Nutrition section (draggable) -->
-                    <div id="nutritionTabsContainer" class="flex gap-1 p-1 bg-gray-100 rounded-xl relative">
+                    <div data-tabs-container="nutrition" class="flex gap-1 p-1 bg-gray-100 rounded-xl relative overflow-x-auto no-scrollbar">
                         ${tabsOrder.map((tabId, index) => {
                             const tab = nutritionTabsConfig[tabId];
+                            if (!tab) return '';
                             const isActive = mealsSubTab === tabId;
-                            const colorClass = isActive ? `text-${tab.color}-600` : 'text-gray-500';
                             return `
                                 <button
-                                    id="nutTab_${tabId}"
                                     data-tab="${tabId}"
                                     data-index="${index}"
-                                    onclick="if(!isDragging) { mealsSubTab='${tabId}'; render(); }"
-                                    ontouchstart="handleTabTouchStart(event, '${tabId}')"
+                                    onclick="if(!isDragging) { setMealsSubTabValue('${tabId}'); render(); }"
+                                    ontouchstart="handleTabTouchStart(event, '${tabId}', 'nutrition')"
                                     ontouchmove="handleTabTouchMove(event)"
                                     ontouchend="handleTabTouchEnd(event)"
-                                    onmousedown="handleTabMouseDown(event, '${tabId}')"
+                                    onmousedown="handleTabMouseDown(event, '${tabId}', 'nutrition')"
                                     onmouseup="handleTabMouseUp(event)"
-                                    class="flex-1 py-2 px-2 rounded-lg text-sm font-medium transition select-none ${isActive ? 'bg-white shadow' : ''} ${isActive ? `text-${tab.color}-600` : 'text-gray-500'}"
+                                    class="flex-1 py-2 px-2 rounded-lg text-xs font-medium transition select-none whitespace-nowrap ${isActive ? 'bg-white shadow text-' + tab.color + '-600' : 'text-gray-500 hover:bg-gray-50'}"
                                     style="touch-action: none;">
                                     ${tab.emoji} ${tab.label}
                                 </button>
                             `;
                         }).join('')}
-                        <div id="dragIndicator" class="hidden absolute top-0 bottom-0 w-0.5 bg-purple-500 rounded-full z-10"></div>
+                        <div class="drag-indicator hidden absolute top-0 bottom-0 w-0.5 bg-orange-500 rounded-full z-10"></div>
                     </div>
-                    <p class="text-xs text-gray-400 text-center">💡 Mantén presionado un tab para reordenar</p>
+                    <p class="text-xs text-gray-400 text-center">💡 Mantén presionado para reordenar</p>
 
                     ${mealsSubTab === 'protein' ? renderProteinTracking() : ''}
                     ${mealsSubTab === 'goal' ? renderNutritionGoal() : ''}
