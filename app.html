@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Plan - Gestión del Tiempo</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Poppins', sans-serif; }
@@ -580,6 +581,177 @@
         </div>
     </div>
 
+    <!-- Modal Escanear Boleta -->
+    <div id="scanReceiptModal" class="fixed inset-0 modal-backdrop z-[60] hidden flex items-center justify-center p-4" onclick="closeScanReceiptModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 transform transition-all max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-800">📸 Escanear Boleta</h3>
+                <button onclick="closeScanReceiptModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+            </div>
+
+            <!-- Step 1: Capture/Upload -->
+            <div id="scanStep1">
+                <p class="text-gray-500 text-sm mb-4">Toma una foto o sube una imagen de tu boleta</p>
+
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <button onclick="startCamera()" class="p-4 border-2 border-dashed border-gray-200 rounded-xl hover:border-purple-400 hover:bg-purple-50 transition text-center">
+                        <span class="text-4xl block mb-2">📷</span>
+                        <p class="text-sm font-medium text-gray-700">Usar Cámara</p>
+                    </button>
+                    <label class="p-4 border-2 border-dashed border-gray-200 rounded-xl hover:border-purple-400 hover:bg-purple-50 transition text-center cursor-pointer">
+                        <span class="text-4xl block mb-2">🖼️</span>
+                        <p class="text-sm font-medium text-gray-700">Subir Imagen</p>
+                        <input type="file" accept="image/*" onchange="handleReceiptUpload(event)" class="hidden">
+                    </label>
+                </div>
+
+                <!-- Camera Preview -->
+                <div id="cameraContainer" class="hidden mb-4">
+                    <video id="cameraPreview" class="w-full rounded-xl bg-black" autoplay playsinline></video>
+                    <div class="flex gap-3 mt-3">
+                        <button onclick="capturePhoto()" class="flex-1 py-3 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl font-medium hover:opacity-90 transition">
+                            📸 Capturar
+                        </button>
+                        <button onclick="stopCamera()" class="px-4 py-3 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Image Preview -->
+                <div id="imagePreviewContainer" class="hidden mb-4">
+                    <img id="receiptImagePreview" class="w-full rounded-xl max-h-64 object-contain bg-gray-100">
+                    <div class="flex gap-3 mt-3">
+                        <button onclick="processReceiptImage()" class="flex-1 py-3 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl font-medium hover:opacity-90 transition">
+                            🔍 Analizar Boleta
+                        </button>
+                        <button onclick="clearReceiptImage()" class="px-4 py-3 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Processing -->
+            <div id="scanStep2" class="hidden text-center py-8">
+                <div class="animate-spin text-5xl mb-4">⏳</div>
+                <p class="text-gray-600 font-medium">Analizando boleta...</p>
+                <p class="text-gray-400 text-sm mt-2" id="ocrProgress">Iniciando OCR...</p>
+            </div>
+
+            <!-- Step 3: Results Form -->
+            <div id="scanStep3" class="hidden">
+                <p class="text-green-600 text-sm mb-4 flex items-center gap-2">
+                    <span>✅</span> Datos extraídos - verifica y corrige si es necesario
+                </p>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tienda / Comercio</label>
+                        <input type="text" id="expenseStore" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none" placeholder="Nombre del comercio">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+                            <input type="date" id="expenseDate" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Total</label>
+                            <input type="number" step="0.01" id="expenseTotal" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                        <select id="expenseCategory" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none">
+                            <option value="alimentacion">🍔 Alimentación</option>
+                            <option value="transporte">🚗 Transporte</option>
+                            <option value="salud">💊 Salud</option>
+                            <option value="entretenimiento">🎬 Entretenimiento</option>
+                            <option value="ropa">👕 Ropa</option>
+                            <option value="servicios">📱 Servicios</option>
+                            <option value="hogar">🏠 Hogar</option>
+                            <option value="educacion">📚 Educación</option>
+                            <option value="otro">📦 Otro</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Descripción (opcional)</label>
+                        <input type="text" id="expenseDescription" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none" placeholder="Detalles adicionales">
+                    </div>
+
+                    <!-- Extracted items -->
+                    <div id="extractedItemsContainer" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Items detectados</label>
+                        <div id="extractedItems" class="bg-gray-50 rounded-xl p-3 max-h-32 overflow-y-auto text-sm text-gray-600"></div>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button onclick="resetScanModal()" class="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">
+                        Escanear otra
+                    </button>
+                    <button onclick="saveExpenseFromScan()" class="flex-1 px-4 py-3 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl font-medium hover:opacity-90 transition">
+                        💾 Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Agregar Gasto Manual -->
+    <div id="addExpenseModal" class="fixed inset-0 modal-backdrop z-[60] hidden flex items-center justify-center p-4" onclick="closeAddExpenseModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-800">✏️ Agregar Gasto</h3>
+                <button onclick="closeAddExpenseModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tienda / Comercio</label>
+                    <input type="text" id="manualExpenseStore" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none" placeholder="Nombre del comercio">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+                        <input type="date" id="manualExpenseDate" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Total</label>
+                        <input type="number" step="0.01" id="manualExpenseTotal" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none" placeholder="0.00">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                    <select id="manualExpenseCategory" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none">
+                        <option value="alimentacion">🍔 Alimentación</option>
+                        <option value="transporte">🚗 Transporte</option>
+                        <option value="salud">💊 Salud</option>
+                        <option value="entretenimiento">🎬 Entretenimiento</option>
+                        <option value="ropa">👕 Ropa</option>
+                        <option value="servicios">📱 Servicios</option>
+                        <option value="hogar">🏠 Hogar</option>
+                        <option value="educacion">📚 Educación</option>
+                        <option value="otro">📦 Otro</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Descripción (opcional)</label>
+                    <input type="text" id="manualExpenseDescription" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none" placeholder="Detalles adicionales">
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeAddExpenseModal()" class="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">
+                    Cancelar
+                </button>
+                <button onclick="saveManualExpense()" class="flex-1 px-4 py-3 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl font-medium hover:opacity-90 transition">
+                    💾 Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Compartir -->
     <div id="shareModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeShareModal()">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all" onclick="event.stopPropagation()">
@@ -790,7 +962,188 @@
             if (menu && !menu.contains(e.target) && !settingsBtn) {
                 menu.classList.add('hidden');
             }
+            // Also close notifications menu
+            const notifMenu = document.getElementById('notificationsMenu');
+            const notifBtn = e.target.closest('[onclick*="toggleNotificationsMenu"]');
+            if (notifMenu && !notifMenu.contains(e.target) && !notifBtn) {
+                notifMenu.classList.add('hidden');
+            }
         });
+
+        // ==================== NOTIFICATIONS SYSTEM ====================
+
+        function getNotifications() {
+            return JSON.parse(getStorage('notifications') || '[]');
+        }
+
+        function saveNotifications(notifications) {
+            setStorage('notifications', JSON.stringify(notifications));
+        }
+
+        function getUnreadNotificationsCount() {
+            const notifications = getNotifications();
+            return notifications.filter(n => !n.read).length;
+        }
+
+        function toggleNotificationsMenu() {
+            const menu = document.getElementById('notificationsMenu');
+            if (menu) {
+                const wasHidden = menu.classList.contains('hidden');
+                menu.classList.toggle('hidden');
+                if (wasHidden) {
+                    renderNotificationsList();
+                }
+            }
+        }
+
+        function renderNotificationsList() {
+            const container = document.getElementById('notificationsList');
+            if (!container) return;
+
+            const notifications = getNotifications();
+
+            if (notifications.length === 0) {
+                container.innerHTML = `
+                    <div class="p-6 text-center text-gray-400">
+                        <span class="text-4xl block mb-2">🔕</span>
+                        <p>No tienes notificaciones</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = notifications.map((notif, index) => `
+                <div class="px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition cursor-pointer ${notif.read ? 'opacity-60' : ''}" onclick="markNotificationRead(${index})">
+                    <div class="flex items-start gap-3">
+                        <span class="text-xl">${notif.icon || '📌'}</span>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm text-gray-800 ${notif.read ? '' : 'font-medium'}">${notif.message}</p>
+                            <p class="text-xs text-gray-400 mt-1">${formatNotificationTime(notif.timestamp)}</p>
+                        </div>
+                        ${notif.read ? '' : '<span class="w-2 h-2 bg-purple-500 rounded-full flex-shrink-0 mt-2"></span>'}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function formatNotificationTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+
+            if (minutes < 1) return 'Ahora mismo';
+            if (minutes < 60) return `Hace ${minutes} min`;
+            if (hours < 24) return `Hace ${hours} hr`;
+            if (days < 7) return `Hace ${days} día${days > 1 ? 's' : ''}`;
+            return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+        }
+
+        function markNotificationRead(index) {
+            const notifications = getNotifications();
+            if (notifications[index]) {
+                notifications[index].read = true;
+                saveNotifications(notifications);
+                renderNotificationsList();
+                updateNotificationBadge();
+            }
+        }
+
+        function markAllNotificationsRead() {
+            const notifications = getNotifications();
+            notifications.forEach(n => n.read = true);
+            saveNotifications(notifications);
+            renderNotificationsList();
+            updateNotificationBadge();
+        }
+
+        function clearAllNotifications() {
+            saveNotifications([]);
+            renderNotificationsList();
+            updateNotificationBadge();
+        }
+
+        function updateNotificationBadge() {
+            const badge = document.getElementById('notificationBadge');
+            if (badge) {
+                const count = getUnreadNotificationsCount();
+                badge.textContent = count > 9 ? '9+' : count;
+                badge.classList.toggle('hidden', count === 0);
+            }
+        }
+
+        function addNotification(message, icon = '📌') {
+            const notifications = getNotifications();
+            notifications.unshift({
+                message,
+                icon,
+                timestamp: new Date().toISOString(),
+                read: false
+            });
+            // Keep only last 50 notifications
+            if (notifications.length > 50) {
+                notifications.pop();
+            }
+            saveNotifications(notifications);
+            updateNotificationBadge();
+        }
+
+        // Generate notifications based on user activity
+        function generateDailyNotifications() {
+            const today = getTodayKey();
+            const lastNotifDay = getStorage('lastNotificationDay');
+
+            if (lastNotifDay === today) return; // Already generated today
+
+            setStorage('lastNotificationDay', today);
+
+            const dayNum = getDayNumber();
+            const userDuration = currentUser.duration || 60;
+
+            // Welcome notification
+            if (dayNum === 1) {
+                addNotification(`¡Bienvenido a tu primer día! 🎉 Tu viaje de ${userDuration} días comienza hoy.`, '🚀');
+            }
+
+            // Milestone notifications
+            if (dayNum === 7) {
+                addNotification('¡Primera semana completada! 💪 Sigue así.', '🏆');
+            } else if (dayNum === 14) {
+                addNotification('¡Dos semanas de progreso! 📈 Ya eres un campeón.', '🌟');
+            } else if (dayNum === 30) {
+                addNotification('¡Un mes de dedicación! 🎊 Increíble logro.', '👑');
+            } else if (dayNum === Math.floor(userDuration / 2)) {
+                addNotification('¡Mitad del camino! 🛤️ Ya puedes ver la meta.', '🎯');
+            }
+
+            // Check yesterday's progress
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayKey = yesterday.toISOString().split('T')[0];
+            const yesterdayCompleted = JSON.parse(getStorage(`completed-${yesterdayKey}`) || '[]');
+
+            if (yesterdayCompleted.length >= 10) {
+                addNotification('¡Ayer completaste muchas actividades! 🔥 Excelente trabajo.', '⭐');
+            }
+
+            // Motivational based on day of week
+            const dayOfWeek = new Date().getDay();
+            if (dayOfWeek === 1) { // Monday
+                addNotification('¡Nuevo lunes, nuevas oportunidades! 💪 A darle con todo.', '🌅');
+            } else if (dayOfWeek === 5) { // Friday
+                addNotification('¡Viernes! Termina fuerte la semana. 🎉', '🎊');
+            }
+        }
+
+        // Call this when app loads
+        setTimeout(() => {
+            generateDailyNotifications();
+            updateNotificationBadge();
+        }, 1000);
+
+        // ==================== END NOTIFICATIONS ====================
 
         // Profile Photo Functions
         let cropperState = {
@@ -2459,6 +2812,25 @@
                                     <span class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium">S${weekNum}/${totalWeeks}</span>
                                     <span class="px-2 py-0.5 bg-rose-100 text-rose-700 rounded-full font-medium">D${dayNum}/${userDuration}</span>
                                 </div>
+                                <!-- Notifications -->
+                                <div class="relative">
+                                    <button onclick="toggleNotificationsMenu()" class="p-2 text-gray-400 hover:text-purple-500 transition text-xl relative" title="Notificaciones">
+                                        🔔
+                                        <span id="notificationBadge" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold ${getUnreadNotificationsCount() > 0 ? '' : 'hidden'}">${getUnreadNotificationsCount()}</span>
+                                    </button>
+                                    <div id="notificationsMenu" class="hidden absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-96 overflow-hidden">
+                                        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                                            <h4 class="font-bold text-gray-800">🔔 Notificaciones</h4>
+                                            <button onclick="markAllNotificationsRead()" class="text-xs text-purple-600 hover:underline">Marcar todo leído</button>
+                                        </div>
+                                        <div id="notificationsList" class="overflow-y-auto max-h-72">
+                                            <!-- Notifications will be rendered here -->
+                                        </div>
+                                        <div class="px-4 py-2 border-t border-gray-100 bg-gray-50">
+                                            <button onclick="clearAllNotifications()" class="text-xs text-red-500 hover:underline">Limpiar todas</button>
+                                        </div>
+                                    </div>
+                                </div>
                                 <!-- Settings Menu -->
                                 <div class="relative">
                                     <button onclick="toggleSettingsMenu()" class="p-2 text-gray-400 hover:text-purple-500 transition text-xl" title="Configuración">
@@ -2558,9 +2930,9 @@
                 <div class="bg-white/40 border-b sticky top-[56px] z-40 mt-1">
                     <div class="max-w-4xl mx-auto px-4">
                         <div class="flex gap-2 overflow-x-auto py-3 no-scrollbar">
-                            ${['agenda', 'habits', 'gym', 'meals', 'goals', 'notes', 'stats'].map(tab => `
+                            ${['agenda', 'habits', 'gym', 'meals', 'goals', 'notes', 'gastos', 'stats'].map(tab => `
                                 <button onclick="setTab('${tab}')" class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${activeTab === tab ? 'tab-active shadow-md' : 'bg-white/80 text-gray-600 hover:bg-white'}">
-                                    ${tab === 'agenda' ? '📅 Agenda' : tab === 'habits' ? '✅ Hábitos' : tab === 'gym' ? '💪 Gym' : tab === 'meals' ? '🥗 Comidas' : tab === 'goals' ? '🎯 Metas' : tab === 'notes' ? '📝 Notas' : '📊 Estadísticas'}
+                                    ${tab === 'agenda' ? '📅 Agenda' : tab === 'habits' ? '✅ Hábitos' : tab === 'gym' ? '💪 Gym' : tab === 'meals' ? '🥗 Comidas' : tab === 'goals' ? '🎯 Metas' : tab === 'notes' ? '📝 Notas' : tab === 'gastos' ? '💰 Gastos' : '📊 Estadísticas'}
                                 </button>
                             `).join('')}
                         </div>
@@ -2575,6 +2947,7 @@
                     ${activeTab === 'meals' ? renderMeals() : ''}
                     ${activeTab === 'goals' ? renderGoals(weekNum) : ''}
                     ${activeTab === 'notes' ? renderNotes(dateKey) : ''}
+                    ${activeTab === 'gastos' ? renderGastos() : ''}
                     ${activeTab === 'stats' ? renderStats() : ''}
                 </main>
 
@@ -4119,6 +4492,453 @@
             }
             return getDefaultSchedule(date.getDay());
         }
+
+        // ==================== EXPENSES MODULE ====================
+
+        let cameraStream = null;
+        let currentReceiptImage = null;
+
+        function getExpenses() {
+            return JSON.parse(getStorage('expenses') || '[]');
+        }
+
+        function saveExpenses(expenses) {
+            setStorage('expenses', JSON.stringify(expenses));
+        }
+
+        function getExpenseCategoryIcon(category) {
+            const icons = {
+                alimentacion: '🍔',
+                transporte: '🚗',
+                salud: '💊',
+                entretenimiento: '🎬',
+                ropa: '👕',
+                servicios: '📱',
+                hogar: '🏠',
+                educacion: '📚',
+                otro: '📦'
+            };
+            return icons[category] || '📦';
+        }
+
+        function getExpenseCategoryName(category) {
+            const names = {
+                alimentacion: 'Alimentación',
+                transporte: 'Transporte',
+                salud: 'Salud',
+                entretenimiento: 'Entretenimiento',
+                ropa: 'Ropa',
+                servicios: 'Servicios',
+                hogar: 'Hogar',
+                educacion: 'Educación',
+                otro: 'Otro'
+            };
+            return names[category] || 'Otro';
+        }
+
+        function renderGastos() {
+            const expenses = getExpenses();
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+
+            // Filter expenses for current month
+            const monthlyExpenses = expenses.filter(e => {
+                const d = new Date(e.date);
+                return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+            });
+
+            const totalMonth = monthlyExpenses.reduce((sum, e) => sum + parseFloat(e.total || 0), 0);
+
+            // Group by category
+            const byCategory = {};
+            monthlyExpenses.forEach(e => {
+                if (!byCategory[e.category]) byCategory[e.category] = 0;
+                byCategory[e.category] += parseFloat(e.total || 0);
+            });
+
+            // Get recent expenses (last 10)
+            const recentExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
+
+            const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+            return `
+                <div class="space-y-4">
+                    <!-- Header & Actions -->
+                    <div class="bg-white rounded-2xl p-4 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold text-gray-800">💰 Control de Gastos</h3>
+                            <div class="flex gap-2">
+                                <button onclick="openScanReceiptModal()" class="px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl font-medium hover:opacity-90 transition flex items-center gap-2 text-sm">
+                                    📸 Escanear Boleta
+                                </button>
+                                <button onclick="openAddExpenseModal()" class="px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition flex items-center gap-2 text-sm">
+                                    ✏️ Manual
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Monthly Summary -->
+                        <div class="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-4 text-white">
+                            <p class="text-sm opacity-90">${monthNames[currentMonth]} ${currentYear}</p>
+                            <p class="text-3xl font-bold mt-1">$${totalMonth.toLocaleString('es-CL', {minimumFractionDigits: 0})}</p>
+                            <p class="text-sm opacity-90 mt-1">${monthlyExpenses.length} gastos registrados</p>
+                        </div>
+                    </div>
+
+                    <!-- Category Breakdown -->
+                    ${Object.keys(byCategory).length > 0 ? `
+                        <div class="bg-white rounded-2xl p-4 shadow-sm">
+                            <h4 class="font-bold text-gray-800 mb-3">📊 Por Categoría</h4>
+                            <div class="space-y-2">
+                                ${Object.entries(byCategory)
+                                    .sort((a, b) => b[1] - a[1])
+                                    .map(([cat, amount]) => {
+                                        const percentage = totalMonth > 0 ? (amount / totalMonth * 100) : 0;
+                                        return `
+                                            <div class="flex items-center gap-3">
+                                                <span class="text-xl">${getExpenseCategoryIcon(cat)}</span>
+                                                <div class="flex-1">
+                                                    <div class="flex justify-between text-sm mb-1">
+                                                        <span class="text-gray-700">${getExpenseCategoryName(cat)}</span>
+                                                        <span class="font-medium text-gray-800">$${amount.toLocaleString('es-CL', {minimumFractionDigits: 0})}</span>
+                                                    </div>
+                                                    <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                                        <div class="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" style="width: ${percentage}%"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Recent Expenses -->
+                    <div class="bg-white rounded-2xl p-4 shadow-sm">
+                        <h4 class="font-bold text-gray-800 mb-3">📋 Últimos Gastos</h4>
+                        ${recentExpenses.length === 0 ? `
+                            <div class="text-center py-8 text-gray-400">
+                                <span class="text-4xl block mb-2">🧾</span>
+                                <p>No hay gastos registrados</p>
+                                <p class="text-sm mt-1">Escanea una boleta para comenzar</p>
+                            </div>
+                        ` : `
+                            <div class="space-y-2">
+                                ${recentExpenses.map((expense, idx) => `
+                                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition">
+                                        <span class="text-2xl">${getExpenseCategoryIcon(expense.category)}</span>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="font-medium text-gray-800 truncate">${expense.store || 'Sin nombre'}</p>
+                                            <p class="text-xs text-gray-500">${new Date(expense.date).toLocaleDateString('es-CL', {day: 'numeric', month: 'short'})}</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="font-bold text-gray-800">$${parseFloat(expense.total).toLocaleString('es-CL', {minimumFractionDigits: 0})}</p>
+                                        </div>
+                                        <button onclick="deleteExpense(${idx})" class="p-2 text-gray-400 hover:text-red-500 transition" title="Eliminar">
+                                            🗑️
+                                        </button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Modal functions
+        function openScanReceiptModal() {
+            document.getElementById('scanReceiptModal').classList.remove('hidden');
+            resetScanModal();
+        }
+
+        function closeScanReceiptModal() {
+            document.getElementById('scanReceiptModal').classList.add('hidden');
+            stopCamera();
+            resetScanModal();
+        }
+
+        function resetScanModal() {
+            document.getElementById('scanStep1').classList.remove('hidden');
+            document.getElementById('scanStep2').classList.add('hidden');
+            document.getElementById('scanStep3').classList.add('hidden');
+            document.getElementById('cameraContainer').classList.add('hidden');
+            document.getElementById('imagePreviewContainer').classList.add('hidden');
+            currentReceiptImage = null;
+            stopCamera();
+        }
+
+        function openAddExpenseModal() {
+            document.getElementById('addExpenseModal').classList.remove('hidden');
+            document.getElementById('manualExpenseDate').value = getTodayKey();
+            document.getElementById('manualExpenseStore').value = '';
+            document.getElementById('manualExpenseTotal').value = '';
+            document.getElementById('manualExpenseDescription').value = '';
+        }
+
+        function closeAddExpenseModal() {
+            document.getElementById('addExpenseModal').classList.add('hidden');
+        }
+
+        // Camera functions
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' }
+                });
+                cameraStream = stream;
+                const video = document.getElementById('cameraPreview');
+                video.srcObject = stream;
+                document.getElementById('cameraContainer').classList.remove('hidden');
+            } catch (err) {
+                alert('No se pudo acceder a la cámara. Por favor, permite el acceso o sube una imagen.');
+                console.error('Camera error:', err);
+            }
+        }
+
+        function stopCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+            const video = document.getElementById('cameraPreview');
+            if (video) video.srcObject = null;
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById('cameraPreview');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+
+            currentReceiptImage = canvas.toDataURL('image/jpeg', 0.8);
+
+            document.getElementById('receiptImagePreview').src = currentReceiptImage;
+            document.getElementById('imagePreviewContainer').classList.remove('hidden');
+            document.getElementById('cameraContainer').classList.add('hidden');
+            stopCamera();
+        }
+
+        function handleReceiptUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentReceiptImage = e.target.result;
+                document.getElementById('receiptImagePreview').src = currentReceiptImage;
+                document.getElementById('imagePreviewContainer').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearReceiptImage() {
+            currentReceiptImage = null;
+            document.getElementById('imagePreviewContainer').classList.add('hidden');
+            document.getElementById('receiptImagePreview').src = '';
+        }
+
+        // OCR Processing
+        async function processReceiptImage() {
+            if (!currentReceiptImage) return;
+
+            // Show processing step
+            document.getElementById('scanStep1').classList.add('hidden');
+            document.getElementById('scanStep2').classList.remove('hidden');
+
+            try {
+                const progressEl = document.getElementById('ocrProgress');
+
+                // Use Tesseract.js for OCR
+                const result = await Tesseract.recognize(
+                    currentReceiptImage,
+                    'spa', // Spanish
+                    {
+                        logger: m => {
+                            if (m.status === 'recognizing text') {
+                                progressEl.textContent = `Procesando: ${Math.round(m.progress * 100)}%`;
+                            } else {
+                                progressEl.textContent = m.status;
+                            }
+                        }
+                    }
+                );
+
+                const text = result.data.text;
+                console.log('OCR Result:', text);
+
+                // Parse the receipt text
+                const parsed = parseReceiptText(text);
+
+                // Fill the form
+                document.getElementById('expenseStore').value = parsed.store;
+                document.getElementById('expenseDate').value = parsed.date || getTodayKey();
+                document.getElementById('expenseTotal').value = parsed.total || '';
+                document.getElementById('expenseDescription').value = parsed.description || '';
+
+                if (parsed.items && parsed.items.length > 0) {
+                    const itemsContainer = document.getElementById('extractedItemsContainer');
+                    const itemsList = document.getElementById('extractedItems');
+                    itemsContainer.classList.remove('hidden');
+                    itemsList.innerHTML = parsed.items.map(item => `<div class="py-1">${item}</div>`).join('');
+                } else {
+                    document.getElementById('extractedItemsContainer').classList.add('hidden');
+                }
+
+                // Show results form
+                document.getElementById('scanStep2').classList.add('hidden');
+                document.getElementById('scanStep3').classList.remove('hidden');
+
+            } catch (error) {
+                console.error('OCR Error:', error);
+                alert('Error al procesar la imagen. Por favor, intenta de nuevo o ingresa los datos manualmente.');
+                resetScanModal();
+            }
+        }
+
+        function parseReceiptText(text) {
+            const lines = text.split('\n').filter(l => l.trim());
+            let store = '';
+            let total = '';
+            let date = '';
+            let items = [];
+
+            // Try to find store name (usually first non-empty line)
+            if (lines.length > 0) {
+                store = lines[0].replace(/[^a-záéíóúñA-ZÁÉÍÓÚÑ\s]/g, '').trim();
+            }
+
+            // Try to find total (look for patterns like TOTAL, Total, $, etc)
+            const totalPatterns = [
+                /TOTAL[:\s]*\$?\s*([\d.,]+)/i,
+                /TOTAL\s*A\s*PAGAR[:\s]*\$?\s*([\d.,]+)/i,
+                /MONTO[:\s]*\$?\s*([\d.,]+)/i,
+                /\$\s*([\d.,]+)\s*$/m
+            ];
+
+            for (const pattern of totalPatterns) {
+                const match = text.match(pattern);
+                if (match) {
+                    total = match[1].replace(/\./g, '').replace(',', '.');
+                    break;
+                }
+            }
+
+            // Try to find date
+            const datePatterns = [
+                /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/,
+                /(\d{1,2})\s+(?:de\s+)?(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)[a-z]*\s+(?:de\s+)?(\d{2,4})/i
+            ];
+
+            for (const pattern of datePatterns) {
+                const match = text.match(pattern);
+                if (match) {
+                    // Convert to YYYY-MM-DD
+                    if (match[2].length <= 2) {
+                        let day = match[1].padStart(2, '0');
+                        let month = match[2].padStart(2, '0');
+                        let year = match[3].length === 2 ? '20' + match[3] : match[3];
+                        date = `${year}-${month}-${day}`;
+                    } else {
+                        const monthMap = {ene: '01', feb: '02', mar: '03', abr: '04', may: '05', jun: '06', jul: '07', ago: '08', sep: '09', oct: '10', nov: '11', dic: '12'};
+                        let day = match[1].padStart(2, '0');
+                        let month = monthMap[match[2].toLowerCase().substring(0, 3)] || '01';
+                        let year = match[3].length === 2 ? '20' + match[3] : match[3];
+                        date = `${year}-${month}-${day}`;
+                    }
+                    break;
+                }
+            }
+
+            // Extract potential items (lines with numbers that look like prices)
+            const pricePattern = /(.+?)\s+\$?([\d.,]+)\s*$/;
+            lines.forEach(line => {
+                if (!line.toLowerCase().includes('total') && !line.toLowerCase().includes('subtotal')) {
+                    const match = line.match(pricePattern);
+                    if (match && match[1].trim().length > 2) {
+                        items.push(`${match[1].trim()} - $${match[2]}`);
+                    }
+                }
+            });
+
+            return { store, total, date, items, description: items.length > 0 ? items.slice(0, 3).join(', ') : '' };
+        }
+
+        function saveExpenseFromScan() {
+            const store = document.getElementById('expenseStore').value.trim();
+            const date = document.getElementById('expenseDate').value;
+            const total = document.getElementById('expenseTotal').value;
+            const category = document.getElementById('expenseCategory').value;
+            const description = document.getElementById('expenseDescription').value.trim();
+
+            if (!total || parseFloat(total) <= 0) {
+                alert('Por favor ingresa un monto válido');
+                return;
+            }
+
+            const expense = {
+                id: Date.now(),
+                store: store || 'Sin nombre',
+                date: date || getTodayKey(),
+                total: parseFloat(total),
+                category,
+                description,
+                hasReceipt: true,
+                createdAt: new Date().toISOString()
+            };
+
+            const expenses = getExpenses();
+            expenses.push(expense);
+            saveExpenses(expenses);
+
+            closeScanReceiptModal();
+            addNotification(`Gasto de $${parseFloat(total).toLocaleString('es-CL')} registrado`, '💰');
+            render();
+        }
+
+        function saveManualExpense() {
+            const store = document.getElementById('manualExpenseStore').value.trim();
+            const date = document.getElementById('manualExpenseDate').value;
+            const total = document.getElementById('manualExpenseTotal').value;
+            const category = document.getElementById('manualExpenseCategory').value;
+            const description = document.getElementById('manualExpenseDescription').value.trim();
+
+            if (!total || parseFloat(total) <= 0) {
+                alert('Por favor ingresa un monto válido');
+                return;
+            }
+
+            const expense = {
+                id: Date.now(),
+                store: store || 'Sin nombre',
+                date: date || getTodayKey(),
+                total: parseFloat(total),
+                category,
+                description,
+                hasReceipt: false,
+                createdAt: new Date().toISOString()
+            };
+
+            const expenses = getExpenses();
+            expenses.push(expense);
+            saveExpenses(expenses);
+
+            closeAddExpenseModal();
+            addNotification(`Gasto de $${parseFloat(total).toLocaleString('es-CL')} agregado`, '💰');
+            render();
+        }
+
+        function deleteExpense(index) {
+            if (!confirm('¿Eliminar este gasto?')) return;
+
+            const expenses = getExpenses();
+            expenses.splice(index, 1);
+            saveExpenses(expenses);
+            render();
+        }
+
+        // ==================== END EXPENSES MODULE ====================
 
         function renderStats() {
             const weeklyData = getWeeklyProgressData();
