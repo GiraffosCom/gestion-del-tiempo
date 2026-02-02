@@ -322,28 +322,65 @@
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all">
             <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">📸 Foto de Perfil</h3>
 
-            <!-- Preview actual -->
-            <div class="flex justify-center mb-6">
-                <div id="photoPreview" class="w-32 h-32 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center text-white text-4xl font-bold border-4 border-purple-200 overflow-hidden">
-                    <!-- Se llena dinámicamente -->
+            <!-- Vista normal (sin edición) -->
+            <div id="photoNormalView">
+                <!-- Preview actual -->
+                <div class="flex justify-center mb-6">
+                    <div id="photoPreview" class="w-32 h-32 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center text-white text-4xl font-bold border-4 border-purple-200 overflow-hidden">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Opciones -->
+                <div class="space-y-3">
+                    <label class="flex items-center justify-center gap-3 w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium cursor-pointer hover:opacity-90 transition">
+                        <span>📁 Subir foto</span>
+                        <input type="file" id="photoInput" accept="image/*" class="hidden" onchange="handlePhotoUpload(event)">
+                    </label>
+
+                    <label class="flex items-center justify-center gap-3 w-full py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-medium cursor-pointer hover:opacity-90 transition">
+                        <span>📷 Tomar foto</span>
+                        <input type="file" id="cameraInput" accept="image/*" capture="user" class="hidden" onchange="handlePhotoUpload(event)">
+                    </label>
+
+                    <button onclick="removePhoto()" id="removePhotoBtn" class="w-full py-3 border-2 border-red-200 text-red-500 rounded-xl font-medium hover:bg-red-50 transition hidden">
+                        🗑️ Eliminar foto
+                    </button>
                 </div>
             </div>
 
-            <!-- Opciones -->
-            <div class="space-y-3">
-                <label class="flex items-center justify-center gap-3 w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium cursor-pointer hover:opacity-90 transition">
-                    <span>📁 Subir foto</span>
-                    <input type="file" id="photoInput" accept="image/*" class="hidden" onchange="handlePhotoUpload(event)">
-                </label>
+            <!-- Vista de edición (ajustar posición) -->
+            <div id="photoEditView" class="hidden">
+                <p class="text-sm text-gray-500 text-center mb-3">👆 Arrastra para ajustar la posición</p>
 
-                <label class="flex items-center justify-center gap-3 w-full py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-medium cursor-pointer hover:opacity-90 transition">
-                    <span>📷 Tomar foto</span>
-                    <input type="file" id="cameraInput" accept="image/*" capture="user" class="hidden" onchange="handlePhotoUpload(event)">
-                </label>
+                <!-- Área de recorte -->
+                <div class="flex justify-center mb-4">
+                    <div id="cropperContainer" class="w-48 h-48 rounded-full border-4 border-purple-400 overflow-hidden relative cursor-move bg-gray-100"
+                        onmousedown="startDrag(event)" ontouchstart="startDrag(event)">
+                        <img id="cropperImage" class="absolute" style="max-width: none;" draggable="false">
+                    </div>
+                </div>
 
-                <button onclick="removePhoto()" id="removePhotoBtn" class="w-full py-3 border-2 border-red-200 text-red-500 rounded-xl font-medium hover:bg-red-50 transition hidden">
-                    🗑️ Eliminar foto
-                </button>
+                <!-- Zoom slider -->
+                <div class="mb-4">
+                    <label class="text-sm text-gray-600 flex items-center justify-between mb-1">
+                        <span>🔍 Zoom</span>
+                        <span id="zoomValue">100%</span>
+                    </label>
+                    <input type="range" id="zoomSlider" min="100" max="300" value="100"
+                        class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                        oninput="updateZoom(this.value)">
+                </div>
+
+                <!-- Botones de edición -->
+                <div class="flex gap-3">
+                    <button onclick="cancelCrop()" class="flex-1 py-3 border-2 border-gray-200 text-gray-600 rounded-xl font-medium hover:bg-gray-50 transition">
+                        Cancelar
+                    </button>
+                    <button onclick="saveCrop()" class="flex-1 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-medium hover:opacity-90 transition">
+                        ✓ Guardar
+                    </button>
+                </div>
             </div>
 
             <button onclick="closePhotoModal()" class="w-full mt-4 py-2 text-gray-500 hover:text-gray-700 transition">
@@ -387,11 +424,28 @@
         }
 
         // Profile Photo Functions
+        let cropperState = {
+            image: null,
+            imgWidth: 0,
+            imgHeight: 0,
+            posX: 0,
+            posY: 0,
+            zoom: 100,
+            isDragging: false,
+            startX: 0,
+            startY: 0,
+            containerSize: 192 // 48 * 4 = w-48
+        };
+
         function openPhotoModal() {
             const modal = document.getElementById('photoModal');
             const preview = document.getElementById('photoPreview');
             const removeBtn = document.getElementById('removePhotoBtn');
             const photo = getStorage('profile-photo');
+
+            // Mostrar vista normal, ocultar editor
+            document.getElementById('photoNormalView').classList.remove('hidden');
+            document.getElementById('photoEditView').classList.add('hidden');
 
             if (photo) {
                 preview.innerHTML = `<img src="${photo}" class="w-full h-full object-cover">`;
@@ -406,44 +460,8 @@
 
         function closePhotoModal() {
             document.getElementById('photoModal').classList.add('hidden');
-        }
-
-        // Comprimir imagen con múltiples pasadas hasta alcanzar el tamaño objetivo
-        function compressImage(img, maxSize, maxKB) {
-            const canvas = document.createElement('canvas');
-            canvas.width = maxSize;
-            canvas.height = maxSize;
-            const ctx = canvas.getContext('2d');
-
-            // Recortar al centro (cuadrado)
-            const minDim = Math.min(img.width, img.height);
-            const sx = (img.width - minDim) / 2;
-            const sy = (img.height - minDim) / 2;
-
-            ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, maxSize, maxSize);
-
-            // Comprimir iterativamente hasta alcanzar el tamaño objetivo
-            let quality = 0.7;
-            let photoData = canvas.toDataURL('image/jpeg', quality);
-            let sizeKB = (photoData.length * 3/4) / 1024;
-
-            // Reducir calidad si es necesario
-            while (sizeKB > maxKB && quality > 0.1) {
-                quality -= 0.1;
-                photoData = canvas.toDataURL('image/jpeg', quality);
-                sizeKB = (photoData.length * 3/4) / 1024;
-            }
-
-            // Si aún es muy grande, reducir tamaño del canvas
-            if (sizeKB > maxKB) {
-                const smallerSize = Math.floor(maxSize * 0.7);
-                canvas.width = smallerSize;
-                canvas.height = smallerSize;
-                ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, smallerSize, smallerSize);
-                photoData = canvas.toDataURL('image/jpeg', 0.5);
-            }
-
-            return photoData;
+            document.getElementById('photoNormalView').classList.remove('hidden');
+            document.getElementById('photoEditView').classList.add('hidden');
         }
 
         function handlePhotoUpload(event) {
@@ -456,32 +474,198 @@
                 return;
             }
 
-            // Mostrar loading
-            document.getElementById('photoPreview').innerHTML = '<span class="text-2xl animate-pulse">⏳</span>';
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
-                    // Comprimir imagen
-                    const photoData = compressImage(img, 150, 30); // 150px, max 30KB
+                    // Guardar imagen original
+                    cropperState.image = img;
+                    cropperState.imgWidth = img.width;
+                    cropperState.imgHeight = img.height;
+                    cropperState.zoom = 100;
 
-                    // Mostrar tamaño final
-                    const sizeKB = Math.round((photoData.length * 3/4) / 1024);
-                    console.log(`Foto comprimida: ${sizeKB}KB`);
-
-                    setStorage('profile-photo', photoData);
-
-                    // Actualizar preview
-                    document.getElementById('photoPreview').innerHTML = `<img src="${photoData}" class="w-full h-full object-cover">`;
-                    document.getElementById('removePhotoBtn').classList.remove('hidden');
-
-                    // Actualizar header
-                    render();
+                    // Mostrar editor
+                    showCropperEditor(e.target.result);
                 };
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
+
+            // Limpiar input para permitir subir la misma imagen
+            event.target.value = '';
+        }
+
+        function showCropperEditor(imageSrc) {
+            // Ocultar vista normal, mostrar editor
+            document.getElementById('photoNormalView').classList.add('hidden');
+            document.getElementById('photoEditView').classList.remove('hidden');
+
+            const cropperImg = document.getElementById('cropperImage');
+            cropperImg.src = imageSrc;
+
+            // Resetear zoom
+            document.getElementById('zoomSlider').value = 100;
+            document.getElementById('zoomValue').textContent = '100%';
+            cropperState.zoom = 100;
+
+            // Calcular tamaño inicial para que cubra el contenedor
+            setTimeout(() => {
+                const container = cropperState.containerSize;
+                const imgRatio = cropperState.imgWidth / cropperState.imgHeight;
+
+                let displayWidth, displayHeight;
+                if (imgRatio > 1) {
+                    // Imagen horizontal
+                    displayHeight = container;
+                    displayWidth = container * imgRatio;
+                } else {
+                    // Imagen vertical o cuadrada
+                    displayWidth = container;
+                    displayHeight = container / imgRatio;
+                }
+
+                cropperImg.style.width = displayWidth + 'px';
+                cropperImg.style.height = displayHeight + 'px';
+
+                // Centrar imagen
+                cropperState.posX = (container - displayWidth) / 2;
+                cropperState.posY = (container - displayHeight) / 2;
+                updateCropperPosition();
+            }, 50);
+        }
+
+        function updateCropperPosition() {
+            const cropperImg = document.getElementById('cropperImage');
+            cropperImg.style.left = cropperState.posX + 'px';
+            cropperImg.style.top = cropperState.posY + 'px';
+        }
+
+        function updateZoom(value) {
+            const zoomFactor = value / cropperState.zoom;
+            cropperState.zoom = parseInt(value);
+            document.getElementById('zoomValue').textContent = value + '%';
+
+            const cropperImg = document.getElementById('cropperImage');
+            const container = cropperState.containerSize;
+            const imgRatio = cropperState.imgWidth / cropperState.imgHeight;
+
+            let baseWidth, baseHeight;
+            if (imgRatio > 1) {
+                baseHeight = container;
+                baseWidth = container * imgRatio;
+            } else {
+                baseWidth = container;
+                baseHeight = container / imgRatio;
+            }
+
+            const newWidth = baseWidth * (value / 100);
+            const newHeight = baseHeight * (value / 100);
+
+            // Ajustar posición para mantener el centro
+            const centerX = cropperState.posX + parseFloat(cropperImg.style.width) / 2;
+            const centerY = cropperState.posY + parseFloat(cropperImg.style.height) / 2;
+
+            cropperState.posX = centerX - newWidth / 2;
+            cropperState.posY = centerY - newHeight / 2;
+
+            cropperImg.style.width = newWidth + 'px';
+            cropperImg.style.height = newHeight + 'px';
+            updateCropperPosition();
+        }
+
+        function startDrag(e) {
+            e.preventDefault();
+            cropperState.isDragging = true;
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            cropperState.startX = clientX - cropperState.posX;
+            cropperState.startY = clientY - cropperState.posY;
+
+            document.addEventListener('mousemove', doDrag);
+            document.addEventListener('mouseup', stopDrag);
+            document.addEventListener('touchmove', doDrag);
+            document.addEventListener('touchend', stopDrag);
+        }
+
+        function doDrag(e) {
+            if (!cropperState.isDragging) return;
+            e.preventDefault();
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            cropperState.posX = clientX - cropperState.startX;
+            cropperState.posY = clientY - cropperState.startY;
+            updateCropperPosition();
+        }
+
+        function stopDrag() {
+            cropperState.isDragging = false;
+            document.removeEventListener('mousemove', doDrag);
+            document.removeEventListener('mouseup', stopDrag);
+            document.removeEventListener('touchmove', doDrag);
+            document.removeEventListener('touchend', stopDrag);
+        }
+
+        function cancelCrop() {
+            document.getElementById('photoNormalView').classList.remove('hidden');
+            document.getElementById('photoEditView').classList.add('hidden');
+        }
+
+        function saveCrop() {
+            const container = cropperState.containerSize;
+            const cropperImg = document.getElementById('cropperImage');
+
+            // Crear canvas para recortar
+            const canvas = document.createElement('canvas');
+            const outputSize = 150; // Tamaño final
+            canvas.width = outputSize;
+            canvas.height = outputSize;
+            const ctx = canvas.getContext('2d');
+
+            // Calcular qué parte de la imagen original recortar
+            const displayWidth = parseFloat(cropperImg.style.width);
+            const displayHeight = parseFloat(cropperImg.style.height);
+            const scaleX = cropperState.imgWidth / displayWidth;
+            const scaleY = cropperState.imgHeight / displayHeight;
+
+            const srcX = -cropperState.posX * scaleX;
+            const srcY = -cropperState.posY * scaleY;
+            const srcSize = container * scaleX;
+
+            // Dibujar la porción recortada
+            ctx.drawImage(
+                cropperState.image,
+                srcX, srcY, srcSize, srcSize,
+                0, 0, outputSize, outputSize
+            );
+
+            // Comprimir
+            let photoData = canvas.toDataURL('image/jpeg', 0.7);
+            let sizeKB = (photoData.length * 3/4) / 1024;
+
+            // Reducir calidad si es necesario
+            let quality = 0.7;
+            while (sizeKB > 30 && quality > 0.1) {
+                quality -= 0.1;
+                photoData = canvas.toDataURL('image/jpeg', quality);
+                sizeKB = (photoData.length * 3/4) / 1024;
+            }
+
+            console.log(`Foto guardada: ${Math.round(sizeKB)}KB`);
+
+            // Guardar
+            setStorage('profile-photo', photoData);
+
+            // Actualizar preview y cerrar editor
+            document.getElementById('photoPreview').innerHTML = `<img src="${photoData}" class="w-full h-full object-cover">`;
+            document.getElementById('removePhotoBtn').classList.remove('hidden');
+            document.getElementById('photoNormalView').classList.remove('hidden');
+            document.getElementById('photoEditView').classList.add('hidden');
+
+            render();
         }
 
         function removePhoto() {
