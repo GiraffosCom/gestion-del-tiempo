@@ -2855,6 +2855,7 @@
             if (textarea) {
                 setStorage(`notes-${dateKey}`, textarea.value);
                 showNotification('📝 Nota guardada');
+                render(); // Actualizar la vista para mostrar la nota en el historial
             }
         }
 
@@ -3722,13 +3723,13 @@
             for (let i = 0; i < 7; i++) {
                 const date = new Date(weekStart);
                 date.setDate(date.getDate() + i);
-                if (date >= startDate && date <= endDate) {
-                    data.push({
-                        day: daysSpanish[i].substring(0, 3),
-                        progress: getDailyProgress(date),
-                        isToday: date.toDateString() === currentDate.toDateString()
-                    });
-                }
+                const inRange = date >= startDate && date <= endDate;
+                data.push({
+                    day: daysSpanish[i].substring(0, 3),
+                    progress: inRange ? getDailyProgress(date) : 0,
+                    isToday: date.toDateString() === currentDate.toDateString(),
+                    inRange: inRange
+                });
             }
             return data;
         }
@@ -3736,6 +3737,10 @@
         function getCategoryDistribution() {
             const schedule = getSchedule();
             const distribution = {};
+
+            if (!schedule || schedule.length === 0) {
+                return [];
+            }
 
             schedule.forEach(item => {
                 const cat = item.category || 'personal';
@@ -3867,18 +3872,20 @@
                     <!-- Gráfica de Progreso Semanal -->
                     <div class="bg-white rounded-2xl p-5 shadow-sm">
                         <h3 class="font-bold text-gray-800 text-lg mb-4">📈 Progreso de la Semana</h3>
-                        <div class="flex items-end justify-between gap-2 h-48">
-                            ${weeklyData.map(day => `
-                                <div class="flex-1 flex flex-col items-center">
-                                    <div class="w-full bg-gray-100 rounded-t-lg relative" style="height: 160px;">
-                                        <div class="absolute bottom-0 w-full rounded-t-lg transition-all ${day.isToday ? 'bg-gradient-to-t from-rose-500 to-purple-500' : 'bg-gradient-to-t from-purple-300 to-purple-400'}" style="height: ${day.progress}%;">
+                        ${weeklyData.length > 0 ? `
+                            <div class="flex items-end justify-between gap-2 h-48">
+                                ${weeklyData.map(day => `
+                                    <div class="flex-1 flex flex-col items-center ${!day.inRange ? 'opacity-40' : ''}">
+                                        <div class="w-full bg-gray-100 rounded-t-lg relative" style="height: 160px;">
+                                            <div class="absolute bottom-0 w-full rounded-t-lg transition-all ${day.isToday ? 'bg-gradient-to-t from-rose-500 to-purple-500' : 'bg-gradient-to-t from-purple-300 to-purple-400'}" style="height: ${day.progress}%;">
+                                            </div>
                                         </div>
+                                        <span class="text-xs mt-2 font-medium ${day.isToday ? 'text-purple-600' : 'text-gray-500'}">${day.day}</span>
+                                        <span class="text-xs ${day.isToday ? 'text-purple-600 font-bold' : 'text-gray-400'}">${day.inRange ? day.progress + '%' : '-'}</span>
                                     </div>
-                                    <span class="text-xs mt-2 font-medium ${day.isToday ? 'text-purple-600' : 'text-gray-500'}">${day.day}</span>
-                                    <span class="text-xs ${day.isToday ? 'text-purple-600 font-bold' : 'text-gray-400'}">${day.progress}%</span>
-                                </div>
-                            `).join('')}
-                        </div>
+                                `).join('')}
+                            </div>
+                        ` : `<p class="text-center text-gray-400 py-8">No hay datos disponibles</p>`}
                     </div>
 
                     <!-- Gráfica de Últimos 7 días -->
