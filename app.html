@@ -87,7 +87,7 @@
 
     <!-- Modal para Agregar Nueva Actividad -->
     <div id="addModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all max-h-[90vh] overflow-y-auto">
             <h3 class="text-xl font-bold text-gray-800 mb-4">➕ Nueva Actividad</h3>
             <div class="space-y-4">
                 <div>
@@ -113,6 +113,27 @@
                         <option value="espiritual">🧘 Espiritual</option>
                         <option value="descanso">😴 Descanso</option>
                     </select>
+                </div>
+
+                <!-- Opción de repetir -->
+                <div class="border-t pt-4">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="addRepeat" onchange="toggleRepeatOptions()" class="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                        <span class="text-sm font-medium text-gray-700">🔄 Repetir en varios días</span>
+                    </label>
+                </div>
+
+                <!-- Opciones de fecha (ocultas por defecto) -->
+                <div id="repeatOptions" class="hidden space-y-3 bg-purple-50 p-3 rounded-xl">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">📅 Fecha inicio</label>
+                        <input type="date" id="addStartDate" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">📅 Fecha fin</label>
+                        <input type="date" id="addEndDate" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none">
+                    </div>
+                    <p class="text-xs text-purple-600">La actividad se agregará a todos los días en este rango</p>
                 </div>
             </div>
             <div class="flex gap-3 mt-6">
@@ -1506,6 +1527,14 @@
             document.getElementById('addActivity').value = '';
             document.getElementById('addDuration').value = '';
             document.getElementById('addCategory').value = 'personal';
+            document.getElementById('addRepeat').checked = false;
+            document.getElementById('repeatOptions').classList.add('hidden');
+
+            // Establecer fechas por defecto
+            const today = currentDate.toISOString().split('T')[0];
+            document.getElementById('addStartDate').value = today;
+            document.getElementById('addEndDate').value = today;
+
             document.getElementById('addModal').classList.remove('hidden');
         }
 
@@ -1513,28 +1542,88 @@
             document.getElementById('addModal').classList.add('hidden');
         }
 
+        function toggleRepeatOptions() {
+            const isChecked = document.getElementById('addRepeat').checked;
+            const options = document.getElementById('repeatOptions');
+
+            if (isChecked) {
+                options.classList.remove('hidden');
+            } else {
+                options.classList.add('hidden');
+            }
+        }
+
         function saveNewActivity() {
             const time = document.getElementById('addTime').value;
             const activity = document.getElementById('addActivity').value;
             const duration = document.getElementById('addDuration').value;
             const category = document.getElementById('addCategory').value;
+            const isRepeat = document.getElementById('addRepeat').checked;
 
             if (!time || !activity) {
                 alert('Por favor completa la hora y la actividad');
                 return;
             }
 
-            const dateKey = getDateKey();
-            let schedule = getSchedule(currentDate.getDay(), dateKey);
+            const newItem = { time, activity, duration, category };
 
-            if (!customSchedules[dateKey]) {
-                schedule = JSON.parse(JSON.stringify(schedule));
+            if (isRepeat) {
+                // Agregar a múltiples días
+                const startDateStr = document.getElementById('addStartDate').value;
+                const endDateStr = document.getElementById('addEndDate').value;
+
+                if (!startDateStr || !endDateStr) {
+                    alert('Por favor selecciona las fechas de inicio y fin');
+                    return;
+                }
+
+                const repeatStartDate = new Date(startDateStr + 'T00:00:00');
+                const repeatEndDate = new Date(endDateStr + 'T00:00:00');
+
+                if (repeatEndDate < repeatStartDate) {
+                    alert('La fecha fin debe ser igual o posterior a la fecha inicio');
+                    return;
+                }
+
+                // Validar que las fechas estén dentro del rango del plan
+                if (repeatStartDate < startDate || repeatEndDate > endDate) {
+                    alert('Las fechas deben estar dentro del rango de tu plan');
+                    return;
+                }
+
+                let daysAdded = 0;
+                const tempDate = new Date(repeatStartDate);
+
+                while (tempDate <= repeatEndDate) {
+                    const dateKey = `${tempDate.getFullYear()}-${String(tempDate.getMonth() + 1).padStart(2, '0')}-${String(tempDate.getDate()).padStart(2, '0')}`;
+                    let schedule = customSchedules[dateKey] || JSON.parse(JSON.stringify(getSchedule(tempDate.getDay(), dateKey)));
+
+                    schedule.push({ ...newItem });
+                    schedule.sort((a, b) => a.time.localeCompare(b.time));
+
+                    customSchedules[dateKey] = schedule;
+                    setStorage(`schedule-${dateKey}`, JSON.stringify(schedule));
+
+                    daysAdded++;
+                    tempDate.setDate(tempDate.getDate() + 1);
+                }
+
+                alert(`✅ Actividad agregada a ${daysAdded} días`);
+            } else {
+                // Agregar solo al día actual
+                const dateKey = getDateKey();
+                let schedule = getSchedule(currentDate.getDay(), dateKey);
+
+                if (!customSchedules[dateKey]) {
+                    schedule = JSON.parse(JSON.stringify(schedule));
+                }
+
+                schedule.push(newItem);
+                schedule.sort((a, b) => a.time.localeCompare(b.time));
+
+                saveCustomSchedule(dateKey, schedule);
             }
 
-            schedule.push({ time, activity, duration, category });
-            schedule.sort((a, b) => a.time.localeCompare(b.time));
-
-            saveCustomSchedule(dateKey, schedule);
             closeAddModal();
             render();
         }
