@@ -6860,6 +6860,7 @@
 
             // Show modal asking how to load the template
             const loadModal = document.createElement('div');
+            loadModal.id = 'loadTemplateModal';
             loadModal.className = 'fixed inset-0 bg-black/60 z-[70] flex items-center justify-center p-4';
             loadModal.onclick = (e) => { if (e.target === loadModal) loadModal.remove(); };
             loadModal.innerHTML = `
@@ -6895,7 +6896,8 @@
             if (!template) return;
 
             // Close the load mode modal
-            document.querySelectorAll('.fixed.z-\\[70\\]').forEach(m => m.remove());
+            const loadModal = document.getElementById('loadTemplateModal');
+            if (loadModal) loadModal.remove();
 
             if (mode === 'replace') {
                 // REPLACE MODE: Clear everything and load template
