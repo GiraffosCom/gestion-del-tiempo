@@ -24,6 +24,40 @@
         ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #ec4899, #8b5cf6); border-radius: 10px; }
         .glow { box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); }
         .photo-glow { box-shadow: 0 0 20px rgba(236, 72, 153, 0.4), 0 0 40px rgba(139, 92, 246, 0.3); }
+        @keyframes celebrationFall {
+            0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg) scale(0.5); opacity: 0; }
+        }
+
+        /* Dark Mode Styles */
+        .dark { background: linear-gradient(135deg, #1a1a2e, #16213e, #1a1a2e) !important; }
+        .dark .bg-white { background: #1e293b !important; }
+        .dark .bg-white\/90 { background: rgba(30, 41, 59, 0.95) !important; }
+        .dark .bg-white\/80 { background: rgba(30, 41, 59, 0.9) !important; }
+        .dark .bg-white\/60 { background: rgba(30, 41, 59, 0.8) !important; }
+        .dark .bg-white\/40 { background: rgba(30, 41, 59, 0.6) !important; }
+        .dark .bg-white\/50 { background: rgba(30, 41, 59, 0.7) !important; }
+        .dark .text-gray-800 { color: #f1f5f9 !important; }
+        .dark .text-gray-700 { color: #e2e8f0 !important; }
+        .dark .text-gray-600 { color: #cbd5e1 !important; }
+        .dark .text-gray-500 { color: #94a3b8 !important; }
+        .dark .text-gray-400 { color: #64748b !important; }
+        .dark .border-gray-200 { border-color: #334155 !important; }
+        .dark .border-gray-100 { border-color: #1e293b !important; }
+        .dark .border-b { border-color: #334155 !important; }
+        .dark .hover\:bg-gray-50:hover { background: #334155 !important; }
+        .dark .hover\:bg-gray-100:hover { background: #334155 !important; }
+        .dark .hover\:bg-white:hover { background: #334155 !important; }
+        .dark .bg-gray-50 { background: #1e293b !important; }
+        .dark .bg-gray-100 { background: #334155 !important; }
+        .dark input, .dark select, .dark textarea { background: #1e293b !important; color: #f1f5f9 !important; border-color: #334155 !important; }
+        .dark .modal-backdrop { background: rgba(0,0,0,0.7); }
+        .dark ::-webkit-scrollbar-track { background: #1e293b; }
+        .dark .habit-checked { background: linear-gradient(135deg, #2d1f3d, #1e293b) !important; }
+        .dark .from-rose-50, .dark .via-purple-50, .dark .to-blue-50 { --tw-gradient-stops: #1a1a2e, #16213e, #1a1a2e !important; }
+        .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-rose-50 via-purple-50 to-blue-50">
@@ -83,7 +117,7 @@
 
     <!-- Modal para Agregar Nueva Actividad -->
     <div id="addModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all max-h-[90vh] overflow-y-auto">
             <h3 class="text-xl font-bold text-gray-800 mb-4">➕ Nueva Actividad</h3>
             <div class="space-y-4">
                 <div>
@@ -109,6 +143,27 @@
                         <option value="espiritual">🧘 Espiritual</option>
                         <option value="descanso">😴 Descanso</option>
                     </select>
+                </div>
+
+                <!-- Opción de repetir -->
+                <div class="border-t pt-4">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="addRepeat" onchange="toggleRepeatOptions()" class="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                        <span class="text-sm font-medium text-gray-700">🔄 Repetir en varios días</span>
+                    </label>
+                </div>
+
+                <!-- Opciones de fecha (ocultas por defecto) -->
+                <div id="repeatOptions" class="hidden space-y-3 bg-purple-50 p-3 rounded-xl">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">📅 Fecha inicio</label>
+                        <input type="date" id="addStartDate" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">📅 Fecha fin</label>
+                        <input type="date" id="addEndDate" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none">
+                    </div>
+                    <p class="text-xs text-purple-600">La actividad se agregará a todos los días en este rango</p>
                 </div>
             </div>
             <div class="flex gap-3 mt-6">
@@ -297,23 +352,728 @@
         </div>
     </div>
 
+    <!-- Modal para Reemplazar Todos -->
+    <div id="replaceAllModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all">
+            <h3 class="text-xl font-bold text-gray-800 mb-2 text-center">🔄 ¿Aplicar a todos?</h3>
+            <p id="replaceAllMessage" class="text-gray-600 text-center mb-6">¿Quieres aplicar este cambio a todos los días?</p>
+
+            <div class="space-y-3">
+                <button onclick="confirmReplaceAll(true)" class="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium hover:opacity-90 transition">
+                    ✅ Sí, aplicar a todos
+                </button>
+                <button onclick="confirmReplaceAll(false)" class="w-full py-3 border-2 border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition">
+                    📅 Solo este día
+                </button>
+                <button onclick="closeReplaceAllModal()" class="w-full py-2 text-gray-400 hover:text-gray-600 transition text-sm">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Foto de Perfil -->
+    <div id="photoModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closePhotoModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all" onclick="event.stopPropagation()">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">📸 Foto de Perfil</h3>
+
+            <!-- Vista normal (sin edición) -->
+            <div id="photoNormalView">
+                <!-- Preview actual -->
+                <div class="flex justify-center mb-6">
+                    <div id="photoPreview" class="w-32 h-32 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center text-white text-4xl font-bold border-4 border-purple-200 overflow-hidden">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Opciones -->
+                <div class="space-y-3">
+                    <label class="flex items-center justify-center gap-3 w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium cursor-pointer hover:opacity-90 transition">
+                        <span>📁 Subir foto</span>
+                        <input type="file" id="photoInput" accept="image/*" class="hidden" onchange="handlePhotoUpload(event)">
+                    </label>
+
+                    <label class="flex items-center justify-center gap-3 w-full py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-medium cursor-pointer hover:opacity-90 transition">
+                        <span>📷 Tomar foto</span>
+                        <input type="file" id="cameraInput" accept="image/*" capture="user" class="hidden" onchange="handlePhotoUpload(event)">
+                    </label>
+
+                    <button onclick="removePhoto()" id="removePhotoBtn" class="w-full py-3 border-2 border-red-200 text-red-500 rounded-xl font-medium hover:bg-red-50 transition hidden">
+                        🗑️ Eliminar foto
+                    </button>
+                </div>
+            </div>
+
+            <!-- Vista de edición (ajustar posición) -->
+            <div id="photoEditView" class="hidden">
+                <p class="text-sm text-gray-500 text-center mb-3">👆 Arrastra para ajustar la posición</p>
+
+                <!-- Área de recorte -->
+                <div class="flex justify-center mb-4">
+                    <div id="cropperContainer" class="w-48 h-48 rounded-full border-4 border-purple-400 overflow-hidden relative cursor-move bg-gray-100"
+                        onmousedown="startDrag(event)" ontouchstart="startDrag(event)">
+                        <img id="cropperImage" class="absolute" style="max-width: none;" draggable="false">
+                    </div>
+                </div>
+
+                <!-- Zoom slider -->
+                <div class="mb-4">
+                    <label class="text-sm text-gray-600 flex items-center justify-between mb-1">
+                        <span>🔍 Zoom</span>
+                        <span id="zoomValue">100%</span>
+                    </label>
+                    <input type="range" id="zoomSlider" min="100" max="300" value="100"
+                        class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                        oninput="updateZoom(this.value)">
+                </div>
+
+                <!-- Botones de edición -->
+                <div class="flex gap-3">
+                    <button onclick="cancelCrop()" class="flex-1 py-3 border-2 border-gray-200 text-gray-600 rounded-xl font-medium hover:bg-gray-50 transition">
+                        Cancelar
+                    </button>
+                    <button onclick="saveCrop()" class="flex-1 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-medium hover:opacity-90 transition">
+                        ✓ Guardar
+                    </button>
+                </div>
+            </div>
+
+            <button onclick="closePhotoModal()" class="w-full mt-4 py-2 text-gray-500 hover:text-gray-700 transition">
+                Cerrar
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Felicitaciones -->
+    <div id="congratsModal" class="fixed inset-0 modal-backdrop z-[200] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all text-center">
+            <div id="congratsEmoji" class="text-7xl mb-4"></div>
+            <h3 id="congratsTitle" class="text-2xl font-bold text-gray-800 mb-2"></h3>
+            <p id="congratsMessage" class="text-gray-600 mb-6"></p>
+            <button onclick="closeCongratsModal()" class="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium hover:opacity-90 transition">
+                ¡Gracias! 🙌
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Calendario -->
+    <div id="calendarModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeCalendarModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-4 transform transition-all" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4">
+                <button onclick="changeCalendarMonth(-1)" class="p-2 hover:bg-gray-100 rounded-full transition">◀️</button>
+                <h3 id="calendarTitle" class="text-lg font-bold text-gray-800"></h3>
+                <button onclick="changeCalendarMonth(1)" class="p-2 hover:bg-gray-100 rounded-full transition">▶️</button>
+            </div>
+
+            <!-- Días de la semana -->
+            <div class="grid grid-cols-7 gap-1 mb-2">
+                <div class="text-center text-xs font-medium text-gray-500 py-1">Dom</div>
+                <div class="text-center text-xs font-medium text-gray-500 py-1">Lun</div>
+                <div class="text-center text-xs font-medium text-gray-500 py-1">Mar</div>
+                <div class="text-center text-xs font-medium text-gray-500 py-1">Mié</div>
+                <div class="text-center text-xs font-medium text-gray-500 py-1">Jue</div>
+                <div class="text-center text-xs font-medium text-gray-500 py-1">Vie</div>
+                <div class="text-center text-xs font-medium text-gray-500 py-1">Sáb</div>
+            </div>
+
+            <!-- Días del mes -->
+            <div id="calendarDays" class="grid grid-cols-7 gap-1">
+                <!-- Se genera dinámicamente -->
+            </div>
+
+            <button onclick="goToToday()" class="w-full mt-4 py-2 text-purple-600 font-medium hover:bg-purple-50 rounded-xl transition">
+                📍 Ir a hoy
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Pomodoro -->
+    <div id="pomodoroModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closePomodoroModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all" onclick="event.stopPropagation()">
+            <div class="text-center">
+                <h3 class="text-xl font-bold text-gray-800 mb-2">🍅 Pomodoro Timer</h3>
+                <p class="text-gray-500 text-sm mb-4">Enfócate en tus tareas</p>
+
+                <!-- Timer Display -->
+                <div id="pomodoroDisplay" class="text-6xl font-mono font-bold bg-gradient-to-r from-rose-500 to-purple-600 bg-clip-text text-transparent my-6">
+                    25:00
+                </div>
+
+                <!-- Status -->
+                <div id="pomodoroStatus" class="text-sm text-gray-500 mb-4">
+                    ⏱️ Listo para comenzar
+                </div>
+
+                <!-- Preset buttons -->
+                <div class="flex justify-center gap-2 mb-6">
+                    <button onclick="setPomodoroTime(25)" class="px-3 py-1 bg-rose-100 text-rose-600 rounded-full text-sm font-medium hover:bg-rose-200 transition">
+                        🍅 25 min
+                    </button>
+                    <button onclick="setPomodoroTime(5)" class="px-3 py-1 bg-green-100 text-green-600 rounded-full text-sm font-medium hover:bg-green-200 transition">
+                        ☕ 5 min
+                    </button>
+                    <button onclick="setPomodoroTime(15)" class="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm font-medium hover:bg-blue-200 transition">
+                        🧘 15 min
+                    </button>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex gap-3">
+                    <button id="pomodoroStartBtn" onclick="togglePomodoro()" class="flex-1 px-4 py-3 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">
+                        ▶️ Iniciar
+                    </button>
+                    <button onclick="resetPomodoro()" class="px-4 py-3 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 transition font-medium">
+                        🔄
+                    </button>
+                </div>
+
+                <!-- Stats -->
+                <div class="mt-6 pt-4 border-t border-gray-100">
+                    <p class="text-sm text-gray-500">
+                        🏆 Pomodoros hoy: <span id="pomodoroCount" class="font-bold text-purple-600">0</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón flotante Pomodoro -->
+    <button id="pomodoroFloatBtn" onclick="openPomodoroModal()" class="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 z-40 flex items-center justify-center text-2xl" title="Pomodoro Timer">
+        🍅
+    </button>
+
+    <!-- Modal Exportar -->
+    <div id="exportModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeExportModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all" onclick="event.stopPropagation()">
+            <h3 class="text-xl font-bold text-gray-800 mb-2">📥 Exportar Datos</h3>
+            <p class="text-gray-500 text-sm mb-6">Descarga tu progreso y actividades</p>
+
+            <div class="space-y-3">
+                <button onclick="exportToCSV()" class="w-full flex items-center gap-4 p-4 border-2 border-gray-100 rounded-xl hover:border-green-300 hover:bg-green-50 transition">
+                    <span class="text-3xl">📊</span>
+                    <div class="text-left">
+                        <p class="font-medium text-gray-800">Exportar a CSV</p>
+                        <p class="text-sm text-gray-500">Compatible con Excel y Google Sheets</p>
+                    </div>
+                </button>
+
+                <button onclick="exportToPrint()" class="w-full flex items-center gap-4 p-4 border-2 border-gray-100 rounded-xl hover:border-blue-300 hover:bg-blue-50 transition">
+                    <span class="text-3xl">🖨️</span>
+                    <div class="text-left">
+                        <p class="font-medium text-gray-800">Imprimir / PDF</p>
+                        <p class="text-sm text-gray-500">Vista de impresión optimizada</p>
+                    </div>
+                </button>
+
+                <button onclick="exportWeekSummary()" class="w-full flex items-center gap-4 p-4 border-2 border-gray-100 rounded-xl hover:border-purple-300 hover:bg-purple-50 transition">
+                    <span class="text-3xl">📋</span>
+                    <div class="text-left">
+                        <p class="font-medium text-gray-800">Resumen Semanal</p>
+                        <p class="text-sm text-gray-500">Descarga el resumen de la semana actual</p>
+                    </div>
+                </button>
+            </div>
+
+            <button onclick="closeExportModal()" class="w-full mt-6 py-3 text-gray-500 font-medium hover:bg-gray-50 rounded-xl transition">
+                Cerrar
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Compartir -->
+    <div id="shareModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeShareModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all" onclick="event.stopPropagation()">
+            <h3 class="text-xl font-bold text-gray-800 mb-2">📤 Compartir Logros</h3>
+            <p class="text-gray-500 text-sm mb-4">¡Muestra tu progreso al mundo!</p>
+
+            <!-- Preview Card -->
+            <div id="sharePreview" class="bg-gradient-to-br from-rose-500 via-purple-500 to-blue-500 rounded-2xl p-6 text-white mb-4">
+                <div class="text-center">
+                    <p class="text-sm opacity-80">Mi progreso en</p>
+                    <h4 class="text-xl font-bold mb-4">🎯 Gestión del Tiempo</h4>
+
+                    <div class="grid grid-cols-3 gap-3 mb-4">
+                        <div class="bg-white/20 rounded-xl p-3">
+                            <p id="shareDailyProgress" class="text-2xl font-bold">0%</p>
+                            <p class="text-xs opacity-80">Hoy</p>
+                        </div>
+                        <div class="bg-white/20 rounded-xl p-3">
+                            <p id="shareWeeklyProgress" class="text-2xl font-bold">0%</p>
+                            <p class="text-xs opacity-80">Semana</p>
+                        </div>
+                        <div class="bg-white/20 rounded-xl p-3">
+                            <p id="shareTotalProgress" class="text-2xl font-bold">0%</p>
+                            <p class="text-xs opacity-80">Total</p>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center gap-4">
+                        <div class="flex items-center gap-1">
+                            <span>🔥</span>
+                            <span id="shareStreak" class="font-bold">0</span>
+                            <span class="text-xs opacity-80">días</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <span>🏆</span>
+                            <span id="shareBestStreak" class="font-bold">0</span>
+                            <span class="text-xs opacity-80">mejor</span>
+                        </div>
+                    </div>
+
+                    <p id="shareMessage" class="mt-4 text-sm opacity-90 italic"></p>
+                </div>
+            </div>
+
+            <!-- Share Options -->
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="copyShareText()" class="flex items-center justify-center gap-2 p-3 bg-gray-100 rounded-xl hover:bg-gray-200 transition">
+                    <span class="text-xl">📋</span>
+                    <span class="text-sm font-medium text-gray-700">Copiar texto</span>
+                </button>
+                <button onclick="shareToTwitter()" class="flex items-center justify-center gap-2 p-3 bg-blue-100 rounded-xl hover:bg-blue-200 transition">
+                    <span class="text-xl">🐦</span>
+                    <span class="text-sm font-medium text-blue-700">Twitter</span>
+                </button>
+                <button onclick="shareToWhatsApp()" class="flex items-center justify-center gap-2 p-3 bg-green-100 rounded-xl hover:bg-green-200 transition">
+                    <span class="text-xl">💬</span>
+                    <span class="text-sm font-medium text-green-700">WhatsApp</span>
+                </button>
+                <button onclick="shareNative()" class="flex items-center justify-center gap-2 p-3 bg-purple-100 rounded-xl hover:bg-purple-200 transition">
+                    <span class="text-xl">📲</span>
+                    <span class="text-sm font-medium text-purple-700">Compartir</span>
+                </button>
+            </div>
+
+            <button onclick="closeShareModal()" class="w-full mt-4 py-3 text-gray-500 font-medium hover:bg-gray-50 rounded-xl transition">
+                Cerrar
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Plantillas -->
+    <div id="templateModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeTemplateModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all max-h-[80vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <h3 class="text-xl font-bold text-gray-800 mb-2">📋 Plantillas de Día</h3>
+            <p class="text-gray-500 text-sm mb-4">Guarda y reutiliza horarios</p>
+
+            <!-- Save current as template -->
+            <div class="bg-gradient-to-r from-rose-50 to-purple-50 rounded-xl p-4 mb-4">
+                <p class="font-medium text-gray-800 mb-2">💾 Guardar día actual como plantilla</p>
+                <div class="flex gap-2">
+                    <input type="text" id="templateName" placeholder="Nombre de la plantilla..." class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-400 outline-none">
+                    <button onclick="saveTemplate()" class="px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-lg text-sm font-medium hover:opacity-90 transition">
+                        Guardar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Templates list -->
+            <div id="templatesList" class="space-y-2">
+                <!-- Templates will be rendered here -->
+            </div>
+
+            <button onclick="closeTemplateModal()" class="w-full mt-4 py-3 text-gray-500 font-medium hover:bg-gray-50 rounded-xl transition">
+                Cerrar
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Limpiar Sección -->
+    <div id="cleanModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeCleanModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all" onclick="event.stopPropagation()">
+            <div class="text-center">
+                <span class="text-5xl">🧹</span>
+                <h3 class="text-xl font-bold text-gray-800 mt-3">Limpiar Sección</h3>
+                <p class="text-gray-500 mt-2" id="cleanModalDescription">Selecciona qué deseas limpiar</p>
+            </div>
+
+            <div id="cleanOptions" class="space-y-3 mt-6">
+                <!-- Options will be rendered dynamically -->
+            </div>
+
+            <button onclick="closeCleanModal()" class="w-full mt-4 py-3 text-gray-500 font-medium hover:bg-gray-50 rounded-xl transition">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
     <script>
-        // Data
-        const startDate = new Date(2026, 1, 2);
-        const endDate = new Date(2026, 2, 30);
-        let currentDate = new Date(startDate);
+        // Datos de Arantxa (sin necesidad de login)
+        const currentUser = {
+            name: 'Arantxa Ramírez',
+            email: 'arantxa@missuniverse.cl',
+            goal: 'salud',
+            duration: 90
+        };
+
+        // User-specific storage key prefix
+        const userKey = 'arantxa_ramirez';
+
+        function getStorage(key) {
+            return localStorage.getItem(`${userKey}-${key}`);
+        }
+
+        function setStorage(key, value) {
+            localStorage.setItem(`${userKey}-${key}`, value);
+        }
+
+        function removeStorage(key) {
+            localStorage.removeItem(`${userKey}-${key}`);
+        }
+
+        // Dark Mode Functions
+        function isDarkMode() {
+            return getStorage('dark-mode') === 'true';
+        }
+
+        function toggleDarkMode() {
+            const isDark = !isDarkMode();
+            setStorage('dark-mode', isDark.toString());
+            applyDarkMode();
+            render();
+        }
+
+        function applyDarkMode() {
+            if (isDarkMode()) {
+                document.body.classList.add('dark');
+            } else {
+                document.body.classList.remove('dark');
+            }
+        }
+
+        // Apply dark mode on page load
+        applyDarkMode();
+
+        function logout() {
+            if (confirm('¿Seguro que quieres ir al inicio?')) {
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Profile Photo Functions
+        let cropperState = {
+            image: null,
+            imgWidth: 0,
+            imgHeight: 0,
+            posX: 0,
+            posY: 0,
+            zoom: 100,
+            isDragging: false,
+            startX: 0,
+            startY: 0,
+            containerSize: 192 // 48 * 4 = w-48
+        };
+
+        function openPhotoModal() {
+            const modal = document.getElementById('photoModal');
+            const preview = document.getElementById('photoPreview');
+            const removeBtn = document.getElementById('removePhotoBtn');
+            const photo = getStorage('profile-photo');
+
+            // Mostrar vista normal, ocultar editor
+            document.getElementById('photoNormalView').classList.remove('hidden');
+            document.getElementById('photoEditView').classList.add('hidden');
+
+            if (photo) {
+                preview.innerHTML = `<img src="${photo}" class="w-full h-full object-cover">`;
+                removeBtn.classList.remove('hidden');
+            } else {
+                preview.innerHTML = currentUser.name.charAt(0).toUpperCase();
+                removeBtn.classList.add('hidden');
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closePhotoModal() {
+            document.getElementById('photoModal').classList.add('hidden');
+            document.getElementById('photoNormalView').classList.remove('hidden');
+            document.getElementById('photoEditView').classList.add('hidden');
+        }
+
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validar tamaño (max 15MB original)
+            if (file.size > 15 * 1024 * 1024) {
+                alert('La imagen es muy grande. Máximo 15MB.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    // Guardar imagen original
+                    cropperState.image = img;
+                    cropperState.imgWidth = img.width;
+                    cropperState.imgHeight = img.height;
+                    cropperState.zoom = 100;
+
+                    // Mostrar editor
+                    showCropperEditor(e.target.result);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+
+            // Limpiar input para permitir subir la misma imagen
+            event.target.value = '';
+        }
+
+        function showCropperEditor(imageSrc) {
+            // Ocultar vista normal, mostrar editor
+            document.getElementById('photoNormalView').classList.add('hidden');
+            document.getElementById('photoEditView').classList.remove('hidden');
+
+            const cropperImg = document.getElementById('cropperImage');
+            cropperImg.src = imageSrc;
+
+            // Resetear zoom
+            document.getElementById('zoomSlider').value = 100;
+            document.getElementById('zoomValue').textContent = '100%';
+            cropperState.zoom = 100;
+
+            // Calcular tamaño inicial para que cubra el contenedor
+            setTimeout(() => {
+                const container = cropperState.containerSize;
+                const imgRatio = cropperState.imgWidth / cropperState.imgHeight;
+
+                let displayWidth, displayHeight;
+                if (imgRatio > 1) {
+                    // Imagen horizontal
+                    displayHeight = container;
+                    displayWidth = container * imgRatio;
+                } else {
+                    // Imagen vertical o cuadrada
+                    displayWidth = container;
+                    displayHeight = container / imgRatio;
+                }
+
+                cropperImg.style.width = displayWidth + 'px';
+                cropperImg.style.height = displayHeight + 'px';
+
+                // Centrar imagen
+                cropperState.posX = (container - displayWidth) / 2;
+                cropperState.posY = (container - displayHeight) / 2;
+                updateCropperPosition();
+            }, 50);
+        }
+
+        function updateCropperPosition() {
+            const cropperImg = document.getElementById('cropperImage');
+            cropperImg.style.left = cropperState.posX + 'px';
+            cropperImg.style.top = cropperState.posY + 'px';
+        }
+
+        function updateZoom(value) {
+            const zoomFactor = value / cropperState.zoom;
+            cropperState.zoom = parseInt(value);
+            document.getElementById('zoomValue').textContent = value + '%';
+
+            const cropperImg = document.getElementById('cropperImage');
+            const container = cropperState.containerSize;
+            const imgRatio = cropperState.imgWidth / cropperState.imgHeight;
+
+            let baseWidth, baseHeight;
+            if (imgRatio > 1) {
+                baseHeight = container;
+                baseWidth = container * imgRatio;
+            } else {
+                baseWidth = container;
+                baseHeight = container / imgRatio;
+            }
+
+            const newWidth = baseWidth * (value / 100);
+            const newHeight = baseHeight * (value / 100);
+
+            // Ajustar posición para mantener el centro
+            const centerX = cropperState.posX + parseFloat(cropperImg.style.width) / 2;
+            const centerY = cropperState.posY + parseFloat(cropperImg.style.height) / 2;
+
+            cropperState.posX = centerX - newWidth / 2;
+            cropperState.posY = centerY - newHeight / 2;
+
+            cropperImg.style.width = newWidth + 'px';
+            cropperImg.style.height = newHeight + 'px';
+            updateCropperPosition();
+        }
+
+        function startDrag(e) {
+            e.preventDefault();
+            cropperState.isDragging = true;
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            cropperState.startX = clientX - cropperState.posX;
+            cropperState.startY = clientY - cropperState.posY;
+
+            document.addEventListener('mousemove', doDrag);
+            document.addEventListener('mouseup', stopDrag);
+            document.addEventListener('touchmove', doDrag);
+            document.addEventListener('touchend', stopDrag);
+        }
+
+        function doDrag(e) {
+            if (!cropperState.isDragging) return;
+            e.preventDefault();
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            cropperState.posX = clientX - cropperState.startX;
+            cropperState.posY = clientY - cropperState.startY;
+            updateCropperPosition();
+        }
+
+        function stopDrag() {
+            cropperState.isDragging = false;
+            document.removeEventListener('mousemove', doDrag);
+            document.removeEventListener('mouseup', stopDrag);
+            document.removeEventListener('touchmove', doDrag);
+            document.removeEventListener('touchend', stopDrag);
+        }
+
+        function cancelCrop() {
+            document.getElementById('photoNormalView').classList.remove('hidden');
+            document.getElementById('photoEditView').classList.add('hidden');
+        }
+
+        function saveCrop() {
+            const container = cropperState.containerSize;
+            const cropperImg = document.getElementById('cropperImage');
+
+            // Crear canvas para recortar
+            const canvas = document.createElement('canvas');
+            const outputSize = 400; // Tamaño final (mayor = mejor calidad)
+            canvas.width = outputSize;
+            canvas.height = outputSize;
+            const ctx = canvas.getContext('2d');
+
+            // Calcular qué parte de la imagen original recortar
+            const displayWidth = parseFloat(cropperImg.style.width);
+            const displayHeight = parseFloat(cropperImg.style.height);
+            const scaleX = cropperState.imgWidth / displayWidth;
+            const scaleY = cropperState.imgHeight / displayHeight;
+
+            const srcX = -cropperState.posX * scaleX;
+            const srcY = -cropperState.posY * scaleY;
+            const srcSize = container * scaleX;
+
+            // Dibujar la porción recortada
+            ctx.drawImage(
+                cropperState.image,
+                srcX, srcY, srcSize, srcSize,
+                0, 0, outputSize, outputSize
+            );
+
+            // Comprimir con alta calidad
+            let photoData = canvas.toDataURL('image/jpeg', 0.92);
+            let sizeKB = (photoData.length * 3/4) / 1024;
+
+            // Reducir calidad solo si excede 150KB
+            let quality = 0.92;
+            while (sizeKB > 150 && quality > 0.5) {
+                quality -= 0.05;
+                photoData = canvas.toDataURL('image/jpeg', quality);
+                sizeKB = (photoData.length * 3/4) / 1024;
+            }
+
+            console.log(`Foto guardada: ${Math.round(sizeKB)}KB (calidad: ${Math.round(quality*100)}%)`);
+
+            // Guardar
+            setStorage('profile-photo', photoData);
+
+            // Actualizar preview y cerrar editor
+            document.getElementById('photoPreview').innerHTML = `<img src="${photoData}" class="w-full h-full object-cover">`;
+            document.getElementById('removePhotoBtn').classList.remove('hidden');
+            document.getElementById('photoNormalView').classList.remove('hidden');
+            document.getElementById('photoEditView').classList.add('hidden');
+
+            render();
+        }
+
+        function removePhoto() {
+            if (confirm('¿Eliminar foto de perfil?')) {
+                removeStorage('profile-photo');
+                document.getElementById('photoPreview').innerHTML = currentUser.name.charAt(0).toUpperCase();
+                document.getElementById('removePhotoBtn').classList.add('hidden');
+                render();
+            }
+        }
+
+        function getUserPhoto() {
+            return getStorage('profile-photo');
+        }
+
+        // Replace All Modal Functions
+        let pendingReplaceAll = null; // { type, oldValue, newValue, callback }
+
+        function showReplaceAllModal(type, message, callback) {
+            pendingReplaceAll = { type, callback };
+            document.getElementById('replaceAllMessage').textContent = message;
+            document.getElementById('replaceAllModal').classList.remove('hidden');
+        }
+
+        function closeReplaceAllModal() {
+            document.getElementById('replaceAllModal').classList.add('hidden');
+            pendingReplaceAll = null;
+        }
+
+        function confirmReplaceAll(replaceAll) {
+            if (pendingReplaceAll && pendingReplaceAll.callback) {
+                pendingReplaceAll.callback(replaceAll);
+            }
+            closeReplaceAllModal();
+            render();
+        }
+
+        // Goal text mapping
+        function getGoalText(goal) {
+            const goals = {
+                fitness: '💪 Mejorando mi físico',
+                productivity: '📈 Siendo más productivo',
+                learning: '📚 Aprendiendo algo nuevo',
+                health: '🥗 Mejorando mi salud',
+                business: '💼 Haciendo crecer mi negocio',
+                competition: '👑 Preparándome para competir',
+                personal: '✨ Desarrollo personal',
+                other: '🎯 Alcanzando mis metas'
+            };
+            return goals[goal] || goals.other;
+        }
+
+        // Data - User specific dates based on their plan
+        const userStartDate = currentUser ? new Date(currentUser.startDate) : new Date();
+        const userDuration = currentUser ? currentUser.duration : 60;
+        const totalWeeks = Math.ceil(userDuration / 7);
+        const startDate = new Date(userStartDate);
+        const endDate = new Date(userStartDate);
+        endDate.setDate(endDate.getDate() + userDuration - 1);
+
+        let currentDate = new Date();
+        // Clamp current date to plan range
+        if (currentDate < startDate) currentDate = new Date(startDate);
+        if (currentDate > endDate) currentDate = new Date(endDate);
+
         let activeTab = 'agenda';
-        let checkedHabits = JSON.parse(localStorage.getItem('arantxa-habits') || '{}');
-        let completedActivities = JSON.parse(localStorage.getItem('arantxa-activities') || '{}');
-        let customSchedules = JSON.parse(localStorage.getItem('arantxa-custom-schedules') || '{}');
-        let customHabits = JSON.parse(localStorage.getItem('arantxa-custom-habits') || 'null');
-        let customGym = JSON.parse(localStorage.getItem('arantxa-custom-gym') || '{}');
-        let customMeals = JSON.parse(localStorage.getItem('arantxa-custom-meals') || 'null');
-        let customGoals = JSON.parse(localStorage.getItem('arantxa-custom-goals') || 'null');
+        let checkedHabits = JSON.parse(getStorage('habits') || '{}');
+        let completedActivities = JSON.parse(getStorage('activities') || '{}');
+        let customSchedules = JSON.parse(getStorage('custom-schedules') || '{}');
+        let customHabits = JSON.parse(getStorage('custom-habits') || 'null');
+        let customGym = JSON.parse(getStorage('custom-gym') || '{}');
+        let customMeals = JSON.parse(getStorage('custom-meals') || 'null');
+        let customGoals = JSON.parse(getStorage('custom-goals') || 'null');
 
         let editingIndex = null;
         let deletingIndex = null;
         let deleteType = 'activity';
+
+        // Search and Filter state
+        let searchQuery = '';
+        let activeFilter = '';
 
         const daysSpanish = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
         const monthsSpanish = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -412,7 +1172,7 @@
 
         function saveCustomSchedule(dateKey, schedule) {
             customSchedules[dateKey] = schedule;
-            localStorage.setItem('arantxa-custom-schedules', JSON.stringify(customSchedules));
+            setStorage('custom-schedules', JSON.stringify(customSchedules));
         }
 
         function getWeekdaySchedule(dayIndex) {
@@ -498,7 +1258,7 @@
         }
 
         function getWeekNumber(date = currentDate) {
-            return Math.min(8, Math.max(1, Math.floor((date - startDate) / (7 * 24 * 60 * 60 * 1000)) + 1));
+            return Math.min(totalWeeks, Math.max(1, Math.floor((date - startDate) / (7 * 24 * 60 * 60 * 1000)) + 1));
         }
 
         function getDayNumber(date = currentDate) {
@@ -571,12 +1331,225 @@
             return totalActivities > 0 ? Math.round((completedCount / totalActivities) * 100) : 0;
         }
 
+        // Calcular racha de días consecutivos con 100%
+        function getStreak() {
+            let streak = 0;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Empezar desde ayer (o hoy si ya completó)
+            const checkDate = new Date(today);
+
+            // Si hoy aún no tiene 100%, empezar desde ayer
+            const todayProgress = getDailyProgress(today);
+            if (todayProgress < 100) {
+                checkDate.setDate(checkDate.getDate() - 1);
+            }
+
+            // Contar días hacia atrás con 100%
+            while (checkDate >= startDate) {
+                const dayProgress = getDailyProgress(checkDate);
+                if (dayProgress === 100) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
+
+            return streak;
+        }
+
+        // Calcular mejor racha histórica
+        function getBestStreak() {
+            let bestStreak = 0;
+            let currentStreak = 0;
+
+            const tempDate = new Date(startDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            while (tempDate <= today && tempDate <= endDate) {
+                const dayProgress = getDailyProgress(tempDate);
+                if (dayProgress === 100) {
+                    currentStreak++;
+                    bestStreak = Math.max(bestStreak, currentStreak);
+                } else {
+                    currentStreak = 0;
+                }
+                tempDate.setDate(tempDate.getDate() + 1);
+            }
+
+            return bestStreak;
+        }
+
         function navigateDay(direction) {
             const newDate = new Date(currentDate);
             newDate.setDate(newDate.getDate() + direction);
             if (newDate >= startDate && newDate <= endDate) {
                 currentDate = newDate;
                 render();
+            }
+        }
+
+        // Calendar Modal Functions
+        let calendarMonth = new Date();
+
+        function openCalendarModal() {
+            calendarMonth = new Date(currentDate);
+            renderCalendar();
+            document.getElementById('calendarModal').classList.remove('hidden');
+        }
+
+        function closeCalendarModal() {
+            document.getElementById('calendarModal').classList.add('hidden');
+        }
+
+        function changeCalendarMonth(direction) {
+            calendarMonth.setMonth(calendarMonth.getMonth() + direction);
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                               'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+            document.getElementById('calendarTitle').textContent =
+                `${monthNames[calendarMonth.getMonth()]} ${calendarMonth.getFullYear()}`;
+
+            const container = document.getElementById('calendarDays');
+            container.innerHTML = '';
+
+            // Primer día del mes
+            const firstDay = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1);
+            const lastDay = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 0);
+
+            // Días vacíos al inicio
+            for (let i = 0; i < firstDay.getDay(); i++) {
+                container.innerHTML += '<div></div>';
+            }
+
+            // Días del mes
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const date = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), day);
+                const isInRange = date >= startDate && date <= endDate;
+                const isSelected = date.toDateString() === currentDate.toDateString();
+                const isToday = date.toDateString() === new Date().toDateString();
+
+                let classes = 'w-10 h-10 flex items-center justify-center rounded-full text-sm transition ';
+
+                if (!isInRange) {
+                    classes += 'text-gray-300 cursor-not-allowed';
+                } else if (isSelected) {
+                    classes += 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold cursor-pointer';
+                } else if (isToday) {
+                    classes += 'border-2 border-purple-400 text-purple-600 font-medium cursor-pointer hover:bg-purple-50';
+                } else {
+                    classes += 'text-gray-700 cursor-pointer hover:bg-gray-100';
+                }
+
+                container.innerHTML += `
+                    <button class="${classes}"
+                            ${isInRange ? `onclick="selectDate(${date.getFullYear()}, ${date.getMonth()}, ${day})"` : 'disabled'}>
+                        ${day}
+                    </button>
+                `;
+            }
+        }
+
+        function selectDate(year, month, day) {
+            currentDate = new Date(year, month, day);
+            closeCalendarModal();
+            render();
+        }
+
+        function goToToday() {
+            const today = new Date();
+            if (today >= startDate && today <= endDate) {
+                currentDate = today;
+                closeCalendarModal();
+                render();
+            } else {
+                alert('Hoy está fuera del rango de tu plan');
+            }
+        }
+
+        // Congratulations Modal Functions
+        const congratsShown = JSON.parse(getStorage('congrats-shown') || '{}');
+
+        function closeCongratsModal() {
+            document.getElementById('congratsModal').classList.add('hidden');
+        }
+
+        function showCongrats(type, emoji, title, message) {
+            document.getElementById('congratsEmoji').textContent = emoji;
+            document.getElementById('congratsTitle').textContent = title;
+            document.getElementById('congratsMessage').textContent = message;
+            document.getElementById('congratsModal').classList.remove('hidden');
+
+            // Mostrar celebración extra grande
+            showBigCelebration();
+        }
+
+        function showBigCelebration() {
+            const emojis = ['🎉', '🎊', '🥳', '⭐', '✨', '🌟', '🏆', '👑', '💪', '🔥', '💖', '🎆', '🎇'];
+            const container = document.createElement('div');
+            container.className = 'fixed inset-0 pointer-events-none z-[150]';
+            document.body.appendChild(container);
+
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const emoji = document.createElement('div');
+                    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    emoji.style.cssText = `
+                        position: absolute;
+                        font-size: ${30 + Math.random() * 40}px;
+                        left: ${Math.random() * 100}%;
+                        top: -60px;
+                        animation: celebrationFall 2s ease-out forwards;
+                    `;
+                    container.appendChild(emoji);
+                }, i * 80);
+            }
+
+            setTimeout(() => container.remove(), 3500);
+        }
+
+        function checkAndShowCongrats(dailyProgress, weeklyProgress, totalProgress) {
+            const dateKey = getDateKey();
+            const weekKey = `week-${getWeekNumber()}`;
+
+            // Día completo (100%)
+            if (dailyProgress === 100 && !congratsShown[dateKey]) {
+                congratsShown[dateKey] = true;
+                setStorage('congrats-shown', JSON.stringify(congratsShown));
+                setTimeout(() => {
+                    showCongrats('day', '🌟', '¡Día completado!',
+                        '¡Increíble! Completaste todas las tareas del día. ¡Sigue así!');
+                }, 500);
+                return;
+            }
+
+            // Semana completa (100%)
+            if (weeklyProgress === 100 && !congratsShown[weekKey]) {
+                congratsShown[weekKey] = true;
+                setStorage('congrats-shown', JSON.stringify(congratsShown));
+                setTimeout(() => {
+                    showCongrats('week', '🏆', '¡Semana perfecta!',
+                        '¡WOW! Completaste toda la semana. ¡Eres imparable!');
+                }, 500);
+                return;
+            }
+
+            // Plan completo (100%)
+            if (totalProgress === 100 && !congratsShown['plan-complete']) {
+                congratsShown['plan-complete'] = true;
+                setStorage('congrats-shown', JSON.stringify(congratsShown));
+                setTimeout(() => {
+                    showCongrats('plan', '👑', '¡¡PLAN COMPLETADO!!',
+                        '¡LO LOGRASTE! Completaste todo tu plan. ¡Eres una leyenda! 🎉🎊🥳');
+                }, 500);
+                return;
             }
         }
 
@@ -587,16 +1560,69 @@
 
         function toggleHabit(habitId) {
             const key = `${getDateKey()}-${habitId}`;
+            const wasCompleted = checkedHabits[key];
             checkedHabits[key] = !checkedHabits[key];
-            localStorage.setItem('arantxa-habits', JSON.stringify(checkedHabits));
+            setStorage('habits', JSON.stringify(checkedHabits));
+
+            // Mostrar celebración si se completó
+            if (!wasCompleted && checkedHabits[key]) {
+                showCelebration();
+                // Verificar si se completó día/semana/plan
+                setTimeout(() => {
+                    checkAndShowCongrats(getDailyProgress(), getWeeklyProgress(), getTotalProgress());
+                }, 1000);
+            }
             render();
         }
 
         function toggleActivity(index) {
             const key = `${getDateKey()}-${index}`;
+            const wasCompleted = completedActivities[key];
             completedActivities[key] = !completedActivities[key];
-            localStorage.setItem('arantxa-activities', JSON.stringify(completedActivities));
+            setStorage('activities', JSON.stringify(completedActivities));
+
+            // Mostrar celebración si se completó
+            if (!wasCompleted && completedActivities[key]) {
+                showCelebration();
+                // Verificar si se completó día/semana/plan
+                setTimeout(() => {
+                    checkAndShowCongrats(getDailyProgress(), getWeeklyProgress(), getTotalProgress());
+                }, 1000);
+            }
             render();
+        }
+
+        // Animación de celebración con emojis (3 opciones aleatorias)
+        function showCelebration() {
+            const emojiSets = [
+                ['🎉', '🎊', '🥳', '🎈', '🎁', '🪅', '🎀', '🍾', '🥂', '🎆'],  // Fiesta
+                ['⭐', '✨', '🌟', '💫', '🌈', '🦋', '💖', '💝', '🌸', '🌺'],  // Mágico
+                ['🏆', '🥇', '💪', '🔥', '👑', '🚀', '💯', '⚡', '🎯', '👏']   // Campeón
+            ];
+            const emojis = emojiSets[Math.floor(Math.random() * emojiSets.length)];
+            const container = document.createElement('div');
+            container.className = 'fixed inset-0 pointer-events-none z-[100]';
+            document.body.appendChild(container);
+
+            // Crear 15 emojis que caen
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const emoji = document.createElement('div');
+                    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    emoji.style.cssText = `
+                        position: absolute;
+                        font-size: ${20 + Math.random() * 25}px;
+                        left: ${Math.random() * 100}%;
+                        top: -50px;
+                        animation: celebrationFall 1.5s ease-out forwards;
+                        opacity: 1;
+                    `;
+                    container.appendChild(emoji);
+                }, i * 50);
+            }
+
+            // Eliminar después de la animación
+            setTimeout(() => container.remove(), 2000);
         }
 
         // ========== ACTIVITY MODALS ==========
@@ -623,22 +1649,47 @@
         function saveEdit() {
             const dateKey = getDateKey();
             let schedule = getSchedule(currentDate.getDay(), dateKey);
+            const originalActivity = schedule[editingIndex].activity;
 
-            if (!customSchedules[dateKey]) {
-                schedule = JSON.parse(JSON.stringify(schedule));
-            }
-
-            schedule[editingIndex] = {
+            const newItem = {
                 time: document.getElementById('editTime').value,
                 activity: document.getElementById('editActivity').value,
                 duration: document.getElementById('editDuration').value,
                 category: document.getElementById('editCategory').value
             };
 
+            // Guardar este día primero
+            if (!customSchedules[dateKey]) {
+                schedule = JSON.parse(JSON.stringify(schedule));
+            }
+            schedule[editingIndex] = newItem;
             schedule.sort((a, b) => a.time.localeCompare(b.time));
-
             saveCustomSchedule(dateKey, schedule);
+
             closeEditModal();
+
+            // Preguntar si reemplazar en todos los días
+            showReplaceAllModal('schedule',
+                `¿Aplicar este cambio a "${originalActivity}" en todos los días?`,
+                (replaceAll) => {
+                    if (replaceAll) {
+                        replaceActivityInAllDays(originalActivity, newItem);
+                    }
+                }
+            );
+        }
+
+        function replaceActivityInAllDays(originalName, newItem) {
+            // Reemplazar en horarios por defecto customizados
+            Object.keys(customSchedules).forEach(key => {
+                const schedule = customSchedules[key];
+                schedule.forEach((item, idx) => {
+                    if (item.activity === originalName) {
+                        schedule[idx] = { ...newItem };
+                    }
+                });
+                setStorage(`schedule-${key}`, JSON.stringify(schedule));
+            });
             render();
         }
 
@@ -672,19 +1723,88 @@
             deletingIndex = null;
         }
 
+        let pendingDeleteName = null; // Nombre del item a borrar
+
         function confirmDelete() {
             if (deleteType === 'activity') {
+                // Guardar nombre antes de borrar
+                const dateKey = getDateKey();
+                const schedule = getSchedule(currentDate.getDay(), dateKey);
+                pendingDeleteName = schedule[deletingIndex]?.activity;
+
                 deleteActivity();
+                closeDeleteModal();
+                render();
+
+                // Preguntar si borrar de todos los días
+                if (pendingDeleteName) {
+                    showReplaceAllModal('deleteActivity',
+                        `¿Eliminar "${pendingDeleteName}" de todos los demás días?`,
+                        (deleteAll) => {
+                            if (deleteAll) {
+                                deleteActivityFromAllDays(pendingDeleteName);
+                            }
+                        }
+                    );
+                }
             } else if (deleteType === 'habit') {
                 deleteHabit();
+                closeDeleteModal();
+                render();
             } else if (deleteType === 'gym') {
+                // Guardar nombre antes de borrar
+                const dayIndex = currentDate.getDay();
+                const gym = getGymFocus(dayIndex);
+                pendingDeleteName = gym.exercises[deletingIndex];
+
                 deleteGymExercise();
+                closeDeleteModal();
+                render();
+
+                // Preguntar si borrar de todos los días
+                if (pendingDeleteName) {
+                    showReplaceAllModal('deleteGym',
+                        `¿Eliminar "${pendingDeleteName}" de todos los demás días?`,
+                        (deleteAll) => {
+                            if (deleteAll) {
+                                deleteGymFromAllDays(pendingDeleteName, dayIndex);
+                            }
+                        }
+                    );
+                }
             } else if (deleteType === 'meal') {
                 deleteMeal();
+                closeDeleteModal();
+                render();
             } else if (deleteType === 'goal') {
                 deleteGoal();
+                closeDeleteModal();
+                render();
             }
-            closeDeleteModal();
+        }
+
+        function deleteActivityFromAllDays(activityName) {
+            Object.keys(customSchedules).forEach(key => {
+                const schedule = customSchedules[key];
+                const originalLength = schedule.length;
+                customSchedules[key] = schedule.filter(item => item.activity !== activityName);
+                if (customSchedules[key].length !== originalLength) {
+                    setStorage(`schedule-${key}`, JSON.stringify(customSchedules[key]));
+                }
+            });
+            render();
+        }
+
+        function deleteGymFromAllDays(exerciseName, excludeDayIndex) {
+            for (let d = 0; d < 7; d++) {
+                if (d !== excludeDayIndex && customGym[d]) {
+                    const originalLength = customGym[d].exercises.length;
+                    customGym[d].exercises = customGym[d].exercises.filter(ex => ex !== exerciseName);
+                    if (customGym[d].exercises.length !== originalLength) {
+                        setStorage('custom-gym', JSON.stringify(customGym));
+                    }
+                }
+            }
             render();
         }
 
@@ -712,7 +1832,7 @@
                 }
             });
             completedActivities = newCompleted;
-            localStorage.setItem('arantxa-activities', JSON.stringify(completedActivities));
+            setStorage('activities', JSON.stringify(completedActivities));
 
             saveCustomSchedule(dateKey, schedule);
         }
@@ -722,6 +1842,14 @@
             document.getElementById('addActivity').value = '';
             document.getElementById('addDuration').value = '';
             document.getElementById('addCategory').value = 'personal';
+            document.getElementById('addRepeat').checked = false;
+            document.getElementById('repeatOptions').classList.add('hidden');
+
+            // Establecer fechas por defecto
+            const today = currentDate.toISOString().split('T')[0];
+            document.getElementById('addStartDate').value = today;
+            document.getElementById('addEndDate').value = today;
+
             document.getElementById('addModal').classList.remove('hidden');
         }
 
@@ -729,28 +1857,88 @@
             document.getElementById('addModal').classList.add('hidden');
         }
 
+        function toggleRepeatOptions() {
+            const isChecked = document.getElementById('addRepeat').checked;
+            const options = document.getElementById('repeatOptions');
+
+            if (isChecked) {
+                options.classList.remove('hidden');
+            } else {
+                options.classList.add('hidden');
+            }
+        }
+
         function saveNewActivity() {
             const time = document.getElementById('addTime').value;
             const activity = document.getElementById('addActivity').value;
             const duration = document.getElementById('addDuration').value;
             const category = document.getElementById('addCategory').value;
+            const isRepeat = document.getElementById('addRepeat').checked;
 
             if (!time || !activity) {
                 alert('Por favor completa la hora y la actividad');
                 return;
             }
 
-            const dateKey = getDateKey();
-            let schedule = getSchedule(currentDate.getDay(), dateKey);
+            const newItem = { time, activity, duration, category };
 
-            if (!customSchedules[dateKey]) {
-                schedule = JSON.parse(JSON.stringify(schedule));
+            if (isRepeat) {
+                // Agregar a múltiples días
+                const startDateStr = document.getElementById('addStartDate').value;
+                const endDateStr = document.getElementById('addEndDate').value;
+
+                if (!startDateStr || !endDateStr) {
+                    alert('Por favor selecciona las fechas de inicio y fin');
+                    return;
+                }
+
+                const repeatStartDate = new Date(startDateStr + 'T00:00:00');
+                const repeatEndDate = new Date(endDateStr + 'T00:00:00');
+
+                if (repeatEndDate < repeatStartDate) {
+                    alert('La fecha fin debe ser igual o posterior a la fecha inicio');
+                    return;
+                }
+
+                // Validar que las fechas estén dentro del rango del plan
+                if (repeatStartDate < startDate || repeatEndDate > endDate) {
+                    alert('Las fechas deben estar dentro del rango de tu plan');
+                    return;
+                }
+
+                let daysAdded = 0;
+                const tempDate = new Date(repeatStartDate);
+
+                while (tempDate <= repeatEndDate) {
+                    const dateKey = `${tempDate.getFullYear()}-${String(tempDate.getMonth() + 1).padStart(2, '0')}-${String(tempDate.getDate()).padStart(2, '0')}`;
+                    let schedule = customSchedules[dateKey] || JSON.parse(JSON.stringify(getSchedule(tempDate.getDay(), dateKey)));
+
+                    schedule.push({ ...newItem });
+                    schedule.sort((a, b) => a.time.localeCompare(b.time));
+
+                    customSchedules[dateKey] = schedule;
+                    setStorage(`schedule-${dateKey}`, JSON.stringify(schedule));
+
+                    daysAdded++;
+                    tempDate.setDate(tempDate.getDate() + 1);
+                }
+
+                alert(`✅ Actividad agregada a ${daysAdded} días`);
+            } else {
+                // Agregar solo al día actual
+                const dateKey = getDateKey();
+                let schedule = getSchedule(currentDate.getDay(), dateKey);
+
+                if (!customSchedules[dateKey]) {
+                    schedule = JSON.parse(JSON.stringify(schedule));
+                }
+
+                schedule.push(newItem);
+                schedule.sort((a, b) => a.time.localeCompare(b.time));
+
+                saveCustomSchedule(dateKey, schedule);
             }
 
-            schedule.push({ time, activity, duration, category });
-            schedule.sort((a, b) => a.time.localeCompare(b.time));
-
-            saveCustomSchedule(dateKey, schedule);
             closeAddModal();
             render();
         }
@@ -759,14 +1947,14 @@
             if (confirm('¿Restaurar el plan original de este día? Se perderán los cambios.')) {
                 const dateKey = getDateKey();
                 delete customSchedules[dateKey];
-                localStorage.setItem('arantxa-custom-schedules', JSON.stringify(customSchedules));
+                setStorage('custom-schedules', JSON.stringify(customSchedules));
 
                 Object.keys(completedActivities).forEach(key => {
                     if (key.startsWith(dateKey)) {
                         delete completedActivities[key];
                     }
                 });
-                localStorage.setItem('arantxa-activities', JSON.stringify(completedActivities));
+                setStorage('activities', JSON.stringify(completedActivities));
 
                 render();
             }
@@ -790,25 +1978,34 @@
         }
 
         function saveHabitEdit() {
-            let habits = customHabits || JSON.parse(JSON.stringify(defaultHabits));
+            const newIcon = document.getElementById('editHabitIcon').value;
+            const newName = document.getElementById('editHabitName').value;
+            const indexToEdit = editingIndex; // Guardar antes de cerrar modal
 
-            habits[editingIndex] = {
-                id: habits[editingIndex].id,
-                icon: document.getElementById('editHabitIcon').value,
-                name: document.getElementById('editHabitName').value
-            };
-
-            customHabits = habits;
-            localStorage.setItem('arantxa-custom-habits', JSON.stringify(customHabits));
             closeEditHabitModal();
-            render();
+
+            showReplaceAllModal('habit',
+                `Este cambio aplicará a "${newName}" en todos los días. ¿Continuar?`,
+                (confirmed) => {
+                    if (confirmed) {
+                        let habits = customHabits || JSON.parse(JSON.stringify(defaultHabits));
+                        habits[indexToEdit] = {
+                            id: habits[indexToEdit].id,
+                            icon: newIcon,
+                            name: newName
+                        };
+                        customHabits = habits;
+                        setStorage('custom-habits', JSON.stringify(customHabits));
+                    }
+                }
+            );
         }
 
         function deleteHabit() {
             let habits = customHabits || JSON.parse(JSON.stringify(defaultHabits));
             habits.splice(deletingIndex, 1);
             customHabits = habits;
-            localStorage.setItem('arantxa-custom-habits', JSON.stringify(customHabits));
+            setStorage('custom-habits', JSON.stringify(customHabits));
         }
 
         function openAddHabitModal() {
@@ -835,7 +2032,7 @@
             habits.push({ id: newId, icon, name });
 
             customHabits = habits;
-            localStorage.setItem('arantxa-custom-habits', JSON.stringify(customHabits));
+            setStorage('custom-habits', JSON.stringify(customHabits));
             closeAddHabitModal();
             render();
         }
@@ -843,7 +2040,7 @@
         function resetHabits() {
             if (confirm('¿Restaurar los hábitos originales?')) {
                 customHabits = null;
-                localStorage.removeItem('arantxa-custom-habits');
+                removeStorage('custom-habits');
                 render();
             }
         }
@@ -868,13 +2065,32 @@
         function saveGymEdit() {
             const dayIndex = currentDate.getDay();
             let gym = customGym[dayIndex] || JSON.parse(JSON.stringify(defaultGymFocus[dayIndex]));
+            const originalExercise = gym.exercises[editingIndex];
+            const newExercise = document.getElementById('editGymExercise').value;
 
-            gym.exercises[editingIndex] = document.getElementById('editGymExercise').value;
-
+            // Guardar este día primero
+            gym.exercises[editingIndex] = newExercise;
             customGym[dayIndex] = gym;
-            localStorage.setItem('arantxa-custom-gym', JSON.stringify(customGym));
+            setStorage('custom-gym', JSON.stringify(customGym));
+
             closeEditGymModal();
-            render();
+
+            showReplaceAllModal('gym',
+                `¿Reemplazar "${originalExercise}" en todos los días de la semana?`,
+                (replaceAll) => {
+                    if (replaceAll) {
+                        // Reemplazar en todos los días
+                        for (let d = 0; d < 7; d++) {
+                            if (d !== dayIndex && customGym[d]) {
+                                customGym[d].exercises = customGym[d].exercises.map(ex =>
+                                    ex === originalExercise ? newExercise : ex
+                                );
+                            }
+                        }
+                        setStorage('custom-gym', JSON.stringify(customGym));
+                    }
+                }
+            );
         }
 
         function deleteGymExercise() {
@@ -882,7 +2098,7 @@
             let gym = customGym[dayIndex] || JSON.parse(JSON.stringify(defaultGymFocus[dayIndex]));
             gym.exercises.splice(deletingIndex, 1);
             customGym[dayIndex] = gym;
-            localStorage.setItem('arantxa-custom-gym', JSON.stringify(customGym));
+            setStorage('custom-gym', JSON.stringify(customGym));
         }
 
         function openAddGymModal() {
@@ -907,7 +2123,7 @@
             gym.exercises.push(exercise);
 
             customGym[dayIndex] = gym;
-            localStorage.setItem('arantxa-custom-gym', JSON.stringify(customGym));
+            setStorage('custom-gym', JSON.stringify(customGym));
             closeAddGymModal();
             render();
         }
@@ -916,7 +2132,7 @@
             if (confirm('¿Restaurar la rutina original de este día?')) {
                 const dayIndex = currentDate.getDay();
                 delete customGym[dayIndex];
-                localStorage.setItem('arantxa-custom-gym', JSON.stringify(customGym));
+                setStorage('custom-gym', JSON.stringify(customGym));
                 render();
             }
         }
@@ -942,29 +2158,36 @@
         }
 
         function saveMealEdit() {
-            let meals = customMeals || JSON.parse(JSON.stringify(defaultMeals));
-
-            meals[editingIndex] = {
+            const newMeal = {
                 time: document.getElementById('editMealTime').value,
                 name: document.getElementById('editMealName').value,
                 emoji: document.getElementById('editMealEmoji').value,
                 options: document.getElementById('editMealOptions').value.split('\n').filter(o => o.trim()),
                 macros: document.getElementById('editMealMacros').value
             };
+            const indexToEdit = editingIndex; // Guardar antes de cerrar modal
 
-            meals.sort((a, b) => a.time.localeCompare(b.time));
-
-            customMeals = meals;
-            localStorage.setItem('arantxa-custom-meals', JSON.stringify(customMeals));
             closeEditMealModal();
-            render();
+
+            showReplaceAllModal('meal',
+                `Este cambio aplicará a "${newMeal.name}" en todos los días. ¿Continuar?`,
+                (confirmed) => {
+                    if (confirmed) {
+                        let meals = customMeals || JSON.parse(JSON.stringify(defaultMeals));
+                        meals[indexToEdit] = newMeal;
+                        meals.sort((a, b) => a.time.localeCompare(b.time));
+                        customMeals = meals;
+                        setStorage('custom-meals', JSON.stringify(customMeals));
+                    }
+                }
+            );
         }
 
         function deleteMeal() {
             let meals = customMeals || JSON.parse(JSON.stringify(defaultMeals));
             meals.splice(deletingIndex, 1);
             customMeals = meals;
-            localStorage.setItem('arantxa-custom-meals', JSON.stringify(customMeals));
+            setStorage('custom-meals', JSON.stringify(customMeals));
         }
 
         function openAddMealModal() {
@@ -1001,7 +2224,7 @@
             meals.sort((a, b) => a.time.localeCompare(b.time));
 
             customMeals = meals;
-            localStorage.setItem('arantxa-custom-meals', JSON.stringify(customMeals));
+            setStorage('custom-meals', JSON.stringify(customMeals));
             closeAddMealModal();
             render();
         }
@@ -1009,7 +2232,7 @@
         function resetMeals() {
             if (confirm('¿Restaurar el plan de comidas original?')) {
                 customMeals = null;
-                localStorage.removeItem('arantxa-custom-meals');
+                removeStorage('custom-meals');
                 render();
             }
         }
@@ -1050,7 +2273,7 @@
             goals.sort((a, b) => a.week - b.week);
 
             customGoals = goals;
-            localStorage.setItem('arantxa-custom-goals', JSON.stringify(customGoals));
+            setStorage('custom-goals', JSON.stringify(customGoals));
             closeEditGoalModal();
             render();
         }
@@ -1059,13 +2282,13 @@
             let goals = customGoals || JSON.parse(JSON.stringify(defaultWeeklyGoals));
             goals.splice(deletingIndex, 1);
             customGoals = goals;
-            localStorage.setItem('arantxa-custom-goals', JSON.stringify(customGoals));
+            setStorage('custom-goals', JSON.stringify(customGoals));
         }
 
         function resetGoals() {
             if (confirm('¿Restaurar las metas originales?')) {
                 customGoals = null;
-                localStorage.removeItem('arantxa-custom-goals');
+                removeStorage('custom-goals');
                 render();
             }
         }
@@ -1105,6 +2328,8 @@
             const dailyProgress = getDailyProgress();
             const weeklyProgress = getWeeklyProgress();
             const totalProgress = getTotalProgress();
+            const currentStreak = getStreak();
+            const bestStreak = getBestStreak();
             const schedule = getSchedule(dayIndex, dateKey);
             const gym = getGymFocus(dayIndex);
             const isCustomized = !!customSchedules[dateKey];
@@ -1115,17 +2340,30 @@
                 <header class="bg-white/90 backdrop-blur-sm shadow-sm sticky top-0 z-50">
                     <div class="max-w-4xl mx-auto px-3 py-2">
                         <div class="flex items-center gap-3">
-                            <div class="relative flex-shrink-0">
-                                <img src="arantxa-vision.jpg" alt="Arantxa" class="w-12 h-12 rounded-full object-cover border-2 border-purple-200 photo-glow" style="object-position: center 20%;">
-                                <span class="absolute -bottom-0.5 -right-0.5 text-sm">👑</span>
+                            <div class="relative flex-shrink-0 cursor-pointer group" onclick="openPhotoModal()" title="Cambiar foto de perfil">
+                                <div class="w-12 h-12 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center text-white text-lg font-bold border-2 border-purple-200 photo-glow overflow-hidden group-hover:opacity-80 transition">
+                                    ${getUserPhoto() ? `<img src="${getUserPhoto()}" class="w-full h-full object-cover">` : currentUser.name.charAt(0).toUpperCase()}
+                                </div>
+                                <span class="absolute -bottom-0.5 -right-0.5 text-sm group-hover:scale-110 transition">📷</span>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <h1 class="text-base font-bold gradient-text">✨ Arantxa Ramírez</h1>
-                                <p class="text-xs text-gray-500">Miss Universo Chile 2026</p>
+                                <h1 class="text-base font-bold gradient-text">👋 ${currentUser.name}</h1>
+                                <p class="text-xs text-gray-500">${getGoalText(currentUser.goal)}</p>
                             </div>
-                            <div class="flex flex-col items-end gap-1 text-xs flex-shrink-0">
-                                <span class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium">Semana ${weekNum}/8</span>
-                                <span class="px-2 py-0.5 bg-rose-100 text-rose-700 rounded-full font-medium">Día ${dayNum}/57</span>
+                            <div class="flex items-center gap-2">
+                                <div class="flex flex-col items-end gap-1 text-xs flex-shrink-0">
+                                    <span class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium">S${weekNum}/${totalWeeks}</span>
+                                    <span class="px-2 py-0.5 bg-rose-100 text-rose-700 rounded-full font-medium">D${dayNum}/${userDuration}</span>
+                                </div>
+                                <button onclick="openExportModal()" class="p-2 text-gray-400 hover:text-green-500 transition" title="Exportar datos">
+                                    📥
+                                </button>
+                                <button onclick="toggleDarkMode()" class="p-2 text-gray-400 hover:text-yellow-500 transition" title="Cambiar tema">
+                                    ${isDarkMode() ? '☀️' : '🌙'}
+                                </button>
+                                <button onclick="logout()" class="p-2 text-gray-400 hover:text-red-500 transition" title="Cerrar sesión">
+                                    🚪
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -1139,14 +2377,36 @@
                             ${renderProgressCircle(weeklyProgress, 80, 8, 'purple', 'SEMANA')}
                             ${renderProgressCircle(totalProgress, 80, 8, 'cyan', 'TOTAL')}
                         </div>
-                        <div class="mt-4 text-center">
+
+                        <!-- Racha de días -->
+                        <div class="mt-4 flex justify-center gap-6">
+                            <div class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-100 to-yellow-100 rounded-xl">
+                                <span class="text-2xl">🔥</span>
+                                <div>
+                                    <p class="text-lg font-bold text-orange-600">${currentStreak}</p>
+                                    <p class="text-xs text-orange-500">Racha actual</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl">
+                                <span class="text-2xl">🏆</span>
+                                <div>
+                                    <p class="text-lg font-bold text-purple-600">${bestStreak}</p>
+                                    <p class="text-xs text-purple-500">Mejor racha</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 text-center">
                             <p class="text-sm text-gray-500">
                                 ${totalProgress === 100 ? '🏆 ¡PROGRAMA COMPLETADO! ¡Eres una campeona!' :
-                                  totalProgress >= 75 ? '🔥 ¡Vas increíble! La corona te espera' :
-                                  totalProgress >= 50 ? '💪 ¡Más de la mitad! Sigue así' :
-                                  totalProgress >= 25 ? '✨ ¡Buen progreso! No te detengas' :
+                                  currentStreak >= 7 ? '🔥 ¡' + currentStreak + ' días seguidos! ¡Imparable!' :
+                                  currentStreak >= 3 ? '💪 ¡' + currentStreak + ' días de racha! ¡Sigue así!' :
+                                  totalProgress >= 50 ? '✨ ¡Más de la mitad! No te detengas' :
                                   '🌟 ¡Cada día cuenta! Tú puedes'}
                             </p>
+                            <button onclick="openShareModal()" class="mt-2 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-full text-sm font-medium hover:opacity-90 transition inline-flex items-center gap-2">
+                                📤 Compartir mi progreso
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1156,9 +2416,12 @@
                     <div class="max-w-4xl mx-auto px-4 py-4">
                         <div class="flex items-center justify-between">
                             <button onclick="navigateDay(-1)" class="p-3 hover:bg-white rounded-full transition text-2xl ${currentDate <= startDate ? 'opacity-30' : ''}">◀️</button>
-                            <div class="text-center">
+                            <div class="text-center cursor-pointer hover:bg-white/50 px-4 py-2 rounded-xl transition" onclick="openCalendarModal()">
                                 <p class="text-2xl font-bold text-gray-800">${daysSpanish[dayIndex]}</p>
-                                <p class="text-gray-500">${currentDate.getDate()} de ${monthsSpanish[currentDate.getMonth()]} 2026</p>
+                                <p class="text-gray-500 flex items-center justify-center gap-2">
+                                    <span>📅</span>
+                                    ${currentDate.getDate()} de ${monthsSpanish[currentDate.getMonth()]} 2026
+                                </p>
                                 ${isCustomized ? '<span class="text-xs text-purple-500">✏️ Personalizado</span>' : ''}
                             </div>
                             <button onclick="navigateDay(1)" class="p-3 hover:bg-white rounded-full transition text-2xl ${currentDate >= endDate ? 'opacity-30' : ''}">▶️</button>
@@ -1170,9 +2433,9 @@
                 <div class="bg-white/40 border-b sticky top-[88px] z-40">
                     <div class="max-w-4xl mx-auto px-4">
                         <div class="flex gap-2 overflow-x-auto py-3 no-scrollbar">
-                            ${['agenda', 'habits', 'gym', 'meals', 'goals'].map(tab => `
+                            ${['agenda', 'habits', 'gym', 'meals', 'goals', 'notes', 'stats'].map(tab => `
                                 <button onclick="setTab('${tab}')" class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${activeTab === tab ? 'tab-active shadow-md' : 'bg-white/80 text-gray-600 hover:bg-white'}">
-                                    ${tab === 'agenda' ? '📅 Agenda' : tab === 'habits' ? '✅ Hábitos' : tab === 'gym' ? '💪 Gym' : tab === 'meals' ? '🥗 Comidas' : '🎯 Metas'}
+                                    ${tab === 'agenda' ? '📅 Agenda' : tab === 'habits' ? '✅ Hábitos' : tab === 'gym' ? '💪 Gym' : tab === 'meals' ? '🥗 Comidas' : tab === 'goals' ? '🎯 Metas' : tab === 'notes' ? '📝 Notas' : '📊 Estadísticas'}
                                 </button>
                             `).join('')}
                         </div>
@@ -1186,13 +2449,15 @@
                     ${activeTab === 'gym' ? renderGym(gym, dayIndex, weekNum) : ''}
                     ${activeTab === 'meals' ? renderMeals() : ''}
                     ${activeTab === 'goals' ? renderGoals(weekNum) : ''}
+                    ${activeTab === 'notes' ? renderNotes(dateKey) : ''}
+                    ${activeTab === 'stats' ? renderStats() : ''}
                 </main>
 
                 <!-- Footer -->
                 <footer class="bg-white/80 backdrop-blur-sm border-t mt-8">
                     <div class="max-w-4xl mx-auto px-4 py-6 text-center">
                         <p class="text-lg font-medium text-gray-700">"El éxito es la suma de pequeños esfuerzos repetidos día tras día"</p>
-                        <p class="text-purple-500 mt-2 text-xl">✨ ¡Tú puedes, Arantxa! ✨</p>
+                        <p class="text-purple-500 mt-2 text-xl">✨ ¡Tú puedes, ${currentUser.name.split(' ')[0]}! ✨</p>
                     </div>
                 </footer>
             `;
@@ -1222,27 +2487,57 @@
                         </div>
                     </div>
 
-                    <div class="flex gap-2 mb-4">
+                    <div class="flex gap-2 mb-4 flex-wrap">
                         <button onclick="openAddModal()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-purple-100">
                             <span class="text-xl">➕</span> Agregar Actividad
                         </button>
-                        ${isCustomized ? `
-                            <button onclick="resetDay()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-gray-500 border-2 border-gray-100">
-                                <span class="text-xl">🔄</span> Restaurar
-                            </button>
-                        ` : ''}
+                        <button onclick="openTemplateModal()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-blue-600 border-2 border-blue-100">
+                            <span class="text-xl">📋</span> Plantillas
+                        </button>
+                        <button onclick="openCleanModal('agenda')" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-orange-500 border-2 border-orange-100">
+                            <span class="text-xl">🧹</span> Limpiar
+                        </button>
+                        <button onclick="resetDay()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-gray-500 border-2 border-gray-100">
+                            <span class="text-xl">🔄</span> Restaurar
+                        </button>
                     </div>
 
-                    ${schedule.map((item, idx) => {
+                    <!-- Search and Filter Bar -->
+                    <div class="bg-white rounded-xl p-3 shadow-sm mb-4">
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <div class="relative flex-1">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                                <input type="text" id="searchInput" oninput="filterActivities()" placeholder="Buscar actividades..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none text-sm">
+                            </div>
+                            <div class="flex gap-2 overflow-x-auto no-scrollbar">
+                                <button onclick="setFilter('')" class="filter-btn px-3 py-2 rounded-lg text-xs font-medium transition whitespace-nowrap ${!activeFilter ? 'bg-purple-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
+                                    Todas
+                                </button>
+                                ${Object.entries(categoryColors).map(([cat, colors]) => `
+                                    <button onclick="setFilter('${cat}')" class="filter-btn px-3 py-2 rounded-lg text-xs font-medium transition whitespace-nowrap ${activeFilter === cat ? 'bg-purple-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
+                                        ${cat === 'habitos' ? '☀️' : cat === 'nutricion' ? '🥗' : cat === 'fisico' ? '💪' : cat === 'personal' ? '📚' : cat === 'digital' ? '📱' : cat === 'espiritual' ? '🧘' : '😴'}
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    ${schedule.filter((item, idx) => {
+                        const searchTerm = (searchQuery || '').toLowerCase();
+                        const matchesSearch = !searchTerm || item.activity.toLowerCase().includes(searchTerm) || item.time.includes(searchTerm);
+                        const matchesFilter = !activeFilter || item.category === activeFilter;
+                        return matchesSearch && matchesFilter;
+                    }).map((item) => {
+                        const originalIdx = schedule.indexOf(item);
                         const colors = categoryColors[item.category] || categoryColors.personal;
-                        const isCompleted = completedActivities[`${dateKey}-${idx}`];
+                        const isCompleted = completedActivities[`${dateKey}-${originalIdx}`];
                         return `
                             <div class="${colors.bg} ${colors.border} border rounded-xl p-4 transition-all card-hover ${isCompleted ? 'checked-item' : ''}">
                                 <div class="flex items-start gap-4">
-                                    <div onclick="toggleActivity(${idx})" class="w-12 h-12 rounded-full ${isCompleted ? 'bg-green-500' : colors.badge} flex items-center justify-center flex-shrink-0 text-xl transition-all cursor-pointer hover:scale-110 ${isCompleted ? 'text-white' : ''}">
+                                    <div onclick="toggleActivity(${originalIdx})" class="w-12 h-12 rounded-full ${isCompleted ? 'bg-green-500' : colors.badge} flex items-center justify-center flex-shrink-0 text-xl transition-all cursor-pointer hover:scale-110 ${isCompleted ? 'text-white' : ''}">
                                         ${isCompleted ? '✓' : '○'}
                                     </div>
-                                    <div class="flex-1 min-w-0" onclick="toggleActivity(${idx})" style="cursor: pointer;">
+                                    <div class="flex-1 min-w-0" onclick="toggleActivity(${originalIdx})" style="cursor: pointer;">
                                         <div class="flex items-center gap-2 mb-1 flex-wrap">
                                             <span class="font-mono text-sm text-gray-500">${item.time}</span>
                                             <span class="text-xs px-2 py-0.5 rounded-full ${colors.badge} ${colors.text}">${item.duration}</span>
@@ -1250,10 +2545,10 @@
                                         <p class="font-medium ${isCompleted ? 'line-through text-gray-400' : 'text-gray-800'}">${item.activity}</p>
                                     </div>
                                     <div class="flex gap-1 flex-shrink-0">
-                                        <button onclick="openEditModal(${idx})" class="btn-icon w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200" title="Editar">
+                                        <button onclick="openEditModal(${originalIdx})" class="btn-icon w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200" title="Editar">
                                             ✏️
                                         </button>
-                                        <button onclick="openDeleteModal(${idx}, 'activity')" class="btn-icon w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-200" title="Eliminar">
+                                        <button onclick="openDeleteModal(${originalIdx}, 'activity')" class="btn-icon w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-200" title="Eliminar">
                                             🗑️
                                         </button>
                                     </div>
@@ -1294,15 +2589,16 @@
                         </p>
                     </div>
 
-                    <div class="flex gap-2 mb-4">
+                    <div class="flex gap-2 mb-4 flex-wrap">
                         <button onclick="openAddHabitModal()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-purple-100">
                             <span class="text-xl">➕</span> Agregar Hábito
                         </button>
-                        ${isCustomized ? `
-                            <button onclick="resetHabits()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-gray-500 border-2 border-gray-100">
-                                <span class="text-xl">🔄</span> Restaurar
-                            </button>
-                        ` : ''}
+                        <button onclick="openCleanModal('habits')" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-orange-500 border-2 border-orange-100">
+                            <span class="text-xl">🧹</span> Limpiar
+                        </button>
+                        <button onclick="resetHabits()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-gray-500 border-2 border-gray-100">
+                            <span class="text-xl">🔄</span> Restaurar
+                        </button>
                     </div>
 
                     <div class="grid gap-3">
@@ -1348,15 +2644,16 @@
                         </div>
                     </div>
 
-                    <div class="flex gap-2 mb-4">
+                    <div class="flex gap-2 mb-4 flex-wrap">
                         <button onclick="openAddGymModal()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-purple-100">
                             <span class="text-xl">➕</span> Agregar Ejercicio
                         </button>
-                        ${isCustomized ? `
-                            <button onclick="resetGym()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-gray-500 border-2 border-gray-100">
-                                <span class="text-xl">🔄</span> Restaurar
-                            </button>
-                        ` : ''}
+                        <button onclick="openCleanModal('gym')" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-orange-500 border-2 border-orange-100">
+                            <span class="text-xl">🧹</span> Limpiar
+                        </button>
+                        <button onclick="resetGym()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-gray-500 border-2 border-gray-100">
+                            <span class="text-xl">🔄</span> Restaurar
+                        </button>
                     </div>
 
                     <div class="bg-white rounded-2xl p-5 shadow-sm">
@@ -1531,6 +2828,1102 @@
                             </div>
                         </div>
                     `).join('')}
+                </div>
+            `;
+        }
+
+        // Notes Functions
+        function getNotes(dateKey) {
+            const saved = getStorage(`notes-${dateKey}`);
+            return saved || '';
+        }
+
+        function saveNotes(dateKey) {
+            const textarea = document.getElementById('notesTextarea');
+            if (textarea) {
+                setStorage(`notes-${dateKey}`, textarea.value);
+                showNotification('📝 Nota guardada');
+            }
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed bottom-4 right-4 bg-gradient-to-r from-rose-500 to-purple-600 text-white px-6 py-3 rounded-xl shadow-lg z-50 animate-pulse';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 2000);
+        }
+
+        function renderNotes(dateKey) {
+            const notes = getNotes(dateKey);
+            const allNotes = getAllNotesWithContent();
+
+            return `
+                <div class="space-y-4">
+                    <!-- Editor de nota del día -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="text-3xl">📝</span>
+                            <div>
+                                <h3 class="font-bold text-gray-800 text-lg">Notas del Día</h3>
+                                <p class="text-gray-500 text-sm">Escribe tus pensamientos, reflexiones o recordatorios</p>
+                            </div>
+                        </div>
+                        <textarea
+                            id="notesTextarea"
+                            class="w-full h-48 p-4 border border-gray-200 rounded-xl resize-none focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none text-gray-700"
+                            placeholder="¿Qué quieres recordar de hoy? ✨"
+                            onblur="saveNotes('${dateKey}')"
+                        >${notes}</textarea>
+                        <div class="flex justify-between items-center mt-3">
+                            <span class="text-sm text-gray-400">Se guarda automáticamente</span>
+                            <button onclick="saveNotes('${dateKey}')" class="px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium text-sm">
+                                💾 Guardar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Historial de notas -->
+                    ${allNotes.length > 0 ? `
+                        <div class="bg-white rounded-2xl p-5 shadow-sm">
+                            <h3 class="font-bold text-gray-800 text-lg mb-4">📚 Historial de Notas</h3>
+                            <div class="space-y-3 max-h-96 overflow-y-auto">
+                                ${allNotes.map(note => `
+                                    <div class="p-4 bg-gradient-to-r from-rose-50 to-purple-50 rounded-xl border border-purple-100 ${note.dateKey === dateKey ? 'ring-2 ring-purple-300' : ''}">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="text-sm font-medium text-purple-600">${formatNoteDate(note.dateKey)}</span>
+                                            ${note.dateKey === dateKey ? '<span class="text-xs bg-purple-500 text-white px-2 py-0.5 rounded-full">Hoy</span>' : ''}
+                                            <button onclick="goToNoteDate('${note.dateKey}')" class="text-sm text-gray-400 hover:text-purple-600 transition">
+                                                📅 Ver día
+                                            </button>
+                                        </div>
+                                        <p class="text-gray-700 text-sm whitespace-pre-wrap line-clamp-3">${note.content}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : `
+                        <div class="bg-white rounded-2xl p-8 shadow-sm text-center">
+                            <span class="text-5xl">✨</span>
+                            <p class="text-gray-500 mt-3">Aún no tienes notas guardadas</p>
+                            <p class="text-gray-400 text-sm">Empieza a escribir tus reflexiones diarias</p>
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+
+        function getAllNotesWithContent() {
+            const notes = [];
+            const prefix = `${userKey}-notes-`;
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith(prefix)) {
+                    const dateKey = key.replace(prefix, '');
+                    const content = localStorage.getItem(key);
+                    if (content && content.trim()) {
+                        notes.push({ dateKey, content });
+                    }
+                }
+            }
+
+            // Ordenar por fecha (más reciente primero)
+            notes.sort((a, b) => b.dateKey.localeCompare(a.dateKey));
+            return notes.slice(0, 10); // Últimas 10 notas
+        }
+
+        function formatNoteDate(dateKey) {
+            const parts = dateKey.split('-');
+            if (parts.length === 3) {
+                const date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                return date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+            }
+            return dateKey;
+        }
+
+        function goToNoteDate(dateKey) {
+            const parts = dateKey.split('-');
+            if (parts.length === 3) {
+                currentDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                render();
+            }
+        }
+
+        // Pomodoro Timer Functions
+        let pomodoroState = {
+            timeLeft: 25 * 60, // seconds
+            initialTime: 25 * 60,
+            isRunning: false,
+            interval: null,
+            mode: 'work' // 'work' or 'break'
+        };
+
+        function openPomodoroModal() {
+            document.getElementById('pomodoroModal').classList.remove('hidden');
+            updatePomodoroDisplay();
+            updatePomodoroCount();
+        }
+
+        function closePomodoroModal() {
+            document.getElementById('pomodoroModal').classList.add('hidden');
+        }
+
+        function setPomodoroTime(minutes) {
+            if (pomodoroState.isRunning) {
+                stopPomodoroTimer();
+            }
+            pomodoroState.timeLeft = minutes * 60;
+            pomodoroState.initialTime = minutes * 60;
+            pomodoroState.mode = minutes === 25 ? 'work' : 'break';
+            updatePomodoroDisplay();
+            updatePomodoroStatus();
+        }
+
+        function togglePomodoro() {
+            if (pomodoroState.isRunning) {
+                stopPomodoroTimer();
+            } else {
+                startPomodoroTimer();
+            }
+        }
+
+        function startPomodoroTimer() {
+            pomodoroState.isRunning = true;
+            updatePomodoroButton();
+            updatePomodoroStatus();
+            updateFloatButton();
+
+            pomodoroState.interval = setInterval(() => {
+                pomodoroState.timeLeft--;
+
+                if (pomodoroState.timeLeft <= 0) {
+                    completePomodoroSession();
+                } else {
+                    updatePomodoroDisplay();
+                    updateFloatButton();
+                }
+            }, 1000);
+        }
+
+        function stopPomodoroTimer() {
+            pomodoroState.isRunning = false;
+            if (pomodoroState.interval) {
+                clearInterval(pomodoroState.interval);
+                pomodoroState.interval = null;
+            }
+            updatePomodoroButton();
+            updatePomodoroStatus();
+            updateFloatButton();
+        }
+
+        function resetPomodoro() {
+            stopPomodoroTimer();
+            pomodoroState.timeLeft = pomodoroState.initialTime;
+            updatePomodoroDisplay();
+            updatePomodoroStatus();
+        }
+
+        function completePomodoroSession() {
+            stopPomodoroTimer();
+
+            // Sound notification (optional beep)
+            try {
+                const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleQsAZJrk47JuCQdkne3os2oEB2Oc8++tbAQEZJ328a5tAwRjnfj0r24DBGOd+fWvbgMEY534862tAwRinfbzrKsDBGKd9fKqqQMEYp3086qpAwRinfTyqagDBGKc8/GoqAMDYpzz8aipAwRinfPyqagDBGKc8/GnqAMEYpzz8aepAwRinfPxp6gDBGKc8/GnqAMEYpzz8aepAwRinfPyp6gDBGKc8/KnqQMDYp3z8qipAwRjnfPyqagDBGOd8/KoqAMEY53z8qipAwRjnfPyqKkDBGOd8/KoqQMEY530');
+                audio.volume = 0.5;
+                audio.play();
+            } catch(e) {}
+
+            if (pomodoroState.mode === 'work') {
+                // Incrementar contador de pomodoros
+                incrementPomodoroCount();
+                showNotification('🍅 ¡Pomodoro completado! Toma un descanso.');
+
+                // Cambiar a break
+                pomodoroState.mode = 'break';
+                pomodoroState.timeLeft = 5 * 60;
+                pomodoroState.initialTime = 5 * 60;
+            } else {
+                showNotification('☕ ¡Descanso terminado! ¿Listo para otro Pomodoro?');
+
+                // Volver a work
+                pomodoroState.mode = 'work';
+                pomodoroState.timeLeft = 25 * 60;
+                pomodoroState.initialTime = 25 * 60;
+            }
+
+            updatePomodoroDisplay();
+            updatePomodoroStatus();
+        }
+
+        function updatePomodoroDisplay() {
+            const minutes = Math.floor(pomodoroState.timeLeft / 60);
+            const seconds = pomodoroState.timeLeft % 60;
+            const display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('pomodoroDisplay').textContent = display;
+        }
+
+        function updatePomodoroButton() {
+            const btn = document.getElementById('pomodoroStartBtn');
+            if (pomodoroState.isRunning) {
+                btn.innerHTML = '⏸️ Pausar';
+            } else {
+                btn.innerHTML = '▶️ Iniciar';
+            }
+        }
+
+        function updatePomodoroStatus() {
+            const status = document.getElementById('pomodoroStatus');
+            if (pomodoroState.isRunning) {
+                status.textContent = pomodoroState.mode === 'work' ? '🔥 Enfocado...' : '☕ Descansando...';
+            } else {
+                status.textContent = pomodoroState.mode === 'work' ? '⏱️ Listo para trabajar' : '☕ Listo para descansar';
+            }
+        }
+
+        function updateFloatButton() {
+            const btn = document.getElementById('pomodoroFloatBtn');
+            if (pomodoroState.isRunning) {
+                const minutes = Math.floor(pomodoroState.timeLeft / 60);
+                const seconds = pomodoroState.timeLeft % 60;
+                btn.innerHTML = `<span class="text-sm font-mono">${minutes}:${seconds.toString().padStart(2, '0')}</span>`;
+                btn.classList.add('animate-pulse');
+            } else {
+                btn.innerHTML = '🍅';
+                btn.classList.remove('animate-pulse');
+            }
+        }
+
+        function getPomodoroCountKey() {
+            const today = new Date();
+            return `pomodoro-count-${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+        }
+
+        function getPomodoroCount() {
+            return parseInt(getStorage(getPomodoroCountKey()) || '0');
+        }
+
+        function incrementPomodoroCount() {
+            const count = getPomodoroCount() + 1;
+            setStorage(getPomodoroCountKey(), count.toString());
+            updatePomodoroCount();
+        }
+
+        function updatePomodoroCount() {
+            const countEl = document.getElementById('pomodoroCount');
+            if (countEl) {
+                countEl.textContent = getPomodoroCount();
+            }
+        }
+
+        // Export Functions
+        function openExportModal() {
+            document.getElementById('exportModal').classList.remove('hidden');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.add('hidden');
+        }
+
+        function exportToCSV() {
+            const data = collectExportData();
+            let csv = 'Fecha,Hora,Actividad,Duración,Categoría,Completada\n';
+
+            data.activities.forEach(item => {
+                csv += `"${item.date}","${item.time}","${item.activity}","${item.duration}","${item.category}","${item.completed ? 'Sí' : 'No'}"\n`;
+            });
+
+            csv += '\n\nHábitos del día\n';
+            csv += 'Fecha,Hábito,Completado\n';
+            data.habits.forEach(habit => {
+                csv += `"${habit.date}","${habit.name}","${habit.completed ? 'Sí' : 'No'}"\n`;
+            });
+
+            downloadFile(csv, `gestion-tiempo-${formatDateForFile(new Date())}.csv`, 'text/csv');
+            showNotification('📊 CSV exportado exitosamente');
+            closeExportModal();
+        }
+
+        function exportToPrint() {
+            const data = collectExportData();
+            const printWindow = window.open('', '_blank');
+
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Mi Plan - ${currentUser.name}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        h1 { color: #8b5cf6; }
+                        h2 { color: #ec4899; margin-top: 30px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+                        th { background: linear-gradient(135deg, #fdf2f8, #f3e8ff); }
+                        .completed { background: #dcfce7; }
+                        .progress { margin: 20px 0; padding: 15px; background: #f3e8ff; border-radius: 10px; }
+                        @media print { body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
+                    </style>
+                </head>
+                <body>
+                    <h1>📋 Mi Plan de Gestión del Tiempo</h1>
+                    <p><strong>Usuario:</strong> ${currentUser.name}</p>
+                    <p><strong>Meta:</strong> ${getGoalText(currentUser.goal)}</p>
+                    <p><strong>Fecha de exportación:</strong> ${new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+
+                    <div class="progress">
+                        <strong>Progreso:</strong> Día ${getDailyProgress(currentDate)}% | Semana ${getWeeklyProgress()}% | Total ${getTotalProgress()}%
+                    </div>
+
+                    <h2>📅 Actividades de Hoy</h2>
+                    <table>
+                        <tr><th>Hora</th><th>Actividad</th><th>Duración</th><th>Estado</th></tr>
+                        ${data.todayActivities.map(item => `
+                            <tr class="${item.completed ? 'completed' : ''}">
+                                <td>${item.time}</td>
+                                <td>${item.activity}</td>
+                                <td>${item.duration}</td>
+                                <td>${item.completed ? '✅' : '⏳'}</td>
+                            </tr>
+                        `).join('')}
+                    </table>
+
+                    <h2>✅ Hábitos de Hoy</h2>
+                    <table>
+                        <tr><th>Hábito</th><th>Estado</th></tr>
+                        ${data.todayHabits.map(habit => `
+                            <tr class="${habit.completed ? 'completed' : ''}">
+                                <td>${habit.icon} ${habit.name}</td>
+                                <td>${habit.completed ? '✅' : '⏳'}</td>
+                            </tr>
+                        `).join('')}
+                    </table>
+
+                    <h2>🎯 Metas de la Semana</h2>
+                    ${data.weeklyGoals.map(goal => `
+                        <p><strong>${goal.category}:</strong> ${goal.text}</p>
+                    `).join('')}
+
+                    <scr` + `ipt>window.onload = function() { window.print(); }<\/scr` + `ipt>
+                </body>
+                </html>
+            `);
+
+            printWindow.document.close();
+            closeExportModal();
+        }
+
+        function exportWeekSummary() {
+            const data = collectExportData();
+            let summary = `📋 RESUMEN SEMANAL - ${currentUser.name}\n`;
+            summary += `${'='.repeat(50)}\n\n`;
+            summary += `📅 Semana ${getWeekNumber(currentDate)} de ${totalWeeks}\n`;
+            summary += `📊 Progreso Semanal: ${getWeeklyProgress()}%\n\n`;
+
+            summary += `🎯 METAS DE LA SEMANA\n`;
+            summary += `${'-'.repeat(30)}\n`;
+            data.weeklyGoals.forEach(goal => {
+                summary += `${goal.category}: ${goal.text}\n`;
+            });
+
+            summary += `\n📅 ACTIVIDADES DEL DÍA\n`;
+            summary += `${'-'.repeat(30)}\n`;
+            data.todayActivities.forEach(item => {
+                summary += `${item.completed ? '✅' : '⏳'} ${item.time} - ${item.activity} (${item.duration})\n`;
+            });
+
+            summary += `\n✅ HÁBITOS\n`;
+            summary += `${'-'.repeat(30)}\n`;
+            data.todayHabits.forEach(habit => {
+                summary += `${habit.completed ? '✅' : '⏳'} ${habit.icon} ${habit.name}\n`;
+            });
+
+            summary += `\n💪 ¡Sigue adelante, ${currentUser.name.split(' ')[0]}! 💪\n`;
+
+            downloadFile(summary, `resumen-semana-${getWeekNumber(currentDate)}.txt`, 'text/plain');
+            showNotification('📋 Resumen exportado');
+            closeExportModal();
+        }
+
+        function collectExportData() {
+            const dateKey = getDateKey(currentDate);
+            const schedule = getSchedule();
+            const habits = getHabits();
+            const goals = getWeeklyGoals();
+            const weekNum = getWeekNumber(currentDate);
+
+            return {
+                todayActivities: schedule.map((item, idx) => ({
+                    ...item,
+                    completed: completedActivities[`${dateKey}-${idx}`] || false
+                })),
+                todayHabits: habits.map((habit, idx) => ({
+                    ...habit,
+                    completed: completedHabits[`${dateKey}-${idx}`] || false
+                })),
+                weeklyGoals: goals.filter(g => g.week === weekNum).map(g => [
+                    { category: '💪 Física', text: g.fisica },
+                    { category: '📚 Personal', text: g.personal },
+                    { category: '📱 Digital', text: g.digital },
+                    { category: '🧘 Espiritual', text: g.espiritual }
+                ]).flat(),
+                activities: schedule.map((item, idx) => ({
+                    date: dateKey,
+                    ...item,
+                    completed: completedActivities[`${dateKey}-${idx}`] || false
+                })),
+                habits: habits.map((habit, idx) => ({
+                    date: dateKey,
+                    ...habit,
+                    completed: completedHabits[`${dateKey}-${idx}`] || false
+                }))
+            };
+        }
+
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function formatDateForFile(date) {
+            return `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}`;
+        }
+
+        // Search and Filter Functions
+        function filterActivities() {
+            const input = document.getElementById('searchInput');
+            searchQuery = input ? input.value : '';
+            render();
+        }
+
+        function setFilter(category) {
+            activeFilter = category;
+            render();
+        }
+
+        function clearFilters() {
+            searchQuery = '';
+            activeFilter = '';
+            render();
+        }
+
+        // Share Functions
+        function openShareModal() {
+            const modal = document.getElementById('shareModal');
+            modal.classList.remove('hidden');
+
+            // Update share preview data
+            const dailyProgress = getDailyProgress(currentDate);
+            const weeklyProgress = getWeeklyProgress();
+            const totalProgress = getTotalProgress();
+            const currentStreak = getStreak();
+            const bestStreak = getBestStreak();
+
+            document.getElementById('shareDailyProgress').textContent = dailyProgress + '%';
+            document.getElementById('shareWeeklyProgress').textContent = weeklyProgress + '%';
+            document.getElementById('shareTotalProgress').textContent = totalProgress + '%';
+            document.getElementById('shareStreak').textContent = currentStreak;
+            document.getElementById('shareBestStreak').textContent = bestStreak;
+
+            const message = totalProgress === 100 ? '🏆 ¡Completé mi programa!' :
+                           currentStreak >= 7 ? '🔥 ¡' + currentStreak + ' días de racha!' :
+                           currentStreak >= 3 ? '💪 ¡Sigo avanzando!' :
+                           '✨ ¡Trabajando en mis metas!';
+            document.getElementById('shareMessage').textContent = message;
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.add('hidden');
+        }
+
+        function getShareText() {
+            const dailyProgress = getDailyProgress(currentDate);
+            const weeklyProgress = getWeeklyProgress();
+            const totalProgress = getTotalProgress();
+            const currentStreak = getStreak();
+
+            let text = `🎯 Mi progreso en Gestión del Tiempo\n\n`;
+            text += `📊 Hoy: ${dailyProgress}% | Semana: ${weeklyProgress}% | Total: ${totalProgress}%\n`;
+            text += `🔥 Racha: ${currentStreak} días\n\n`;
+
+            if (totalProgress === 100) {
+                text += `🏆 ¡Completé mi programa de ${userDuration} días!\n\n`;
+            } else if (currentStreak >= 7) {
+                text += `💪 ¡${currentStreak} días seguidos trabajando en mis metas!\n\n`;
+            } else {
+                text += `✨ Cada día cuenta. ¡Tú también puedes!\n\n`;
+            }
+
+            text += `#GestionDelTiempo #Productividad #Metas`;
+            return text;
+        }
+
+        function copyShareText() {
+            const text = getShareText();
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('📋 Texto copiado al portapapeles');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showNotification('📋 Texto copiado');
+            });
+        }
+
+        function shareToTwitter() {
+            const text = encodeURIComponent(getShareText());
+            window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+        }
+
+        function shareToWhatsApp() {
+            const text = encodeURIComponent(getShareText());
+            window.open(`https://wa.me/?text=${text}`, '_blank');
+        }
+
+        function shareNative() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Mi Progreso - Gestión del Tiempo',
+                    text: getShareText()
+                }).catch(() => {
+                    copyShareText();
+                });
+            } else {
+                copyShareText();
+            }
+        }
+
+        // Template Functions
+        function getTemplates() {
+            return JSON.parse(getStorage('day-templates') || '[]');
+        }
+
+        function saveTemplates(templates) {
+            setStorage('day-templates', JSON.stringify(templates));
+        }
+
+        function openTemplateModal() {
+            document.getElementById('templateModal').classList.remove('hidden');
+            renderTemplatesList();
+        }
+
+        function closeTemplateModal() {
+            document.getElementById('templateModal').classList.add('hidden');
+        }
+
+        function saveTemplate() {
+            const nameInput = document.getElementById('templateName');
+            const name = nameInput.value.trim();
+
+            if (!name) {
+                alert('Por favor ingresa un nombre para la plantilla');
+                return;
+            }
+
+            const schedule = getSchedule();
+            const templates = getTemplates();
+
+            templates.push({
+                id: Date.now(),
+                name: name,
+                activities: schedule,
+                createdAt: new Date().toISOString()
+            });
+
+            saveTemplates(templates);
+            nameInput.value = '';
+            showNotification('📋 Plantilla guardada');
+            renderTemplatesList();
+        }
+
+        function renderTemplatesList() {
+            const container = document.getElementById('templatesList');
+            const templates = getTemplates();
+
+            if (templates.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-6 text-gray-400">
+                        <span class="text-4xl block mb-2">📁</span>
+                        <p>No hay plantillas guardadas</p>
+                        <p class="text-sm">Guarda el día actual para crear una</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = templates.map(template => `
+                <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <div>
+                            <p class="font-medium text-gray-800">${template.name}</p>
+                            <p class="text-xs text-gray-400">${template.activities.length} actividades</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="applyTemplate(${template.id})" class="px-3 py-1 bg-purple-100 text-purple-600 rounded-lg text-sm font-medium hover:bg-purple-200 transition">
+                                Aplicar
+                            </button>
+                            <button onclick="deleteTemplate(${template.id})" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-200 transition">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-500 space-y-1 max-h-24 overflow-y-auto">
+                        ${template.activities.slice(0, 4).map(a => `<p>• ${a.time} - ${a.activity}</p>`).join('')}
+                        ${template.activities.length > 4 ? `<p class="text-gray-400">+${template.activities.length - 4} más...</p>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function applyTemplate(templateId) {
+            const templates = getTemplates();
+            const template = templates.find(t => t.id === templateId);
+
+            if (!template) return;
+
+            if (confirm(`¿Aplicar la plantilla "${template.name}" al día actual? Esto reemplazará las actividades existentes.`)) {
+                const dateKey = getDateKey(currentDate);
+                customSchedules[dateKey] = [...template.activities];
+                setStorage('custom-schedules', JSON.stringify(customSchedules));
+                showNotification('📋 Plantilla aplicada');
+                closeTemplateModal();
+                render();
+            }
+        }
+
+        function deleteTemplate(templateId) {
+            if (confirm('¿Eliminar esta plantilla?')) {
+                let templates = getTemplates();
+                templates = templates.filter(t => t.id !== templateId);
+                saveTemplates(templates);
+                showNotification('🗑️ Plantilla eliminada');
+                renderTemplatesList();
+            }
+        }
+
+        // Clean Section Functions
+        let cleanSection = '';
+
+        function openCleanModal(section) {
+            cleanSection = section;
+            const modal = document.getElementById('cleanModal');
+            const description = document.getElementById('cleanModalDescription');
+            const options = document.getElementById('cleanOptions');
+
+            const sectionNames = {
+                agenda: 'Agenda',
+                habits: 'Hábitos',
+                gym: 'Gimnasio',
+                meals: 'Comidas',
+                goals: 'Metas'
+            };
+
+            description.textContent = `Opciones de limpieza para ${sectionNames[section] || section}`;
+
+            let optionsHtml = '';
+
+            if (section === 'agenda') {
+                optionsHtml = `
+                    <button onclick="cleanDayProgress()" class="w-full flex items-center gap-3 p-4 border-2 border-gray-100 rounded-xl hover:border-orange-300 hover:bg-orange-50 transition">
+                        <span class="text-2xl">✅</span>
+                        <div class="text-left">
+                            <p class="font-medium text-gray-800">Limpiar progreso del día</p>
+                            <p class="text-sm text-gray-500">Desmarcar todas las actividades completadas</p>
+                        </div>
+                    </button>
+                    <button onclick="cleanDayActivities()" class="w-full flex items-center gap-3 p-4 border-2 border-gray-100 rounded-xl hover:border-red-300 hover:bg-red-50 transition">
+                        <span class="text-2xl">🗑️</span>
+                        <div class="text-left">
+                            <p class="font-medium text-gray-800">Eliminar actividades personalizadas</p>
+                            <p class="text-sm text-gray-500">Restaurar el día a las actividades por defecto</p>
+                        </div>
+                    </button>
+                    <button onclick="cleanAllProgress()" class="w-full flex items-center gap-3 p-4 border-2 border-red-100 rounded-xl hover:border-red-400 hover:bg-red-50 transition">
+                        <span class="text-2xl">⚠️</span>
+                        <div class="text-left">
+                            <p class="font-medium text-red-600">Limpiar TODO el progreso</p>
+                            <p class="text-sm text-gray-500">Eliminar todas las actividades completadas de todos los días</p>
+                        </div>
+                    </button>
+                `;
+            } else if (section === 'habits') {
+                optionsHtml = `
+                    <button onclick="cleanDayHabits()" class="w-full flex items-center gap-3 p-4 border-2 border-gray-100 rounded-xl hover:border-orange-300 hover:bg-orange-50 transition">
+                        <span class="text-2xl">✅</span>
+                        <div class="text-left">
+                            <p class="font-medium text-gray-800">Limpiar hábitos del día</p>
+                            <p class="text-sm text-gray-500">Desmarcar todos los hábitos completados hoy</p>
+                        </div>
+                    </button>
+                    <button onclick="cleanAllHabits()" class="w-full flex items-center gap-3 p-4 border-2 border-red-100 rounded-xl hover:border-red-400 hover:bg-red-50 transition">
+                        <span class="text-2xl">⚠️</span>
+                        <div class="text-left">
+                            <p class="font-medium text-red-600">Limpiar TODOS los hábitos</p>
+                            <p class="text-sm text-gray-500">Eliminar todo el progreso de hábitos de todos los días</p>
+                        </div>
+                    </button>
+                `;
+            } else if (section === 'gym') {
+                optionsHtml = `
+                    <button onclick="cleanDayGym()" class="w-full flex items-center gap-3 p-4 border-2 border-gray-100 rounded-xl hover:border-orange-300 hover:bg-orange-50 transition">
+                        <span class="text-2xl">✅</span>
+                        <div class="text-left">
+                            <p class="font-medium text-gray-800">Limpiar ejercicios del día</p>
+                            <p class="text-sm text-gray-500">Desmarcar todos los ejercicios completados</p>
+                        </div>
+                    </button>
+                    <button onclick="cleanCustomGym()" class="w-full flex items-center gap-3 p-4 border-2 border-gray-100 rounded-xl hover:border-red-300 hover:bg-red-50 transition">
+                        <span class="text-2xl">🔄</span>
+                        <div class="text-left">
+                            <p class="font-medium text-gray-800">Restaurar rutina por defecto</p>
+                            <p class="text-sm text-gray-500">Eliminar ejercicios personalizados del día</p>
+                        </div>
+                    </button>
+                `;
+            }
+
+            options.innerHTML = optionsHtml;
+            modal.classList.remove('hidden');
+        }
+
+        function closeCleanModal() {
+            document.getElementById('cleanModal').classList.add('hidden');
+            cleanSection = '';
+        }
+
+        function cleanDayProgress() {
+            if (confirm('¿Desmarcar todas las actividades completadas de hoy?')) {
+                const dateKey = getDateKey(currentDate);
+                const schedule = getSchedule();
+
+                schedule.forEach((_, idx) => {
+                    delete completedActivities[`${dateKey}-${idx}`];
+                });
+
+                setStorage('activities', JSON.stringify(completedActivities));
+                showNotification('✅ Progreso del día limpiado');
+                closeCleanModal();
+                render();
+            }
+        }
+
+        function cleanDayActivities() {
+            if (confirm('¿Restaurar las actividades del día a las predeterminadas?')) {
+                const dateKey = getDateKey(currentDate);
+                delete customSchedules[dateKey];
+                setStorage('custom-schedules', JSON.stringify(customSchedules));
+                showNotification('🔄 Actividades restauradas');
+                closeCleanModal();
+                render();
+            }
+        }
+
+        function cleanAllProgress() {
+            if (confirm('⚠️ ¿Estás seguro? Esto eliminará TODO el progreso de actividades de TODOS los días. Esta acción no se puede deshacer.')) {
+                completedActivities = {};
+                setStorage('activities', JSON.stringify(completedActivities));
+                showNotification('🗑️ Todo el progreso ha sido eliminado');
+                closeCleanModal();
+                render();
+            }
+        }
+
+        function cleanDayHabits() {
+            if (confirm('¿Desmarcar todos los hábitos completados de hoy?')) {
+                const dateKey = getDateKey(currentDate);
+                const habits = getHabits();
+
+                habits.forEach((habit, idx) => {
+                    delete checkedHabits[`${dateKey}-${habit.id}`];
+                    delete checkedHabits[`${dateKey}-${idx}`];
+                });
+
+                setStorage('habits', JSON.stringify(checkedHabits));
+                showNotification('✅ Hábitos del día limpiados');
+                closeCleanModal();
+                render();
+            }
+        }
+
+        function cleanAllHabits() {
+            if (confirm('⚠️ ¿Estás seguro? Esto eliminará TODO el progreso de hábitos de TODOS los días.')) {
+                checkedHabits = {};
+                setStorage('habits', JSON.stringify(checkedHabits));
+                showNotification('🗑️ Todo el progreso de hábitos eliminado');
+                closeCleanModal();
+                render();
+            }
+        }
+
+        function cleanDayGym() {
+            if (confirm('¿Desmarcar todos los ejercicios completados de hoy?')) {
+                const dateKey = getDateKey(currentDate);
+                // Clean gym exercises for the day
+                const prefix = `${dateKey}-gym-`;
+                Object.keys(completedActivities).forEach(key => {
+                    if (key.startsWith(prefix)) {
+                        delete completedActivities[key];
+                    }
+                });
+                setStorage('activities', JSON.stringify(completedActivities));
+                showNotification('✅ Ejercicios del día limpiados');
+                closeCleanModal();
+                render();
+            }
+        }
+
+        function cleanCustomGym() {
+            if (confirm('¿Restaurar la rutina de gimnasio por defecto?')) {
+                const dayIndex = currentDate.getDay();
+                delete customGym[dayIndex];
+                setStorage('custom-gym', JSON.stringify(customGym));
+                showNotification('🔄 Rutina restaurada');
+                closeCleanModal();
+                render();
+            }
+        }
+
+        // Statistics Functions
+        function getWeeklyProgressData() {
+            const data = [];
+            const weekStart = new Date(currentDate);
+            weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(weekStart);
+                date.setDate(date.getDate() + i);
+                if (date >= startDate && date <= endDate) {
+                    data.push({
+                        day: daysSpanish[i].substring(0, 3),
+                        progress: getDailyProgress(date),
+                        isToday: date.toDateString() === currentDate.toDateString()
+                    });
+                }
+            }
+            return data;
+        }
+
+        function getCategoryDistribution() {
+            const schedule = getSchedule();
+            const distribution = {};
+
+            schedule.forEach(item => {
+                const cat = item.category || 'personal';
+                distribution[cat] = (distribution[cat] || 0) + 1;
+            });
+
+            return Object.entries(distribution).map(([category, count]) => ({
+                category,
+                count,
+                percentage: Math.round((count / schedule.length) * 100)
+            }));
+        }
+
+        function getHistoricalData() {
+            const data = [];
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                if (date >= startDate) {
+                    data.push({
+                        date: date,
+                        label: `${date.getDate()}/${date.getMonth() + 1}`,
+                        progress: getDailyProgress(date)
+                    });
+                }
+            }
+            return data;
+        }
+
+        function getCompletionStats() {
+            let totalDays = 0;
+            let completedDays = 0;
+            let totalTasks = 0;
+            let completedTasks = 0;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const checkDate = new Date(startDate);
+            while (checkDate <= today && checkDate <= endDate) {
+                totalDays++;
+                const progress = getDailyProgress(checkDate);
+                if (progress === 100) completedDays++;
+
+                const dateKey = getDateKey(checkDate);
+                const schedule = getScheduleForDate(checkDate);
+                totalTasks += schedule.length;
+                completedTasks += schedule.filter((_, idx) => completedActivities[`${dateKey}-${idx}`]).length;
+
+                checkDate.setDate(checkDate.getDate() + 1);
+            }
+
+            return {
+                totalDays,
+                completedDays,
+                completionRate: totalDays > 0 ? Math.round((completedDays / totalDays) * 100) : 0,
+                totalTasks,
+                completedTasks,
+                taskRate: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
+            };
+        }
+
+        function getScheduleForDate(date) {
+            const dateKey = getDateKey(date);
+            if (customSchedules[dateKey]) {
+                return customSchedules[dateKey];
+            }
+            const dayOfWeek = date.getDay();
+            return defaultSchedules[dayOfWeek === 0 ? 6 : dayOfWeek - 1] || [];
+        }
+
+        function renderStats() {
+            const weeklyData = getWeeklyProgressData();
+            const categoryData = getCategoryDistribution();
+            const historicalData = getHistoricalData();
+            const stats = getCompletionStats();
+            const currentStreak = getStreak();
+            const bestStreak = getBestStreak();
+            const pomodorosToday = getPomodoroCount();
+
+            const categoryNames = {
+                habitos: '☀️ Hábitos',
+                nutricion: '🥗 Nutrición',
+                fisico: '💪 Físico',
+                personal: '📚 Personal',
+                digital: '📱 Digital',
+                espiritual: '🧘 Espiritual',
+                descanso: '😴 Descanso'
+            };
+
+            const categoryColorMap = {
+                habitos: 'bg-yellow-400',
+                nutricion: 'bg-green-400',
+                fisico: 'bg-red-400',
+                personal: 'bg-blue-400',
+                digital: 'bg-purple-400',
+                espiritual: 'bg-indigo-400',
+                descanso: 'bg-gray-400'
+            };
+
+            return `
+                <div class="space-y-6">
+                    <!-- Resumen General -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm">
+                        <h3 class="font-bold text-gray-800 text-lg mb-4">📊 Resumen General</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="text-center p-4 bg-gradient-to-br from-rose-50 to-purple-50 rounded-xl">
+                                <p class="text-3xl font-bold text-purple-600">${stats.completionRate}%</p>
+                                <p class="text-sm text-gray-500">Días perfectos</p>
+                            </div>
+                            <div class="text-center p-4 bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl">
+                                <p class="text-3xl font-bold text-orange-600">${currentStreak}</p>
+                                <p class="text-sm text-gray-500">Racha actual</p>
+                            </div>
+                            <div class="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl">
+                                <p class="text-3xl font-bold text-green-600">${stats.taskRate}%</p>
+                                <p class="text-sm text-gray-500">Tareas completadas</p>
+                            </div>
+                            <div class="text-center p-4 bg-gradient-to-br from-red-50 to-pink-50 rounded-xl">
+                                <p class="text-3xl font-bold text-red-600">${pomodorosToday}</p>
+                                <p class="text-sm text-gray-500">Pomodoros hoy</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráfica de Progreso Semanal -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm">
+                        <h3 class="font-bold text-gray-800 text-lg mb-4">📈 Progreso de la Semana</h3>
+                        <div class="flex items-end justify-between gap-2 h-48">
+                            ${weeklyData.map(day => `
+                                <div class="flex-1 flex flex-col items-center">
+                                    <div class="w-full bg-gray-100 rounded-t-lg relative" style="height: 160px;">
+                                        <div class="absolute bottom-0 w-full rounded-t-lg transition-all ${day.isToday ? 'bg-gradient-to-t from-rose-500 to-purple-500' : 'bg-gradient-to-t from-purple-300 to-purple-400'}" style="height: ${day.progress}%;">
+                                        </div>
+                                    </div>
+                                    <span class="text-xs mt-2 font-medium ${day.isToday ? 'text-purple-600' : 'text-gray-500'}">${day.day}</span>
+                                    <span class="text-xs ${day.isToday ? 'text-purple-600 font-bold' : 'text-gray-400'}">${day.progress}%</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Gráfica de Últimos 7 días -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm">
+                        <h3 class="font-bold text-gray-800 text-lg mb-4">📅 Últimos 7 Días</h3>
+                        <div class="space-y-3">
+                            ${historicalData.map(day => `
+                                <div class="flex items-center gap-3">
+                                    <span class="text-sm text-gray-500 w-12">${day.label}</span>
+                                    <div class="flex-1 h-6 bg-gray-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-rose-500 to-purple-500 rounded-full transition-all" style="width: ${day.progress}%;"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-700 w-12 text-right">${day.progress}%</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Distribución por Categoría -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm">
+                        <h3 class="font-bold text-gray-800 text-lg mb-4">🎨 Distribución por Categoría</h3>
+                        <div class="space-y-3">
+                            ${categoryData.map(cat => `
+                                <div class="flex items-center gap-3">
+                                    <span class="text-sm w-28">${categoryNames[cat.category] || cat.category}</span>
+                                    <div class="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
+                                        <div class="h-full ${categoryColorMap[cat.category] || 'bg-gray-400'} rounded-full" style="width: ${cat.percentage}%;"></div>
+                                    </div>
+                                    <span class="text-sm text-gray-500 w-16 text-right">${cat.count} (${cat.percentage}%)</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Estadísticas Detalladas -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm">
+                        <h3 class="font-bold text-gray-800 text-lg mb-4">📋 Detalles</h3>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div class="p-3 bg-gray-50 rounded-xl">
+                                <p class="text-gray-500">Días transcurridos</p>
+                                <p class="text-xl font-bold text-gray-800">${stats.totalDays}</p>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-xl">
+                                <p class="text-gray-500">Días completados al 100%</p>
+                                <p class="text-xl font-bold text-green-600">${stats.completedDays}</p>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-xl">
+                                <p class="text-gray-500">Total de tareas</p>
+                                <p class="text-xl font-bold text-gray-800">${stats.totalTasks}</p>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-xl">
+                                <p class="text-gray-500">Tareas completadas</p>
+                                <p class="text-xl font-bold text-purple-600">${stats.completedTasks}</p>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-xl">
+                                <p class="text-gray-500">Mejor racha</p>
+                                <p class="text-xl font-bold text-orange-600">🔥 ${bestStreak} días</p>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-xl">
+                                <p class="text-gray-500">Promedio diario</p>
+                                <p class="text-xl font-bold text-blue-600">${stats.totalDays > 0 ? Math.round(stats.completedTasks / stats.totalDays) : 0} tareas</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             `;
         }
