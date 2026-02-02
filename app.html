@@ -812,9 +812,12 @@
         </div>
     </div>
 
-    <!-- Botón flotante Pomodoro -->
+    <!-- Botones flotantes -->
     <button id="pomodoroFloatBtn" onclick="openPomodoroModal()" class="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 z-40 flex items-center justify-center text-2xl" title="Pomodoro Timer">
         🍅
+    </button>
+    <button id="expensesFloatBtn" onclick="openScanReceiptModal()" class="fixed bottom-6 right-24 w-14 h-14 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 z-40 flex items-center justify-center text-2xl hidden" title="Registrar Gasto">
+        💰
     </button>
 
     <!-- Modal Exportar -->
@@ -1228,6 +1231,49 @@
                 menu.classList.toggle('hidden');
             }
         }
+
+        // Floating Buttons Settings
+        function getFloatingButtonSettings() {
+            return JSON.parse(getStorage('floating-buttons') || '{"pomodoro": true, "expenses": false}');
+        }
+
+        function isFloatingButtonEnabled(button) {
+            const settings = getFloatingButtonSettings();
+            return settings[button] !== false;
+        }
+
+        function toggleFloatingButton(button) {
+            const settings = getFloatingButtonSettings();
+            settings[button] = !settings[button];
+            setStorage('floating-buttons', JSON.stringify(settings));
+            updateFloatingButtons();
+            render(); // Re-render to update toggle UI
+        }
+
+        function updateFloatingButtons() {
+            const settings = getFloatingButtonSettings();
+
+            const pomodoroBtn = document.getElementById('pomodoroFloatBtn');
+            const expensesBtn = document.getElementById('expensesFloatBtn');
+
+            if (pomodoroBtn) {
+                pomodoroBtn.classList.toggle('hidden', !settings.pomodoro);
+            }
+            if (expensesBtn) {
+                expensesBtn.classList.toggle('hidden', !settings.expenses);
+                // Adjust position based on whether pomodoro is visible
+                if (settings.expenses && settings.pomodoro) {
+                    expensesBtn.classList.remove('right-6');
+                    expensesBtn.classList.add('right-24');
+                } else if (settings.expenses) {
+                    expensesBtn.classList.remove('right-24');
+                    expensesBtn.classList.add('right-6');
+                }
+            }
+        }
+
+        // Initialize floating buttons on load
+        document.addEventListener('DOMContentLoaded', updateFloatingButtons);
 
         // Close settings menu when clicking outside
         document.addEventListener('click', function(e) {
@@ -3622,6 +3668,26 @@
                                         <button onclick="openTemplateModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition text-left">
                                             <span class="text-xl">📋</span>
                                             <span class="text-gray-700">Plantillas</span>
+                                        </button>
+                                        <hr class="my-2 border-gray-100">
+                                        <p class="px-4 py-1 text-xs text-gray-400 font-medium uppercase">Botones Flotantes</p>
+                                        <button onclick="toggleFloatingButton('pomodoro')" class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-50 transition">
+                                            <div class="flex items-center gap-3">
+                                                <span class="text-xl">🍅</span>
+                                                <span class="text-gray-700">Pomodoro</span>
+                                            </div>
+                                            <div class="w-10 h-6 rounded-full transition ${isFloatingButtonEnabled('pomodoro') ? 'bg-purple-500' : 'bg-gray-300'} relative">
+                                                <div class="absolute top-1 ${isFloatingButtonEnabled('pomodoro') ? 'right-1' : 'left-1'} w-4 h-4 bg-white rounded-full shadow transition-all"></div>
+                                            </div>
+                                        </button>
+                                        <button onclick="toggleFloatingButton('expenses')" class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-50 transition">
+                                            <div class="flex items-center gap-3">
+                                                <span class="text-xl">💰</span>
+                                                <span class="text-gray-700">Gastos</span>
+                                            </div>
+                                            <div class="w-10 h-6 rounded-full transition ${isFloatingButtonEnabled('expenses') ? 'bg-purple-500' : 'bg-gray-300'} relative">
+                                                <div class="absolute top-1 ${isFloatingButtonEnabled('expenses') ? 'right-1' : 'left-1'} w-4 h-4 bg-white rounded-full shadow transition-all"></div>
+                                            </div>
                                         </button>
                                         <hr class="my-2 border-gray-100">
                                         <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-red-50 transition text-left">
@@ -6147,6 +6213,7 @@
 
         // Initial render
         render();
+        updateFloatingButtons();
     </script>
 </body>
 </html>
