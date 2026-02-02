@@ -3499,20 +3499,31 @@
                                         ⚙️
                                     </button>
                                     <div id="settingsMenu" class="hidden absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
-                                        <button onclick="toggleDarkMode(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left">
+                                        <p class="px-4 py-1 text-xs text-gray-400 font-medium uppercase">Mi Cuenta</p>
+                                        <button onclick="openPhotoModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition text-left">
+                                            <span class="text-xl">👤</span>
+                                            <span class="text-gray-700">Mi Perfil</span>
+                                        </button>
+                                        <button onclick="openProfileModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition text-left">
+                                            <span class="text-xl">⚖️</span>
+                                            <span class="text-gray-700">Datos Físicos</span>
+                                        </button>
+                                        <hr class="my-2 border-gray-100">
+                                        <p class="px-4 py-1 text-xs text-gray-400 font-medium uppercase">Configuración</p>
+                                        <button onclick="toggleDarkMode(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition text-left">
                                             <span class="text-xl">${isDarkMode() ? '☀️' : '🌙'}</span>
                                             <span class="text-gray-700">${isDarkMode() ? 'Modo claro' : 'Modo oscuro'}</span>
                                         </button>
-                                        <button onclick="openExportModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left">
+                                        <button onclick="openExportModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition text-left">
                                             <span class="text-xl">📥</span>
                                             <span class="text-gray-700">Exportar datos</span>
                                         </button>
-                                        <button onclick="openTemplateModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left">
+                                        <button onclick="openTemplateModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition text-left">
                                             <span class="text-xl">📋</span>
                                             <span class="text-gray-700">Plantillas</span>
                                         </button>
                                         <hr class="my-2 border-gray-100">
-                                        <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition text-left">
+                                        <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-red-50 transition text-left">
                                             <span class="text-xl">🚪</span>
                                             <span class="text-red-600">Cerrar sesión</span>
                                         </button>
