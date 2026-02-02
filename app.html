@@ -450,9 +450,9 @@
             const file = event.target.files[0];
             if (!file) return;
 
-            // Validar tamaño (max 5MB original)
-            if (file.size > 5 * 1024 * 1024) {
-                alert('La imagen es muy grande. Máximo 5MB.');
+            // Validar tamaño (max 15MB original)
+            if (file.size > 15 * 1024 * 1024) {
+                alert('La imagen es muy grande. Máximo 15MB.');
                 return;
             }
 
