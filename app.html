@@ -3031,7 +3031,178 @@
         let currentSetIdx = 0;
 
         // State for meals/nutrition subsection
-        let mealsSubTab = 'protein'; // 'protein', 'plan', 'guide' - protein first as most used
+        let mealsSubTab = 'goal'; // Default to goal (META)
+
+        // Nutrition tabs configuration with drag-and-drop support
+        function getNutritionTabsOrder() {
+            const defaultOrder = ['goal', 'plan', 'protein', 'guide'];
+            return JSON.parse(getStorage('nutrition-tabs-order') || JSON.stringify(defaultOrder));
+        }
+
+        function saveNutritionTabsOrder(order) {
+            setStorage('nutrition-tabs-order', JSON.stringify(order));
+        }
+
+        const nutritionTabsConfig = {
+            goal: { emoji: '🎯', label: 'Meta', color: 'purple' },
+            plan: { emoji: '🍽️', label: 'Plan', color: 'orange' },
+            protein: { emoji: '🥩', label: 'Proteína', color: 'green' },
+            guide: { emoji: '📋', label: 'Guía', color: 'blue' }
+        };
+
+        let draggedTab = null;
+        let dragStartX = 0;
+        let longPressTimer = null;
+        let isDragging = false;
+
+        // Tab drag handlers
+        function handleTabTouchStart(event, tabId) {
+            const touch = event.touches[0];
+            dragStartX = touch.clientX;
+            longPressTimer = setTimeout(() => {
+                startDragging(tabId, event.target);
+            }, 500); // 500ms long press
+        }
+
+        function handleTabMouseDown(event, tabId) {
+            dragStartX = event.clientX;
+            longPressTimer = setTimeout(() => {
+                startDragging(tabId, event.target);
+            }, 500);
+        }
+
+        function startDragging(tabId, element) {
+            isDragging = true;
+            draggedTab = tabId;
+            element.style.opacity = '0.5';
+            element.style.transform = 'scale(1.05)';
+            document.body.style.cursor = 'grabbing';
+
+            // Vibrate on mobile if available
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+        }
+
+        function handleTabTouchMove(event) {
+            if (!isDragging) {
+                // Cancel long press if moved too much
+                const touch = event.touches[0];
+                if (Math.abs(touch.clientX - dragStartX) > 10) {
+                    clearTimeout(longPressTimer);
+                }
+                return;
+            }
+
+            event.preventDefault();
+            const touch = event.touches[0];
+            updateDragPosition(touch.clientX);
+        }
+
+        function updateDragPosition(clientX) {
+            const container = document.getElementById('nutritionTabsContainer');
+            if (!container) return;
+
+            const tabs = container.querySelectorAll('button[data-tab]');
+            const indicator = document.getElementById('dragIndicator');
+
+            let insertIndex = -1;
+            tabs.forEach((tab, index) => {
+                const rect = tab.getBoundingClientRect();
+                const midPoint = rect.left + rect.width / 2;
+
+                if (clientX < midPoint && insertIndex === -1) {
+                    insertIndex = index;
+                }
+            });
+
+            if (insertIndex === -1) insertIndex = tabs.length;
+
+            // Show indicator
+            if (indicator && insertIndex >= 0) {
+                const targetTab = tabs[Math.min(insertIndex, tabs.length - 1)];
+                if (targetTab) {
+                    const rect = targetTab.getBoundingClientRect();
+                    const containerRect = container.getBoundingClientRect();
+                    indicator.classList.remove('hidden');
+                    if (insertIndex < tabs.length) {
+                        indicator.style.left = (rect.left - containerRect.left - 2) + 'px';
+                    } else {
+                        indicator.style.left = (rect.right - containerRect.left + 2) + 'px';
+                    }
+                }
+            }
+        }
+
+        function handleTabTouchEnd(event) {
+            clearTimeout(longPressTimer);
+
+            if (!isDragging) return;
+
+            const touch = event.changedTouches[0];
+            finishDragging(touch.clientX);
+        }
+
+        function handleTabMouseUp(event) {
+            clearTimeout(longPressTimer);
+
+            if (!isDragging) return;
+
+            finishDragging(event.clientX);
+        }
+
+        function finishDragging(clientX) {
+            const container = document.getElementById('nutritionTabsContainer');
+            if (!container || !draggedTab) {
+                resetDragState();
+                return;
+            }
+
+            const tabs = container.querySelectorAll('button[data-tab]');
+            let insertIndex = tabs.length;
+
+            tabs.forEach((tab, index) => {
+                const rect = tab.getBoundingClientRect();
+                const midPoint = rect.left + rect.width / 2;
+                if (clientX < midPoint && insertIndex === tabs.length) {
+                    insertIndex = index;
+                }
+            });
+
+            // Reorder tabs
+            const currentOrder = getNutritionTabsOrder();
+            const draggedIndex = currentOrder.indexOf(draggedTab);
+
+            if (draggedIndex !== -1 && draggedIndex !== insertIndex) {
+                currentOrder.splice(draggedIndex, 1);
+                if (insertIndex > draggedIndex) insertIndex--;
+                currentOrder.splice(insertIndex, 0, draggedTab);
+                saveNutritionTabsOrder(currentOrder);
+            }
+
+            resetDragState();
+            render();
+        }
+
+        function resetDragState() {
+            isDragging = false;
+            draggedTab = null;
+            document.body.style.cursor = '';
+
+            const indicator = document.getElementById('dragIndicator');
+            if (indicator) indicator.classList.add('hidden');
+
+            document.querySelectorAll('button[data-tab]').forEach(tab => {
+                tab.style.opacity = '';
+                tab.style.transform = '';
+            });
+        }
+
+        // Cancel drag on mouse leave
+        document.addEventListener('mouseup', () => {
+            if (isDragging) resetDragState();
+        });
+
         let selectedRPE = null;
 
         // Rest Timer State
@@ -5180,23 +5351,36 @@
             const meals = getMeals();
             const isCustomized = customMeals !== null;
 
+            const tabsOrder = getNutritionTabsOrder();
+
             return `
                 <div class="space-y-4">
-                    <!-- Sub-tabs for Nutrition section -->
-                    <div class="flex gap-1 p-1 bg-gray-100 rounded-xl">
-                        <button onclick="mealsSubTab='protein'; render();" class="flex-1 py-2 px-2 rounded-lg text-sm font-medium transition ${mealsSubTab === 'protein' ? 'bg-white shadow text-green-600' : 'text-gray-500'}">
-                            🥩 Proteína
-                        </button>
-                        <button onclick="mealsSubTab='goal'; render();" class="flex-1 py-2 px-2 rounded-lg text-sm font-medium transition ${mealsSubTab === 'goal' ? 'bg-white shadow text-purple-600' : 'text-gray-500'}">
-                            🎯 Meta
-                        </button>
-                        <button onclick="mealsSubTab='plan'; render();" class="flex-1 py-2 px-2 rounded-lg text-sm font-medium transition ${mealsSubTab === 'plan' ? 'bg-white shadow text-orange-600' : 'text-gray-500'}">
-                            🍽️ Plan
-                        </button>
-                        <button onclick="mealsSubTab='guide'; render();" class="flex-1 py-2 px-2 rounded-lg text-sm font-medium transition ${mealsSubTab === 'guide' ? 'bg-white shadow text-blue-600' : 'text-gray-500'}">
-                            📋 Guía
-                        </button>
+                    <!-- Sub-tabs for Nutrition section (draggable) -->
+                    <div id="nutritionTabsContainer" class="flex gap-1 p-1 bg-gray-100 rounded-xl relative">
+                        ${tabsOrder.map((tabId, index) => {
+                            const tab = nutritionTabsConfig[tabId];
+                            const isActive = mealsSubTab === tabId;
+                            const colorClass = isActive ? `text-${tab.color}-600` : 'text-gray-500';
+                            return `
+                                <button
+                                    id="nutTab_${tabId}"
+                                    data-tab="${tabId}"
+                                    data-index="${index}"
+                                    onclick="if(!isDragging) { mealsSubTab='${tabId}'; render(); }"
+                                    ontouchstart="handleTabTouchStart(event, '${tabId}')"
+                                    ontouchmove="handleTabTouchMove(event)"
+                                    ontouchend="handleTabTouchEnd(event)"
+                                    onmousedown="handleTabMouseDown(event, '${tabId}')"
+                                    onmouseup="handleTabMouseUp(event)"
+                                    class="flex-1 py-2 px-2 rounded-lg text-sm font-medium transition select-none ${isActive ? 'bg-white shadow' : ''} ${isActive ? `text-${tab.color}-600` : 'text-gray-500'}"
+                                    style="touch-action: none;">
+                                    ${tab.emoji} ${tab.label}
+                                </button>
+                            `;
+                        }).join('')}
+                        <div id="dragIndicator" class="hidden absolute top-0 bottom-0 w-0.5 bg-purple-500 rounded-full z-10"></div>
                     </div>
+                    <p class="text-xs text-gray-400 text-center">💡 Mantén presionado un tab para reordenar</p>
 
                     ${mealsSubTab === 'protein' ? renderProteinTracking() : ''}
                     ${mealsSubTab === 'goal' ? renderNutritionGoal() : ''}
