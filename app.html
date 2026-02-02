@@ -2434,6 +2434,10 @@
         };
 
         function getGymFocus(dayIndex) {
+            // Check if gym has been cleared by reset
+            if (customGym.__cleared__) {
+                return customGym[dayIndex] || { name: "", icon: "💪", exercises: [] };
+            }
             if (customGym[dayIndex]) {
                 return customGym[dayIndex];
             }
@@ -2976,6 +2980,10 @@
         }
 
         function getSchedule(dayIndex = currentDate.getDay(), dateKey = getDateKey(currentDate)) {
+            // Check if schedules have been cleared by reset
+            if (customSchedules.__cleared__) {
+                return customSchedules[dateKey] || [];
+            }
             if (customSchedules[dateKey]) {
                 return customSchedules[dateKey];
             }
@@ -8014,10 +8022,10 @@
                 setStorage('habits', '{}');
                 setStorage('congrats-shown', '{}');
 
-                // Custom data - empty arrays so defaults don't show
-                setStorage('custom-schedules', '{}');
+                // Custom data - use __cleared__ marker so defaults don't show
+                setStorage('custom-schedules', '{"__cleared__": true}');
                 setStorage('custom-habits', '[]');
-                setStorage('custom-gym', '{}');
+                setStorage('custom-gym', '{"__cleared__": true}');
                 setStorage('custom-meals', '[]');
                 setStorage('custom-goals', '[]');
 
@@ -8283,6 +8291,10 @@
 
         function getScheduleForDate(date) {
             const dateKey = getDateKey(date);
+            // Check if schedules have been cleared by reset
+            if (customSchedules.__cleared__) {
+                return customSchedules[dateKey] || [];
+            }
             if (customSchedules[dateKey]) {
                 return customSchedules[dateKey];
             }
