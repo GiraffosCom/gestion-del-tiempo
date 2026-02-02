@@ -3825,18 +3825,22 @@
                         </div>
                     </div>
 
-                    <div class="flex gap-2 mb-4 flex-wrap">
-                        <button onclick="openAddModal()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-purple-100">
-                            <span class="text-xl">➕</span> Agregar Actividad
+                    <div class="grid grid-cols-4 gap-2 mb-4">
+                        <button onclick="openAddModal()" class="flex flex-col items-center justify-center gap-1 px-2 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition text-purple-600 border border-purple-100" title="Agregar Actividad">
+                            <span class="text-lg">➕</span>
+                            <span class="text-xs">Agregar</span>
                         </button>
-                        <button onclick="openTemplateModal()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-blue-600 border-2 border-blue-100">
-                            <span class="text-xl">📋</span> Plantillas
+                        <button onclick="openTemplateModal()" class="flex flex-col items-center justify-center gap-1 px-2 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition text-blue-600 border border-blue-100" title="Plantillas">
+                            <span class="text-lg">📋</span>
+                            <span class="text-xs">Plantillas</span>
                         </button>
-                        <button onclick="openCleanModal('agenda')" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-orange-500 border-2 border-orange-100">
-                            <span class="text-xl">🧹</span> Limpiar
+                        <button onclick="openCleanModal('agenda')" class="flex flex-col items-center justify-center gap-1 px-2 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition text-orange-500 border border-orange-100" title="Limpiar">
+                            <span class="text-lg">🧹</span>
+                            <span class="text-xs">Limpiar</span>
                         </button>
-                        <button onclick="resetDay()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-gray-500 border-2 border-gray-100">
-                            <span class="text-xl">🔄</span> Restaurar
+                        <button onclick="resetDay()" class="flex flex-col items-center justify-center gap-1 px-2 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition text-gray-500 border border-gray-100" title="Restaurar">
+                            <span class="text-lg">🔄</span>
+                            <span class="text-xs">Restaurar</span>
                         </button>
                     </div>
 
@@ -3927,15 +3931,18 @@
                         </p>
                     </div>
 
-                    <div class="flex gap-2 mb-4 flex-wrap">
-                        <button onclick="openAddHabitModal()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-purple-100">
-                            <span class="text-xl">➕</span> Agregar Hábito
+                    <div class="grid grid-cols-3 gap-2 mb-4">
+                        <button onclick="openAddHabitModal()" class="flex flex-col items-center justify-center gap-1 px-2 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition text-purple-600 border border-purple-100" title="Agregar Hábito">
+                            <span class="text-lg">➕</span>
+                            <span class="text-xs">Agregar</span>
                         </button>
-                        <button onclick="openCleanModal('habits')" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-orange-500 border-2 border-orange-100">
-                            <span class="text-xl">🧹</span> Limpiar
+                        <button onclick="openCleanModal('habits')" class="flex flex-col items-center justify-center gap-1 px-2 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition text-orange-500 border border-orange-100" title="Limpiar">
+                            <span class="text-lg">🧹</span>
+                            <span class="text-xs">Limpiar</span>
                         </button>
-                        <button onclick="resetHabits()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-gray-500 border-2 border-gray-100">
-                            <span class="text-xl">🔄</span> Restaurar
+                        <button onclick="resetHabits()" class="flex flex-col items-center justify-center gap-1 px-2 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition text-gray-500 border border-gray-100" title="Restaurar">
+                            <span class="text-lg">🔄</span>
+                            <span class="text-xs">Restaurar</span>
                         </button>
                     </div>
 
@@ -4497,12 +4504,12 @@
             return `
                 <div class="space-y-4">
                     <div class="flex gap-2 mb-4">
-                        <button onclick="openAddMealModal()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-purple-100">
-                            <span class="text-xl">➕</span> Agregar Comida
+                        <button onclick="openAddMealModal()" class="flex items-center justify-center gap-1 px-3 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition text-purple-600 border border-purple-100 text-sm" title="Agregar Comida">
+                            <span>➕</span> Agregar
                         </button>
                         ${isCustomized ? `
-                            <button onclick="resetMeals()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-gray-500 border-2 border-gray-100">
-                                <span class="text-xl">🔄</span> Restaurar
+                            <button onclick="resetMeals()" class="flex items-center justify-center gap-1 px-3 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition text-gray-500 border border-gray-100 text-sm" title="Restaurar">
+                                <span>🔄</span> Restaurar
                             </button>
                         ` : ''}
                     </div>
@@ -4570,8 +4577,8 @@
                 <div class="space-y-4">
                     <div class="flex gap-2 mb-4">
                         ${isCustomized ? `
-                            <button onclick="resetGoals()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-gray-500 border-2 border-gray-100">
-                                <span class="text-xl">🔄</span> Restaurar Metas Originales
+                            <button onclick="resetGoals()" class="flex items-center justify-center gap-1 px-3 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition text-gray-500 border border-gray-100 text-sm" title="Restaurar">
+                                <span>🔄</span> Restaurar Metas
                             </button>
                         ` : ''}
                     </div>
