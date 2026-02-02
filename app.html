@@ -7659,7 +7659,7 @@
                 customGoals = null;
                 customSchedules = {};
                 completedActivities = {};
-                completedHabits = {};
+                checkedHabits = {};
 
                 // Apply gym routines
                 for (const [day, routine] of Object.entries(template.gymFocus)) {
@@ -7681,8 +7681,8 @@
 
                 // Clear progress
                 setStorage('custom-schedules', JSON.stringify(customSchedules));
-                setStorage('completed-activities', JSON.stringify(completedActivities));
-                setStorage('completed-habits', JSON.stringify(completedHabits));
+                setStorage('activities', JSON.stringify(completedActivities));
+                setStorage('habits', JSON.stringify(checkedHabits));
 
             } else {
                 // MERGE MODE: Add template data to existing
@@ -8047,11 +8047,6 @@
 
                 // Delete all user data
                 keysToDelete.forEach(key => localStorage.removeItem(key));
-
-                // Reset in-memory variables
-                completedActivities = {};
-                habitsCompleted = {};
-                customSchedules = {};
 
                 closeResetModal();
 
