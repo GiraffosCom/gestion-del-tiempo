@@ -510,6 +510,52 @@
         </div>
     </div>
 
+    <!-- Modal para Agregar Proteína -->
+    <div id="addProteinModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">🥩 Registrar Proteína</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Alimento / Fuente</label>
+                    <input type="text" id="proteinSource" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-400 focus:border-transparent outline-none" placeholder="ej: Pechuga de pollo">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Gramos de proteína</label>
+                    <input type="number" id="proteinGrams" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-400 focus:border-transparent outline-none" placeholder="ej: 30">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Nota (opcional)</label>
+                    <input type="text" id="proteinNote" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-400 focus:border-transparent outline-none" placeholder="ej: Almuerzo">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeAddProteinModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
+                <button onclick="saveNewProtein()" class="flex-1 px-4 py-2 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-xl hover:opacity-90 transition font-medium">Agregar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Agregar Favorito de Proteína -->
+    <div id="addFavoriteModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">⭐ Nuevo Alimento Favorito</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Nombre del alimento</label>
+                    <input type="text" id="favoriteName" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: Pechuga de pollo (100g)">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Gramos de proteína</label>
+                    <input type="number" id="favoriteGrams" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: 31">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeAddFavoriteModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
+                <button onclick="saveNewFavorite()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal para Editar Meta Semanal -->
     <div id="editGoalModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all max-h-[90vh] overflow-y-auto">
@@ -2968,9 +3014,12 @@
         // ========== ENHANCED GYM SYSTEM ==========
 
         // State for gym subsection
-        let gymSubTab = 'workout'; // 'profile', 'workout', 'history'
+        let gymSubTab = 'workout'; // 'profile', 'workout', 'history', 'macros'
         let activeWorkoutExerciseIdx = null;
         let currentSetIdx = 0;
+
+        // State for meals/nutrition subsection
+        let mealsSubTab = 'meals'; // 'meals', 'protein'
         let selectedRPE = null;
 
         // Rest Timer State
@@ -3099,6 +3148,18 @@
             saveWeightHistory(history);
             closeWeightModal();
             addNotification(`Peso registrado: ${weight} kg`, '⚖️');
+
+            // Update protein goal if not using manual goal
+            const proteinConfig = getProteinConfig();
+            if (!proteinConfig.manualGoal) {
+                const calculated = calculateProteinGoal(weight, proteinConfig.objective, proteinConfig.activityLevel);
+                proteinConfig.goal = calculated.goal;
+                proteinConfig.minRange = calculated.minRange;
+                proteinConfig.maxRange = calculated.maxRange;
+                saveProteinConfig(proteinConfig);
+                addNotification(`Meta de proteína actualizada: ${calculated.goal}g/día`, '🥩');
+            }
+
             render();
         }
 
@@ -4497,12 +4558,421 @@
 
         // ==================== END MACROS CALCULATOR ====================
 
+        // ==================== PROTEIN TRACKING ====================
+
+        // Get protein configuration
+        function getProteinConfig() {
+            const defaultConfig = {
+                goal: 120,
+                minRange: 100,
+                maxRange: 140,
+                objective: 'maintain', // 'lose', 'maintain', 'gain'
+                activityLevel: 'medium', // 'low', 'medium', 'high'
+                manualGoal: false
+            };
+            return JSON.parse(getStorage('protein-config') || JSON.stringify(defaultConfig));
+        }
+
+        function saveProteinConfig(config) {
+            setStorage('protein-config', JSON.stringify(config));
+        }
+
+        // Calculate protein goal based on weight and objective
+        function calculateProteinGoal(weight, objective, activityLevel) {
+            let baseMultiplier = 1.6; // g per kg
+            let rangeVariation = 0.2;
+
+            if (objective === 'lose') {
+                baseMultiplier = 2.0; // Higher protein for fat loss
+                rangeVariation = 0.3;
+            } else if (objective === 'gain') {
+                baseMultiplier = 1.8; // Higher for muscle gain
+                rangeVariation = 0.2;
+            }
+
+            // Adjust for activity level
+            if (activityLevel === 'high') {
+                baseMultiplier += 0.2;
+            } else if (activityLevel === 'low') {
+                baseMultiplier -= 0.2;
+            }
+
+            const goal = Math.round(weight * baseMultiplier);
+            const minRange = Math.round(weight * (baseMultiplier - rangeVariation));
+            const maxRange = Math.round(weight * (baseMultiplier + rangeVariation));
+
+            return { goal, minRange, maxRange };
+        }
+
+        // Get today's protein log
+        function getProteinLog(dateKey = null) {
+            const key = dateKey || getTodayKey();
+            const allLogs = JSON.parse(getStorage('protein-logs') || '{}');
+            return allLogs[key] || [];
+        }
+
+        function saveProteinLog(entries, dateKey = null) {
+            const key = dateKey || getTodayKey();
+            const allLogs = JSON.parse(getStorage('protein-logs') || '{}');
+            allLogs[key] = entries;
+            setStorage('protein-logs', JSON.stringify(allLogs));
+        }
+
+        function addProteinEntry(source, grams, note = '') {
+            const log = getProteinLog();
+            log.push({
+                id: Date.now(),
+                source,
+                grams: parseFloat(grams),
+                time: new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' }),
+                note
+            });
+            saveProteinLog(log);
+            render();
+        }
+
+        function deleteProteinEntry(id) {
+            const log = getProteinLog().filter(e => e.id !== id);
+            saveProteinLog(log);
+            render();
+        }
+
+        // Protein favorites (quick add foods)
+        function getProteinFavorites() {
+            const defaultFavorites = [
+                { id: 1, name: 'Pechuga de pollo (100g)', grams: 31 },
+                { id: 2, name: 'Atún en lata (1 lata)', grams: 25 },
+                { id: 3, name: 'Huevos (2 unidades)', grams: 12 },
+                { id: 4, name: 'Yogurt griego (170g)', grams: 17 },
+                { id: 5, name: 'Whey protein (1 scoop)', grams: 25 },
+                { id: 6, name: 'Carne molida (100g)', grams: 26 },
+                { id: 7, name: 'Salmón (100g)', grams: 25 },
+                { id: 8, name: 'Queso cottage (100g)', grams: 11 },
+                { id: 9, name: 'Leche (1 vaso)', grams: 8 },
+                { id: 10, name: 'Almendras (30g)', grams: 6 }
+            ];
+            return JSON.parse(getStorage('protein-favorites') || JSON.stringify(defaultFavorites));
+        }
+
+        function saveProteinFavorites(favorites) {
+            setStorage('protein-favorites', JSON.stringify(favorites));
+        }
+
+        function addProteinFavorite(name, grams) {
+            const favorites = getProteinFavorites();
+            favorites.push({ id: Date.now(), name, grams: parseFloat(grams) });
+            saveProteinFavorites(favorites);
+            render();
+        }
+
+        function deleteProteinFavorite(id) {
+            const favorites = getProteinFavorites().filter(f => f.id !== id);
+            saveProteinFavorites(favorites);
+            render();
+        }
+
+        function quickAddProtein(favoriteId) {
+            const favorites = getProteinFavorites();
+            const fav = favorites.find(f => f.id === favoriteId);
+            if (fav) {
+                addProteinEntry(fav.name, fav.grams);
+            }
+        }
+
+        // Get weekly protein stats
+        function getProteinWeeklyStats() {
+            const stats = { days: [], total: 0, daysCompleted: 0, average: 0 };
+            const config = getProteinConfig();
+
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const key = date.toISOString().split('T')[0];
+                const log = getProteinLog(key);
+                const total = log.reduce((sum, e) => sum + e.grams, 0);
+                const completed = total >= config.goal;
+
+                stats.days.push({
+                    date: key,
+                    dayName: date.toLocaleDateString('es-CL', { weekday: 'short' }),
+                    total,
+                    completed,
+                    percentage: Math.min(100, Math.round((total / config.goal) * 100))
+                });
+
+                stats.total += total;
+                if (completed) stats.daysCompleted++;
+            }
+
+            stats.average = Math.round(stats.total / 7);
+            return stats;
+        }
+
+        // Update protein config from form
+        function updateProteinConfig() {
+            const latestWeight = getLatestWeight();
+            const weight = parseFloat(document.getElementById('proteinWeight')?.value) || latestWeight?.weight || 70;
+            const objective = document.getElementById('proteinObjective')?.value || 'maintain';
+            const activityLevel = document.getElementById('proteinActivity')?.value || 'medium';
+            const manualGoal = document.getElementById('proteinManual')?.checked || false;
+            const customGoal = parseFloat(document.getElementById('proteinCustomGoal')?.value) || 120;
+
+            const calculated = calculateProteinGoal(weight, objective, activityLevel);
+
+            const config = {
+                ...calculated,
+                goal: manualGoal ? customGoal : calculated.goal,
+                objective,
+                activityLevel,
+                manualGoal,
+                customGoal
+            };
+
+            saveProteinConfig(config);
+            render();
+        }
+
+        // Open modal to add protein
+        function openAddProteinModal() {
+            document.getElementById('addProteinModal').classList.remove('hidden');
+        }
+
+        function closeAddProteinModal() {
+            document.getElementById('addProteinModal').classList.add('hidden');
+            document.getElementById('proteinSource').value = '';
+            document.getElementById('proteinGrams').value = '';
+            document.getElementById('proteinNote').value = '';
+        }
+
+        function saveNewProtein() {
+            const source = document.getElementById('proteinSource').value.trim();
+            const grams = document.getElementById('proteinGrams').value;
+            const note = document.getElementById('proteinNote').value.trim();
+
+            if (source && grams) {
+                addProteinEntry(source, grams, note);
+                closeAddProteinModal();
+            }
+        }
+
+        // Open modal to add favorite
+        function openAddFavoriteModal() {
+            document.getElementById('addFavoriteModal').classList.remove('hidden');
+        }
+
+        function closeAddFavoriteModal() {
+            document.getElementById('addFavoriteModal').classList.add('hidden');
+            document.getElementById('favoriteName').value = '';
+            document.getElementById('favoriteGrams').value = '';
+        }
+
+        function saveNewFavorite() {
+            const name = document.getElementById('favoriteName').value.trim();
+            const grams = document.getElementById('favoriteGrams').value;
+
+            if (name && grams) {
+                addProteinFavorite(name, grams);
+                closeAddFavoriteModal();
+            }
+        }
+
+        // Render protein tracking sub-section
+        function renderProteinTracking() {
+            try {
+                const config = getProteinConfig();
+                const todayLog = getProteinLog();
+                const todayTotal = todayLog.reduce((sum, e) => sum + e.grams, 0);
+                const percentage = Math.min(100, Math.round((todayTotal / config.goal) * 100));
+                const remaining = Math.max(0, config.goal - todayTotal);
+                const favorites = getProteinFavorites();
+                const weeklyStats = getProteinWeeklyStats();
+                const latestWeight = getLatestWeight();
+
+                return `
+                    <!-- Today's Progress -->
+                    <div class="bg-gradient-to-br from-green-500 to-teal-600 rounded-2xl p-5 text-white shadow-lg">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-bold text-lg">🥩 Proteína Hoy</h3>
+                            <span class="text-sm opacity-80">${new Date().toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'short' })}</span>
+                        </div>
+
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="relative w-24 h-24">
+                                <svg class="w-24 h-24 transform -rotate-90">
+                                    <circle cx="48" cy="48" r="40" stroke="rgba(255,255,255,0.3)" stroke-width="8" fill="none"/>
+                                    <circle cx="48" cy="48" r="40" stroke="white" stroke-width="8" fill="none"
+                                        stroke-dasharray="${2 * Math.PI * 40}"
+                                        stroke-dashoffset="${2 * Math.PI * 40 * (1 - percentage / 100)}"
+                                        class="progress-ring"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-2xl font-bold">${percentage}%</span>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-3xl font-bold">${todayTotal}g <span class="text-lg opacity-80">/ ${config.goal}g</span></p>
+                                <p class="text-sm opacity-80 mt-1">
+                                    ${remaining > 0 ? `Faltan ${remaining}g para tu meta` : '🎉 ¡Meta completada!'}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="w-full bg-white/30 rounded-full h-3">
+                            <div class="bg-white rounded-full h-3 transition-all duration-500" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Add from Favorites -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-bold text-gray-800">⚡ Agregar Rápido</h4>
+                            <button onclick="openAddProteinModal()" class="text-sm text-purple-600 hover:text-purple-700 font-medium">+ Manual</button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                            ${favorites.slice(0, 8).map(fav => `
+                                <button onclick="quickAddProtein(${fav.id})" class="flex items-center justify-between gap-2 px-3 py-2 bg-gray-50 hover:bg-green-50 rounded-lg text-left transition text-sm">
+                                    <span class="truncate text-gray-700">${fav.name}</span>
+                                    <span class="text-green-600 font-bold whitespace-nowrap">+${fav.grams}g</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Today's Log -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm">
+                        <h4 class="font-bold text-gray-800 mb-3">📋 Registro de Hoy</h4>
+                        ${todayLog.length > 0 ? `
+                            <div class="space-y-2 max-h-48 overflow-y-auto">
+                                ${todayLog.map(entry => `
+                                    <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                                        <div class="flex-1">
+                                            <p class="text-gray-800 text-sm">${entry.source}</p>
+                                            <p class="text-xs text-gray-400">${entry.time}${entry.note ? ' • ' + entry.note : ''}</p>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-green-600 font-bold">${entry.grams}g</span>
+                                            <button onclick="deleteProteinEntry(${entry.id})" class="text-red-400 hover:text-red-600 text-xs">✕</button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : `
+                            <p class="text-gray-400 text-center py-4 text-sm">No has registrado proteína hoy</p>
+                        `}
+                    </div>
+
+                    <!-- Weekly Summary -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm">
+                        <h4 class="font-bold text-gray-800 mb-3">📊 Resumen Semanal</h4>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="text-center">
+                                <p class="text-2xl font-bold text-purple-600">${weeklyStats.daysCompleted}/7</p>
+                                <p class="text-xs text-gray-500">Días cumplidos</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-2xl font-bold text-green-600">${weeklyStats.average}g</p>
+                                <p class="text-xs text-gray-500">Promedio diario</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-2xl font-bold text-blue-600">${config.goal}g</p>
+                                <p class="text-xs text-gray-500">Meta diaria</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-1">
+                            ${weeklyStats.days.map(day => `
+                                <div class="flex-1 text-center">
+                                    <div class="h-16 bg-gray-100 rounded relative overflow-hidden mb-1">
+                                        <div class="absolute bottom-0 left-0 right-0 ${day.completed ? 'bg-green-400' : 'bg-orange-300'} transition-all" style="height: ${day.percentage}%"></div>
+                                    </div>
+                                    <p class="text-xs text-gray-500">${day.dayName}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Protein Goal Configuration -->
+                    <div class="bg-purple-50 border border-purple-200 rounded-2xl p-5">
+                        <h4 class="font-bold text-purple-800 mb-3">⚙️ Configurar Meta</h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-xs text-purple-600 font-medium">Peso (kg)</label>
+                                <input type="number" id="proteinWeight" value="${latestWeight?.weight || 70}" onchange="updateProteinConfig()"
+                                    class="w-full px-3 py-2 rounded-lg border border-purple-200 text-sm mt-1">
+                            </div>
+                            <div>
+                                <label class="text-xs text-purple-600 font-medium">Objetivo</label>
+                                <select id="proteinObjective" onchange="updateProteinConfig()" class="w-full px-3 py-2 rounded-lg border border-purple-200 text-sm mt-1">
+                                    <option value="lose" ${config.objective === 'lose' ? 'selected' : ''}>Bajar grasa</option>
+                                    <option value="maintain" ${config.objective === 'maintain' ? 'selected' : ''}>Recomposición</option>
+                                    <option value="gain" ${config.objective === 'gain' ? 'selected' : ''}>Ganar masa</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-purple-600 font-medium">Actividad</label>
+                                <select id="proteinActivity" onchange="updateProteinConfig()" class="w-full px-3 py-2 rounded-lg border border-purple-200 text-sm mt-1">
+                                    <option value="low" ${config.activityLevel === 'low' ? 'selected' : ''}>Baja</option>
+                                    <option value="medium" ${config.activityLevel === 'medium' ? 'selected' : ''}>Media</option>
+                                    <option value="high" ${config.activityLevel === 'high' ? 'selected' : ''}>Alta (entreno diario)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-purple-600 font-medium">Meta personalizada</label>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <input type="checkbox" id="proteinManual" ${config.manualGoal ? 'checked' : ''} onchange="updateProteinConfig()" class="rounded">
+                                    <input type="number" id="proteinCustomGoal" value="${config.customGoal || config.goal}" ${!config.manualGoal ? 'disabled' : ''}
+                                        onchange="updateProteinConfig()" class="flex-1 px-3 py-2 rounded-lg border border-purple-200 text-sm disabled:opacity-50">
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-xs text-purple-500 mt-3">
+                            Rango recomendado: ${config.minRange}g - ${config.maxRange}g/día
+                        </p>
+                    </div>
+
+                    <!-- Manage Favorites -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-bold text-gray-800">⭐ Mis Alimentos Favoritos</h4>
+                            <button onclick="openAddFavoriteModal()" class="text-sm text-purple-600 hover:text-purple-700 font-medium">+ Agregar</button>
+                        </div>
+                        <div class="space-y-2 max-h-48 overflow-y-auto">
+                            ${favorites.map(fav => `
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                                    <span class="text-gray-700 text-sm">${fav.name}</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-green-600 font-medium text-sm">${fav.grams}g</span>
+                                        <button onclick="deleteProteinFavorite(${fav.id})" class="text-red-400 hover:text-red-600 text-xs">✕</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error in renderProteinTracking:', error);
+                return `<div class="bg-red-100 text-red-700 p-4 rounded-lg">Error: ${error.message}</div>`;
+            }
+        }
+
+        // ==================== END PROTEIN TRACKING ====================
+
         function renderMeals() {
             const meals = getMeals();
             const isCustomized = customMeals !== null;
 
             return `
                 <div class="space-y-4">
+                    <!-- Sub-tabs for Meals section -->
+                    <div class="flex gap-2 p-1 bg-gray-100 rounded-xl">
+                        <button onclick="mealsSubTab='meals'; render();" class="flex-1 py-2 px-3 rounded-lg text-sm font-medium transition ${mealsSubTab === 'meals' ? 'bg-white shadow text-purple-600' : 'text-gray-500'}">
+                            🍽️ Comidas
+                        </button>
+                        <button onclick="mealsSubTab='protein'; render();" class="flex-1 py-2 px-3 rounded-lg text-sm font-medium transition ${mealsSubTab === 'protein' ? 'bg-white shadow text-green-600' : 'text-gray-500'}">
+                            🥩 Proteína
+                        </button>
+                    </div>
+
+                    ${mealsSubTab === 'protein' ? renderProteinTracking() : `
                     <div class="flex gap-2 mb-4">
                         <button onclick="openAddMealModal()" class="flex items-center justify-center gap-1 px-3 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition text-purple-600 border border-purple-100 text-sm" title="Agregar Comida">
                             <span>➕</span> Agregar
@@ -4565,6 +5035,7 @@
                             </ul>
                         </div>
                     </div>
+                    `}
                 </div>
             `;
         }
