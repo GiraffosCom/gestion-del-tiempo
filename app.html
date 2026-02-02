@@ -4205,9 +4205,9 @@
                                         ontouchend="handleTabTouchEnd(event)"
                                         onmousedown="handleTabMouseDown(event, '${tabId}', 'main')"
                                         onmouseup="handleTabMouseUp(event)"
-                                        class="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition whitespace-nowrap select-none ${isActive ? 'bg-white shadow-md text-purple-600' : 'text-gray-600 hover:bg-white/50'}"
+                                        class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap select-none ${isActive ? 'bg-white shadow-md text-purple-600' : 'text-gray-600 hover:bg-white/50'}"
                                         style="touch-action: none;">
-                                        ${tab.emoji} <span class="hidden sm:inline">${tab.label}</span>
+                                        ${tab.emoji} ${tab.label}
                                     </button>
                                 `;
                             }).join('')}
