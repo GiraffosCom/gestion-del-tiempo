@@ -8,23 +8,68 @@
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --theme-primary: #ec4899;
+            --theme-secondary: #8b5cf6;
+            --theme-accent: #a855f7;
+            --theme-glow-1: rgba(236, 72, 153, 0.4);
+            --theme-glow-2: rgba(139, 92, 246, 0.3);
+            --theme-ring: rgba(168, 85, 247, 0.4);
+            --theme-bg-light: #fdf2f8;
+            --theme-bg-light-2: #f3e8ff;
+        }
+        body.theme-male {
+            --theme-primary: #3b82f6;
+            --theme-secondary: #06b6d4;
+            --theme-accent: #6366f1;
+            --theme-glow-1: rgba(59, 130, 246, 0.4);
+            --theme-glow-2: rgba(6, 182, 212, 0.3);
+            --theme-ring: rgba(99, 102, 241, 0.4);
+            --theme-bg-light: #eff6ff;
+            --theme-bg-light-2: #e0f2fe;
+        }
         * { font-family: 'Poppins', sans-serif; }
-        .gradient-text { background: linear-gradient(135deg, #ec4899, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .gradient-text { background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .card-hover { transition: all 0.3s ease; }
         .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
         .progress-bar { transition: width 0.5s ease; }
-        .tab-active { background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; }
+        .tab-active { background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary)); color: white; }
         .checked-item { opacity: 0.6; transform: scale(0.98); }
-        .habit-checked { background: linear-gradient(135deg, #fdf2f8, #f3e8ff); border-color: #c084fc; }
+        .habit-checked { background: linear-gradient(135deg, var(--theme-bg-light), var(--theme-bg-light-2)); border-color: var(--theme-accent); }
         .progress-ring { transition: stroke-dashoffset 0.5s ease; }
         .modal-backdrop { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
         .btn-icon { transition: all 0.2s; }
         .btn-icon:hover { transform: scale(1.1); }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #ec4899, #8b5cf6); border-radius: 10px; }
-        .glow { box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); }
-        .photo-glow { box-shadow: 0 0 20px rgba(236, 72, 153, 0.4), 0 0 40px rgba(139, 92, 246, 0.3); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary)); border-radius: 10px; }
+        .glow { box-shadow: 0 0 20px var(--theme-ring); }
+        .photo-glow { box-shadow: 0 0 20px var(--theme-glow-1), 0 0 40px var(--theme-glow-2); }
+        .theme-gradient { background: linear-gradient(to right, var(--theme-primary), var(--theme-secondary)); }
+        .theme-btn { background: linear-gradient(to right, var(--theme-primary), var(--theme-secondary)); color: white; }
+        .theme-card { background: linear-gradient(to bottom right, var(--theme-primary), var(--theme-secondary)); }
+        .theme-share { background: linear-gradient(to bottom right, var(--theme-primary), var(--theme-accent), #3b82f6); }
+        body.theme-male .theme-share { background: linear-gradient(to bottom right, #3b82f6, #6366f1, #06b6d4); }
+        .photo-border { border-color: #c084fc; }
+        body.theme-male .photo-border { border-color: #93c5fd; }
+        .theme-progress { background: linear-gradient(to right, var(--theme-primary), var(--theme-secondary)); }
+        .theme-bar { background: linear-gradient(to top, var(--theme-primary), var(--theme-accent)); }
+        .theme-bar-light { background: linear-gradient(to top, #d8b4fe, #c084fc); }
+        body.theme-male .theme-bar-light { background: linear-gradient(to top, #93c5fd, #60a5fa); }
+        .theme-text { color: var(--theme-secondary); }
+        body.theme-male .text-purple-600 { color: #3b82f6 !important; }
+        body.theme-male .text-purple-500 { color: #60a5fa !important; }
+        body.theme-male .ring-purple-400 { --tw-ring-color: rgb(96 165 250) !important; }
+        body.theme-male .ring-purple-200 { --tw-ring-color: rgb(191 219 254) !important; }
+        body.theme-male .focus\:ring-purple-400:focus { --tw-ring-color: rgb(96 165 250) !important; }
+        body.theme-male .focus\:ring-purple-500:focus { --tw-ring-color: rgb(59 130 246) !important; }
+        body.theme-male .border-purple-200 { border-color: rgb(191 219 254) !important; }
+        body.theme-male .bg-purple-100 { background-color: rgb(219 234 254) !important; }
+        body.theme-male .bg-purple-500 { background-color: rgb(59 130 246) !important; }
+        body.theme-male .hover\:bg-purple-600:hover { background-color: rgb(37 99 235) !important; }
+        body.theme-male .bg-rose-100 { background-color: rgb(219 234 254) !important; }
+        body.theme-male .text-rose-600 { color: #3b82f6 !important; }
+        body.theme-male .hover\:bg-rose-200:hover { background-color: rgb(191 219 254) !important; }
         @keyframes celebrationFall {
             0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
             100% { transform: translateY(100vh) rotate(720deg) scale(0.5); opacity: 0; }
@@ -88,7 +133,7 @@
             </div>
             <div class="flex gap-3 mt-6">
                 <button onclick="closeEditModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="saveEdit()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
+                <button onclick="saveEdit()" class="flex-1 px-4 py-2 theme-btn rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
             </div>
         </div>
     </div>
@@ -153,7 +198,7 @@
             </div>
             <div class="flex gap-3 mt-6">
                 <button onclick="closeAddModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="saveNewActivity()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Agregar</button>
+                <button onclick="saveNewActivity()" class="flex-1 px-4 py-2 theme-btn rounded-xl hover:opacity-90 transition font-medium">Agregar</button>
             </div>
         </div>
     </div>
@@ -174,7 +219,7 @@
             </div>
             <div class="flex gap-3 mt-6">
                 <button onclick="closeEditHabitModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="saveHabitEdit()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
+                <button onclick="saveHabitEdit()" class="flex-1 px-4 py-2 theme-btn rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
             </div>
         </div>
     </div>
@@ -195,7 +240,7 @@
             </div>
             <div class="flex gap-3 mt-6">
                 <button onclick="closeAddHabitModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="saveNewHabit()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Agregar</button>
+                <button onclick="saveNewHabit()" class="flex-1 px-4 py-2 theme-btn rounded-xl hover:opacity-90 transition font-medium">Agregar</button>
             </div>
         </div>
     </div>
@@ -212,7 +257,7 @@
             </div>
             <div class="flex gap-3 mt-6">
                 <button onclick="closeEditGymModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="saveGymEdit()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
+                <button onclick="saveGymEdit()" class="flex-1 px-4 py-2 theme-btn rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
             </div>
         </div>
     </div>
@@ -229,7 +274,7 @@
             </div>
             <div class="flex gap-3 mt-6">
                 <button onclick="closeAddGymModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="saveNewGymExercise()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Agregar</button>
+                <button onclick="saveNewGymExercise()" class="flex-1 px-4 py-2 theme-btn rounded-xl hover:opacity-90 transition font-medium">Agregar</button>
             </div>
         </div>
     </div>
@@ -278,7 +323,7 @@
             </div>
             <div class="flex gap-3 mt-6">
                 <button onclick="closeWeightModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="saveWeightEntry()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
+                <button onclick="saveWeightEntry()" class="flex-1 px-4 py-2 theme-btn rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
             </div>
         </div>
     </div>
@@ -321,7 +366,7 @@
             </div>
             <div class="flex gap-3 mt-6">
                 <button onclick="closeProfileModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="savePhysicalProfile()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
+                <button onclick="savePhysicalProfile()" class="flex-1 px-4 py-2 theme-btn rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
             </div>
         </div>
     </div>
@@ -406,14 +451,14 @@
             </div>
             <div class="flex gap-3 mt-6">
                 <button onclick="closeLogSetModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="saveSetLog()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">✓ Completar</button>
+                <button onclick="saveSetLog()" class="flex-1 px-4 py-2 theme-btn rounded-xl hover:opacity-90 transition font-medium">✓ Completar</button>
             </div>
         </div>
     </div>
 
     <!-- Floating Rest Timer -->
     <div id="restTimerFloat" class="fixed bottom-24 right-6 z-50 hidden">
-        <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl shadow-2xl p-4 text-white min-w-[200px]">
+        <div class="theme-gradient rounded-2xl shadow-2xl p-4 text-white min-w-[200px]">
             <div class="flex items-center justify-between mb-2">
                 <span class="text-sm font-medium opacity-90">⏱️ Descanso</span>
                 <button onclick="closeRestTimer()" class="text-white/70 hover:text-white">×</button>
@@ -463,7 +508,7 @@
             </div>
             <div class="flex gap-3 mt-6">
                 <button onclick="closeEditMealModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="saveMealEdit()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
+                <button onclick="saveMealEdit()" class="flex-1 px-4 py-2 theme-btn rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
             </div>
         </div>
     </div>
@@ -496,7 +541,7 @@
             </div>
             <div class="flex gap-3 mt-6">
                 <button onclick="closeAddMealModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="saveNewMeal()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Agregar</button>
+                <button onclick="saveNewMeal()" class="flex-1 px-4 py-2 theme-btn rounded-xl hover:opacity-90 transition font-medium">Agregar</button>
             </div>
         </div>
     </div>
@@ -542,7 +587,7 @@
             </div>
             <div class="flex gap-3 mt-6">
                 <button onclick="closeAddFavoriteModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="saveNewFavorite()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
+                <button onclick="saveNewFavorite()" class="flex-1 px-4 py-2 theme-btn rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
             </div>
         </div>
     </div>
@@ -620,7 +665,7 @@
             </div>
             <div class="flex gap-3 mt-6">
                 <button onclick="closeEditGoalModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                <button onclick="saveGoalEdit()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
+                <button onclick="saveGoalEdit()" class="flex-1 px-4 py-2 theme-btn rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
             </div>
         </div>
     </div>
@@ -658,10 +703,10 @@
                 <!-- Foto de perfil -->
                 <div class="flex justify-center mb-4">
                     <div class="relative">
-                        <div id="photoPreview" class="w-24 h-24 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center text-white text-3xl font-bold border-4 border-purple-200 overflow-hidden">
+                        <div id="photoPreview" class="w-24 h-24 rounded-full theme-gradient flex items-center justify-center text-white text-3xl font-bold border-4 photo-border overflow-hidden">
                             <!-- Se llena dinámicamente -->
                         </div>
-                        <label class="absolute bottom-0 right-0 w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-purple-600 transition shadow-lg">
+                        <label class="absolute bottom-0 right-0 w-8 h-8 theme-btn rounded-full flex items-center justify-center cursor-pointer hover:opacity-90 transition shadow-lg">
                             <span class="text-white text-sm">📷</span>
                             <input type="file" id="photoInput" accept="image/*" class="hidden" onchange="handlePhotoUpload(event)">
                         </label>
@@ -725,7 +770,7 @@
                     <button onclick="closePhotoModal()" class="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">
                         Cancelar
                     </button>
-                    <button onclick="saveFullProfile()" class="flex-1 px-4 py-3 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl font-medium hover:opacity-90 transition">
+                    <button onclick="saveFullProfile()" class="flex-1 px-4 py-3 theme-btn rounded-xl font-medium hover:opacity-90 transition">
                         💾 Guardar
                     </button>
                 </div>
@@ -848,7 +893,7 @@
                 </div>
 
                 <!-- Timer Display -->
-                <div id="pomodoroDisplay" class="text-6xl font-mono font-bold bg-gradient-to-r from-rose-500 to-purple-600 bg-clip-text text-transparent my-6">
+                <div id="pomodoroDisplay" class="text-6xl font-mono font-bold gradient-text my-6">
                     25:00
                 </div>
 
@@ -872,7 +917,7 @@
 
                 <!-- Controls -->
                 <div class="flex gap-3">
-                    <button id="pomodoroStartBtn" onclick="togglePomodoro()" class="flex-1 px-4 py-3 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">
+                    <button id="pomodoroStartBtn" onclick="togglePomodoro()" class="flex-1 px-4 py-3 theme-btn rounded-xl hover:opacity-90 transition font-medium">
                         ▶️ Iniciar
                     </button>
                     <button onclick="resetPomodoro()" class="px-4 py-3 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 transition font-medium">
@@ -891,7 +936,7 @@
     </div>
 
     <!-- Botones flotantes -->
-    <button id="pomodoroFloatBtn" onclick="openPomodoroModal()" class="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 z-40 flex items-center justify-center text-2xl" title="Pomodoro Timer">
+    <button id="pomodoroFloatBtn" onclick="openPomodoroModal()" class="fixed bottom-6 right-6 w-14 h-14 theme-btn rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 z-40 flex items-center justify-center text-2xl" title="Pomodoro Timer">
         🍅
     </button>
     <button id="expensesFloatBtn" onclick="openScanReceiptModal()" class="fixed bottom-6 right-24 w-14 h-14 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 z-40 flex items-center justify-center text-2xl hidden" title="Registrar Gasto">
@@ -964,7 +1009,7 @@
                 <div id="cameraContainer" class="hidden mb-4">
                     <video id="cameraPreview" class="w-full rounded-xl bg-black" autoplay playsinline></video>
                     <div class="flex gap-3 mt-3">
-                        <button onclick="capturePhoto()" class="flex-1 py-3 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl font-medium hover:opacity-90 transition">
+                        <button onclick="capturePhoto()" class="flex-1 py-3 theme-btn rounded-xl font-medium hover:opacity-90 transition">
                             📸 Capturar
                         </button>
                         <button onclick="stopCamera()" class="px-4 py-3 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">
@@ -977,7 +1022,7 @@
                 <div id="imagePreviewContainer" class="hidden mb-4">
                     <img id="receiptImagePreview" class="w-full rounded-xl max-h-64 object-contain bg-gray-100">
                     <div class="flex gap-3 mt-3">
-                        <button onclick="processReceiptImage()" class="flex-1 py-3 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl font-medium hover:opacity-90 transition">
+                        <button onclick="processReceiptImage()" class="flex-1 py-3 theme-btn rounded-xl font-medium hover:opacity-90 transition">
                             🔍 Analizar Boleta
                         </button>
                         <button onclick="clearReceiptImage()" class="px-4 py-3 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">
@@ -1035,7 +1080,7 @@
                     <button onclick="resetScanModal()" class="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">
                         Escanear otra
                     </button>
-                    <button onclick="saveExpenseFromScan()" class="flex-1 px-4 py-3 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl font-medium hover:opacity-90 transition">
+                    <button onclick="saveExpenseFromScan()" class="flex-1 px-4 py-3 theme-btn rounded-xl font-medium hover:opacity-90 transition">
                         💾 Guardar
                     </button>
                 </div>
@@ -1080,7 +1125,7 @@
                 <button onclick="closeAddExpenseModal()" class="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">
                     Cancelar
                 </button>
-                <button onclick="saveManualExpense()" class="flex-1 px-4 py-3 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl font-medium hover:opacity-90 transition">
+                <button onclick="saveManualExpense()" class="flex-1 px-4 py-3 theme-btn rounded-xl font-medium hover:opacity-90 transition">
                     💾 Guardar
                 </button>
             </div>
@@ -1117,7 +1162,7 @@
                     <input type="text" id="newCategoryEmoji" class="w-14 px-2 py-2 border border-gray-200 rounded-xl text-center text-xl" placeholder="🆕" maxlength="2">
                     <input type="text" id="newCategoryName" class="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm" placeholder="Nombre de categoría">
                 </div>
-                <button onclick="addNewCategory()" class="w-full py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl font-medium hover:opacity-90 transition">
+                <button onclick="addNewCategory()" class="w-full py-2 theme-btn rounded-xl font-medium hover:opacity-90 transition">
                     ➕ Añadir Categoría
                 </button>
             </div>
@@ -1140,7 +1185,7 @@
             <p class="text-gray-500 text-sm mb-4">¡Muestra tu progreso al mundo!</p>
 
             <!-- Preview Card -->
-            <div id="sharePreview" class="bg-gradient-to-br from-rose-500 via-purple-500 to-blue-500 rounded-2xl p-6 text-white mb-4">
+            <div id="sharePreview" class="theme-share rounded-2xl p-6 text-white mb-4">
                 <div class="text-center">
                     <p class="text-sm opacity-80">Mi progreso en</p>
                     <h4 class="text-xl font-bold mb-4">🎯 Gestión del Tiempo</h4>
@@ -1230,7 +1275,7 @@
                 <p class="font-medium text-gray-800 mb-2">💾 Guardar día actual como plantilla</p>
                 <div class="flex gap-2">
                     <input type="text" id="templateName" placeholder="Nombre de la plantilla..." class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-400 outline-none">
-                    <button onclick="saveTemplate()" class="px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-lg text-sm font-medium hover:opacity-90 transition">
+                    <button onclick="saveTemplate()" class="px-4 py-2 theme-btn rounded-lg text-sm font-medium hover:opacity-90 transition">
                         Guardar
                     </button>
                 </div>
@@ -1291,6 +1336,53 @@
             return localStorage.getItem(`${userKey}-${key}`);
         }
 
+        // Theme Colors based on Gender
+        function getUserGender() {
+            const profile = JSON.parse(getStorage('user-profile') || '{}');
+            return profile.gender || 'female';
+        }
+
+        function getThemeColors() {
+            const gender = getUserGender();
+            if (gender === 'male' || gender === 'Male' || gender === 'masculino' || gender === 'Masculino') {
+                return {
+                    primary: 'blue',
+                    secondary: 'cyan',
+                    gradientFrom: 'from-blue-500',
+                    gradientTo: 'to-cyan-600',
+                    gradientVia: 'via-indigo-500',
+                    accent: 'blue',
+                    accentLight: 'blue-100',
+                    accentDark: 'blue-600',
+                    headerGradient: 'from-blue-500 to-cyan-600',
+                    cardGradient: 'from-blue-500 to-indigo-600',
+                    buttonGradient: 'from-blue-500 to-cyan-500',
+                    textGradient: 'from-blue-600 to-cyan-600',
+                    photoGlow: 'from-blue-500 to-cyan-500',
+                    border: 'blue-200'
+                };
+            }
+            // Default female/other theme
+            return {
+                primary: 'rose',
+                secondary: 'purple',
+                gradientFrom: 'from-rose-500',
+                gradientTo: 'to-purple-600',
+                gradientVia: 'via-pink-500',
+                accent: 'purple',
+                accentLight: 'purple-100',
+                accentDark: 'purple-600',
+                headerGradient: 'from-rose-500 to-purple-600',
+                cardGradient: 'from-rose-500 to-purple-600',
+                buttonGradient: 'from-rose-500 to-purple-500',
+                textGradient: 'from-rose-600 to-purple-600',
+                photoGlow: 'from-pink-500 to-purple-500',
+                border: 'purple-200'
+            };
+        }
+
+        const theme = getThemeColors();
+
         function setStorage(key, value) {
             localStorage.setItem(`${userKey}-${key}`, value);
         }
@@ -1319,8 +1411,18 @@
             }
         }
 
-        // Apply dark mode on page load
+        function applyTheme() {
+            const gender = getUserGender();
+            if (gender === 'male' || gender === 'Male' || gender === 'masculino' || gender === 'Masculino') {
+                document.body.classList.add('theme-male');
+            } else {
+                document.body.classList.remove('theme-male');
+            }
+        }
+
+        // Apply dark mode and theme on page load
         applyDarkMode();
+        applyTheme();
 
         function logout() {
             if (confirm('¿Seguro que quieres cerrar sesión?')) {
@@ -1648,6 +1750,7 @@
 
             closePhotoModal();
             addNotification('Perfil actualizado correctamente', '✅');
+            applyTheme(); // Aplicar tema según género
             render();
         }
 
@@ -4433,7 +4536,7 @@
                     <div class="max-w-4xl mx-auto px-3 py-2">
                         <div class="flex items-center gap-3">
                             <div class="relative flex-shrink-0 cursor-pointer group" onclick="openPhotoModal()" title="Cambiar foto de perfil">
-                                <div class="w-12 h-12 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center text-white text-lg font-bold border-2 border-purple-200 photo-glow overflow-hidden group-hover:opacity-80 transition">
+                                <div class="w-12 h-12 rounded-full theme-gradient flex items-center justify-center text-white text-lg font-bold border-2 photo-border photo-glow overflow-hidden group-hover:opacity-80 transition">
                                     ${getUserPhoto() ? `<img src="${getUserPhoto()}" class="w-full h-full object-cover">` : currentUser.name.charAt(0).toUpperCase()}
                                 </div>
                                 <span class="absolute -bottom-0.5 -right-0.5 text-sm group-hover:scale-110 transition">📷</span>
@@ -4574,7 +4677,7 @@
                                       totalProgress >= 50 ? '✨ ¡Más de la mitad! No te detengas' :
                                       '🌟 ¡Cada día cuenta! Tú puedes'}
                                 </p>
-                                <button onclick="openShareModal()" class="mt-2 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-full text-sm font-medium hover:opacity-90 transition inline-flex items-center gap-2">
+                                <button onclick="openShareModal()" class="mt-2 px-4 py-2 theme-btn rounded-full text-sm font-medium hover:opacity-90 transition inline-flex items-center gap-2">
                                     📤 Compartir mi progreso
                                 </button>
                             </div>
@@ -4652,7 +4755,7 @@
 
             return `
                 <div class="space-y-3">
-                    <div class="bg-gradient-to-r from-rose-500 to-purple-600 rounded-2xl p-5 text-white shadow-lg mb-4">
+                    <div class="theme-gradient rounded-2xl p-5 text-white shadow-lg mb-4">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-4">
                                 <span class="text-5xl">${gym.icon}</span>
@@ -4881,7 +4984,7 @@
 
             return `
                 <!-- Current Stats -->
-                <div class="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-5 text-white shadow-lg">
+                <div class="theme-card rounded-2xl p-5 text-white shadow-lg">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-bold">⚖️ Mi Progreso</h3>
                         <button onclick="openProfileModal()" class="text-white/80 hover:text-white text-sm">⚙️ Configurar</button>
@@ -4977,7 +5080,7 @@
 
             return `
                 <!-- Today's Routine Header -->
-                <div class="bg-gradient-to-br from-rose-500 to-purple-600 rounded-2xl p-5 text-white shadow-lg">
+                <div class="theme-card rounded-2xl p-5 text-white shadow-lg">
                     <div class="flex items-center gap-4">
                         <span class="text-5xl">${gym.icon}</span>
                         <div class="flex-1">
@@ -6289,7 +6392,7 @@
                     ${goals.map((goal, idx) => `
                         <div class="rounded-2xl p-5 shadow-sm transition-all ${
                             goal.week === currentWeek
-                                ? 'bg-gradient-to-r from-rose-500 to-purple-600 text-white ring-4 ring-purple-200 glow'
+                                ? 'theme-btn ring-4 ring-purple-200 glow'
                                 : goal.week < currentWeek
                                 ? 'bg-gray-100 opacity-70'
                                 : 'bg-white'
@@ -6350,7 +6453,7 @@
 
         function showNotification(message) {
             const notification = document.createElement('div');
-            notification.className = 'fixed bottom-4 right-4 bg-gradient-to-r from-rose-500 to-purple-600 text-white px-6 py-3 rounded-xl shadow-lg z-50 animate-pulse';
+            notification.className = 'fixed bottom-4 right-4 theme-btn px-6 py-3 rounded-xl shadow-lg z-50 animate-pulse';
             notification.textContent = message;
             document.body.appendChild(notification);
             setTimeout(() => notification.remove(), 2000);
@@ -6379,7 +6482,7 @@
                         >${notes}</textarea>
                         <div class="flex justify-between items-center mt-3">
                             <span class="text-sm text-gray-400">Se guarda automáticamente</span>
-                            <button onclick="saveNotes('${dateKey}')" class="px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium text-sm">
+                            <button onclick="saveNotes('${dateKey}')" class="px-4 py-2 theme-btn rounded-xl hover:opacity-90 transition font-medium text-sm">
                                 💾 Guardar
                             </button>
                         </div>
@@ -7860,7 +7963,7 @@
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-lg font-bold text-gray-800">💰 Control de Gastos</h3>
                             <div class="flex gap-2">
-                                <button onclick="openScanReceiptModal()" class="px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl font-medium hover:opacity-90 transition flex items-center gap-2 text-sm">
+                                <button onclick="openScanReceiptModal()" class="px-4 py-2 theme-btn rounded-xl font-medium hover:opacity-90 transition flex items-center gap-2 text-sm">
                                     📸 Escanear Boleta
                                 </button>
                                 <button onclick="openAddExpenseModal()" class="px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition flex items-center gap-2 text-sm">
@@ -8356,7 +8459,7 @@
                                 ${weeklyData.map(day => `
                                     <div class="flex-1 flex flex-col items-center ${!day.inRange ? 'opacity-40' : ''}">
                                         <div class="w-full bg-gray-100 rounded-t-lg relative" style="height: 160px;">
-                                            <div class="absolute bottom-0 w-full rounded-t-lg transition-all ${day.isToday ? 'bg-gradient-to-t from-rose-500 to-purple-500' : 'bg-gradient-to-t from-purple-300 to-purple-400'}" style="height: ${day.progress}%;">
+                                            <div class="absolute bottom-0 w-full rounded-t-lg transition-all ${day.isToday ? 'theme-bar' : 'theme-bar-light'}" style="height: ${day.progress}%;">
                                             </div>
                                         </div>
                                         <span class="text-xs mt-2 font-medium ${day.isToday ? 'text-purple-600' : 'text-gray-500'}">${day.day}</span>
@@ -8375,7 +8478,7 @@
                                 <div class="flex items-center gap-3">
                                     <span class="text-sm text-gray-500 w-12">${day.label}</span>
                                     <div class="flex-1 h-6 bg-gray-100 rounded-full overflow-hidden">
-                                        <div class="h-full bg-gradient-to-r from-rose-500 to-purple-500 rounded-full transition-all" style="width: ${day.progress}%;"></div>
+                                        <div class="h-full theme-progress rounded-full transition-all" style="width: ${day.progress}%;"></div>
                                     </div>
                                     <span class="text-sm font-medium text-gray-700 w-12 text-right">${day.progress}%</span>
                                 </div>
