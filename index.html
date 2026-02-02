@@ -50,11 +50,11 @@
 
     <!-- Navbar -->
     <nav class="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md z-50 border-b border-gray-100">
-        <div class="max-w-6xl mx-auto px-4 py-4">
+        <div class="max-w-6xl mx-auto px-4 py-3">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                    <span class="text-3xl">⏰</span>
-                    <span class="text-xl font-bold gradient-text">Gestión del Tiempo</span>
+                    <span class="text-2xl md:text-3xl">⏰</span>
+                    <span class="text-lg md:text-xl font-bold gradient-text">Gestión del Tiempo</span>
                 </div>
                 <div class="hidden md:flex items-center gap-8">
                     <a href="#funciones" class="text-gray-600 hover:text-purple-600 transition">Funciones</a>
@@ -62,12 +62,14 @@
                     <a href="#como-funciona" class="text-gray-600 hover:text-purple-600 transition">Cómo funciona</a>
                     <a href="#beneficios" class="text-gray-600 hover:text-purple-600 transition">Beneficios</a>
                 </div>
-                <a href="login.html" class="text-gray-600 hover:text-purple-600 transition font-medium">
-                    Iniciar sesión
-                </a>
-                <a href="login.html" class="px-6 py-2 gradient-bg text-white rounded-full font-medium hover:opacity-90 transition shadow-lg shadow-purple-200">
-                    Comenzar gratis
-                </a>
+                <div class="flex items-center gap-3">
+                    <a href="login.html" class="hidden md:block text-gray-600 hover:text-purple-600 transition font-medium">
+                        Iniciar sesión
+                    </a>
+                    <a href="login.html" class="px-4 py-2 md:px-6 gradient-bg text-white rounded-full font-medium hover:opacity-90 transition shadow-lg shadow-purple-200 text-sm md:text-base">
+                        Comenzar gratis
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
