@@ -1938,6 +1938,10 @@
             return date.toISOString().split('T')[0];
         }
 
+        function getTodayKey() {
+            return new Date().toISOString().split('T')[0];
+        }
+
         function getWeekNumber(date = currentDate) {
             return Math.min(totalWeeks, Math.max(1, Math.floor((date - startDate) / (7 * 24 * 60 * 60 * 1000)) + 1));
         }
