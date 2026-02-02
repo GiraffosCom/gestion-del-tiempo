@@ -3790,12 +3790,13 @@
         }
 
         function renderGym(gym, dayIndex, weekNum) {
-            const profile = getPhysicalProfile();
-            const latestWeight = getLatestWeight();
-            const weightHistory = getWeightHistory();
-            const todayWorkout = getTodayWorkout();
+            try {
+                const profile = getPhysicalProfile();
+                const latestWeight = getLatestWeight();
+                const weightHistory = getWeightHistory();
+                const todayWorkout = getTodayWorkout();
 
-            return `
+                return `
                 <div class="space-y-4">
                     <!-- Sub-tabs -->
                     <div class="bg-white rounded-xl p-1 flex gap-1 shadow-sm">
@@ -3815,11 +3816,16 @@
                     ${gymSubTab === 'history' ? renderGymHistory() : ''}
                 </div>
             `;
+            } catch (error) {
+                console.error('Error in renderGym:', error);
+                return `<div class="bg-red-100 text-red-700 p-4 rounded-xl">Error: ${error.message}</div>`;
+            }
         }
 
         function renderGymProfile(profile, latestWeight, weightHistory) {
-            const goalDiff = latestWeight && profile.goalWeight ? (latestWeight.weight - profile.goalWeight).toFixed(1) : null;
-            const last7Days = weightHistory.slice(-7);
+            try {
+                const goalDiff = latestWeight && profile.goalWeight ? (latestWeight.weight - profile.goalWeight).toFixed(1) : null;
+                const last7Days = weightHistory.slice(-7);
 
             return `
                 <!-- Current Stats -->
@@ -3906,10 +3912,15 @@
                     </div>
                 </div>
             `;
+            } catch (error) {
+                console.error('Error in renderGymProfile:', error);
+                return `<div class="bg-red-100 text-red-700 p-4 rounded-xl">Error en Perfil: ${error.message}</div>`;
+            }
         }
 
         function renderGymWorkout(gym, dayIndex, todayWorkout) {
-            const completedSets = todayWorkout.exercises.reduce((sum, ex) => sum + ex.sets.filter(s => s).length, 0);
+            try {
+                const completedSets = todayWorkout.exercises.reduce((sum, ex) => sum + ex.sets.filter(s => s).length, 0);
             const totalSets = todayWorkout.exercises.length * 4; // Assume 4 sets per exercise
 
             return `
@@ -4002,12 +4013,17 @@
                     <p class="text-amber-700 text-xs">Descanso recomendado: 60-90s entre series. El temporizador se iniciará automáticamente al completar cada serie.</p>
                 </div>
             `;
+            } catch (error) {
+                console.error('Error in renderGymWorkout:', error);
+                return `<div class="bg-red-100 text-red-700 p-4 rounded-xl">Error en Entreno: ${error.message}</div>`;
+            }
         }
 
         function renderGymHistory() {
-            const logs = getWorkoutLogs().slice(-14).reverse(); // Last 14 workouts
-            const allExercises = new Set();
-            logs.forEach(log => log.exercises.forEach(ex => allExercises.add(ex.name)));
+            try {
+                const logs = getWorkoutLogs().slice(-14).reverse(); // Last 14 workouts
+                const allExercises = new Set();
+                logs.forEach(log => log.exercises.forEach(ex => allExercises.add(ex.name)));
 
             return `
                 <div class="bg-white rounded-2xl p-5 shadow-sm">
@@ -4064,6 +4080,10 @@
                     `}
                 </div>
             `;
+            } catch (error) {
+                console.error('Error in renderGymHistory:', error);
+                return `<div class="bg-red-100 text-red-700 p-4 rounded-xl">Error en Historial: ${error.message}</div>`;
+            }
         }
 
         function renderMeals() {
