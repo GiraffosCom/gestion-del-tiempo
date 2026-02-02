@@ -620,7 +620,7 @@
 
             // Crear canvas para recortar
             const canvas = document.createElement('canvas');
-            const outputSize = 150; // Tamaño final
+            const outputSize = 400; // Tamaño final (mayor = mejor calidad)
             canvas.width = outputSize;
             canvas.height = outputSize;
             const ctx = canvas.getContext('2d');
@@ -642,19 +642,19 @@
                 0, 0, outputSize, outputSize
             );
 
-            // Comprimir
-            let photoData = canvas.toDataURL('image/jpeg', 0.7);
+            // Comprimir con alta calidad
+            let photoData = canvas.toDataURL('image/jpeg', 0.92);
             let sizeKB = (photoData.length * 3/4) / 1024;
 
-            // Reducir calidad si es necesario
-            let quality = 0.7;
-            while (sizeKB > 30 && quality > 0.1) {
-                quality -= 0.1;
+            // Reducir calidad solo si excede 150KB
+            let quality = 0.92;
+            while (sizeKB > 150 && quality > 0.5) {
+                quality -= 0.05;
                 photoData = canvas.toDataURL('image/jpeg', quality);
                 sizeKB = (photoData.length * 3/4) / 1024;
             }
 
-            console.log(`Foto guardada: ${Math.round(sizeKB)}KB`);
+            console.log(`Foto guardada: ${Math.round(sizeKB)}KB (calidad: ${Math.round(quality*100)}%)`);
 
             // Guardar
             setStorage('profile-photo', photoData);
