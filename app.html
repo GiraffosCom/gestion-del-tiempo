@@ -4190,7 +4190,7 @@
                 <!-- Tabs -->
                 <div class="bg-white/40 border-b sticky top-[56px] z-40 mt-1">
                     <div class="max-w-4xl mx-auto px-4 py-2">
-                        <div data-tabs-container="main" class="flex gap-1 overflow-x-auto no-scrollbar bg-gray-100/80 p-1 rounded-xl relative">
+                        <div data-tabs-container="main" class="flex gap-2 overflow-x-auto no-scrollbar py-1 relative" style="scroll-behavior: smooth; -webkit-overflow-scrolling: touch;">
                             ${getMainTabsOrder().map((tabId, index) => {
                                 const tab = mainTabsConfig[tabId];
                                 if (!tab) return '';
@@ -4205,8 +4205,8 @@
                                         ontouchend="handleTabTouchEnd(event)"
                                         onmousedown="handleTabMouseDown(event, '${tabId}', 'main')"
                                         onmouseup="handleTabMouseUp(event)"
-                                        class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap select-none ${isActive ? 'bg-white shadow-md text-purple-600' : 'text-gray-600 hover:bg-white/50'}"
-                                        style="touch-action: none;">
+                                        class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap select-none flex-shrink-0 ${isActive ? 'bg-white shadow-md text-purple-600' : 'bg-white/80 text-gray-600 hover:bg-white'}"
+                                        style="touch-action: pan-x;">
                                         ${tab.emoji} ${tab.label}
                                     </button>
                                 `;
