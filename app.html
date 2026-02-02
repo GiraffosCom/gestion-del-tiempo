@@ -1387,19 +1387,88 @@
             deletingIndex = null;
         }
 
+        let pendingDeleteName = null; // Nombre del item a borrar
+
         function confirmDelete() {
             if (deleteType === 'activity') {
+                // Guardar nombre antes de borrar
+                const dateKey = getDateKey();
+                const schedule = getSchedule(currentDate.getDay(), dateKey);
+                pendingDeleteName = schedule[deletingIndex]?.activity;
+
                 deleteActivity();
+                closeDeleteModal();
+                render();
+
+                // Preguntar si borrar de todos los días
+                if (pendingDeleteName) {
+                    showReplaceAllModal('deleteActivity',
+                        `¿Eliminar "${pendingDeleteName}" de todos los demás días?`,
+                        (deleteAll) => {
+                            if (deleteAll) {
+                                deleteActivityFromAllDays(pendingDeleteName);
+                            }
+                        }
+                    );
+                }
             } else if (deleteType === 'habit') {
                 deleteHabit();
+                closeDeleteModal();
+                render();
             } else if (deleteType === 'gym') {
+                // Guardar nombre antes de borrar
+                const dayIndex = currentDate.getDay();
+                const gym = getGymFocus(dayIndex);
+                pendingDeleteName = gym.exercises[deletingIndex];
+
                 deleteGymExercise();
+                closeDeleteModal();
+                render();
+
+                // Preguntar si borrar de todos los días
+                if (pendingDeleteName) {
+                    showReplaceAllModal('deleteGym',
+                        `¿Eliminar "${pendingDeleteName}" de todos los demás días?`,
+                        (deleteAll) => {
+                            if (deleteAll) {
+                                deleteGymFromAllDays(pendingDeleteName, dayIndex);
+                            }
+                        }
+                    );
+                }
             } else if (deleteType === 'meal') {
                 deleteMeal();
+                closeDeleteModal();
+                render();
             } else if (deleteType === 'goal') {
                 deleteGoal();
+                closeDeleteModal();
+                render();
             }
-            closeDeleteModal();
+        }
+
+        function deleteActivityFromAllDays(activityName) {
+            Object.keys(customSchedules).forEach(key => {
+                const schedule = customSchedules[key];
+                const originalLength = schedule.length;
+                customSchedules[key] = schedule.filter(item => item.activity !== activityName);
+                if (customSchedules[key].length !== originalLength) {
+                    setStorage(`schedule-${key}`, JSON.stringify(customSchedules[key]));
+                }
+            });
+            render();
+        }
+
+        function deleteGymFromAllDays(exerciseName, excludeDayIndex) {
+            for (let d = 0; d < 7; d++) {
+                if (d !== excludeDayIndex && customGym[d]) {
+                    const originalLength = customGym[d].exercises.length;
+                    customGym[d].exercises = customGym[d].exercises.filter(ex => ex !== exerciseName);
+                    if (customGym[d].exercises.length !== originalLength) {
+                        setStorage('custom-gym', JSON.stringify(customGym));
+                    }
+                }
+            }
             render();
         }
 
