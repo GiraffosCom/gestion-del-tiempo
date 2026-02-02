@@ -250,6 +250,191 @@
         </div>
     </div>
 
+    <!-- Modal Registrar Peso/Medidas -->
+    <div id="weightModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeWeightModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-800">⚖️ Registrar Peso</h3>
+                <button onclick="closeWeightModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Fecha</label>
+                    <input type="date" id="weightDate" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Peso (kg)</label>
+                    <input type="number" step="0.1" id="weightValue" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none" placeholder="ej: 62.5">
+                </div>
+                <div class="border-t pt-4 mt-4">
+                    <p class="text-sm font-medium text-gray-600 mb-3">Medidas opcionales (cm)</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Cintura</label>
+                            <input type="number" step="0.1" id="measureWaist" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="cm">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Cadera</label>
+                            <input type="number" step="0.1" id="measureHip" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="cm">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Pierna</label>
+                            <input type="number" step="0.1" id="measureThigh" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="cm">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Brazo</label>
+                            <input type="number" step="0.1" id="measureArm" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="cm">
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">% Grasa corporal (opcional)</label>
+                    <input type="number" step="0.1" id="bodyFat" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none" placeholder="ej: 22.5">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeWeightModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
+                <button onclick="saveWeightEntry()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Configurar Perfil Físico -->
+    <div id="profileModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeProfileModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-800">👤 Mi Perfil Físico</h3>
+                <button onclick="closeProfileModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Estatura (cm)</label>
+                    <input type="number" id="profileHeight" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none" placeholder="ej: 165">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Peso objetivo (kg)</label>
+                    <input type="number" step="0.1" id="profileGoalWeight" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none" placeholder="ej: 58">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Día de check-in semanal</label>
+                    <select id="profileCheckinDay" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none">
+                        <option value="1">Lunes</option>
+                        <option value="2">Martes</option>
+                        <option value="3">Miércoles</option>
+                        <option value="4">Jueves</option>
+                        <option value="5">Viernes</option>
+                        <option value="6">Sábado</option>
+                        <option value="0">Domingo</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeProfileModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
+                <button onclick="savePhysicalProfile()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Agregar Ejercicio a Rutina -->
+    <div id="addWorkoutExerciseModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeAddWorkoutExerciseModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 transform transition-all max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-800">🏋️ Agregar Ejercicio</h3>
+                <button onclick="closeAddWorkoutExerciseModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+            </div>
+
+            <!-- Search -->
+            <div class="mb-4">
+                <input type="text" id="exerciseSearch" oninput="filterExerciseLibrary()" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none" placeholder="🔍 Buscar ejercicio...">
+            </div>
+
+            <!-- Filter buttons -->
+            <div class="flex gap-2 mb-4 flex-wrap">
+                <button onclick="filterByMuscle('all')" class="muscle-filter-btn px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium" data-muscle="all">Todos</button>
+                <button onclick="filterByMuscle('gluteos')" class="muscle-filter-btn px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm" data-muscle="gluteos">Glúteos</button>
+                <button onclick="filterByMuscle('piernas')" class="muscle-filter-btn px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm" data-muscle="piernas">Piernas</button>
+                <button onclick="filterByMuscle('espalda')" class="muscle-filter-btn px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm" data-muscle="espalda">Espalda</button>
+                <button onclick="filterByMuscle('pecho')" class="muscle-filter-btn px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm" data-muscle="pecho">Pecho</button>
+                <button onclick="filterByMuscle('brazos')" class="muscle-filter-btn px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm" data-muscle="brazos">Brazos</button>
+                <button onclick="filterByMuscle('core')" class="muscle-filter-btn px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm" data-muscle="core">Core</button>
+            </div>
+
+            <!-- Exercise list -->
+            <div id="exerciseLibraryList" class="space-y-2 max-h-64 overflow-y-auto">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- Custom exercise -->
+            <div class="border-t mt-4 pt-4">
+                <p class="text-sm text-gray-500 mb-2">¿No encuentras tu ejercicio?</p>
+                <div class="flex gap-2">
+                    <input type="text" id="customExerciseName" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Nombre del ejercicio">
+                    <button onclick="addCustomExercise()" class="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg text-sm font-medium hover:bg-purple-200 transition">Crear</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Registrar Serie -->
+    <div id="logSetModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeLogSetModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-gray-800" id="logSetTitle">Serie 1</h3>
+                <button onclick="closeLogSetModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+            </div>
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Peso (kg)</label>
+                        <input type="number" step="0.5" id="setWeight" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none text-center text-xl font-bold" placeholder="0">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Reps</label>
+                        <input type="number" id="setReps" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none text-center text-xl font-bold" placeholder="0">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">RPE (1-10) <span class="text-gray-400 text-xs">opcional</span></label>
+                    <div class="flex gap-1">
+                        ${[1,2,3,4,5,6,7,8,9,10].map(n => `<button type="button" onclick="selectRPE(${n})" class="rpe-btn flex-1 py-2 border rounded-lg text-sm hover:bg-purple-100 transition" data-rpe="${n}">${n}</button>`).join('')}
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Notas <span class="text-gray-400 text-xs">opcional</span></label>
+                    <input type="text" id="setNotes" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none text-sm" placeholder="ej: técnica, dolor, ajustes...">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeLogSetModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
+                <button onclick="saveSetLog()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">✓ Completar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Rest Timer -->
+    <div id="restTimerFloat" class="fixed bottom-24 right-6 z-50 hidden">
+        <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl shadow-2xl p-4 text-white min-w-[200px]">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium opacity-90">⏱️ Descanso</span>
+                <button onclick="closeRestTimer()" class="text-white/70 hover:text-white">×</button>
+            </div>
+            <div class="text-center">
+                <span id="restTimerDisplay" class="text-4xl font-bold">1:30</span>
+            </div>
+            <div class="flex gap-2 mt-3">
+                <button onclick="adjustRestTimer(-15)" class="flex-1 py-1 bg-white/20 rounded-lg text-sm hover:bg-white/30 transition">-15s</button>
+                <button onclick="toggleRestTimer()" id="restTimerToggle" class="flex-1 py-1 bg-white/30 rounded-lg text-sm font-medium hover:bg-white/40 transition">⏸️</button>
+                <button onclick="adjustRestTimer(15)" class="flex-1 py-1 bg-white/20 rounded-lg text-sm hover:bg-white/30 transition">+15s</button>
+            </div>
+            <div class="flex gap-1 mt-2">
+                <button onclick="setRestTimer(30)" class="flex-1 py-1 bg-white/10 rounded text-xs hover:bg-white/20">30s</button>
+                <button onclick="setRestTimer(60)" class="flex-1 py-1 bg-white/10 rounded text-xs hover:bg-white/20">60s</button>
+                <button onclick="setRestTimer(90)" class="flex-1 py-1 bg-white/10 rounded text-xs hover:bg-white/20">90s</button>
+                <button onclick="setRestTimer(120)" class="flex-1 py-1 bg-white/10 rounded text-xs hover:bg-white/20">2m</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal para Editar Comida -->
     <div id="editMealModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all max-h-[90vh] overflow-y-auto">
@@ -2594,6 +2779,444 @@
             }
         }
 
+        // ========== ENHANCED GYM SYSTEM ==========
+
+        // State for gym subsection
+        let gymSubTab = 'workout'; // 'profile', 'workout', 'history'
+        let activeWorkoutExerciseIdx = null;
+        let currentSetIdx = 0;
+        let selectedRPE = null;
+
+        // Rest Timer State
+        let restTimerInterval = null;
+        let restTimerSeconds = 90;
+        let restTimerRunning = false;
+
+        // Exercise Library
+        const exerciseLibrary = [
+            { name: 'Hip Thrust (Smith Machine)', muscle: 'gluteos', icon: '🍑' },
+            { name: 'Hip Thrust con Barra', muscle: 'gluteos', icon: '🍑' },
+            { name: 'Peso Muerto Rumano', muscle: 'gluteos', icon: '🍑' },
+            { name: 'Peso Muerto (Máquina Smith)', muscle: 'gluteos', icon: '🍑' },
+            { name: 'Patada de Glúteo con Cable', muscle: 'gluteos', icon: '🍑' },
+            { name: 'Empuje de Caderas (Barra)', muscle: 'gluteos', icon: '🍑' },
+            { name: 'Elevación de Cadera', muscle: 'gluteos', icon: '🍑' },
+            { name: 'Sentadilla (Máquina Smith)', muscle: 'piernas', icon: '🦵' },
+            { name: 'Sentadilla Búlgara', muscle: 'piernas', icon: '🦵' },
+            { name: 'Sentadilla Goblet', muscle: 'piernas', icon: '🦵' },
+            { name: 'Prensa de Piernas', muscle: 'piernas', icon: '🦵' },
+            { name: 'Extensión de Cuádriceps', muscle: 'piernas', icon: '🦵' },
+            { name: 'Curl de Piernas Acostado', muscle: 'piernas', icon: '🦵' },
+            { name: 'Curl de Piernas Sentado', muscle: 'piernas', icon: '🦵' },
+            { name: 'Step con Mancuerna', muscle: 'piernas', icon: '🦵' },
+            { name: 'Zancada con Mancuernas', muscle: 'piernas', icon: '🦵' },
+            { name: 'Abducción de Caderas', muscle: 'piernas', icon: '🦵' },
+            { name: 'Aducción de Caderas', muscle: 'piernas', icon: '🦵' },
+            { name: 'Pantorrillas en Máquina', muscle: 'piernas', icon: '🦵' },
+            { name: 'Jalón al Pecho', muscle: 'espalda', icon: '💪' },
+            { name: 'Remo con Barra', muscle: 'espalda', icon: '💪' },
+            { name: 'Remo con Mancuerna', muscle: 'espalda', icon: '💪' },
+            { name: 'Remo en Máquina', muscle: 'espalda', icon: '💪' },
+            { name: 'Pullover con Mancuerna', muscle: 'espalda', icon: '💪' },
+            { name: 'Press de Banca', muscle: 'pecho', icon: '🏋️' },
+            { name: 'Press Inclinado', muscle: 'pecho', icon: '🏋️' },
+            { name: 'Aperturas con Mancuernas', muscle: 'pecho', icon: '🏋️' },
+            { name: 'Fondos en Paralelas', muscle: 'pecho', icon: '🏋️' },
+            { name: 'Curl de Bíceps', muscle: 'brazos', icon: '💪' },
+            { name: 'Curl Martillo', muscle: 'brazos', icon: '💪' },
+            { name: 'Extensión de Tríceps', muscle: 'brazos', icon: '💪' },
+            { name: 'Press Francés', muscle: 'brazos', icon: '💪' },
+            { name: 'Plancha', muscle: 'core', icon: '🧘' },
+            { name: 'Crunch Abdominal', muscle: 'core', icon: '🧘' },
+            { name: 'Elevación de Piernas', muscle: 'core', icon: '🧘' },
+            { name: 'Russian Twist', muscle: 'core', icon: '🧘' },
+        ];
+
+        // Physical Profile Functions
+        function getPhysicalProfile() {
+            return JSON.parse(getStorage('physical-profile') || '{"height": null, "goalWeight": null, "checkinDay": 1}');
+        }
+
+        function savePhysicalProfile() {
+            const profile = {
+                height: parseFloat(document.getElementById('profileHeight').value) || null,
+                goalWeight: parseFloat(document.getElementById('profileGoalWeight').value) || null,
+                checkinDay: parseInt(document.getElementById('profileCheckinDay').value) || 1
+            };
+            setStorage('physical-profile', JSON.stringify(profile));
+            closeProfileModal();
+            render();
+        }
+
+        function openProfileModal() {
+            const profile = getPhysicalProfile();
+            document.getElementById('profileHeight').value = profile.height || '';
+            document.getElementById('profileGoalWeight').value = profile.goalWeight || '';
+            document.getElementById('profileCheckinDay').value = profile.checkinDay || 1;
+            document.getElementById('profileModal').classList.remove('hidden');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.add('hidden');
+        }
+
+        // Weight/Measurements Functions
+        function getWeightHistory() {
+            return JSON.parse(getStorage('weight-history') || '[]');
+        }
+
+        function saveWeightHistory(history) {
+            setStorage('weight-history', JSON.stringify(history));
+        }
+
+        function openWeightModal() {
+            document.getElementById('weightDate').value = getTodayKey();
+            document.getElementById('weightValue').value = '';
+            document.getElementById('measureWaist').value = '';
+            document.getElementById('measureHip').value = '';
+            document.getElementById('measureThigh').value = '';
+            document.getElementById('measureArm').value = '';
+            document.getElementById('bodyFat').value = '';
+            document.getElementById('weightModal').classList.remove('hidden');
+        }
+
+        function closeWeightModal() {
+            document.getElementById('weightModal').classList.add('hidden');
+        }
+
+        function saveWeightEntry() {
+            const weight = parseFloat(document.getElementById('weightValue').value);
+            if (!weight) {
+                alert('Por favor ingresa tu peso');
+                return;
+            }
+
+            const entry = {
+                date: document.getElementById('weightDate').value,
+                weight: weight,
+                waist: parseFloat(document.getElementById('measureWaist').value) || null,
+                hip: parseFloat(document.getElementById('measureHip').value) || null,
+                thigh: parseFloat(document.getElementById('measureThigh').value) || null,
+                arm: parseFloat(document.getElementById('measureArm').value) || null,
+                bodyFat: parseFloat(document.getElementById('bodyFat').value) || null
+            };
+
+            const history = getWeightHistory();
+            // Replace if same date exists
+            const existingIdx = history.findIndex(h => h.date === entry.date);
+            if (existingIdx >= 0) {
+                history[existingIdx] = entry;
+            } else {
+                history.push(entry);
+            }
+            history.sort((a, b) => new Date(a.date) - new Date(b.date));
+            saveWeightHistory(history);
+            closeWeightModal();
+            addNotification(`Peso registrado: ${weight} kg`, '⚖️');
+            render();
+        }
+
+        function getLatestWeight() {
+            const history = getWeightHistory();
+            return history.length > 0 ? history[history.length - 1] : null;
+        }
+
+        // Workout Log Functions
+        function getWorkoutLogs() {
+            return JSON.parse(getStorage('workout-logs') || '[]');
+        }
+
+        function saveWorkoutLogs(logs) {
+            setStorage('workout-logs', JSON.stringify(logs));
+        }
+
+        function getTodayWorkout() {
+            const logs = getWorkoutLogs();
+            const today = getTodayKey();
+            return logs.find(l => l.date === today) || { date: today, exercises: [] };
+        }
+
+        function saveTodayWorkout(workout) {
+            const logs = getWorkoutLogs();
+            const idx = logs.findIndex(l => l.date === workout.date);
+            if (idx >= 0) {
+                logs[idx] = workout;
+            } else {
+                logs.push(workout);
+            }
+            saveWorkoutLogs(logs);
+        }
+
+        // Exercise Library Modal
+        let exerciseFilter = 'all';
+        let exerciseSearchQuery = '';
+
+        function openAddWorkoutExerciseModal() {
+            exerciseFilter = 'all';
+            exerciseSearchQuery = '';
+            document.getElementById('exerciseSearch').value = '';
+            document.getElementById('customExerciseName').value = '';
+            renderExerciseLibrary();
+            document.getElementById('addWorkoutExerciseModal').classList.remove('hidden');
+        }
+
+        function closeAddWorkoutExerciseModal() {
+            document.getElementById('addWorkoutExerciseModal').classList.add('hidden');
+        }
+
+        function filterExerciseLibrary() {
+            exerciseSearchQuery = document.getElementById('exerciseSearch').value.toLowerCase();
+            renderExerciseLibrary();
+        }
+
+        function filterByMuscle(muscle) {
+            exerciseFilter = muscle;
+            document.querySelectorAll('.muscle-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-purple-100', 'text-purple-700');
+                btn.classList.add('bg-gray-100', 'text-gray-600');
+            });
+            document.querySelector(`.muscle-filter-btn[data-muscle="${muscle}"]`).classList.remove('bg-gray-100', 'text-gray-600');
+            document.querySelector(`.muscle-filter-btn[data-muscle="${muscle}"]`).classList.add('bg-purple-100', 'text-purple-700');
+            renderExerciseLibrary();
+        }
+
+        function renderExerciseLibrary() {
+            const container = document.getElementById('exerciseLibraryList');
+            let filtered = exerciseLibrary;
+
+            if (exerciseFilter !== 'all') {
+                filtered = filtered.filter(e => e.muscle === exerciseFilter);
+            }
+            if (exerciseSearchQuery) {
+                filtered = filtered.filter(e => e.name.toLowerCase().includes(exerciseSearchQuery));
+            }
+
+            container.innerHTML = filtered.map(ex => `
+                <button onclick="addExerciseToWorkout('${ex.name}')" class="w-full flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-purple-50 transition text-left">
+                    <span class="text-2xl">${ex.icon}</span>
+                    <div class="flex-1">
+                        <p class="font-medium text-gray-800">${ex.name}</p>
+                        <p class="text-xs text-gray-500 capitalize">${ex.muscle}</p>
+                    </div>
+                    <span class="text-purple-500">+</span>
+                </button>
+            `).join('');
+        }
+
+        function addExerciseToWorkout(exerciseName) {
+            const workout = getTodayWorkout();
+            workout.exercises.push({
+                name: exerciseName,
+                sets: []
+            });
+            saveTodayWorkout(workout);
+            closeAddWorkoutExerciseModal();
+            render();
+        }
+
+        function addCustomExercise() {
+            const name = document.getElementById('customExerciseName').value.trim();
+            if (!name) return;
+            addExerciseToWorkout(name);
+        }
+
+        function removeExerciseFromWorkout(idx) {
+            if (!confirm('¿Eliminar este ejercicio del entrenamiento de hoy?')) return;
+            const workout = getTodayWorkout();
+            workout.exercises.splice(idx, 1);
+            saveTodayWorkout(workout);
+            render();
+        }
+
+        // Set Logging
+        function openLogSetModal(exerciseIdx, setIdx) {
+            activeWorkoutExerciseIdx = exerciseIdx;
+            currentSetIdx = setIdx;
+            selectedRPE = null;
+
+            const workout = getTodayWorkout();
+            const exercise = workout.exercises[exerciseIdx];
+            const existingSet = exercise.sets[setIdx];
+
+            document.getElementById('logSetTitle').textContent = `${exercise.name} - Serie ${setIdx + 1}`;
+            document.getElementById('setWeight').value = existingSet?.weight || getLastWeight(exercise.name) || '';
+            document.getElementById('setReps').value = existingSet?.reps || '';
+            document.getElementById('setNotes').value = existingSet?.notes || '';
+
+            // Reset RPE buttons
+            document.querySelectorAll('.rpe-btn').forEach(btn => {
+                btn.classList.remove('bg-purple-500', 'text-white');
+            });
+            if (existingSet?.rpe) {
+                selectRPE(existingSet.rpe);
+            }
+
+            document.getElementById('logSetModal').classList.remove('hidden');
+        }
+
+        function closeLogSetModal() {
+            document.getElementById('logSetModal').classList.add('hidden');
+        }
+
+        function selectRPE(value) {
+            selectedRPE = value;
+            document.querySelectorAll('.rpe-btn').forEach(btn => {
+                btn.classList.remove('bg-purple-500', 'text-white');
+            });
+            document.querySelector(`.rpe-btn[data-rpe="${value}"]`).classList.add('bg-purple-500', 'text-white');
+        }
+
+        function saveSetLog() {
+            const weight = parseFloat(document.getElementById('setWeight').value) || 0;
+            const reps = parseInt(document.getElementById('setReps').value) || 0;
+            const notes = document.getElementById('setNotes').value;
+
+            if (!reps) {
+                alert('Por favor ingresa las repeticiones');
+                return;
+            }
+
+            const workout = getTodayWorkout();
+            const exercise = workout.exercises[activeWorkoutExerciseIdx];
+
+            // Ensure sets array is long enough
+            while (exercise.sets.length <= currentSetIdx) {
+                exercise.sets.push(null);
+            }
+
+            exercise.sets[currentSetIdx] = {
+                weight,
+                reps,
+                rpe: selectedRPE,
+                notes,
+                completedAt: new Date().toISOString()
+            };
+
+            saveTodayWorkout(workout);
+            closeLogSetModal();
+
+            // Check for PR
+            checkAndNotifyPR(exercise.name, weight, reps);
+
+            // Start rest timer
+            startRestTimer();
+
+            render();
+        }
+
+        function getLastWeight(exerciseName) {
+            const logs = getWorkoutLogs();
+            for (let i = logs.length - 1; i >= 0; i--) {
+                const ex = logs[i].exercises.find(e => e.name === exerciseName);
+                if (ex && ex.sets.length > 0) {
+                    const lastSet = ex.sets.filter(s => s).pop();
+                    if (lastSet) return lastSet.weight;
+                }
+            }
+            return null;
+        }
+
+        function getExercisePR(exerciseName) {
+            const logs = getWorkoutLogs();
+            let maxWeight = 0;
+            let maxVolume = 0;
+
+            logs.forEach(log => {
+                const ex = log.exercises.find(e => e.name === exerciseName);
+                if (ex) {
+                    ex.sets.filter(s => s).forEach(set => {
+                        if (set.weight > maxWeight) maxWeight = set.weight;
+                        const volume = set.weight * set.reps;
+                        if (volume > maxVolume) maxVolume = volume;
+                    });
+                }
+            });
+
+            return { maxWeight, maxVolume };
+        }
+
+        function checkAndNotifyPR(exerciseName, weight, reps) {
+            const pr = getExercisePR(exerciseName);
+            if (weight > pr.maxWeight && pr.maxWeight > 0) {
+                addNotification(`🏆 ¡Nuevo PR! ${exerciseName}: ${weight}kg`, '🎉');
+            }
+        }
+
+        // Rest Timer
+        function startRestTimer(seconds = 90) {
+            restTimerSeconds = seconds;
+            restTimerRunning = true;
+            document.getElementById('restTimerFloat').classList.remove('hidden');
+            document.getElementById('restTimerToggle').textContent = '⏸️';
+            updateRestTimerDisplay();
+
+            if (restTimerInterval) clearInterval(restTimerInterval);
+            restTimerInterval = setInterval(() => {
+                if (restTimerRunning) {
+                    restTimerSeconds--;
+                    updateRestTimerDisplay();
+                    if (restTimerSeconds <= 0) {
+                        finishRestTimer();
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateRestTimerDisplay() {
+            const mins = Math.floor(restTimerSeconds / 60);
+            const secs = restTimerSeconds % 60;
+            document.getElementById('restTimerDisplay').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function toggleRestTimer() {
+            restTimerRunning = !restTimerRunning;
+            document.getElementById('restTimerToggle').textContent = restTimerRunning ? '⏸️' : '▶️';
+        }
+
+        function adjustRestTimer(delta) {
+            restTimerSeconds = Math.max(0, restTimerSeconds + delta);
+            updateRestTimerDisplay();
+        }
+
+        function setRestTimer(seconds) {
+            restTimerSeconds = seconds;
+            restTimerRunning = true;
+            document.getElementById('restTimerToggle').textContent = '⏸️';
+            updateRestTimerDisplay();
+        }
+
+        function finishRestTimer() {
+            clearInterval(restTimerInterval);
+            restTimerInterval = null;
+            restTimerRunning = false;
+
+            // Play sound or vibrate
+            if ('vibrate' in navigator) {
+                navigator.vibrate([200, 100, 200]);
+            }
+
+            // Visual alert
+            const display = document.getElementById('restTimerDisplay');
+            display.textContent = '¡GO!';
+            display.classList.add('animate-pulse');
+
+            setTimeout(() => {
+                display.classList.remove('animate-pulse');
+                closeRestTimer();
+            }, 3000);
+        }
+
+        function closeRestTimer() {
+            if (restTimerInterval) clearInterval(restTimerInterval);
+            document.getElementById('restTimerFloat').classList.add('hidden');
+        }
+
+        // Set gym sub-tab
+        function setGymSubTab(tab) {
+            gymSubTab = tab;
+            render();
+        }
+
         // ========== MEAL MODALS ==========
         function openEditMealModal(index) {
             event.stopPropagation();
@@ -3128,71 +3751,278 @@
         }
 
         function renderGym(gym, dayIndex, weekNum) {
-            const isCustomized = !!customGym[dayIndex];
+            const profile = getPhysicalProfile();
+            const latestWeight = getLatestWeight();
+            const weightHistory = getWeightHistory();
+            const todayWorkout = getTodayWorkout();
 
             return `
                 <div class="space-y-4">
-                    <div class="bg-gradient-to-br from-rose-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
-                        <div class="flex items-center gap-4">
-                            <span class="text-6xl">${gym.icon}</span>
-                            <div>
-                                <h3 class="text-2xl font-bold">${gym.name}</h3>
-                                <p class="opacity-90">${daysSpanish[dayIndex]} - Semana ${weekNum}</p>
-                            </div>
+                    <!-- Sub-tabs -->
+                    <div class="bg-white rounded-xl p-1 flex gap-1 shadow-sm">
+                        <button onclick="setGymSubTab('profile')" class="flex-1 py-2 px-3 rounded-lg text-sm font-medium transition ${gymSubTab === 'profile' ? 'bg-gradient-to-r from-rose-500 to-purple-600 text-white' : 'text-gray-600 hover:bg-gray-100'}">
+                            📊 Perfil
+                        </button>
+                        <button onclick="setGymSubTab('workout')" class="flex-1 py-2 px-3 rounded-lg text-sm font-medium transition ${gymSubTab === 'workout' ? 'bg-gradient-to-r from-rose-500 to-purple-600 text-white' : 'text-gray-600 hover:bg-gray-100'}">
+                            🏋️ Entreno
+                        </button>
+                        <button onclick="setGymSubTab('history')" class="flex-1 py-2 px-3 rounded-lg text-sm font-medium transition ${gymSubTab === 'history' ? 'bg-gradient-to-r from-rose-500 to-purple-600 text-white' : 'text-gray-600 hover:bg-gray-100'}">
+                            📈 Historial
+                        </button>
+                    </div>
+
+                    ${gymSubTab === 'profile' ? renderGymProfile(profile, latestWeight, weightHistory) : ''}
+                    ${gymSubTab === 'workout' ? renderGymWorkout(gym, dayIndex, todayWorkout) : ''}
+                    ${gymSubTab === 'history' ? renderGymHistory() : ''}
+                </div>
+            `;
+        }
+
+        function renderGymProfile(profile, latestWeight, weightHistory) {
+            const goalDiff = latestWeight && profile.goalWeight ? (latestWeight.weight - profile.goalWeight).toFixed(1) : null;
+            const last7Days = weightHistory.slice(-7);
+
+            return `
+                <!-- Current Stats -->
+                <div class="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-5 text-white shadow-lg">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold">⚖️ Mi Progreso</h3>
+                        <button onclick="openProfileModal()" class="text-white/80 hover:text-white text-sm">⚙️ Configurar</button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 text-center">
+                        <div class="bg-white/20 rounded-xl p-3">
+                            <p class="text-2xl font-bold">${latestWeight ? latestWeight.weight : '--'}</p>
+                            <p class="text-xs opacity-80">kg actual</p>
+                        </div>
+                        <div class="bg-white/20 rounded-xl p-3">
+                            <p class="text-2xl font-bold">${profile.goalWeight || '--'}</p>
+                            <p class="text-xs opacity-80">kg meta</p>
+                        </div>
+                        <div class="bg-white/20 rounded-xl p-3">
+                            <p class="text-2xl font-bold">${goalDiff ? (goalDiff > 0 ? '-' + goalDiff : '+' + Math.abs(goalDiff)) : '--'}</p>
+                            <p class="text-xs opacity-80">kg faltan</p>
                         </div>
                     </div>
+                </div>
 
-                    <div class="flex gap-2 mb-4 flex-wrap">
-                        <button onclick="openAddGymModal()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-purple-100">
-                            <span class="text-xl">➕</span> Agregar Ejercicio
-                        </button>
-                        <button onclick="openCleanModal('gym')" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-orange-500 border-2 border-orange-100">
-                            <span class="text-xl">🧹</span> Limpiar
-                        </button>
-                        <button onclick="resetGym()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-gray-500 border-2 border-gray-100">
-                            <span class="text-xl">🔄</span> Restaurar
-                        </button>
-                    </div>
+                <!-- Quick Actions -->
+                <div class="flex gap-3">
+                    <button onclick="openWeightModal()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-purple-100">
+                        <span class="text-xl">⚖️</span> Registrar Peso
+                    </button>
+                </div>
 
+                <!-- Weight Graph -->
+                ${weightHistory.length > 1 ? `
                     <div class="bg-white rounded-2xl p-5 shadow-sm">
-                        <h4 class="font-bold text-gray-800 mb-4 flex items-center gap-2">💪 Ejercicios del día</h4>
-                        <div class="space-y-3">
-                            ${gym.exercises.map((ex, idx) => `
-                                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                                    <span class="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">${idx + 1}</span>
-                                    <span class="text-gray-700 flex-1">${ex}</span>
-                                    <div class="flex gap-1 flex-shrink-0">
-                                        <button onclick="openEditGymModal(${idx})" class="btn-icon w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200 text-sm" title="Editar">
-                                            ✏️
-                                        </button>
-                                        <button onclick="openDeleteModal(${idx}, 'gym')" class="btn-icon w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-200 text-sm" title="Eliminar">
-                                            🗑️
-                                        </button>
+                        <h4 class="font-bold text-gray-800 mb-4">📈 Evolución del Peso</h4>
+                        <div class="h-40 flex items-end gap-1">
+                            ${(() => {
+                                const weights = last7Days.map(w => w.weight);
+                                const min = Math.min(...weights) - 1;
+                                const max = Math.max(...weights) + 1;
+                                const range = max - min || 1;
+                                return last7Days.map((entry, i) => {
+                                    const height = ((entry.weight - min) / range) * 100;
+                                    const isLatest = i === last7Days.length - 1;
+                                    return `
+                                        <div class="flex-1 flex flex-col items-center gap-1">
+                                            <span class="text-xs font-medium ${isLatest ? 'text-purple-600' : 'text-gray-500'}">${entry.weight}</span>
+                                            <div class="w-full ${isLatest ? 'bg-gradient-to-t from-purple-500 to-pink-500' : 'bg-gray-200'} rounded-t" style="height: ${Math.max(height, 10)}%"></div>
+                                            <span class="text-xs text-gray-400">${new Date(entry.date).toLocaleDateString('es', {day: 'numeric', month: 'short'}).split(' ')[0]}</span>
+                                        </div>
+                                    `;
+                                }).join('');
+                            })()}
+                        </div>
+                    </div>
+                ` : `
+                    <div class="bg-white rounded-2xl p-5 shadow-sm text-center">
+                        <span class="text-4xl mb-2 block">📊</span>
+                        <p class="text-gray-500">Registra tu peso para ver el gráfico de evolución</p>
+                    </div>
+                `}
+
+                <!-- Latest Measurements -->
+                ${latestWeight && (latestWeight.waist || latestWeight.hip || latestWeight.thigh) ? `
+                    <div class="bg-white rounded-2xl p-5 shadow-sm">
+                        <h4 class="font-bold text-gray-800 mb-3">📐 Últimas Medidas</h4>
+                        <div class="grid grid-cols-4 gap-3 text-center">
+                            ${latestWeight.waist ? `<div class="bg-gray-50 rounded-xl p-3"><p class="text-lg font-bold text-gray-800">${latestWeight.waist}</p><p class="text-xs text-gray-500">Cintura</p></div>` : ''}
+                            ${latestWeight.hip ? `<div class="bg-gray-50 rounded-xl p-3"><p class="text-lg font-bold text-gray-800">${latestWeight.hip}</p><p class="text-xs text-gray-500">Cadera</p></div>` : ''}
+                            ${latestWeight.thigh ? `<div class="bg-gray-50 rounded-xl p-3"><p class="text-lg font-bold text-gray-800">${latestWeight.thigh}</p><p class="text-xs text-gray-500">Pierna</p></div>` : ''}
+                            ${latestWeight.arm ? `<div class="bg-gray-50 rounded-xl p-3"><p class="text-lg font-bold text-gray-800">${latestWeight.arm}</p><p class="text-xs text-gray-500">Brazo</p></div>` : ''}
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2 text-right">Actualizado: ${new Date(latestWeight.date).toLocaleDateString('es-CL')}</p>
+                    </div>
+                ` : ''}
+
+                <!-- Profile Info -->
+                <div class="bg-purple-50 border border-purple-200 rounded-2xl p-5">
+                    <h4 class="font-bold text-purple-800 mb-2">👤 Mi Perfil</h4>
+                    <div class="text-purple-700 text-sm space-y-1">
+                        <p>📏 Estatura: ${profile.height ? profile.height + ' cm' : 'No configurada'}</p>
+                        <p>🎯 Meta: ${profile.goalWeight ? profile.goalWeight + ' kg' : 'No configurada'}</p>
+                        <p>📅 Check-in: ${['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][profile.checkinDay || 1]}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderGymWorkout(gym, dayIndex, todayWorkout) {
+            const completedSets = todayWorkout.exercises.reduce((sum, ex) => sum + ex.sets.filter(s => s).length, 0);
+            const totalSets = todayWorkout.exercises.length * 4; // Assume 4 sets per exercise
+
+            return `
+                <!-- Today's Routine Header -->
+                <div class="bg-gradient-to-br from-rose-500 to-purple-600 rounded-2xl p-5 text-white shadow-lg">
+                    <div class="flex items-center gap-4">
+                        <span class="text-5xl">${gym.icon}</span>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold">${gym.name}</h3>
+                            <p class="opacity-90 text-sm">${daysSpanish[dayIndex]}</p>
+                        </div>
+                        ${todayWorkout.exercises.length > 0 ? `
+                            <div class="text-right">
+                                <p class="text-2xl font-bold">${completedSets}</p>
+                                <p class="text-xs opacity-80">series</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+
+                <!-- Add Exercise Button -->
+                <button onclick="openAddWorkoutExerciseModal()" class="w-full flex items-center justify-center gap-2 px-4 py-4 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-dashed border-purple-200">
+                    <span class="text-xl">➕</span> Agregar Ejercicio
+                </button>
+
+                <!-- Exercises -->
+                ${todayWorkout.exercises.length === 0 ? `
+                    <div class="bg-white rounded-2xl p-8 shadow-sm text-center">
+                        <span class="text-5xl mb-3 block">🏋️</span>
+                        <p class="text-gray-500 mb-2">No hay ejercicios en tu rutina de hoy</p>
+                        <p class="text-sm text-gray-400">Agrega ejercicios para comenzar a trackear</p>
+                    </div>
+                ` : `
+                    <div class="space-y-4">
+                        ${todayWorkout.exercises.map((exercise, exIdx) => {
+                            const pr = getExercisePR(exercise.name);
+                            const lastWeight = getLastWeight(exercise.name);
+                            const completedSetsCount = exercise.sets.filter(s => s).length;
+
+                            return `
+                                <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                                    <div class="p-4 border-b border-gray-100">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <span class="w-10 h-10 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-bold">${exIdx + 1}</span>
+                                                <div>
+                                                    <h4 class="font-bold text-gray-800">${exercise.name}</h4>
+                                                    <div class="flex gap-3 text-xs text-gray-500">
+                                                        ${lastWeight ? `<span>Último: ${lastWeight}kg</span>` : ''}
+                                                        ${pr.maxWeight ? `<span class="text-purple-600">🏆 PR: ${pr.maxWeight}kg</span>` : ''}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button onclick="removeExerciseFromWorkout(${exIdx})" class="text-gray-400 hover:text-red-500 p-2">🗑️</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Sets -->
+                                    <div class="p-4">
+                                        <div class="grid grid-cols-4 gap-2 text-center text-xs text-gray-500 mb-2">
+                                            <span>SERIE</span>
+                                            <span>KG</span>
+                                            <span>REPS</span>
+                                            <span></span>
+                                        </div>
+                                        ${[0, 1, 2, 3].map(setIdx => {
+                                            const set = exercise.sets[setIdx];
+                                            const isCompleted = !!set;
+                                            return `
+                                                <div class="grid grid-cols-4 gap-2 items-center py-2 ${isCompleted ? 'bg-green-50 -mx-4 px-4 rounded' : ''}">
+                                                    <span class="font-bold text-center ${isCompleted ? 'text-green-600' : 'text-gray-400'}">${setIdx + 1}</span>
+                                                    <span class="text-center font-medium ${isCompleted ? 'text-gray-800' : 'text-gray-300'}">${set ? set.weight : '-'}</span>
+                                                    <span class="text-center font-medium ${isCompleted ? 'text-gray-800' : 'text-gray-300'}">${set ? set.reps : '-'}</span>
+                                                    <button onclick="openLogSetModal(${exIdx}, ${setIdx})" class="py-2 px-3 rounded-lg text-sm font-medium transition ${isCompleted ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}">
+                                                        ${isCompleted ? '✓' : 'Log'}
+                                                    </button>
+                                                </div>
+                                            `;
+                                        }).join('')}
                                     </div>
                                 </div>
-                            `).join('')}
+                            `;
+                        }).join('')}
+                    </div>
+                `}
+
+                <!-- Tips -->
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+                    <h4 class="font-bold text-amber-800 mb-2 text-sm">💡 Tips</h4>
+                    <p class="text-amber-700 text-xs">Descanso recomendado: 60-90s entre series. El temporizador se iniciará automáticamente al completar cada serie.</p>
+                </div>
+            `;
+        }
+
+        function renderGymHistory() {
+            const logs = getWorkoutLogs().slice(-14).reverse(); // Last 14 workouts
+            const allExercises = new Set();
+            logs.forEach(log => log.exercises.forEach(ex => allExercises.add(ex.name)));
+
+            return `
+                <div class="bg-white rounded-2xl p-5 shadow-sm">
+                    <h4 class="font-bold text-gray-800 mb-4">📅 Entrenamientos Recientes</h4>
+                    ${logs.length === 0 ? `
+                        <div class="text-center py-6 text-gray-400">
+                            <span class="text-4xl mb-2 block">📋</span>
+                            <p>No hay entrenamientos registrados</p>
                         </div>
-                    </div>
+                    ` : `
+                        <div class="space-y-3">
+                            ${logs.map(log => {
+                                const totalSets = log.exercises.reduce((sum, ex) => sum + ex.sets.filter(s => s).length, 0);
+                                const totalVolume = log.exercises.reduce((sum, ex) => {
+                                    return sum + ex.sets.filter(s => s).reduce((s, set) => s + (set.weight * set.reps), 0);
+                                }, 0);
 
-                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5">
-                        <h4 class="font-bold text-amber-800 mb-2">💡 Tips del día</h4>
-                        <ul class="text-amber-700 text-sm space-y-2">
-                            <li>• Descanso entre series: 60-90 segundos</li>
-                            <li>• Mantén la conexión mente-músculo</li>
-                            <li>• Hidratación constante durante el entreno</li>
-                            <li>• Batido proteico dentro de 30 min post-gym</li>
-                        </ul>
-                    </div>
+                                return `
+                                    <div class="p-3 bg-gray-50 rounded-xl">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="font-medium text-gray-800">${new Date(log.date).toLocaleDateString('es-CL', {weekday: 'short', day: 'numeric', month: 'short'})}</span>
+                                            <div class="flex gap-3 text-xs">
+                                                <span class="text-purple-600">${log.exercises.length} ejercicios</span>
+                                                <span class="text-gray-500">${totalSets} series</span>
+                                                <span class="text-green-600">${Math.round(totalVolume).toLocaleString()}kg vol</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-xs text-gray-500">${log.exercises.map(e => e.name).join(', ')}</div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `}
+                </div>
 
-                    <div class="bg-rose-50 border border-rose-200 rounded-2xl p-5">
-                        <h4 class="font-bold text-rose-800 mb-2">🎯 Objetivos físicos</h4>
-                        <ul class="text-rose-700 text-sm space-y-2">
-                            <li>• Peso ideal: 58 kg</li>
-                            <li>• Glúteos más grandes y definidos</li>
-                            <li>• Cuádriceps e isquios trabajados</li>
-                            <li>• Abdominales marcados</li>
-                        </ul>
-                    </div>
+                <!-- PRs Section -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm">
+                    <h4 class="font-bold text-gray-800 mb-4">🏆 Mis Records (PRs)</h4>
+                    ${allExercises.size === 0 ? `
+                        <p class="text-center text-gray-400 py-4">Completa ejercicios para ver tus PRs</p>
+                    ` : `
+                        <div class="space-y-2">
+                            ${Array.from(allExercises).slice(0, 10).map(exName => {
+                                const pr = getExercisePR(exName);
+                                if (!pr.maxWeight) return '';
+                                return `
+                                    <div class="flex items-center justify-between p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl">
+                                        <span class="text-sm font-medium text-gray-700">${exName}</span>
+                                        <span class="font-bold text-orange-600">${pr.maxWeight} kg</span>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `}
                 </div>
             `;
         }
