@@ -297,6 +297,26 @@
         </div>
     </div>
 
+    <!-- Modal para Reemplazar Todos -->
+    <div id="replaceAllModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all">
+            <h3 class="text-xl font-bold text-gray-800 mb-2 text-center">🔄 ¿Aplicar a todos?</h3>
+            <p id="replaceAllMessage" class="text-gray-600 text-center mb-6">¿Quieres aplicar este cambio a todos los días?</p>
+
+            <div class="space-y-3">
+                <button onclick="confirmReplaceAll(true)" class="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium hover:opacity-90 transition">
+                    ✅ Sí, aplicar a todos
+                </button>
+                <button onclick="confirmReplaceAll(false)" class="w-full py-3 border-2 border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition">
+                    📅 Solo este día
+                </button>
+                <button onclick="closeReplaceAllModal()" class="w-full py-2 text-gray-400 hover:text-gray-600 transition text-sm">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal para Foto de Perfil -->
     <div id="photoModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all">
@@ -444,6 +464,28 @@
 
         function getUserPhoto() {
             return getStorage('profile-photo');
+        }
+
+        // Replace All Modal Functions
+        let pendingReplaceAll = null; // { type, oldValue, newValue, callback }
+
+        function showReplaceAllModal(type, message, callback) {
+            pendingReplaceAll = { type, callback };
+            document.getElementById('replaceAllMessage').textContent = message;
+            document.getElementById('replaceAllModal').classList.remove('hidden');
+        }
+
+        function closeReplaceAllModal() {
+            document.getElementById('replaceAllModal').classList.add('hidden');
+            pendingReplaceAll = null;
+        }
+
+        function confirmReplaceAll(replaceAll) {
+            if (pendingReplaceAll && pendingReplaceAll.callback) {
+                pendingReplaceAll.callback(replaceAll);
+            }
+            closeReplaceAllModal();
+            render();
         }
 
         // Goal text mapping
@@ -795,22 +837,47 @@
         function saveEdit() {
             const dateKey = getDateKey();
             let schedule = getSchedule(currentDate.getDay(), dateKey);
+            const originalActivity = schedule[editingIndex].activity;
 
-            if (!customSchedules[dateKey]) {
-                schedule = JSON.parse(JSON.stringify(schedule));
-            }
-
-            schedule[editingIndex] = {
+            const newItem = {
                 time: document.getElementById('editTime').value,
                 activity: document.getElementById('editActivity').value,
                 duration: document.getElementById('editDuration').value,
                 category: document.getElementById('editCategory').value
             };
 
+            // Guardar este día primero
+            if (!customSchedules[dateKey]) {
+                schedule = JSON.parse(JSON.stringify(schedule));
+            }
+            schedule[editingIndex] = newItem;
             schedule.sort((a, b) => a.time.localeCompare(b.time));
-
             saveCustomSchedule(dateKey, schedule);
+
             closeEditModal();
+
+            // Preguntar si reemplazar en todos los días
+            showReplaceAllModal('schedule',
+                `¿Aplicar este cambio a "${originalActivity}" en todos los días?`,
+                (replaceAll) => {
+                    if (replaceAll) {
+                        replaceActivityInAllDays(originalActivity, newItem);
+                    }
+                }
+            );
+        }
+
+        function replaceActivityInAllDays(originalName, newItem) {
+            // Reemplazar en horarios por defecto customizados
+            Object.keys(customSchedules).forEach(key => {
+                const schedule = customSchedules[key];
+                schedule.forEach((item, idx) => {
+                    if (item.activity === originalName) {
+                        schedule[idx] = { ...newItem };
+                    }
+                });
+                setStorage(`schedule-${key}`, JSON.stringify(schedule));
+            });
             render();
         }
 
@@ -962,18 +1029,26 @@
         }
 
         function saveHabitEdit() {
-            let habits = customHabits || JSON.parse(JSON.stringify(defaultHabits));
+            const newIcon = document.getElementById('editHabitIcon').value;
+            const newName = document.getElementById('editHabitName').value;
 
-            habits[editingIndex] = {
-                id: habits[editingIndex].id,
-                icon: document.getElementById('editHabitIcon').value,
-                name: document.getElementById('editHabitName').value
-            };
-
-            customHabits = habits;
-            setStorage('custom-habits', JSON.stringify(customHabits));
             closeEditHabitModal();
-            render();
+
+            showReplaceAllModal('habit',
+                `Este cambio aplicará a "${newName}" en todos los días. ¿Continuar?`,
+                (confirmed) => {
+                    if (confirmed) {
+                        let habits = customHabits || JSON.parse(JSON.stringify(defaultHabits));
+                        habits[editingIndex] = {
+                            id: habits[editingIndex].id,
+                            icon: newIcon,
+                            name: newName
+                        };
+                        customHabits = habits;
+                        setStorage('custom-habits', JSON.stringify(customHabits));
+                    }
+                }
+            );
         }
 
         function deleteHabit() {
@@ -1040,13 +1115,32 @@
         function saveGymEdit() {
             const dayIndex = currentDate.getDay();
             let gym = customGym[dayIndex] || JSON.parse(JSON.stringify(defaultGymFocus[dayIndex]));
+            const originalExercise = gym.exercises[editingIndex];
+            const newExercise = document.getElementById('editGymExercise').value;
 
-            gym.exercises[editingIndex] = document.getElementById('editGymExercise').value;
-
+            // Guardar este día primero
+            gym.exercises[editingIndex] = newExercise;
             customGym[dayIndex] = gym;
             setStorage('custom-gym', JSON.stringify(customGym));
+
             closeEditGymModal();
-            render();
+
+            showReplaceAllModal('gym',
+                `¿Reemplazar "${originalExercise}" en todos los días de la semana?`,
+                (replaceAll) => {
+                    if (replaceAll) {
+                        // Reemplazar en todos los días
+                        for (let d = 0; d < 7; d++) {
+                            if (d !== dayIndex && customGym[d]) {
+                                customGym[d].exercises = customGym[d].exercises.map(ex =>
+                                    ex === originalExercise ? newExercise : ex
+                                );
+                            }
+                        }
+                        setStorage('custom-gym', JSON.stringify(customGym));
+                    }
+                }
+            );
         }
 
         function deleteGymExercise() {
@@ -1114,9 +1208,7 @@
         }
 
         function saveMealEdit() {
-            let meals = customMeals || JSON.parse(JSON.stringify(defaultMeals));
-
-            meals[editingIndex] = {
+            const newMeal = {
                 time: document.getElementById('editMealTime').value,
                 name: document.getElementById('editMealName').value,
                 emoji: document.getElementById('editMealEmoji').value,
@@ -1124,12 +1216,20 @@
                 macros: document.getElementById('editMealMacros').value
             };
 
-            meals.sort((a, b) => a.time.localeCompare(b.time));
-
-            customMeals = meals;
-            setStorage('custom-meals', JSON.stringify(customMeals));
             closeEditMealModal();
-            render();
+
+            showReplaceAllModal('meal',
+                `Este cambio aplicará a "${newMeal.name}" en todos los días. ¿Continuar?`,
+                (confirmed) => {
+                    if (confirmed) {
+                        let meals = customMeals || JSON.parse(JSON.stringify(defaultMeals));
+                        meals[editingIndex] = newMeal;
+                        meals.sort((a, b) => a.time.localeCompare(b.time));
+                        customMeals = meals;
+                        setStorage('custom-meals', JSON.stringify(customMeals));
+                    }
+                }
+            );
         }
 
         function deleteMeal() {
