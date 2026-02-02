@@ -1044,9 +1044,14 @@
             render();
         }
 
-        // Animación de celebración con emojis
+        // Animación de celebración con emojis (3 opciones aleatorias)
         function showCelebration() {
-            const emojis = ['🎉', '🎊', '⭐', '✨', '🌟', '💫', '🏆', '👏', '💪', '🔥'];
+            const emojiSets = [
+                ['🎉', '🎊', '🥳', '🎈', '🎁', '🪅', '🎀', '🍾', '🥂', '🎆'],  // Fiesta
+                ['⭐', '✨', '🌟', '💫', '🌈', '🦋', '💖', '💝', '🌸', '🌺'],  // Mágico
+                ['🏆', '🥇', '💪', '🔥', '👑', '🚀', '💯', '⚡', '🎯', '👏']   // Campeón
+            ];
+            const emojis = emojiSets[Math.floor(Math.random() * emojiSets.length)];
             const container = document.createElement('div');
             container.className = 'fixed inset-0 pointer-events-none z-[100]';
             document.body.appendChild(container);
