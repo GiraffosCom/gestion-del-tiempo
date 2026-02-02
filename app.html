@@ -4423,7 +4423,7 @@
                 return `
                 <div class="space-y-4">
                     <!-- Sub-tabs -->
-                    <div data-tabs-container="gym" class="flex gap-1 p-1 bg-gray-100 rounded-xl relative overflow-x-auto no-scrollbar">
+                    <div data-tabs-container="gym" class="flex gap-2 p-1.5 bg-gradient-to-r from-rose-100 to-purple-100 rounded-2xl relative overflow-x-auto no-scrollbar shadow-sm border border-rose-200/50">
                         ${gymTabsOrder.map((tabId, index) => {
                             const tab = gymTabsConfig[tabId];
                             if (!tab) return '';
@@ -4438,15 +4438,14 @@
                                     ontouchend="handleTabTouchEnd(event)"
                                     onmousedown="handleTabMouseDown(event, '${tabId}', 'gym')"
                                     onmouseup="handleTabMouseUp(event)"
-                                    class="flex-1 py-2 px-2 rounded-lg text-xs font-medium transition select-none whitespace-nowrap ${isActive ? 'bg-white shadow text-' + tab.color + '-600' : 'text-gray-500 hover:bg-gray-50'}"
-                                    style="touch-action: none;">
+                                    class="flex-1 py-2.5 px-3 rounded-xl text-sm font-semibold transition select-none whitespace-nowrap ${isActive ? 'bg-white shadow-md text-rose-600 border border-rose-200' : 'text-gray-600 hover:bg-white/50'}"
+                                    style="touch-action: pan-x;">
                                     ${tab.emoji} ${tab.label}
                                 </button>
                             `;
                         }).join('')}
                         <div class="drag-indicator hidden absolute top-0 bottom-0 w-0.5 bg-rose-500 rounded-full z-10"></div>
                     </div>
-                    <p class="text-xs text-gray-400 text-center">💡 Mantén presionado para reordenar</p>
 
                     ${gymSubTab === 'profile' ? renderGymProfile(profile, latestWeight, weightHistory) : ''}
                     ${gymSubTab === 'workout' ? renderGymWorkout(gym, dayIndex, todayWorkout) : ''}
@@ -5682,7 +5681,7 @@
             return `
                 <div class="space-y-4">
                     <!-- Sub-tabs for Nutrition section (draggable) -->
-                    <div data-tabs-container="nutrition" class="flex gap-1 p-1 bg-gray-100 rounded-xl relative overflow-x-auto no-scrollbar">
+                    <div data-tabs-container="nutrition" class="flex gap-2 p-1.5 bg-gradient-to-r from-green-100 to-orange-100 rounded-2xl relative overflow-x-auto no-scrollbar shadow-sm border border-green-200/50">
                         ${tabsOrder.map((tabId, index) => {
                             const tab = nutritionTabsConfig[tabId];
                             if (!tab) return '';
@@ -5697,15 +5696,14 @@
                                     ontouchend="handleTabTouchEnd(event)"
                                     onmousedown="handleTabMouseDown(event, '${tabId}', 'nutrition')"
                                     onmouseup="handleTabMouseUp(event)"
-                                    class="flex-1 py-2 px-2 rounded-lg text-xs font-medium transition select-none whitespace-nowrap ${isActive ? 'bg-white shadow text-' + tab.color + '-600' : 'text-gray-500 hover:bg-gray-50'}"
-                                    style="touch-action: none;">
+                                    class="flex-1 py-2.5 px-3 rounded-xl text-sm font-semibold transition select-none whitespace-nowrap ${isActive ? 'bg-white shadow-md text-green-600 border border-green-200' : 'text-gray-600 hover:bg-white/50'}"
+                                    style="touch-action: pan-x;">
                                     ${tab.emoji} ${tab.label}
                                 </button>
                             `;
                         }).join('')}
-                        <div class="drag-indicator hidden absolute top-0 bottom-0 w-0.5 bg-orange-500 rounded-full z-10"></div>
+                        <div class="drag-indicator hidden absolute top-0 bottom-0 w-0.5 bg-green-500 rounded-full z-10"></div>
                     </div>
-                    <p class="text-xs text-gray-400 text-center">💡 Mantén presionado para reordenar</p>
 
                     ${mealsSubTab === 'protein' ? renderProteinTracking() : ''}
                     ${mealsSubTab === 'goal' ? renderNutritionGoal() : ''}
