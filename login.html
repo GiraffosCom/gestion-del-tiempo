@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Gestión del Tiempo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Poppins', sans-serif; }
+        .gradient-text { background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .gradient-bg { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+        .blob {
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            animation: blob 8s ease-in-out infinite;
+        }
+        @keyframes blob {
+            0%, 100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+            50% { border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%; }
+        }
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center p-4 relative overflow-hidden">
+
+    <!-- Background blobs -->
+    <div class="absolute top-10 left-10 w-72 h-72 bg-purple-200 opacity-40 blob blur-3xl"></div>
+    <div class="absolute bottom-10 right-10 w-96 h-96 bg-blue-200 opacity-40 blob blur-3xl"></div>
+    <div class="absolute top-1/2 left-1/2 w-64 h-64 bg-pink-200 opacity-30 blob blur-3xl"></div>
+
+    <div class="w-full max-w-md relative z-10">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <a href="landing.html" class="inline-flex items-center gap-2 mb-4">
+                <span class="text-4xl">⏰</span>
+                <span class="text-2xl font-bold gradient-text">Gestión del Tiempo</span>
+            </a>
+            <p class="text-gray-500">Organiza tu vida, alcanza tus metas</p>
+        </div>
+
+        <!-- Card -->
+        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border border-white/50">
+            <!-- Tabs -->
+            <div class="flex mb-8 bg-gray-100 rounded-xl p-1">
+                <button id="tabLogin" onclick="showTab('login')" class="flex-1 py-3 rounded-lg font-medium transition-all bg-white shadow text-purple-600">
+                    Iniciar Sesión
+                </button>
+                <button id="tabRegister" onclick="showTab('register')" class="flex-1 py-3 rounded-lg font-medium transition-all text-gray-500">
+                    Registrarse
+                </button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input type="email" id="loginEmail" required
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none transition"
+                        placeholder="tu@email.com">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
+                    <input type="password" id="loginPassword" required
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none transition"
+                        placeholder="••••••••">
+                </div>
+                <div id="loginError" class="hidden text-red-500 text-sm text-center py-2 bg-red-50 rounded-lg"></div>
+                <button type="submit" class="w-full py-4 gradient-bg text-white rounded-xl font-semibold text-lg hover:opacity-90 transition shadow-lg shadow-purple-200">
+                    Entrar a mi plan →
+                </button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre completo</label>
+                    <input type="text" id="registerName" required
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none transition"
+                        placeholder="Tu nombre">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input type="email" id="registerEmail" required
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none transition"
+                        placeholder="tu@email.com">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
+                    <input type="password" id="registerPassword" required minlength="6"
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none transition"
+                        placeholder="Mínimo 6 caracteres">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">¿Cuál es tu meta principal? 🎯</label>
+                    <select id="registerGoal" required
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none transition">
+                        <option value="">Selecciona tu objetivo...</option>
+                        <option value="fitness">💪 Mejorar mi condición física</option>
+                        <option value="productivity">📈 Ser más productivo</option>
+                        <option value="learning">📚 Aprender algo nuevo</option>
+                        <option value="health">🥗 Mejorar mi salud</option>
+                        <option value="business">💼 Hacer crecer mi negocio</option>
+                        <option value="competition">👑 Prepararme para una competencia</option>
+                        <option value="personal">✨ Desarrollo personal</option>
+                        <option value="other">🎯 Otro objetivo</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Duración del plan</label>
+                    <select id="registerDuration" required
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none transition">
+                        <option value="30">30 días</option>
+                        <option value="60" selected>60 días</option>
+                        <option value="90">90 días</option>
+                        <option value="180">6 meses</option>
+                    </select>
+                </div>
+                <div id="registerError" class="hidden text-red-500 text-sm text-center py-2 bg-red-50 rounded-lg"></div>
+                <button type="submit" class="w-full py-4 gradient-bg text-white rounded-xl font-semibold text-lg hover:opacity-90 transition shadow-lg shadow-purple-200">
+                    Crear mi cuenta gratis ✨
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="flex items-center gap-4 my-6">
+                <div class="flex-1 h-px bg-gray-200"></div>
+                <span class="text-sm text-gray-400">o continúa con</span>
+                <div class="flex-1 h-px bg-gray-200"></div>
+            </div>
+
+            <!-- Demo button -->
+            <button onclick="enterDemo()" class="w-full py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition flex items-center justify-center gap-2">
+                <span>👀</span> Ver demo sin registrarme
+            </button>
+        </div>
+
+        <!-- Back to landing -->
+        <p class="text-center mt-6 text-gray-500">
+            <a href="landing.html" class="text-purple-600 hover:underline">← Volver al inicio</a>
+        </p>
+    </div>
+
+    <script>
+        // Check if already logged in
+        const currentUser = JSON.parse(localStorage.getItem('gestion-currentUser'));
+        if (currentUser) {
+            window.location.href = 'app.html';
+        }
+
+        function showTab(tab) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const tabLogin = document.getElementById('tabLogin');
+            const tabRegister = document.getElementById('tabRegister');
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+                tabLogin.classList.add('bg-white', 'shadow', 'text-purple-600');
+                tabLogin.classList.remove('text-gray-500');
+                tabRegister.classList.remove('bg-white', 'shadow', 'text-purple-600');
+                tabRegister.classList.add('text-gray-500');
+            } else {
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+                tabRegister.classList.add('bg-white', 'shadow', 'text-purple-600');
+                tabRegister.classList.remove('text-gray-500');
+                tabLogin.classList.remove('bg-white', 'shadow', 'text-purple-600');
+                tabLogin.classList.add('text-gray-500');
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.toLowerCase().trim();
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+
+            // Get users from localStorage
+            const users = JSON.parse(localStorage.getItem('gestion-users') || '{}');
+
+            if (!users[email]) {
+                errorDiv.textContent = '❌ No existe una cuenta con este email';
+                errorDiv.classList.remove('hidden');
+                document.getElementById('loginForm').classList.add('shake');
+                setTimeout(() => document.getElementById('loginForm').classList.remove('shake'), 500);
+                return;
+            }
+
+            if (users[email].password !== password) {
+                errorDiv.textContent = '❌ Contraseña incorrecta';
+                errorDiv.classList.remove('hidden');
+                document.getElementById('loginForm').classList.add('shake');
+                setTimeout(() => document.getElementById('loginForm').classList.remove('shake'), 500);
+                return;
+            }
+
+            // Login successful
+            localStorage.setItem('gestion-currentUser', JSON.stringify({
+                email: email,
+                name: users[email].name,
+                goal: users[email].goal,
+                duration: users[email].duration,
+                startDate: users[email].startDate
+            }));
+
+            window.location.href = 'app.html';
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value.trim();
+            const email = document.getElementById('registerEmail').value.toLowerCase().trim();
+            const password = document.getElementById('registerPassword').value;
+            const goal = document.getElementById('registerGoal').value;
+            const duration = parseInt(document.getElementById('registerDuration').value);
+            const errorDiv = document.getElementById('registerError');
+
+            // Get existing users
+            const users = JSON.parse(localStorage.getItem('gestion-users') || '{}');
+
+            if (users[email]) {
+                errorDiv.textContent = '❌ Ya existe una cuenta con este email';
+                errorDiv.classList.remove('hidden');
+                document.getElementById('registerForm').classList.add('shake');
+                setTimeout(() => document.getElementById('registerForm').classList.remove('shake'), 500);
+                return;
+            }
+
+            // Create new user
+            const startDate = new Date().toISOString().split('T')[0];
+            users[email] = {
+                name: name,
+                password: password,
+                goal: goal,
+                duration: duration,
+                startDate: startDate,
+                createdAt: new Date().toISOString()
+            };
+
+            localStorage.setItem('gestion-users', JSON.stringify(users));
+
+            // Auto login - mark as needing onboarding
+            localStorage.setItem('gestion-currentUser', JSON.stringify({
+                email: email,
+                name: name,
+                goal: goal,
+                duration: duration,
+                startDate: startDate,
+                needsOnboarding: true
+            }));
+
+            // Redirect to onboarding wizard
+            window.location.href = 'onboarding.html';
+        }
+
+        function enterDemo() {
+            localStorage.setItem('gestion-currentUser', JSON.stringify({
+                email: 'demo@demo.com',
+                name: 'Usuario Demo',
+                goal: 'personal',
+                duration: 60,
+                startDate: new Date().toISOString().split('T')[0],
+                isDemo: true
+            }));
+            window.location.href = 'app.html';
+        }
+    </script>
+</body>
+</html>

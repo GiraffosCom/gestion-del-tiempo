@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backoffice - Gestión del Tiempo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Poppins', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #1e3a8a, #4338ca); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        .modal-backdrop { background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-900">
+
+    <!-- Navbar -->
+    <nav class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-3xl">🔐</span>
+                    <div>
+                        <h1 class="text-xl font-bold text-white">Backoffice</h1>
+                        <p class="text-sm text-slate-400">Gestión del Tiempo</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="openChangePasswordModal()" class="px-4 py-2 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 transition text-sm">
+                        🔑 Cambiar contraseña admin
+                    </button>
+                    <button onclick="logout()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm">
+                        🚪 Salir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-200 text-sm">Total Usuarios</p>
+                        <p id="statTotalUsers" class="text-4xl font-bold mt-1">0</p>
+                    </div>
+                    <span class="text-5xl opacity-80">👥</span>
+                </div>
+            </div>
+            <div class="bg-gradient-to-br from-green-600 to-green-700 rounded-2xl p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-200 text-sm">Usuarios Activos (7d)</p>
+                        <p id="statActiveUsers" class="text-4xl font-bold mt-1">0</p>
+                    </div>
+                    <span class="text-5xl opacity-80">✅</span>
+                </div>
+            </div>
+            <div class="bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-purple-200 text-sm">Objetivo más popular</p>
+                        <p id="statTopGoal" class="text-lg font-bold mt-1">-</p>
+                    </div>
+                    <span class="text-5xl opacity-80">🎯</span>
+                </div>
+            </div>
+            <div class="bg-gradient-to-br from-amber-600 to-amber-700 rounded-2xl p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-amber-200 text-sm">Registros hoy</p>
+                        <p id="statTodayUsers" class="text-4xl font-bold mt-1">0</p>
+                    </div>
+                    <span class="text-5xl opacity-80">📈</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
+            <div class="p-6 border-b border-slate-700">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <h2 class="text-xl font-bold text-white">👥 Usuarios Registrados</h2>
+                    <div class="flex gap-3">
+                        <input type="text" id="searchInput" onkeyup="filterUsers()" placeholder="🔍 Buscar usuario..."
+                            class="px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 outline-none">
+                        <select id="filterGoal" onchange="filterUsers()" class="px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="">Todos los objetivos</option>
+                            <option value="fitness">💪 Fitness</option>
+                            <option value="productivity">📈 Productividad</option>
+                            <option value="learning">📚 Aprendizaje</option>
+                            <option value="health">🥗 Salud</option>
+                            <option value="business">💼 Negocios</option>
+                            <option value="competition">👑 Competencia</option>
+                            <option value="personal">✨ Personal</option>
+                        </select>
+                        <button onclick="exportUsers()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                            📥 Exportar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-slate-700/50">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Usuario</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Objetivo</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Duración</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Inicio</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Progreso</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody" class="divide-y divide-slate-700">
+                        <!-- Users will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="noUsersMessage" class="hidden p-12 text-center">
+                <span class="text-6xl block mb-4">👤</span>
+                <p class="text-slate-400 text-lg">No hay usuarios registrados aún</p>
+                <p class="text-slate-500 text-sm mt-2">Los usuarios aparecerán aquí cuando se registren</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal: Ver Plan del Usuario -->
+    <div id="viewPlanModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden border border-slate-700">
+            <div class="p-6 border-b border-slate-700 flex items-center justify-between">
+                <h3 class="text-xl font-bold text-white">📋 Plan del Usuario</h3>
+                <button onclick="closeViewPlanModal()" class="text-slate-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div id="viewPlanContent" class="p-6 overflow-y-auto max-h-[70vh]">
+                <!-- Plan content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Editar Usuario -->
+    <div id="editUserModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md border border-slate-700">
+            <div class="p-6 border-b border-slate-700">
+                <h3 class="text-xl font-bold text-white">✏️ Editar Usuario</h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="editUserEmail">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Nombre</label>
+                    <input type="text" id="editUserName" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Nueva Contraseña (dejar vacío para mantener)</label>
+                    <input type="password" id="editUserPassword" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none" placeholder="••••••••">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Objetivo</label>
+                    <select id="editUserGoal" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="fitness">💪 Fitness</option>
+                        <option value="productivity">📈 Productividad</option>
+                        <option value="learning">📚 Aprendizaje</option>
+                        <option value="health">🥗 Salud</option>
+                        <option value="business">💼 Negocios</option>
+                        <option value="competition">👑 Competencia</option>
+                        <option value="personal">✨ Personal</option>
+                        <option value="other">🎯 Otro</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Duración (días)</label>
+                    <input type="number" id="editUserDuration" min="1" max="365" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+            </div>
+            <div class="p-6 border-t border-slate-700 flex gap-3">
+                <button onclick="closeEditUserModal()" class="flex-1 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition">Cancelar</button>
+                <button onclick="saveUserEdit()" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Cambiar Contraseña Admin -->
+    <div id="changePasswordModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md border border-slate-700">
+            <div class="p-6 border-b border-slate-700">
+                <h3 class="text-xl font-bold text-white">🔑 Cambiar Contraseña Admin</h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Contraseña Actual</label>
+                    <input type="password" id="currentAdminPassword" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Nueva Contraseña</label>
+                    <input type="password" id="newAdminPassword" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Confirmar Nueva Contraseña</label>
+                    <input type="password" id="confirmAdminPassword" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div id="passwordError" class="hidden text-red-400 text-sm py-2"></div>
+            </div>
+            <div class="p-6 border-t border-slate-700 flex gap-3">
+                <button onclick="closeChangePasswordModal()" class="flex-1 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition">Cancelar</button>
+                <button onclick="saveAdminPassword()" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Confirmar Eliminar -->
+    <div id="deleteUserModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm border border-slate-700">
+            <div class="p-6 text-center">
+                <span class="text-6xl">⚠️</span>
+                <h3 class="text-xl font-bold text-white mt-4">¿Eliminar usuario?</h3>
+                <p class="text-slate-400 mt-2" id="deleteUserName">Esta acción no se puede deshacer</p>
+            </div>
+            <div class="p-6 border-t border-slate-700 flex gap-3">
+                <button onclick="closeDeleteUserModal()" class="flex-1 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition">Cancelar</button>
+                <button onclick="confirmDeleteUser()" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check admin session
+        if (!localStorage.getItem('gestion-admin-session')) {
+            window.location.href = 'admin-login.html';
+        }
+
+        let allUsers = {};
+        let deletingEmail = null;
+
+        const goalLabels = {
+            fitness: '💪 Fitness',
+            productivity: '📈 Productividad',
+            learning: '📚 Aprendizaje',
+            health: '🥗 Salud',
+            business: '💼 Negocios',
+            competition: '👑 Competencia',
+            personal: '✨ Personal',
+            other: '🎯 Otro'
+        };
+
+        function loadUsers() {
+            allUsers = JSON.parse(localStorage.getItem('gestion-users') || '{}');
+            renderUsers(allUsers);
+            updateStats();
+        }
+
+        function renderUsers(users) {
+            const tbody = document.getElementById('usersTableBody');
+            const noUsersMessage = document.getElementById('noUsersMessage');
+            const emails = Object.keys(users);
+
+            if (emails.length === 0) {
+                tbody.innerHTML = '';
+                noUsersMessage.classList.remove('hidden');
+                return;
+            }
+
+            noUsersMessage.classList.add('hidden');
+
+            tbody.innerHTML = emails.map(email => {
+                const user = users[email];
+                const progress = calculateUserProgress(email);
+                const daysLeft = calculateDaysLeft(user);
+
+                return `
+                    <tr class="hover:bg-slate-700/50 transition">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                                    ${user.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <p class="text-white font-medium">${user.name}</p>
+                                    <p class="text-slate-500 text-xs">Creado: ${formatDate(user.createdAt)}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-slate-300">${email}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 bg-slate-700 text-slate-300 rounded-full text-sm">
+                                ${goalLabels[user.goal] || user.goal}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-slate-300">${user.duration} días</td>
+                        <td class="px-6 py-4 text-slate-300">${user.startDate}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-2">
+                                <div class="w-24 h-2 bg-slate-700 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" style="width: ${progress}%"></div>
+                                </div>
+                                <span class="text-slate-300 text-sm">${progress}%</span>
+                            </div>
+                            <p class="text-slate-500 text-xs mt-1">${daysLeft > 0 ? daysLeft + ' días restantes' : 'Plan finalizado'}</p>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex gap-2">
+                                <button onclick="viewUserPlan('${email}')" class="p-2 bg-blue-600/20 text-blue-400 rounded-lg hover:bg-blue-600/40 transition" title="Ver plan">
+                                    👁️
+                                </button>
+                                <button onclick="openEditUserModal('${email}')" class="p-2 bg-amber-600/20 text-amber-400 rounded-lg hover:bg-amber-600/40 transition" title="Editar">
+                                    ✏️
+                                </button>
+                                <button onclick="openDeleteUserModal('${email}')" class="p-2 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/40 transition" title="Eliminar">
+                                    🗑️
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateStats() {
+            const emails = Object.keys(allUsers);
+            const today = new Date().toISOString().split('T')[0];
+
+            // Total users
+            document.getElementById('statTotalUsers').textContent = emails.length;
+
+            // Today's registrations
+            const todayUsers = emails.filter(email => {
+                const created = allUsers[email].createdAt?.split('T')[0];
+                return created === today;
+            }).length;
+            document.getElementById('statTodayUsers').textContent = todayUsers;
+
+            // Active users (simplified - users with any activity)
+            let activeCount = 0;
+            emails.forEach(email => {
+                const userKey = email.replace(/[^a-z0-9]/gi, '_');
+                const activities = localStorage.getItem(`${userKey}-activities`);
+                if (activities && activities !== '{}') activeCount++;
+            });
+            document.getElementById('statActiveUsers').textContent = activeCount;
+
+            // Top goal
+            const goalCounts = {};
+            emails.forEach(email => {
+                const goal = allUsers[email].goal;
+                goalCounts[goal] = (goalCounts[goal] || 0) + 1;
+            });
+            const topGoal = Object.keys(goalCounts).sort((a, b) => goalCounts[b] - goalCounts[a])[0];
+            document.getElementById('statTopGoal').textContent = goalLabels[topGoal] || '-';
+        }
+
+        function calculateUserProgress(email) {
+            const userKey = email.replace(/[^a-z0-9]/gi, '_');
+            const activities = JSON.parse(localStorage.getItem(`${userKey}-activities`) || '{}');
+            const completedCount = Object.values(activities).filter(v => v).length;
+
+            // Estimate total activities (roughly 17 per day for 60 days)
+            const user = allUsers[email];
+            const totalEstimate = user.duration * 17;
+
+            return totalEstimate > 0 ? Math.min(100, Math.round((completedCount / totalEstimate) * 100)) : 0;
+        }
+
+        function calculateDaysLeft(user) {
+            const start = new Date(user.startDate);
+            const end = new Date(start);
+            end.setDate(end.getDate() + user.duration);
+            const today = new Date();
+            const diff = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+            return Math.max(0, diff);
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        function filterUsers() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const goalFilter = document.getElementById('filterGoal').value;
+
+            const filtered = {};
+            Object.keys(allUsers).forEach(email => {
+                const user = allUsers[email];
+                const matchesSearch = user.name.toLowerCase().includes(search) || email.toLowerCase().includes(search);
+                const matchesGoal = !goalFilter || user.goal === goalFilter;
+
+                if (matchesSearch && matchesGoal) {
+                    filtered[email] = user;
+                }
+            });
+
+            renderUsers(filtered);
+        }
+
+        function viewUserPlan(email) {
+            const user = allUsers[email];
+            const userKey = email.replace(/[^a-z0-9]/gi, '_');
+
+            const habits = JSON.parse(localStorage.getItem(`${userKey}-habits`) || '{}');
+            const activities = JSON.parse(localStorage.getItem(`${userKey}-activities`) || '{}');
+            const customSchedules = JSON.parse(localStorage.getItem(`${userKey}-custom-schedules`) || '{}');
+            const customHabits = JSON.parse(localStorage.getItem(`${userKey}-custom-habits`) || 'null');
+            const customGoals = JSON.parse(localStorage.getItem(`${userKey}-custom-goals`) || 'null');
+
+            const completedHabits = Object.values(habits).filter(v => v).length;
+            const completedActivities = Object.values(activities).filter(v => v).length;
+            const customDays = Object.keys(customSchedules).length;
+
+            const content = `
+                <div class="space-y-6">
+                    <div class="flex items-center gap-4 p-4 bg-slate-700/50 rounded-xl">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold">
+                            ${user.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold text-white">${user.name}</h4>
+                            <p class="text-slate-400">${email}</p>
+                            <p class="text-slate-500 text-sm">${goalLabels[user.goal]}</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-slate-700/50 rounded-xl p-4 text-center">
+                            <p class="text-3xl font-bold text-blue-400">${user.duration}</p>
+                            <p class="text-slate-400 text-sm">Días totales</p>
+                        </div>
+                        <div class="bg-slate-700/50 rounded-xl p-4 text-center">
+                            <p class="text-3xl font-bold text-green-400">${completedActivities}</p>
+                            <p class="text-slate-400 text-sm">Actividades completadas</p>
+                        </div>
+                        <div class="bg-slate-700/50 rounded-xl p-4 text-center">
+                            <p class="text-3xl font-bold text-purple-400">${completedHabits}</p>
+                            <p class="text-slate-400 text-sm">Hábitos marcados</p>
+                        </div>
+                        <div class="bg-slate-700/50 rounded-xl p-4 text-center">
+                            <p class="text-3xl font-bold text-amber-400">${customDays}</p>
+                            <p class="text-slate-400 text-sm">Días personalizados</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-700/50 rounded-xl p-4">
+                        <h5 class="font-bold text-white mb-3">📅 Información del Plan</h5>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-slate-400">Fecha de inicio</p>
+                                <p class="text-white">${user.startDate}</p>
+                            </div>
+                            <div>
+                                <p class="text-slate-400">Fecha de registro</p>
+                                <p class="text-white">${formatDate(user.createdAt)}</p>
+                            </div>
+                            <div>
+                                <p class="text-slate-400">Días restantes</p>
+                                <p class="text-white">${calculateDaysLeft(user)} días</p>
+                            </div>
+                            <div>
+                                <p class="text-slate-400">Progreso general</p>
+                                <p class="text-white">${calculateUserProgress(email)}%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${customHabits ? `
+                        <div class="bg-slate-700/50 rounded-xl p-4">
+                            <h5 class="font-bold text-white mb-3">✅ Hábitos personalizados (${customHabits.length})</h5>
+                            <div class="flex flex-wrap gap-2">
+                                ${customHabits.map(h => `<span class="px-3 py-1 bg-slate-600 rounded-full text-sm text-slate-300">${h.icon} ${h.name}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${customGoals ? `
+                        <div class="bg-slate-700/50 rounded-xl p-4">
+                            <h5 class="font-bold text-white mb-3">🎯 Metas personalizadas</h5>
+                            <p class="text-slate-400 text-sm">El usuario ha personalizado ${customGoals.length} semanas de metas</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            document.getElementById('viewPlanContent').innerHTML = content;
+            document.getElementById('viewPlanModal').classList.remove('hidden');
+        }
+
+        function closeViewPlanModal() {
+            document.getElementById('viewPlanModal').classList.add('hidden');
+        }
+
+        function openEditUserModal(email) {
+            const user = allUsers[email];
+            document.getElementById('editUserEmail').value = email;
+            document.getElementById('editUserName').value = user.name;
+            document.getElementById('editUserPassword').value = '';
+            document.getElementById('editUserGoal').value = user.goal;
+            document.getElementById('editUserDuration').value = user.duration;
+            document.getElementById('editUserModal').classList.remove('hidden');
+        }
+
+        function closeEditUserModal() {
+            document.getElementById('editUserModal').classList.add('hidden');
+        }
+
+        function saveUserEdit() {
+            const email = document.getElementById('editUserEmail').value;
+            const newPassword = document.getElementById('editUserPassword').value;
+
+            allUsers[email].name = document.getElementById('editUserName').value;
+            allUsers[email].goal = document.getElementById('editUserGoal').value;
+            allUsers[email].duration = parseInt(document.getElementById('editUserDuration').value);
+
+            if (newPassword) {
+                allUsers[email].password = newPassword;
+            }
+
+            localStorage.setItem('gestion-users', JSON.stringify(allUsers));
+            closeEditUserModal();
+            loadUsers();
+            alert('✅ Usuario actualizado correctamente');
+        }
+
+        function openDeleteUserModal(email) {
+            deletingEmail = email;
+            document.getElementById('deleteUserName').textContent = `Se eliminará a "${allUsers[email].name}" y todos sus datos`;
+            document.getElementById('deleteUserModal').classList.remove('hidden');
+        }
+
+        function closeDeleteUserModal() {
+            document.getElementById('deleteUserModal').classList.add('hidden');
+            deletingEmail = null;
+        }
+
+        function confirmDeleteUser() {
+            if (!deletingEmail) return;
+
+            // Delete user data
+            const userKey = deletingEmail.replace(/[^a-z0-9]/gi, '_');
+            const keysToRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith(userKey)) {
+                    keysToRemove.push(key);
+                }
+            }
+            keysToRemove.forEach(key => localStorage.removeItem(key));
+
+            // Delete user from users list
+            delete allUsers[deletingEmail];
+            localStorage.setItem('gestion-users', JSON.stringify(allUsers));
+
+            closeDeleteUserModal();
+            loadUsers();
+            alert('✅ Usuario eliminado correctamente');
+        }
+
+        function openChangePasswordModal() {
+            document.getElementById('currentAdminPassword').value = '';
+            document.getElementById('newAdminPassword').value = '';
+            document.getElementById('confirmAdminPassword').value = '';
+            document.getElementById('passwordError').classList.add('hidden');
+            document.getElementById('changePasswordModal').classList.remove('hidden');
+        }
+
+        function closeChangePasswordModal() {
+            document.getElementById('changePasswordModal').classList.add('hidden');
+        }
+
+        function saveAdminPassword() {
+            const current = document.getElementById('currentAdminPassword').value;
+            const newPass = document.getElementById('newAdminPassword').value;
+            const confirm = document.getElementById('confirmAdminPassword').value;
+            const errorDiv = document.getElementById('passwordError');
+
+            const admin = JSON.parse(localStorage.getItem('gestion-admin'));
+
+            if (current !== admin.password) {
+                errorDiv.textContent = '❌ Contraseña actual incorrecta';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            if (newPass.length < 6) {
+                errorDiv.textContent = '❌ La nueva contraseña debe tener al menos 6 caracteres';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            if (newPass !== confirm) {
+                errorDiv.textContent = '❌ Las contraseñas no coinciden';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            admin.password = newPass;
+            localStorage.setItem('gestion-admin', JSON.stringify(admin));
+            closeChangePasswordModal();
+            alert('✅ Contraseña actualizada correctamente');
+        }
+
+        function exportUsers() {
+            const emails = Object.keys(allUsers);
+            if (emails.length === 0) {
+                alert('No hay usuarios para exportar');
+                return;
+            }
+
+            let csv = 'Nombre,Email,Objetivo,Duración,Fecha Inicio,Fecha Registro,Progreso\n';
+            emails.forEach(email => {
+                const user = allUsers[email];
+                csv += `"${user.name}","${email}","${user.goal}","${user.duration}","${user.startDate}","${user.createdAt || ''}","${calculateUserProgress(email)}%"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `usuarios_gestion_tiempo_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        function logout() {
+            localStorage.removeItem('gestion-admin-session');
+            window.location.href = 'admin-login.html';
+        }
+
+        // Initial load
+        loadUsers();
+    </script>
+</body>
+</html>
