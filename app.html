@@ -7951,12 +7951,12 @@
                 setStorage('activities', '{}');
                 completedActivities = {};
 
-                // Clear all habit completions
-                setStorage('habits-completed', '{}');
-                habitsCompleted = {};
+                // Clear all habit completions (correct key is 'habits')
+                setStorage('habits', '{}');
+                checkedHabits = {};
 
-                // Clear gym completions
-                setStorage('gym-completed', '{}');
+                // Clear congrats shown tracking
+                setStorage('congrats-shown', '{}');
 
                 closeResetModal();
                 addNotification(getLang() === 'en' ? 'All progress cleared' : 'Todo el progreso limpiado', '🧹');
@@ -7966,34 +7966,39 @@
 
         function resetToDefaults() {
             const confirmMsg = getLang() === 'en'
-                ? 'Restore default settings? Custom schedules, habits, and meals will be deleted.'
-                : '¿Restaurar valores por defecto? Se eliminarán horarios, hábitos y comidas personalizadas.';
+                ? 'Restore default settings? Custom schedules, habits, meals, and goals will be deleted. Progress will be kept.'
+                : '¿Restaurar valores por defecto? Se eliminarán horarios, hábitos, comidas y metas personalizadas. El progreso se mantendrá.';
 
             if (confirm(confirmMsg)) {
                 // Clear custom schedules
-                setStorage('custom-schedules', '{}');
-                customSchedules = {};
+                removeStorage('custom-schedules');
 
-                // Clear custom habits (but keep default ones)
-                setStorage('custom-habits', '[]');
+                // Clear custom habits
+                removeStorage('custom-habits');
 
                 // Clear custom gym routines
-                setStorage('custom-gym', '{}');
+                removeStorage('custom-gym');
 
                 // Clear custom meals
-                setStorage('custom-meals', '{}');
+                removeStorage('custom-meals');
+
+                // Clear custom goals
+                removeStorage('custom-goals');
 
                 // Clear tab orders
-                setStorage('tabs-order-main', null);
-                setStorage('tabs-order-gym', null);
-                setStorage('tabs-order-nutrition', null);
+                removeStorage('tabs-order-main');
+                removeStorage('tabs-order-gym');
+                removeStorage('tabs-order-nutrition');
 
                 // Clear active template schedules
-                setStorage('active-template-schedules', null);
+                removeStorage('active-template-schedules');
 
-                closeResetModal();
-                addNotification(getLang() === 'en' ? 'Default settings restored' : 'Valores por defecto restaurados', '🔄');
-                render();
+                // Clear day templates
+                removeStorage('day-templates');
+
+                // Reload to reset all in-memory variables
+                alert(getLang() === 'en' ? '🔄 Default settings restored. Page will reload.' : '🔄 Valores por defecto restaurados. La página se recargará.');
+                window.location.reload();
             }
         }
 
@@ -8003,32 +8008,23 @@
                 : '⚠️ ¿EMPEZAR DE NUEVO?\n\nEsto ELIMINARÁ todo excepto tu perfil:\n- Todo el progreso\n- Todas las personalizaciones\n- Todos los hábitos y comidas\n- Todas las metas y notas\n\nTus datos de perfil se mantendrán.\n\n¿Estás seguro?';
 
             if (confirm(confirmMsg)) {
-                // Save profile data before reset
-                const profile = getUserProfile();
-                const photo = getStorage('user-photo');
-
-                // Get all keys for this user
+                // Get all keys for this user and delete all except profile and photo
                 const keysToDelete = [];
                 for (let i = 0; i < localStorage.length; i++) {
                     const key = localStorage.key(i);
                     if (key && key.startsWith(userKey + '-') &&
                         key !== `${userKey}-user-profile` &&
-                        key !== `${userKey}-user-photo`) {
+                        key !== `${userKey}-profile-photo`) {
                         keysToDelete.push(key);
                     }
                 }
 
-                // Delete all user data except profile
+                // Delete all user data except profile and photo
                 keysToDelete.forEach(key => localStorage.removeItem(key));
 
-                // Reset in-memory variables
-                completedActivities = {};
-                habitsCompleted = {};
-                customSchedules = {};
-
-                closeResetModal();
-                addNotification(getLang() === 'en' ? 'Fresh start! Profile kept.' : '¡Nuevo comienzo! Perfil mantenido.', '🔃');
-                render();
+                // Reload page to reset all in-memory variables
+                alert(getLang() === 'en' ? '🔃 Fresh start! Profile kept. Page will reload.' : '🔃 ¡Nuevo comienzo! Perfil mantenido. La página se recargará.');
+                window.location.reload();
             }
         }
 
