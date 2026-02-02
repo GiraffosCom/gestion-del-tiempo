@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "name": "plan-arantxa-miss-universo",
+  "builds": [
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
