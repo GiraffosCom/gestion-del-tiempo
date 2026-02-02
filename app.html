@@ -318,8 +318,8 @@
     </div>
 
     <!-- Modal para Foto de Perfil -->
-    <div id="photoModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all">
+    <div id="photoModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closePhotoModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all" onclick="event.stopPropagation()">
             <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">📸 Foto de Perfil</h3>
 
             <!-- Vista normal (sin edición) -->
