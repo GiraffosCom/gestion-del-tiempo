@@ -1062,6 +1062,7 @@
         function saveHabitEdit() {
             const newIcon = document.getElementById('editHabitIcon').value;
             const newName = document.getElementById('editHabitName').value;
+            const indexToEdit = editingIndex; // Guardar antes de cerrar modal
 
             closeEditHabitModal();
 
@@ -1070,8 +1071,8 @@
                 (confirmed) => {
                     if (confirmed) {
                         let habits = customHabits || JSON.parse(JSON.stringify(defaultHabits));
-                        habits[editingIndex] = {
-                            id: habits[editingIndex].id,
+                        habits[indexToEdit] = {
+                            id: habits[indexToEdit].id,
                             icon: newIcon,
                             name: newName
                         };
@@ -1246,6 +1247,7 @@
                 options: document.getElementById('editMealOptions').value.split('\n').filter(o => o.trim()),
                 macros: document.getElementById('editMealMacros').value
             };
+            const indexToEdit = editingIndex; // Guardar antes de cerrar modal
 
             closeEditMealModal();
 
@@ -1254,7 +1256,7 @@
                 (confirmed) => {
                     if (confirmed) {
                         let meals = customMeals || JSON.parse(JSON.stringify(defaultMeals));
-                        meals[editingIndex] = newMeal;
+                        meals[indexToEdit] = newMeal;
                         meals.sort((a, b) => a.time.localeCompare(b.time));
                         customMeals = meals;
                         setStorage('custom-meals', JSON.stringify(customMeals));
