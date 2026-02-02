@@ -24,6 +24,10 @@
         ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #ec4899, #8b5cf6); border-radius: 10px; }
         .glow { box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); }
         .photo-glow { box-shadow: 0 0 20px rgba(236, 72, 153, 0.4), 0 0 40px rgba(139, 92, 246, 0.3); }
+        @keyframes celebrationFall {
+            0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg) scale(0.5); opacity: 0; }
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-rose-50 via-purple-50 to-blue-50">
@@ -1016,16 +1020,56 @@
 
         function toggleHabit(habitId) {
             const key = `${getDateKey()}-${habitId}`;
+            const wasCompleted = checkedHabits[key];
             checkedHabits[key] = !checkedHabits[key];
             setStorage('habits', JSON.stringify(checkedHabits));
+
+            // Mostrar celebración si se completó
+            if (!wasCompleted && checkedHabits[key]) {
+                showCelebration();
+            }
             render();
         }
 
         function toggleActivity(index) {
             const key = `${getDateKey()}-${index}`;
+            const wasCompleted = completedActivities[key];
             completedActivities[key] = !completedActivities[key];
             setStorage('activities', JSON.stringify(completedActivities));
+
+            // Mostrar celebración si se completó
+            if (!wasCompleted && completedActivities[key]) {
+                showCelebration();
+            }
             render();
+        }
+
+        // Animación de celebración con emojis
+        function showCelebration() {
+            const emojis = ['🎉', '🎊', '⭐', '✨', '🌟', '💫', '🏆', '👏', '💪', '🔥'];
+            const container = document.createElement('div');
+            container.className = 'fixed inset-0 pointer-events-none z-[100]';
+            document.body.appendChild(container);
+
+            // Crear 15 emojis que caen
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const emoji = document.createElement('div');
+                    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    emoji.style.cssText = `
+                        position: absolute;
+                        font-size: ${20 + Math.random() * 25}px;
+                        left: ${Math.random() * 100}%;
+                        top: -50px;
+                        animation: celebrationFall 1.5s ease-out forwards;
+                        opacity: 1;
+                    `;
+                    container.appendChild(emoji);
+                }, i * 50);
+            }
+
+            // Eliminar después de la animación
+            setTimeout(() => container.remove(), 2000);
         }
 
         // ========== ACTIVITY MODALS ==========
