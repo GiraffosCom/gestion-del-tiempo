@@ -297,6 +297,41 @@
         </div>
     </div>
 
+    <!-- Modal para Foto de Perfil -->
+    <div id="photoModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">📸 Foto de Perfil</h3>
+
+            <!-- Preview actual -->
+            <div class="flex justify-center mb-6">
+                <div id="photoPreview" class="w-32 h-32 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center text-white text-4xl font-bold border-4 border-purple-200 overflow-hidden">
+                    <!-- Se llena dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Opciones -->
+            <div class="space-y-3">
+                <label class="flex items-center justify-center gap-3 w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium cursor-pointer hover:opacity-90 transition">
+                    <span>📁 Subir foto</span>
+                    <input type="file" id="photoInput" accept="image/*" class="hidden" onchange="handlePhotoUpload(event)">
+                </label>
+
+                <label class="flex items-center justify-center gap-3 w-full py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-medium cursor-pointer hover:opacity-90 transition">
+                    <span>📷 Tomar foto</span>
+                    <input type="file" id="cameraInput" accept="image/*" capture="user" class="hidden" onchange="handlePhotoUpload(event)">
+                </label>
+
+                <button onclick="removePhoto()" id="removePhotoBtn" class="w-full py-3 border-2 border-red-200 text-red-500 rounded-xl font-medium hover:bg-red-50 transition hidden">
+                    🗑️ Eliminar foto
+                </button>
+            </div>
+
+            <button onclick="closePhotoModal()" class="w-full mt-4 py-2 text-gray-500 hover:text-gray-700 transition">
+                Cerrar
+            </button>
+        </div>
+    </div>
+
     <script>
         // Check login
         const currentUser = JSON.parse(localStorage.getItem('gestion-currentUser'));
@@ -329,6 +364,86 @@
                 localStorage.removeItem('gestion-currentUser');
                 window.location.href = 'login.html';
             }
+        }
+
+        // Profile Photo Functions
+        function openPhotoModal() {
+            const modal = document.getElementById('photoModal');
+            const preview = document.getElementById('photoPreview');
+            const removeBtn = document.getElementById('removePhotoBtn');
+            const photo = getStorage('profile-photo');
+
+            if (photo) {
+                preview.innerHTML = `<img src="${photo}" class="w-full h-full object-cover">`;
+                removeBtn.classList.remove('hidden');
+            } else {
+                preview.innerHTML = currentUser.name.charAt(0).toUpperCase();
+                removeBtn.classList.add('hidden');
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closePhotoModal() {
+            document.getElementById('photoModal').classList.add('hidden');
+        }
+
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validar tamaño (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('La imagen es muy grande. Máximo 2MB.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Crear imagen para redimensionar
+                const img = new Image();
+                img.onload = function() {
+                    // Redimensionar a 200x200 para ahorrar espacio
+                    const canvas = document.createElement('canvas');
+                    const size = 200;
+                    canvas.width = size;
+                    canvas.height = size;
+                    const ctx = canvas.getContext('2d');
+
+                    // Recortar al centro (cuadrado)
+                    const minDim = Math.min(img.width, img.height);
+                    const sx = (img.width - minDim) / 2;
+                    const sy = (img.height - minDim) / 2;
+
+                    ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+
+                    // Guardar como base64
+                    const photoData = canvas.toDataURL('image/jpeg', 0.8);
+                    setStorage('profile-photo', photoData);
+
+                    // Actualizar preview
+                    document.getElementById('photoPreview').innerHTML = `<img src="${photoData}" class="w-full h-full object-cover">`;
+                    document.getElementById('removePhotoBtn').classList.remove('hidden');
+
+                    // Actualizar header
+                    render();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removePhoto() {
+            if (confirm('¿Eliminar foto de perfil?')) {
+                removeStorage('profile-photo');
+                document.getElementById('photoPreview').innerHTML = currentUser.name.charAt(0).toUpperCase();
+                document.getElementById('removePhotoBtn').classList.add('hidden');
+                render();
+            }
+        }
+
+        function getUserPhoto() {
+            return getStorage('profile-photo');
         }
 
         // Goal text mapping
@@ -1172,11 +1287,11 @@
                 <header class="bg-white/90 backdrop-blur-sm shadow-sm sticky top-0 z-50">
                     <div class="max-w-4xl mx-auto px-3 py-2">
                         <div class="flex items-center gap-3">
-                            <div class="relative flex-shrink-0">
-                                <div class="w-12 h-12 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center text-white text-lg font-bold border-2 border-purple-200 photo-glow">
-                                    ${currentUser.name.charAt(0).toUpperCase()}
+                            <div class="relative flex-shrink-0 cursor-pointer group" onclick="openPhotoModal()" title="Cambiar foto de perfil">
+                                <div class="w-12 h-12 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center text-white text-lg font-bold border-2 border-purple-200 photo-glow overflow-hidden group-hover:opacity-80 transition">
+                                    ${getUserPhoto() ? `<img src="${getUserPhoto()}" class="w-full h-full object-cover">` : currentUser.name.charAt(0).toUpperCase()}
                                 </div>
-                                <span class="absolute -bottom-0.5 -right-0.5 text-sm">✨</span>
+                                <span class="absolute -bottom-0.5 -right-0.5 text-sm group-hover:scale-110 transition">📷</span>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <h1 class="text-base font-bold gradient-text">👋 ${currentUser.name}</h1>
