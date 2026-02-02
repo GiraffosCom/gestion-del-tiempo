@@ -4709,7 +4709,10 @@
 
                 return `
                     <!-- Results -->
-                    <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-5 text-white shadow-lg">
+                    <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-5 text-white shadow-lg relative">
+                        <button onclick="openMacrosInfoModal()" class="absolute top-4 right-4 w-7 h-7 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition">
+                            <span class="text-sm">ℹ️</span>
+                        </button>
                         <h3 class="text-lg font-bold mb-1">🥗 Tus Macros Diarios</h3>
                         <p class="text-sm opacity-80 mb-4">${goalLabels[goal]}</p>
                         <div class="text-center mb-4">
@@ -4815,6 +4818,59 @@
                 console.error('Error in renderGymMacros:', error);
                 return `<div class="bg-red-100 text-red-700 p-4 rounded-xl">Error en Macros: ${error.message}</div>`;
             }
+        }
+
+        function openMacrosInfoModal() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4';
+            modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+            modal.innerHTML = `
+                <div class="bg-white rounded-2xl max-w-sm w-full max-h-[85vh] overflow-y-auto">
+                    <div class="p-5">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-gray-800">📚 Guía de Conceptos</h3>
+                            <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="bg-green-50 rounded-xl p-4">
+                                <h4 class="font-bold text-green-700 mb-2">🥗 Calorías Diarias</h4>
+                                <p class="text-sm text-gray-600">Son las calorías que debes consumir según tu objetivo. Este número ya incluye el ajuste para perder grasa, mantener o ganar masa muscular.</p>
+                            </div>
+
+                            <div class="bg-blue-50 rounded-xl p-4">
+                                <h4 class="font-bold text-blue-700 mb-2">🔵 BMR (Metabolismo Basal)</h4>
+                                <p class="text-sm text-gray-600">Calorías que tu cuerpo quema en reposo total (sin moverte). Es la energía mínima para funciones vitales como respirar, bombear sangre y mantener temperatura corporal.</p>
+                            </div>
+
+                            <div class="bg-purple-50 rounded-xl p-4">
+                                <h4 class="font-bold text-purple-700 mb-2">🟣 TDEE (Gasto Diario)</h4>
+                                <p class="text-sm text-gray-600">Tu gasto calórico total incluyendo actividad física diaria. Es el BMR multiplicado por tu nivel de actividad. Si comes esto, mantienes tu peso.</p>
+                            </div>
+
+                            <div class="bg-red-50 rounded-xl p-4">
+                                <h4 class="font-bold text-red-700 mb-2">🥩 Proteína</h4>
+                                <p class="text-sm text-gray-600">Esencial para construir y mantener músculo. Consumir suficiente proteína ayuda a preservar masa muscular al bajar de peso y a ganarla en volumen.</p>
+                            </div>
+
+                            <div class="bg-yellow-50 rounded-xl p-4">
+                                <h4 class="font-bold text-yellow-700 mb-2">🍞 Carbohidratos</h4>
+                                <p class="text-sm text-gray-600">Fuente principal de energía para entrenamientos intensos y actividades diarias. Importantes para rendimiento deportivo y recuperación.</p>
+                            </div>
+
+                            <div class="bg-orange-50 rounded-xl p-4">
+                                <h4 class="font-bold text-orange-700 mb-2">🥑 Grasas</h4>
+                                <p class="text-sm text-gray-600">Necesarias para hormonas, absorción de vitaminas y salud celular. No eliminarlas por completo, son vitales para el funcionamiento del cuerpo.</p>
+                            </div>
+                        </div>
+
+                        <button onclick="this.closest('.fixed').remove()" class="w-full mt-5 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium text-gray-700 transition">
+                            Entendido 👍
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
         }
 
         function updateMacrosCalc() {
@@ -5287,7 +5343,7 @@
 
                 const objectiveLabels = {
                     'lose': { name: 'Bajar Grasa', emoji: '🔥', color: 'orange' },
-                    'maintain': { name: 'Recomposición', emoji: '⚖️', color: 'blue' },
+                    'maintain': { name: 'Recomp.', emoji: '⚖️', color: 'blue' },
                     'gain': { name: 'Ganar Masa', emoji: '💪', color: 'green' }
                 };
                 const currentObj = objectiveLabels[config.objective] || objectiveLabels['maintain'];
@@ -5345,19 +5401,19 @@
                         <h4 class="font-bold text-gray-800 mb-4">🎯 Objetivo</h4>
                         <div class="grid grid-cols-3 gap-2">
                             <button onclick="setNutritionObjective('lose')"
-                                class="p-4 rounded-xl border-2 transition ${config.objective === 'lose' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-orange-300'}">
+                                class="p-3 rounded-xl border-2 transition text-center ${config.objective === 'lose' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-orange-300'}">
                                 <span class="text-2xl block mb-1">🔥</span>
-                                <span class="text-sm font-medium ${config.objective === 'lose' ? 'text-orange-600' : 'text-gray-600'}">Bajar Grasa</span>
+                                <span class="text-xs font-medium leading-tight block ${config.objective === 'lose' ? 'text-orange-600' : 'text-gray-600'}">Bajar Grasa</span>
                             </button>
                             <button onclick="setNutritionObjective('maintain')"
-                                class="p-4 rounded-xl border-2 transition ${config.objective === 'maintain' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'}">
+                                class="p-3 rounded-xl border-2 transition text-center ${config.objective === 'maintain' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'}">
                                 <span class="text-2xl block mb-1">⚖️</span>
-                                <span class="text-sm font-medium ${config.objective === 'maintain' ? 'text-blue-600' : 'text-gray-600'}">Recomposición</span>
+                                <span class="text-xs font-medium leading-tight block ${config.objective === 'maintain' ? 'text-blue-600' : 'text-gray-600'}">Recomp.</span>
                             </button>
                             <button onclick="setNutritionObjective('gain')"
-                                class="p-4 rounded-xl border-2 transition ${config.objective === 'gain' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-300'}">
+                                class="p-3 rounded-xl border-2 transition text-center ${config.objective === 'gain' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-300'}">
                                 <span class="text-2xl block mb-1">💪</span>
-                                <span class="text-sm font-medium ${config.objective === 'gain' ? 'text-green-600' : 'text-gray-600'}">Ganar Masa</span>
+                                <span class="text-xs font-medium leading-tight block ${config.objective === 'gain' ? 'text-green-600' : 'text-gray-600'}">Ganar Masa</span>
                             </button>
                         </div>
                     </div>
