@@ -670,6 +670,45 @@
         </div>
     </div>
 
+    <!-- Modal para Agregar Meta -->
+    <div id="addGoalModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all max-h-[90vh] overflow-y-auto">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">➕ Nueva Meta Semanal</h3>
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Semana</label>
+                        <input type="number" id="addGoalWeek" min="1" max="52" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: 5">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Fechas</label>
+                        <input type="text" id="addGoalDates" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: 2-8 Mar">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">💪 Meta Física</label>
+                    <input type="text" id="addGoalFisica" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="Tu meta de salud/fitness">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">📚 Meta Personal</label>
+                    <input type="text" id="addGoalPersonal" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="Tu meta de desarrollo personal">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">📱 Meta Digital/Profesional</label>
+                    <input type="text" id="addGoalDigital" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="Tu meta de trabajo/proyectos">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">🧘 Meta Espiritual</label>
+                    <input type="text" id="addGoalEspiritual" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="Tu meta de bienestar mental">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeAddGoalModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
+                <button onclick="saveNewGoal()" class="flex-1 px-4 py-2 theme-btn rounded-xl hover:opacity-90 transition font-medium">Crear Meta</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal para Reemplazar Todos -->
     <div id="replaceAllModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all">
@@ -2040,6 +2079,160 @@
         }, 1000);
 
         // ==================== END NOTIFICATIONS ====================
+
+        // ==================== WEB PUSH REMINDERS ====================
+
+        let reminderInterval = null;
+        let notifiedActivities = new Set(); // Track which activities we've already notified
+
+        function getReminderSettings() {
+            return JSON.parse(getStorage('reminder-settings') || '{"enabled": false, "minutesBefore": 5}');
+        }
+
+        function saveReminderSettings(settings) {
+            setStorage('reminder-settings', JSON.stringify(settings));
+        }
+
+        async function requestNotificationPermission() {
+            if (!('Notification' in window)) {
+                alert(getLang() === 'en'
+                    ? 'This browser does not support notifications'
+                    : 'Este navegador no soporta notificaciones');
+                return false;
+            }
+
+            if (Notification.permission === 'granted') {
+                return true;
+            }
+
+            if (Notification.permission !== 'denied') {
+                const permission = await Notification.requestPermission();
+                return permission === 'granted';
+            }
+
+            return false;
+        }
+
+        async function toggleReminders() {
+            const settings = getReminderSettings();
+
+            if (!settings.enabled) {
+                // Trying to enable - need permission
+                const hasPermission = await requestNotificationPermission();
+                if (!hasPermission) {
+                    alert(getLang() === 'en'
+                        ? 'Please allow notifications in your browser settings to enable reminders'
+                        : 'Por favor permite las notificaciones en tu navegador para habilitar recordatorios');
+                    return;
+                }
+                settings.enabled = true;
+                startReminderChecker();
+                addNotification(getLang() === 'en' ? 'Reminders enabled! 🔔' : '¡Recordatorios activados! 🔔', '⏰');
+            } else {
+                settings.enabled = false;
+                stopReminderChecker();
+                addNotification(getLang() === 'en' ? 'Reminders disabled' : 'Recordatorios desactivados', '🔕');
+            }
+
+            saveReminderSettings(settings);
+            render();
+        }
+
+        function setReminderMinutes(minutes) {
+            const settings = getReminderSettings();
+            settings.minutesBefore = parseInt(minutes);
+            saveReminderSettings(settings);
+        }
+
+        function startReminderChecker() {
+            if (reminderInterval) clearInterval(reminderInterval);
+
+            // Check every 30 seconds
+            reminderInterval = setInterval(checkUpcomingActivities, 30000);
+
+            // Also check immediately
+            checkUpcomingActivities();
+        }
+
+        function stopReminderChecker() {
+            if (reminderInterval) {
+                clearInterval(reminderInterval);
+                reminderInterval = null;
+            }
+        }
+
+        function checkUpcomingActivities() {
+            const settings = getReminderSettings();
+            if (!settings.enabled) return;
+
+            const now = new Date();
+            const todayKey = getDateKey(now);
+
+            // Reset notified activities at midnight
+            const currentDay = now.toDateString();
+            if (getStorage('lastReminderDay') !== currentDay) {
+                notifiedActivities.clear();
+                setStorage('lastReminderDay', currentDay);
+            }
+
+            const schedule = getSchedule();
+
+            schedule.forEach((activity, idx) => {
+                const activityKey = `${todayKey}-${idx}`;
+
+                // Skip if already notified or already completed
+                if (notifiedActivities.has(activityKey)) return;
+                if (completedActivities[activityKey]) return;
+
+                // Parse activity time
+                const [hours, minutes] = activity.time.split(':').map(Number);
+                const activityTime = new Date(now);
+                activityTime.setHours(hours, minutes, 0, 0);
+
+                // Calculate minutes until activity
+                const minutesUntil = (activityTime - now) / (1000 * 60);
+
+                // Check if within reminder window
+                if (minutesUntil > 0 && minutesUntil <= settings.minutesBefore) {
+                    sendActivityReminder(activity, Math.round(minutesUntil));
+                    notifiedActivities.add(activityKey);
+                }
+            });
+        }
+
+        function sendActivityReminder(activity, minutesUntil) {
+            if (Notification.permission !== 'granted') return;
+
+            const title = getLang() === 'en' ? '⏰ Upcoming Activity' : '⏰ Actividad Próxima';
+            const body = getLang() === 'en'
+                ? `${activity.activity} in ${minutesUntil} minute${minutesUntil !== 1 ? 's' : ''}`
+                : `${activity.activity} en ${minutesUntil} minuto${minutesUntil !== 1 ? 's' : ''}`;
+
+            const notification = new Notification(title, {
+                body: body,
+                icon: '📅',
+                tag: `activity-${activity.time}`,
+                requireInteraction: true
+            });
+
+            notification.onclick = () => {
+                window.focus();
+                notification.close();
+            };
+
+            // Auto-close after 30 seconds
+            setTimeout(() => notification.close(), 30000);
+        }
+
+        // Initialize reminders on page load
+        setTimeout(() => {
+            const settings = getReminderSettings();
+            if (settings.enabled && Notification.permission === 'granted') {
+                startReminderChecker();
+            }
+        }, 2000);
+
+        // ==================== END WEB PUSH REMINDERS ====================
 
         // Profile Photo Functions
         let cropperState = {
@@ -4881,6 +5074,57 @@
             }
         }
 
+        function openAddGoalModal() {
+            // Pre-fill with next week number
+            const goals = getWeeklyGoals();
+            const maxWeek = goals.length > 0 ? Math.max(...goals.map(g => g.week)) : 0;
+            document.getElementById('addGoalWeek').value = maxWeek + 1;
+            document.getElementById('addGoalDates').value = '';
+            document.getElementById('addGoalFisica').value = '';
+            document.getElementById('addGoalPersonal').value = '';
+            document.getElementById('addGoalDigital').value = '';
+            document.getElementById('addGoalEspiritual').value = '';
+            document.getElementById('addGoalModal').classList.remove('hidden');
+        }
+
+        function closeAddGoalModal() {
+            document.getElementById('addGoalModal').classList.add('hidden');
+        }
+
+        function saveNewGoal() {
+            const week = parseInt(document.getElementById('addGoalWeek').value);
+            const dates = document.getElementById('addGoalDates').value;
+            const fisica = document.getElementById('addGoalFisica').value;
+            const personal = document.getElementById('addGoalPersonal').value;
+            const digital = document.getElementById('addGoalDigital').value;
+            const espiritual = document.getElementById('addGoalEspiritual').value;
+
+            if (!week || !dates) {
+                alert(getLang() === 'en' ? 'Please enter week number and dates' : 'Por favor ingresa el número de semana y las fechas');
+                return;
+            }
+
+            let goals = customGoals || JSON.parse(JSON.stringify(defaultWeeklyGoals));
+
+            goals.push({
+                week: week,
+                dates: dates,
+                fisica: fisica,
+                personal: personal,
+                digital: digital,
+                espiritual: espiritual
+            });
+
+            // Sort by week number
+            goals.sort((a, b) => a.week - b.week);
+
+            customGoals = goals;
+            setStorage('custom-goals', JSON.stringify(customGoals));
+            closeAddGoalModal();
+            addNotification(getLang() === 'en' ? 'New goal added!' : '¡Nueva meta agregada!', '🎯');
+            render();
+        }
+
         function renderProgressCircle(percent, size, strokeWidth, color, label) {
             const radius = (size - strokeWidth) / 2;
             const circumference = radius * 2 * Math.PI;
@@ -5015,6 +5259,29 @@
                                                 <div class="absolute top-1 ${isFloatingButtonEnabled('expenses') ? 'right-1' : 'left-1'} w-4 h-4 bg-white rounded-full shadow transition-all"></div>
                                             </div>
                                         </button>
+                                        <hr class="my-2 border-gray-100">
+                                        <p class="px-4 py-1 text-xs text-gray-400 font-medium uppercase">🔔 Recordatorios</p>
+                                        <button onclick="toggleReminders()" class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-50 transition">
+                                            <div class="flex items-center gap-3">
+                                                <span class="text-xl">⏰</span>
+                                                <span class="text-gray-700">Notificaciones</span>
+                                            </div>
+                                            <div class="w-10 h-6 rounded-full transition ${getReminderSettings().enabled ? 'bg-purple-500' : 'bg-gray-300'} relative">
+                                                <div class="absolute top-1 ${getReminderSettings().enabled ? 'right-1' : 'left-1'} w-4 h-4 bg-white rounded-full shadow transition-all"></div>
+                                            </div>
+                                        </button>
+                                        ${getReminderSettings().enabled ? `
+                                        <div class="px-4 py-2">
+                                            <label class="text-xs text-gray-500 block mb-1">Avisar antes de:</label>
+                                            <select onchange="setReminderMinutes(this.value)" class="w-full px-2 py-1 text-sm border border-gray-200 rounded-lg">
+                                                <option value="3" ${getReminderSettings().minutesBefore === 3 ? 'selected' : ''}>3 minutos</option>
+                                                <option value="5" ${getReminderSettings().minutesBefore === 5 ? 'selected' : ''}>5 minutos</option>
+                                                <option value="10" ${getReminderSettings().minutesBefore === 10 ? 'selected' : ''}>10 minutos</option>
+                                                <option value="15" ${getReminderSettings().minutesBefore === 15 ? 'selected' : ''}>15 minutos</option>
+                                                <option value="30" ${getReminderSettings().minutesBefore === 30 ? 'selected' : ''}>30 minutos</option>
+                                            </select>
+                                        </div>
+                                        ` : ''}
                                         <hr class="my-2 border-gray-100">
                                         <p class="px-4 py-1 text-xs text-gray-400 font-medium uppercase">Zona de Peligro</p>
                                         <button onclick="openResetModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-orange-50 transition text-left">
@@ -6783,6 +7050,9 @@
             return `
                 <div class="space-y-4">
                     <div class="flex gap-2 mb-4">
+                        <button onclick="openAddGoalModal()" class="flex items-center justify-center gap-1 px-3 py-2 bg-purple-500 text-white rounded-lg shadow-sm hover:shadow-md hover:bg-purple-600 transition text-sm font-medium" title="Agregar Meta">
+                            <span>➕</span> Nueva Meta
+                        </button>
                         ${isCustomized ? `
                             <button onclick="resetGoals()" class="flex items-center justify-center gap-1 px-3 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition text-gray-500 border border-gray-100 text-sm" title="Restaurar">
                                 <span>🔄</span> Restaurar Metas
@@ -8047,6 +8317,8 @@
                 removeStorage('dark-mode');
                 removeStorage('floating-buttons');
                 removeStorage('dashboard-visible');
+                removeStorage('reminder-settings');
+                removeStorage('lastReminderDay');
 
                 // Reload page to reset all in-memory variables
                 alert(getLang() === 'en' ? '🔃 Fresh start! Profile kept. Page will reload.' : '🔃 ¡Nuevo comienzo! Perfil mantenido. La página se recargará.');
