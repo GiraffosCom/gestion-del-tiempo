@@ -2555,9 +2555,9 @@
                 </div>
 
                 <!-- Tabs -->
-                <div class="bg-white/40 border-b sticky top-[56px] z-40">
+                <div class="bg-white/40 border-b sticky top-[56px] z-40 mt-1">
                     <div class="max-w-4xl mx-auto px-4">
-                        <div class="flex gap-2 overflow-x-auto py-2 no-scrollbar">
+                        <div class="flex gap-2 overflow-x-auto py-3 no-scrollbar">
                             ${['agenda', 'habits', 'gym', 'meals', 'goals', 'notes', 'stats'].map(tab => `
                                 <button onclick="setTab('${tab}')" class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${activeTab === tab ? 'tab-active shadow-md' : 'bg-white/80 text-gray-600 hover:bg-white'}">
                                     ${tab === 'agenda' ? '📅 Agenda' : tab === 'habits' ? '✅ Hábitos' : tab === 'gym' ? '💪 Gym' : tab === 'meals' ? '🥗 Comidas' : tab === 'goals' ? '🎯 Metas' : tab === 'notes' ? '📝 Notas' : '📊 Estadísticas'}
