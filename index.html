@@ -23,18 +23,12 @@
         ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #ec4899, #8b5cf6); border-radius: 10px; }
         .glow { box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); }
-        .shake { animation: shake 0.5s ease-in-out; }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-rose-50 via-purple-50 to-blue-50">
     <div id="app"></div>
 
-    <!-- Modal para Editar -->
+    <!-- Modal para Editar Actividad -->
     <div id="editModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
             <h3 class="text-xl font-bold text-gray-800 mb-4">✏️ Editar Actividad</h3>
@@ -76,7 +70,7 @@
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all">
             <div class="text-center">
                 <span class="text-5xl">🗑️</span>
-                <h3 class="text-xl font-bold text-gray-800 mt-3">¿Eliminar actividad?</h3>
+                <h3 class="text-xl font-bold text-gray-800 mt-3">¿Eliminar elemento?</h3>
                 <p class="text-gray-500 mt-2" id="deleteActivityName">Esta acción no se puede deshacer</p>
             </div>
             <div class="flex gap-3 mt-6">
@@ -123,6 +117,185 @@
         </div>
     </div>
 
+    <!-- Modal para Editar Hábito -->
+    <div id="editHabitModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">✏️ Editar Hábito</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Emoji</label>
+                    <input type="text" id="editHabitIcon" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: ☀️">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Nombre del hábito</label>
+                    <input type="text" id="editHabitName" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: Despertar 7:00 AM">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeEditHabitModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
+                <button onclick="saveHabitEdit()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Agregar Hábito -->
+    <div id="addHabitModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">➕ Nuevo Hábito</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Emoji</label>
+                    <input type="text" id="addHabitIcon" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: ☀️">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Nombre del hábito</label>
+                    <input type="text" id="addHabitName" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: Despertar 7:00 AM">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeAddHabitModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
+                <button onclick="saveNewHabit()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Agregar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Ejercicio Gym -->
+    <div id="editGymModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">✏️ Editar Ejercicio</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Ejercicio</label>
+                    <input type="text" id="editGymExercise" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: Hip Thrust con barra 4x12">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeEditGymModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
+                <button onclick="saveGymEdit()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Agregar Ejercicio Gym -->
+    <div id="addGymModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">➕ Nuevo Ejercicio</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Ejercicio</label>
+                    <input type="text" id="addGymExercise" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: Hip Thrust con barra 4x12">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeAddGymModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
+                <button onclick="saveNewGymExercise()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Agregar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Comida -->
+    <div id="editMealModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all max-h-[90vh] overflow-y-auto">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">✏️ Editar Comida</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Hora</label>
+                    <input type="text" id="editMealTime" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: 07:45">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Nombre</label>
+                    <input type="text" id="editMealName" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: Desayuno">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Emoji</label>
+                    <input type="text" id="editMealEmoji" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: 🌅">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Opciones (una por línea)</label>
+                    <textarea id="editMealOptions" rows="4" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="Opción 1&#10;Opción 2&#10;Opción 3"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Macros</label>
+                    <input type="text" id="editMealMacros" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: P:30g | C:45g | G:15g">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeEditMealModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
+                <button onclick="saveMealEdit()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Agregar Comida -->
+    <div id="addMealModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all max-h-[90vh] overflow-y-auto">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">➕ Nueva Comida</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Hora</label>
+                    <input type="text" id="addMealTime" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: 07:45">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Nombre</label>
+                    <input type="text" id="addMealName" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: Desayuno">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Emoji</label>
+                    <input type="text" id="addMealEmoji" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: 🌅">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Opciones (una por línea)</label>
+                    <textarea id="addMealOptions" rows="4" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="Opción 1&#10;Opción 2&#10;Opción 3"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Macros</label>
+                    <input type="text" id="addMealMacros" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: P:30g | C:45g | G:15g">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeAddMealModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
+                <button onclick="saveNewMeal()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Agregar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Meta Semanal -->
+    <div id="editGoalModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all max-h-[90vh] overflow-y-auto">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">✏️ Editar Meta Semanal</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Semana</label>
+                    <input type="number" id="editGoalWeek" min="1" max="12" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: 1">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Fechas</label>
+                    <input type="text" id="editGoalDates" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none" placeholder="ej: 2-8 Feb">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">💪 Meta Física</label>
+                    <input type="text" id="editGoalFisica" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">📚 Meta Personal</label>
+                    <input type="text" id="editGoalPersonal" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">📱 Meta Digital</label>
+                    <input type="text" id="editGoalDigital" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">🧘 Meta Espiritual</label>
+                    <input type="text" id="editGoalEspiritual" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeEditGoalModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
+                <button onclick="saveGoalEdit()" class="flex-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Data
         const startDate = new Date(2026, 1, 2);
@@ -132,14 +305,19 @@
         let checkedHabits = JSON.parse(localStorage.getItem('arantxa-habits') || '{}');
         let completedActivities = JSON.parse(localStorage.getItem('arantxa-activities') || '{}');
         let customSchedules = JSON.parse(localStorage.getItem('arantxa-custom-schedules') || '{}');
+        let customHabits = JSON.parse(localStorage.getItem('arantxa-custom-habits') || 'null');
+        let customGym = JSON.parse(localStorage.getItem('arantxa-custom-gym') || '{}');
+        let customMeals = JSON.parse(localStorage.getItem('arantxa-custom-meals') || 'null');
+        let customGoals = JSON.parse(localStorage.getItem('arantxa-custom-goals') || 'null');
 
         let editingIndex = null;
         let deletingIndex = null;
+        let deleteType = 'activity';
 
         const daysSpanish = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
         const monthsSpanish = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
-        const gymFocus = {
+        const defaultGymFocus = {
             0: { name: "Descanso Activo", icon: "🧘", exercises: ["Yoga suave 30-45min", "Estiramientos profundos 20min", "Caminata ligera opcional", "Meditación con movimiento 15min"] },
             1: { name: "Glúteos + Cuádriceps", icon: "🍑", exercises: ["Hip Thrust con barra 4x12", "Sentadilla profunda 4x10", "Prensa inclinada 4x12", "Zancadas caminando 3x12", "Extensión cuádriceps 3x15", "Abductores máquina 3x20"] },
             2: { name: "Isquios + Glúteos", icon: "🦵", exercises: ["Peso muerto rumano 4x10", "Curl femoral acostada 4x12", "Patada glúteo polea 3x15", "Puente glúteos elevado 4x15", "Good mornings 3x12", "Hip abduction 3x20"] },
@@ -149,7 +327,14 @@
             6: { name: "Baile + Stretching", icon: "💃", exercises: ["Clase baile/gimnasia 60-90min", "Estiramiento dinámico 15min", "Foam roller piernas 15min", "Yoga flow 20min"] }
         };
 
-        const habits = [
+        function getGymFocus(dayIndex) {
+            if (customGym[dayIndex]) {
+                return customGym[dayIndex];
+            }
+            return defaultGymFocus[dayIndex];
+        }
+
+        const defaultHabits = [
             { id: 1, name: "Despertar 7:00 AM", icon: "☀️" },
             { id: 2, name: "Agua al despertar (500ml)", icon: "💧" },
             { id: 3, name: "Suplementos tomados", icon: "💊" },
@@ -170,7 +355,23 @@
             { id: 18, name: "3L agua bebidos", icon: "💦" }
         ];
 
-        const weeklyGoals = [
+        function getHabits() {
+            return customHabits || defaultHabits;
+        }
+
+        const defaultMeals = [
+            { time: "07:45", name: "Desayuno", emoji: "🌅", options: ["Avena + proteína + frutos rojos", "Huevos revueltos + verduras + tostada integral", "Smoothie bowl proteico con semillas"], macros: "P:30g | C:45g | G:15g" },
+            { time: "10:30", name: "Snack AM", emoji: "🍎", options: ["Yogurt griego + nueces", "Fruta + almendras", "Batido verde proteico"], macros: "P:15g | C:20g | G:10g" },
+            { time: "12:00", name: "Almuerzo", emoji: "🥗", options: ["Proteína 150g (pollo/pescado/pavo)", "Carbohidrato complejo 1 taza", "Vegetales variados ilimitados", "Grasa saludable (aguacate)"], macros: "P:40g | C:50g | G:15g" },
+            { time: "16:00", name: "Post-Entreno", emoji: "💪", options: ["Proteína whey + banana + leche vegetal", "Yogurt griego + granola sin azúcar"], macros: "P:30g | C:30g | G:5g" },
+            { time: "20:00", name: "Cena", emoji: "🌙", options: ["Proteína magra 120g", "Vegetales al vapor o ensalada grande", "Sin carbohidratos pesados"], macros: "P:35g | C:20g | G:12g" }
+        ];
+
+        function getMeals() {
+            return customMeals || defaultMeals;
+        }
+
+        const defaultWeeklyGoals = [
             { week: 1, dates: "2-8 Feb", fisica: "Establecer rutina gym. Medir peso inicial", personal: "Inicio inglés intensivo + pasarela", digital: "Crear web básica", espiritual: "Establecer meditación diaria" },
             { week: 2, dates: "9-15 Feb", fisica: "Ajustar plan nutricional. -0.5kg grasa", personal: "Mejorar pronunciación inglés", digital: "5 posts. Contactar marcas", espiritual: "Journaling diario" },
             { week: 3, dates: "16-22 Feb", fisica: "Incrementar peso en glúteos", personal: "Conversaciones básicas inglés", digital: "12K seguidores. Portafolio", espiritual: "Bajar autoexigencia" },
@@ -180,6 +381,10 @@
             { week: 7, dates: "16-22 Mar", fisica: "Cuerpo óptimo. Piel radiante", personal: "Inglés intermedio-alto", digital: "19K. Portafolio completo", espiritual: "Nervios controlados" },
             { week: 8, dates: "23-30 Mar", fisica: "🎯 58kg, definición total", personal: "🎯 Inglés fluido, pasarela 100%", digital: "🎯 20K+, marca sólida", espiritual: "🎯 Confianza total" }
         ];
+
+        function getWeeklyGoals() {
+            return customGoals || defaultWeeklyGoals;
+        }
 
         const categoryColors = {
             habitos: { bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-700", badge: "bg-amber-100" },
@@ -198,7 +403,6 @@
         }
 
         function getSchedule(dayIndex, dateKey) {
-            // Check if there's a custom schedule for this date
             if (customSchedules[dateKey]) {
                 return customSchedules[dateKey];
             }
@@ -211,7 +415,7 @@
         }
 
         function getWeekdaySchedule(dayIndex) {
-            const gym = gymFocus[dayIndex];
+            const gym = getGymFocus(dayIndex);
             const schedule = [
                 { time: "06:45", activity: "Despertar + Agua tibia con limón 🍋", duration: "15 min", category: "habitos" },
                 { time: "07:00", activity: "Suplementos: Creatina + Omega 3 + Vitamina C", duration: "15 min", category: "nutricion" },
@@ -394,7 +598,7 @@
             render();
         }
 
-        // Edit Modal Functions
+        // ========== ACTIVITY MODALS ==========
         function openEditModal(index) {
             event.stopPropagation();
             editingIndex = index;
@@ -419,7 +623,6 @@
             const dateKey = getDateKey();
             let schedule = getSchedule(currentDate.getDay(), dateKey);
 
-            // If it's a default schedule, make a copy
             if (!customSchedules[dateKey]) {
                 schedule = JSON.parse(JSON.stringify(schedule));
             }
@@ -431,7 +634,6 @@
                 category: document.getElementById('editCategory').value
             };
 
-            // Sort by time
             schedule.sort((a, b) => a.time.localeCompare(b.time));
 
             saveCustomSchedule(dateKey, schedule);
@@ -439,15 +641,28 @@
             render();
         }
 
-        // Delete Modal Functions
-        function openDeleteModal(index) {
+        function openDeleteModal(index, type = 'activity') {
             event.stopPropagation();
             deletingIndex = index;
-            const dateKey = getDateKey();
-            const schedule = getSchedule(currentDate.getDay(), dateKey);
-            const item = schedule[index];
+            deleteType = type;
 
-            document.getElementById('deleteActivityName').textContent = `"${item.activity}"`;
+            let itemName = '';
+            if (type === 'activity') {
+                const dateKey = getDateKey();
+                const schedule = getSchedule(currentDate.getDay(), dateKey);
+                itemName = schedule[index].activity;
+            } else if (type === 'habit') {
+                itemName = getHabits()[index].name;
+            } else if (type === 'gym') {
+                const dayIndex = currentDate.getDay();
+                itemName = getGymFocus(dayIndex).exercises[index];
+            } else if (type === 'meal') {
+                itemName = getMeals()[index].name;
+            } else if (type === 'goal') {
+                itemName = `Semana ${getWeeklyGoals()[index].week}`;
+            }
+
+            document.getElementById('deleteActivityName').textContent = `"${itemName}"`;
             document.getElementById('deleteModal').classList.remove('hidden');
         }
 
@@ -457,18 +672,31 @@
         }
 
         function confirmDelete() {
+            if (deleteType === 'activity') {
+                deleteActivity();
+            } else if (deleteType === 'habit') {
+                deleteHabit();
+            } else if (deleteType === 'gym') {
+                deleteGymExercise();
+            } else if (deleteType === 'meal') {
+                deleteMeal();
+            } else if (deleteType === 'goal') {
+                deleteGoal();
+            }
+            closeDeleteModal();
+            render();
+        }
+
+        function deleteActivity() {
             const dateKey = getDateKey();
             let schedule = getSchedule(currentDate.getDay(), dateKey);
 
-            // If it's a default schedule, make a copy
             if (!customSchedules[dateKey]) {
                 schedule = JSON.parse(JSON.stringify(schedule));
             }
 
-            // Remove the activity
             schedule.splice(deletingIndex, 1);
 
-            // Update completed activities indices
             const newCompleted = {};
             Object.keys(completedActivities).forEach(key => {
                 if (key.startsWith(dateKey)) {
@@ -486,11 +714,8 @@
             localStorage.setItem('arantxa-activities', JSON.stringify(completedActivities));
 
             saveCustomSchedule(dateKey, schedule);
-            closeDeleteModal();
-            render();
         }
 
-        // Add Modal Functions
         function openAddModal() {
             document.getElementById('addTime').value = '';
             document.getElementById('addActivity').value = '';
@@ -517,14 +742,11 @@
             const dateKey = getDateKey();
             let schedule = getSchedule(currentDate.getDay(), dateKey);
 
-            // If it's a default schedule, make a copy
             if (!customSchedules[dateKey]) {
                 schedule = JSON.parse(JSON.stringify(schedule));
             }
 
             schedule.push({ time, activity, duration, category });
-
-            // Sort by time
             schedule.sort((a, b) => a.time.localeCompare(b.time));
 
             saveCustomSchedule(dateKey, schedule);
@@ -532,14 +754,12 @@
             render();
         }
 
-        // Reset day to default
         function resetDay() {
             if (confirm('¿Restaurar el plan original de este día? Se perderán los cambios.')) {
                 const dateKey = getDateKey();
                 delete customSchedules[dateKey];
                 localStorage.setItem('arantxa-custom-schedules', JSON.stringify(customSchedules));
 
-                // Clear completed activities for this day
                 Object.keys(completedActivities).forEach(key => {
                     if (key.startsWith(dateKey)) {
                         delete completedActivities[key];
@@ -547,6 +767,304 @@
                 });
                 localStorage.setItem('arantxa-activities', JSON.stringify(completedActivities));
 
+                render();
+            }
+        }
+
+        // ========== HABIT MODALS ==========
+        function openEditHabitModal(index) {
+            event.stopPropagation();
+            editingIndex = index;
+            const habit = getHabits()[index];
+
+            document.getElementById('editHabitIcon').value = habit.icon;
+            document.getElementById('editHabitName').value = habit.name;
+
+            document.getElementById('editHabitModal').classList.remove('hidden');
+        }
+
+        function closeEditHabitModal() {
+            document.getElementById('editHabitModal').classList.add('hidden');
+            editingIndex = null;
+        }
+
+        function saveHabitEdit() {
+            let habits = customHabits || JSON.parse(JSON.stringify(defaultHabits));
+
+            habits[editingIndex] = {
+                id: habits[editingIndex].id,
+                icon: document.getElementById('editHabitIcon').value,
+                name: document.getElementById('editHabitName').value
+            };
+
+            customHabits = habits;
+            localStorage.setItem('arantxa-custom-habits', JSON.stringify(customHabits));
+            closeEditHabitModal();
+            render();
+        }
+
+        function deleteHabit() {
+            let habits = customHabits || JSON.parse(JSON.stringify(defaultHabits));
+            habits.splice(deletingIndex, 1);
+            customHabits = habits;
+            localStorage.setItem('arantxa-custom-habits', JSON.stringify(customHabits));
+        }
+
+        function openAddHabitModal() {
+            document.getElementById('addHabitIcon').value = '⭐';
+            document.getElementById('addHabitName').value = '';
+            document.getElementById('addHabitModal').classList.remove('hidden');
+        }
+
+        function closeAddHabitModal() {
+            document.getElementById('addHabitModal').classList.add('hidden');
+        }
+
+        function saveNewHabit() {
+            const icon = document.getElementById('addHabitIcon').value;
+            const name = document.getElementById('addHabitName').value;
+
+            if (!name) {
+                alert('Por favor ingresa el nombre del hábito');
+                return;
+            }
+
+            let habits = customHabits || JSON.parse(JSON.stringify(defaultHabits));
+            const newId = Math.max(...habits.map(h => h.id)) + 1;
+            habits.push({ id: newId, icon, name });
+
+            customHabits = habits;
+            localStorage.setItem('arantxa-custom-habits', JSON.stringify(customHabits));
+            closeAddHabitModal();
+            render();
+        }
+
+        function resetHabits() {
+            if (confirm('¿Restaurar los hábitos originales?')) {
+                customHabits = null;
+                localStorage.removeItem('arantxa-custom-habits');
+                render();
+            }
+        }
+
+        // ========== GYM MODALS ==========
+        function openEditGymModal(index) {
+            event.stopPropagation();
+            editingIndex = index;
+            const dayIndex = currentDate.getDay();
+            const gym = getGymFocus(dayIndex);
+
+            document.getElementById('editGymExercise').value = gym.exercises[index];
+
+            document.getElementById('editGymModal').classList.remove('hidden');
+        }
+
+        function closeEditGymModal() {
+            document.getElementById('editGymModal').classList.add('hidden');
+            editingIndex = null;
+        }
+
+        function saveGymEdit() {
+            const dayIndex = currentDate.getDay();
+            let gym = customGym[dayIndex] || JSON.parse(JSON.stringify(defaultGymFocus[dayIndex]));
+
+            gym.exercises[editingIndex] = document.getElementById('editGymExercise').value;
+
+            customGym[dayIndex] = gym;
+            localStorage.setItem('arantxa-custom-gym', JSON.stringify(customGym));
+            closeEditGymModal();
+            render();
+        }
+
+        function deleteGymExercise() {
+            const dayIndex = currentDate.getDay();
+            let gym = customGym[dayIndex] || JSON.parse(JSON.stringify(defaultGymFocus[dayIndex]));
+            gym.exercises.splice(deletingIndex, 1);
+            customGym[dayIndex] = gym;
+            localStorage.setItem('arantxa-custom-gym', JSON.stringify(customGym));
+        }
+
+        function openAddGymModal() {
+            document.getElementById('addGymExercise').value = '';
+            document.getElementById('addGymModal').classList.remove('hidden');
+        }
+
+        function closeAddGymModal() {
+            document.getElementById('addGymModal').classList.add('hidden');
+        }
+
+        function saveNewGymExercise() {
+            const exercise = document.getElementById('addGymExercise').value;
+
+            if (!exercise) {
+                alert('Por favor ingresa el ejercicio');
+                return;
+            }
+
+            const dayIndex = currentDate.getDay();
+            let gym = customGym[dayIndex] || JSON.parse(JSON.stringify(defaultGymFocus[dayIndex]));
+            gym.exercises.push(exercise);
+
+            customGym[dayIndex] = gym;
+            localStorage.setItem('arantxa-custom-gym', JSON.stringify(customGym));
+            closeAddGymModal();
+            render();
+        }
+
+        function resetGym() {
+            if (confirm('¿Restaurar la rutina original de este día?')) {
+                const dayIndex = currentDate.getDay();
+                delete customGym[dayIndex];
+                localStorage.setItem('arantxa-custom-gym', JSON.stringify(customGym));
+                render();
+            }
+        }
+
+        // ========== MEAL MODALS ==========
+        function openEditMealModal(index) {
+            event.stopPropagation();
+            editingIndex = index;
+            const meal = getMeals()[index];
+
+            document.getElementById('editMealTime').value = meal.time;
+            document.getElementById('editMealName').value = meal.name;
+            document.getElementById('editMealEmoji').value = meal.emoji;
+            document.getElementById('editMealOptions').value = meal.options.join('\n');
+            document.getElementById('editMealMacros').value = meal.macros;
+
+            document.getElementById('editMealModal').classList.remove('hidden');
+        }
+
+        function closeEditMealModal() {
+            document.getElementById('editMealModal').classList.add('hidden');
+            editingIndex = null;
+        }
+
+        function saveMealEdit() {
+            let meals = customMeals || JSON.parse(JSON.stringify(defaultMeals));
+
+            meals[editingIndex] = {
+                time: document.getElementById('editMealTime').value,
+                name: document.getElementById('editMealName').value,
+                emoji: document.getElementById('editMealEmoji').value,
+                options: document.getElementById('editMealOptions').value.split('\n').filter(o => o.trim()),
+                macros: document.getElementById('editMealMacros').value
+            };
+
+            meals.sort((a, b) => a.time.localeCompare(b.time));
+
+            customMeals = meals;
+            localStorage.setItem('arantxa-custom-meals', JSON.stringify(customMeals));
+            closeEditMealModal();
+            render();
+        }
+
+        function deleteMeal() {
+            let meals = customMeals || JSON.parse(JSON.stringify(defaultMeals));
+            meals.splice(deletingIndex, 1);
+            customMeals = meals;
+            localStorage.setItem('arantxa-custom-meals', JSON.stringify(customMeals));
+        }
+
+        function openAddMealModal() {
+            document.getElementById('addMealTime').value = '';
+            document.getElementById('addMealName').value = '';
+            document.getElementById('addMealEmoji').value = '🍽️';
+            document.getElementById('addMealOptions').value = '';
+            document.getElementById('addMealMacros').value = '';
+            document.getElementById('addMealModal').classList.remove('hidden');
+        }
+
+        function closeAddMealModal() {
+            document.getElementById('addMealModal').classList.add('hidden');
+        }
+
+        function saveNewMeal() {
+            const time = document.getElementById('addMealTime').value;
+            const name = document.getElementById('addMealName').value;
+
+            if (!time || !name) {
+                alert('Por favor completa la hora y el nombre');
+                return;
+            }
+
+            let meals = customMeals || JSON.parse(JSON.stringify(defaultMeals));
+            meals.push({
+                time,
+                name,
+                emoji: document.getElementById('addMealEmoji').value || '🍽️',
+                options: document.getElementById('addMealOptions').value.split('\n').filter(o => o.trim()),
+                macros: document.getElementById('addMealMacros').value
+            });
+
+            meals.sort((a, b) => a.time.localeCompare(b.time));
+
+            customMeals = meals;
+            localStorage.setItem('arantxa-custom-meals', JSON.stringify(customMeals));
+            closeAddMealModal();
+            render();
+        }
+
+        function resetMeals() {
+            if (confirm('¿Restaurar el plan de comidas original?')) {
+                customMeals = null;
+                localStorage.removeItem('arantxa-custom-meals');
+                render();
+            }
+        }
+
+        // ========== GOAL MODALS ==========
+        function openEditGoalModal(index) {
+            event.stopPropagation();
+            editingIndex = index;
+            const goal = getWeeklyGoals()[index];
+
+            document.getElementById('editGoalWeek').value = goal.week;
+            document.getElementById('editGoalDates').value = goal.dates;
+            document.getElementById('editGoalFisica').value = goal.fisica;
+            document.getElementById('editGoalPersonal').value = goal.personal;
+            document.getElementById('editGoalDigital').value = goal.digital;
+            document.getElementById('editGoalEspiritual').value = goal.espiritual;
+
+            document.getElementById('editGoalModal').classList.remove('hidden');
+        }
+
+        function closeEditGoalModal() {
+            document.getElementById('editGoalModal').classList.add('hidden');
+            editingIndex = null;
+        }
+
+        function saveGoalEdit() {
+            let goals = customGoals || JSON.parse(JSON.stringify(defaultWeeklyGoals));
+
+            goals[editingIndex] = {
+                week: parseInt(document.getElementById('editGoalWeek').value),
+                dates: document.getElementById('editGoalDates').value,
+                fisica: document.getElementById('editGoalFisica').value,
+                personal: document.getElementById('editGoalPersonal').value,
+                digital: document.getElementById('editGoalDigital').value,
+                espiritual: document.getElementById('editGoalEspiritual').value
+            };
+
+            goals.sort((a, b) => a.week - b.week);
+
+            customGoals = goals;
+            localStorage.setItem('arantxa-custom-goals', JSON.stringify(customGoals));
+            closeEditGoalModal();
+            render();
+        }
+
+        function deleteGoal() {
+            let goals = customGoals || JSON.parse(JSON.stringify(defaultWeeklyGoals));
+            goals.splice(deletingIndex, 1);
+            customGoals = goals;
+            localStorage.setItem('arantxa-custom-goals', JSON.stringify(customGoals));
+        }
+
+        function resetGoals() {
+            if (confirm('¿Restaurar las metas originales?')) {
+                customGoals = null;
+                localStorage.removeItem('arantxa-custom-goals');
                 render();
             }
         }
@@ -587,7 +1105,7 @@
             const weeklyProgress = getWeeklyProgress();
             const totalProgress = getTotalProgress();
             const schedule = getSchedule(dayIndex, dateKey);
-            const gym = gymFocus[dayIndex];
+            const gym = getGymFocus(dayIndex);
             const isCustomized = !!customSchedules[dateKey];
 
             const app = document.getElementById('app');
@@ -680,7 +1198,6 @@
 
             return `
                 <div class="space-y-3">
-                    <!-- Daily Summary Card -->
                     <div class="bg-gradient-to-r from-rose-500 to-purple-600 rounded-2xl p-5 text-white shadow-lg mb-4">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-4">
@@ -700,7 +1217,6 @@
                         </div>
                     </div>
 
-                    <!-- Action Buttons -->
                     <div class="flex gap-2 mb-4">
                         <button onclick="openAddModal()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-purple-100">
                             <span class="text-xl">➕</span> Agregar Actividad
@@ -732,7 +1248,7 @@
                                         <button onclick="openEditModal(${idx})" class="btn-icon w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200" title="Editar">
                                             ✏️
                                         </button>
-                                        <button onclick="openDeleteModal(${idx})" class="btn-icon w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-200" title="Eliminar">
+                                        <button onclick="openDeleteModal(${idx}, 'activity')" class="btn-icon w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-200" title="Eliminar">
                                             🗑️
                                         </button>
                                     </div>
@@ -753,8 +1269,10 @@
         }
 
         function renderHabits(dateKey) {
+            const habits = getHabits();
             const completedCount = habits.filter(h => checkedHabits[`${dateKey}-${h.id}`]).length;
             const progress = Math.round((completedCount / habits.length) * 100);
+            const isCustomized = customHabits !== null;
 
             return `
                 <div class="space-y-4">
@@ -771,17 +1289,38 @@
                         </p>
                     </div>
 
+                    <div class="flex gap-2 mb-4">
+                        <button onclick="openAddHabitModal()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-purple-100">
+                            <span class="text-xl">➕</span> Agregar Hábito
+                        </button>
+                        ${isCustomized ? `
+                            <button onclick="resetHabits()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-gray-500 border-2 border-gray-100">
+                                <span class="text-xl">🔄</span> Restaurar
+                            </button>
+                        ` : ''}
+                    </div>
+
                     <div class="grid gap-3">
-                        ${habits.map(habit => {
+                        ${habits.map((habit, idx) => {
                             const isChecked = checkedHabits[`${dateKey}-${habit.id}`];
                             return `
-                                <button onclick="toggleHabit(${habit.id})" class="flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${isChecked ? 'habit-checked' : 'bg-white border-gray-100 hover:border-gray-200'}">
-                                    <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0 ${isChecked ? 'bg-purple-500 border-purple-500 text-white' : 'border-gray-300'}">
-                                        ${isChecked ? '✓' : ''}
+                                <div class="flex items-center gap-2 p-4 rounded-xl border-2 transition-all ${isChecked ? 'habit-checked' : 'bg-white border-gray-100 hover:border-gray-200'}">
+                                    <button onclick="toggleHabit(${habit.id})" class="flex items-center gap-4 flex-1 text-left">
+                                        <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0 ${isChecked ? 'bg-purple-500 border-purple-500 text-white' : 'border-gray-300'}">
+                                            ${isChecked ? '✓' : ''}
+                                        </div>
+                                        <span class="text-2xl">${habit.icon}</span>
+                                        <span class="font-medium ${isChecked ? 'text-purple-700' : 'text-gray-700'}">${habit.name}</span>
+                                    </button>
+                                    <div class="flex gap-1 flex-shrink-0">
+                                        <button onclick="openEditHabitModal(${idx})" class="btn-icon w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200 text-sm" title="Editar">
+                                            ✏️
+                                        </button>
+                                        <button onclick="openDeleteModal(${idx}, 'habit')" class="btn-icon w-9 h-9 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-200 text-sm" title="Eliminar">
+                                            🗑️
+                                        </button>
                                     </div>
-                                    <span class="text-2xl">${habit.icon}</span>
-                                    <span class="font-medium ${isChecked ? 'text-purple-700' : 'text-gray-700'}">${habit.name}</span>
-                                </button>
+                                </div>
                             `;
                         }).join('')}
                     </div>
@@ -790,6 +1329,8 @@
         }
 
         function renderGym(gym, dayIndex, weekNum) {
+            const isCustomized = !!customGym[dayIndex];
+
             return `
                 <div class="space-y-4">
                     <div class="bg-gradient-to-br from-rose-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
@@ -802,13 +1343,32 @@
                         </div>
                     </div>
 
+                    <div class="flex gap-2 mb-4">
+                        <button onclick="openAddGymModal()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-purple-100">
+                            <span class="text-xl">➕</span> Agregar Ejercicio
+                        </button>
+                        ${isCustomized ? `
+                            <button onclick="resetGym()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-gray-500 border-2 border-gray-100">
+                                <span class="text-xl">🔄</span> Restaurar
+                            </button>
+                        ` : ''}
+                    </div>
+
                     <div class="bg-white rounded-2xl p-5 shadow-sm">
                         <h4 class="font-bold text-gray-800 mb-4 flex items-center gap-2">💪 Ejercicios del día</h4>
                         <div class="space-y-3">
                             ${gym.exercises.map((ex, idx) => `
                                 <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                                     <span class="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">${idx + 1}</span>
-                                    <span class="text-gray-700">${ex}</span>
+                                    <span class="text-gray-700 flex-1">${ex}</span>
+                                    <div class="flex gap-1 flex-shrink-0">
+                                        <button onclick="openEditGymModal(${idx})" class="btn-icon w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200 text-sm" title="Editar">
+                                            ✏️
+                                        </button>
+                                        <button onclick="openDeleteModal(${idx}, 'gym')" class="btn-icon w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-200 text-sm" title="Eliminar">
+                                            🗑️
+                                        </button>
+                                    </div>
                                 </div>
                             `).join('')}
                         </div>
@@ -838,25 +1398,39 @@
         }
 
         function renderMeals() {
-            const meals = [
-                { time: "07:45", name: "Desayuno", emoji: "🌅", options: ["Avena + proteína + frutos rojos", "Huevos revueltos + verduras + tostada integral", "Smoothie bowl proteico con semillas"], macros: "P:30g | C:45g | G:15g" },
-                { time: "10:30", name: "Snack AM", emoji: "🍎", options: ["Yogurt griego + nueces", "Fruta + almendras", "Batido verde proteico"], macros: "P:15g | C:20g | G:10g" },
-                { time: "12:00", name: "Almuerzo", emoji: "🥗", options: ["Proteína 150g (pollo/pescado/pavo)", "Carbohidrato complejo 1 taza", "Vegetales variados ilimitados", "Grasa saludable (aguacate)"], macros: "P:40g | C:50g | G:15g" },
-                { time: "16:00", name: "Post-Entreno", emoji: "💪", options: ["Proteína whey + banana + leche vegetal", "Yogurt griego + granola sin azúcar"], macros: "P:30g | C:30g | G:5g" },
-                { time: "20:00", name: "Cena", emoji: "🌙", options: ["Proteína magra 120g", "Vegetales al vapor o ensalada grande", "Sin carbohidratos pesados"], macros: "P:35g | C:20g | G:12g" }
-            ];
+            const meals = getMeals();
+            const isCustomized = customMeals !== null;
 
             return `
                 <div class="space-y-4">
-                    ${meals.map(meal => `
+                    <div class="flex gap-2 mb-4">
+                        <button onclick="openAddMealModal()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-purple-100">
+                            <span class="text-xl">➕</span> Agregar Comida
+                        </button>
+                        ${isCustomized ? `
+                            <button onclick="resetMeals()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-gray-500 border-2 border-gray-100">
+                                <span class="text-xl">🔄</span> Restaurar
+                            </button>
+                        ` : ''}
+                    </div>
+
+                    ${meals.map((meal, idx) => `
                         <div class="bg-white rounded-2xl p-5 shadow-sm card-hover">
                             <div class="flex items-center gap-3 mb-3">
                                 <span class="text-4xl">${meal.emoji}</span>
-                                <div>
+                                <div class="flex-1">
                                     <h4 class="font-bold text-gray-800">${meal.name}</h4>
                                     <p class="text-sm text-gray-500">${meal.time}</p>
                                 </div>
-                                <span class="ml-auto text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium">${meal.macros}</span>
+                                <span class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium">${meal.macros}</span>
+                                <div class="flex gap-1 flex-shrink-0">
+                                    <button onclick="openEditMealModal(${idx})" class="btn-icon w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200 text-sm" title="Editar">
+                                        ✏️
+                                    </button>
+                                    <button onclick="openDeleteModal(${idx}, 'meal')" class="btn-icon w-9 h-9 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-200 text-sm" title="Eliminar">
+                                        🗑️
+                                    </button>
+                                </div>
                             </div>
                             <div class="space-y-2">
                                 ${meal.options.map(opt => `
@@ -896,9 +1470,20 @@
         }
 
         function renderGoals(currentWeek) {
+            const goals = getWeeklyGoals();
+            const isCustomized = customGoals !== null;
+
             return `
                 <div class="space-y-4">
-                    ${weeklyGoals.map(goal => `
+                    <div class="flex gap-2 mb-4">
+                        ${isCustomized ? `
+                            <button onclick="resetGoals()" class="flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-gray-500 border-2 border-gray-100">
+                                <span class="text-xl">🔄</span> Restaurar Metas Originales
+                            </button>
+                        ` : ''}
+                    </div>
+
+                    ${goals.map((goal, idx) => `
                         <div class="rounded-2xl p-5 shadow-sm transition-all ${
                             goal.week === currentWeek
                                 ? 'bg-gradient-to-r from-rose-500 to-purple-600 text-white ring-4 ring-purple-200 glow'
@@ -912,11 +1497,14 @@
                                 }">
                                     ${goal.week < currentWeek ? '✓' : goal.week}
                                 </span>
-                                <div>
+                                <div class="flex-1">
                                     <h4 class="font-bold text-lg">Semana ${goal.week}</h4>
                                     <p class="text-sm ${goal.week === currentWeek ? 'text-white/80' : 'text-gray-500'}">${goal.dates}</p>
                                 </div>
-                                ${goal.week === currentWeek ? '<span class="ml-auto px-3 py-1 bg-white/20 rounded-full text-sm animate-pulse">📍 Estás aquí</span>' : ''}
+                                ${goal.week === currentWeek ? '<span class="px-3 py-1 bg-white/20 rounded-full text-sm animate-pulse">📍 Estás aquí</span>' : ''}
+                                <button onclick="openEditGoalModal(${idx})" class="btn-icon w-10 h-10 rounded-full ${goal.week === currentWeek ? 'bg-white/20 text-white hover:bg-white/30' : 'bg-blue-100 text-blue-600 hover:bg-blue-200'} flex items-center justify-center" title="Editar">
+                                    ✏️
+                                </button>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                                 <div class="p-3 rounded-xl ${goal.week === currentWeek ? 'bg-white/10' : 'bg-rose-50'}">
