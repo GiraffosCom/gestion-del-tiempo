@@ -4675,9 +4675,9 @@
                             <span class="text-lg">➕</span>
                             <span class="text-xs">Agregar</span>
                         </button>
-                        <button onclick="openTemplateModal()" class="flex flex-col items-center justify-center gap-1 px-2 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition text-blue-600 border border-blue-100" title="Plantillas">
-                            <span class="text-lg">📋</span>
-                            <span class="text-xs">Plantillas</span>
+                        <button onclick="focusSearchInput()" class="flex flex-col items-center justify-center gap-1 px-2 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition text-blue-600 border border-blue-100" title="Buscar">
+                            <span class="text-lg">🔍</span>
+                            <span class="text-xs">Buscar</span>
                         </button>
                         <button onclick="openCleanModal('agenda')" class="flex flex-col items-center justify-center gap-1 px-2 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition text-orange-500 border border-orange-100" title="Limpiar">
                             <span class="text-lg">🧹</span>
@@ -6833,6 +6833,17 @@
         }
 
         // Search and Filter Functions
+        function focusSearchInput() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(() => {
+                    searchInput.focus();
+                    searchInput.select();
+                }, 300);
+            }
+        }
+
         function filterActivities() {
             const input = document.getElementById('searchInput');
             searchQuery = input ? input.value : '';
