@@ -638,6 +638,115 @@ class SupabaseAPI {
         }
     }
 
+    // ==================== User Data Sync ====================
+
+    /**
+     * Get user data by type and key
+     */
+    async getUserData(customerId, dataType, dataKey = null) {
+        const filters = [
+            ['customer_id', 'eq', customerId],
+            ['data_type', 'eq', dataType]
+        ];
+
+        if (dataKey) {
+            filters.push(['data_key', 'eq', dataKey]);
+        }
+
+        const result = await this.request('user_data', { filters });
+        return result;
+    }
+
+    /**
+     * Save user data (upsert)
+     */
+    async saveUserData(customerId, dataType, dataKey, dataValue) {
+        // First try to find existing record
+        const existing = await this.getUserData(customerId, dataType, dataKey);
+
+        if (existing && existing.length > 0) {
+            // Update existing
+            const url = `${this.supabaseUrl}/rest/v1/user_data?id=eq.${existing[0].id}`;
+            const response = await fetch(url, {
+                method: 'PATCH',
+                headers: {
+                    'apikey': this.supabaseKey,
+                    'Authorization': `Bearer ${this.supabaseKey}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                },
+                body: JSON.stringify({
+                    data_value: dataValue,
+                    updated_at: new Date().toISOString()
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Error updating user data');
+            }
+            return response.json();
+        } else {
+            // Insert new
+            const result = await this.request('user_data', {
+                method: 'POST',
+                body: {
+                    customer_id: customerId,
+                    data_type: dataType,
+                    data_key: dataKey,
+                    data_value: dataValue,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                }
+            });
+            return result;
+        }
+    }
+
+    /**
+     * Delete user data
+     */
+    async deleteUserData(customerId, dataType, dataKey = null) {
+        let url = `${this.supabaseUrl}/rest/v1/user_data?customer_id=eq.${customerId}&data_type=eq.${dataType}`;
+
+        if (dataKey) {
+            url += `&data_key=eq.${encodeURIComponent(dataKey)}`;
+        }
+
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'apikey': this.supabaseKey,
+                'Authorization': `Bearer ${this.supabaseKey}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Error deleting user data');
+        }
+
+        return { success: true };
+    }
+
+    /**
+     * Bulk save user data (for initial sync)
+     */
+    async bulkSaveUserData(customerId, dataItems) {
+        const promises = dataItems.map(item =>
+            this.saveUserData(customerId, item.dataType, item.dataKey, item.dataValue)
+        );
+        return Promise.all(promises);
+    }
+
+    /**
+     * Get all user data for sync
+     */
+    async getAllUserData(customerId) {
+        return this.request('user_data', {
+            filters: [['customer_id', 'eq', customerId]],
+            order: 'updated_at.desc'
+        });
+    }
+
     // ==================== Authentication ====================
 
     /**

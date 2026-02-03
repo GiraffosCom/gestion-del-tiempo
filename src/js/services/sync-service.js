@@ -65,7 +65,7 @@ class SyncService {
     }
 
     /**
-     * Initialize user - get or create
+     * Initialize user - get from customers table
      */
     async initUser(email, name = '') {
         if (!email) {
@@ -76,24 +76,20 @@ class SyncService {
         this.userEmail = email;
 
         try {
-            // Try to get existing user
-            let users = await this.request('app_users', {
+            // Try to get existing user from customers table
+            let users = await this.request('customers', {
                 filters: [['email', 'eq', email]]
             });
 
             if (users.length > 0) {
                 this.userId = users[0].id;
+                console.log('Sync service initialized with customer ID:', this.userId);
                 return users[0];
             }
 
-            // Create new user
-            const newUser = await this.request('app_users', {
-                method: 'POST',
-                body: { email, name }
-            });
-
-            this.userId = Array.isArray(newUser) ? newUser[0].id : newUser.id;
-            return Array.isArray(newUser) ? newUser[0] : newUser;
+            // User not found in Supabase - they may have registered locally only
+            console.log('User not found in Supabase, using localStorage only');
+            return null;
         } catch (error) {
             console.error('Error initializing user:', error);
             return null;
@@ -107,7 +103,7 @@ class SyncService {
         if (!this.userId) return null;
 
         try {
-            const url = `${this.supabaseUrl}/rest/v1/app_users?id=eq.${this.userId}`;
+            const url = `${this.supabaseUrl}/rest/v1/customers?id=eq.${this.userId}`;
             const response = await fetch(url, {
                 method: 'PATCH',
                 headers: {
@@ -125,13 +121,118 @@ class SyncService {
         }
     }
 
+    // ==================== Generic User Data ====================
+
+    /**
+     * Get user data by type
+     */
+    async getUserData(dataType, dataKey = null) {
+        if (!this.userId) return null;
+
+        try {
+            const filters = [
+                ['customer_id', 'eq', this.userId],
+                ['data_type', 'eq', dataType]
+            ];
+
+            if (dataKey) {
+                filters.push(['data_key', 'eq', dataKey]);
+            }
+
+            const result = await this.request('user_data', { filters });
+            return result;
+        } catch (error) {
+            console.error('Error getting user data:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Save user data (upsert)
+     */
+    async saveUserData(dataType, dataKey, dataValue) {
+        // Always save to localStorage first
+        const localKey = `${this.userEmail.replace(/[^a-z0-9]/gi, '_')}-${dataType}${dataKey ? '-' + dataKey : ''}`;
+        localStorage.setItem(localKey, JSON.stringify(dataValue));
+
+        if (!this.userId || !this.isOnline) return { local: true };
+
+        try {
+            // Check if exists
+            const existing = await this.getUserData(dataType, dataKey);
+
+            if (existing && existing.length > 0) {
+                // Update existing
+                const url = `${this.supabaseUrl}/rest/v1/user_data?id=eq.${existing[0].id}`;
+                const response = await fetch(url, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': this.supabaseKey,
+                        'Authorization': `Bearer ${this.supabaseKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify({
+                        data_value: dataValue,
+                        updated_at: new Date().toISOString()
+                    })
+                });
+                return response.json();
+            } else {
+                // Insert new
+                const result = await this.request('user_data', {
+                    method: 'POST',
+                    body: {
+                        customer_id: this.userId,
+                        data_type: dataType,
+                        data_key: dataKey || dataType,
+                        data_value: dataValue,
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    }
+                });
+                return result;
+            }
+        } catch (error) {
+            console.error('Error saving user data:', error);
+            return { local: true, error: error.message };
+        }
+    }
+
+    /**
+     * Get all user data and sync to localStorage
+     */
+    async downloadAllUserData() {
+        if (!this.userId || !this.isOnline) return false;
+
+        try {
+            const allData = await this.request('user_data', {
+                filters: [['customer_id', 'eq', this.userId]],
+                order: 'updated_at.desc'
+            });
+
+            const userKey = this.userEmail.replace(/[^a-z0-9]/gi, '_');
+
+            for (const item of allData) {
+                const localKey = `${userKey}-${item.data_type}${item.data_key && item.data_key !== item.data_type ? '-' + item.data_key : ''}`;
+                localStorage.setItem(localKey, JSON.stringify(item.data_value));
+            }
+
+            console.log(`Downloaded ${allData.length} data items from Supabase`);
+            return true;
+        } catch (error) {
+            console.error('Error downloading user data:', error);
+            return false;
+        }
+    }
+
     // ==================== Habits ====================
 
     async getHabits(date = null) {
         if (!this.userId) return this.getLocalHabits(date);
 
         try {
-            const filters = [['user_id', 'eq', this.userId]];
+            const filters = [['customer_id', 'eq', this.userId]];
             if (date) {
                 filters.push(['date', 'eq', date]);
             }
@@ -158,7 +259,7 @@ class SyncService {
 
         try {
             const habitData = {
-                user_id: this.userId,
+                customer_id: this.userId,
                 icon: habit.icon,
                 name: habit.name,
                 date: habit.date || new Date().toISOString().split('T')[0],
@@ -238,7 +339,7 @@ class SyncService {
         if (!this.userId) return this.getLocalSchedule(date);
 
         try {
-            const filters = [['user_id', 'eq', this.userId]];
+            const filters = [['customer_id', 'eq', this.userId]];
             if (date) {
                 filters.push(['date', 'eq', date]);
             }
@@ -263,7 +364,7 @@ class SyncService {
 
         try {
             const itemData = {
-                user_id: this.userId,
+                customer_id: this.userId,
                 date: item.date || new Date().toISOString().split('T')[0],
                 time: item.time,
                 activity: item.activity,
@@ -322,7 +423,7 @@ class SyncService {
         if (!this.userId) return this.getLocalGoals();
 
         try {
-            const filters = [['user_id', 'eq', this.userId]];
+            const filters = [['customer_id', 'eq', this.userId]];
             if (weekStart) {
                 filters.push(['week_start', 'eq', weekStart]);
             }
@@ -348,14 +449,14 @@ class SyncService {
         try {
             const weekStart = this.getWeekStart();
             const goalData = {
-                user_id: this.userId,
+                customer_id: this.userId,
                 week_start: goal.week_start || weekStart,
                 category: goal.category,
                 goal_text: goal.goal_text || goal.text,
                 completed: goal.completed || false
             };
 
-            // Use upsert for goals (unique by user_id, week_start, category)
+            // Use upsert for goals (unique by customer_id, week_start, category)
             const result = await this.request('goals', {
                 method: 'POST',
                 body: goalData,
@@ -374,7 +475,7 @@ class SyncService {
         if (!this.userId) return this.getLocalExpenses();
 
         try {
-            const filters = [['user_id', 'eq', this.userId]];
+            const filters = [['customer_id', 'eq', this.userId]];
             if (startDate) filters.push(['date', 'gte', startDate]);
             if (endDate) filters.push(['date', 'lte', endDate]);
 
@@ -398,7 +499,7 @@ class SyncService {
 
         try {
             const expenseData = {
-                user_id: this.userId,
+                customer_id: this.userId,
                 amount: expense.amount,
                 description: expense.description,
                 category: expense.category,
@@ -438,20 +539,56 @@ class SyncService {
     // ==================== Sync All ====================
 
     async syncAll() {
-        if (!this.userId || !this.isOnline) return;
+        if (!this.userId || !this.isOnline) {
+            console.log('Cannot sync - offline or no user ID');
+            return;
+        }
 
         console.log('Syncing all data with Supabase...');
 
         try {
-            // Sync local data that hasn't been synced
+            // First download any data from Supabase that we don't have locally
+            await this.downloadAllUserData();
+
+            // Then sync local data that hasn't been synced
             await this.syncLocalHabits();
             await this.syncLocalSchedule();
             await this.syncLocalGoals();
             await this.syncLocalExpenses();
+            await this.uploadLocalUserData();
 
             console.log('Sync completed');
         } catch (error) {
             console.error('Sync error:', error);
+        }
+    }
+
+    /**
+     * Upload all local user data to Supabase
+     */
+    async uploadLocalUserData() {
+        if (!this.userId || !this.userEmail) return;
+
+        const userKey = this.userEmail.replace(/[^a-z0-9]/gi, '_');
+        const dataTypes = [
+            'custom-habits', 'custom-gym', 'custom-goals', 'gym',
+            'meals', 'weights', 'workout-logs', 'protein-log',
+            'protein-favorites', 'notes', 'user-profile',
+            'reminder-settings', 'notifications'
+        ];
+
+        for (const dataType of dataTypes) {
+            const localKey = `${userKey}-${dataType}`;
+            const localData = localStorage.getItem(localKey);
+
+            if (localData) {
+                try {
+                    const value = JSON.parse(localData);
+                    await this.saveUserData(dataType, dataType, value);
+                } catch (e) {
+                    // Skip invalid JSON
+                }
+            }
         }
     }
 
