@@ -1947,6 +1947,20 @@
             if (notifMenu && !notifMenu.contains(e.target) && !notifBtn) {
                 notifMenu.classList.add('hidden');
             }
+
+            // Handle expense edit button clicks
+            const editExpenseBtn = e.target.closest('.edit-expense-btn');
+            if (editExpenseBtn) {
+                const idx = parseInt(editExpenseBtn.dataset.expenseIdx);
+                openEditExpenseModal(idx);
+            }
+
+            // Handle expense delete button clicks
+            const deleteExpenseBtn = e.target.closest('.delete-expense-btn');
+            if (deleteExpenseBtn) {
+                const idx = parseInt(deleteExpenseBtn.dataset.expenseIdx);
+                deleteExpense(idx);
+            }
         });
 
         // ==================== NOTIFICATIONS SYSTEM ====================
@@ -8914,8 +8928,9 @@
                 byCategory[e.category] += parseFloat(e.total || 0);
             });
 
-            // Get recent expenses (last 10)
+            // Get recent expenses (last 10) - store globally for event handlers
             const recentExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
+            window.currentRecentExpenses = recentExpenses;
 
             const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
@@ -8982,7 +8997,7 @@
                             </div>
                         ` : `
                             <div class="space-y-2">
-                                ${recentExpenses.map((expense) => `
+                                ${recentExpenses.map((expense, idx) => `
                                     <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition">
                                         <span class="text-2xl">${getExpenseCategoryIcon(expense.category)}</span>
                                         <div class="flex-1 min-w-0">
@@ -8992,10 +9007,10 @@
                                         <div class="text-right">
                                             <p class="font-bold text-gray-800">$${parseFloat(expense.total).toLocaleString('es-CL', {minimumFractionDigits: 0})}</p>
                                         </div>
-                                        <button onclick="openEditExpenseModal('${expense.id}')" class="p-2 text-gray-400 hover:text-blue-500 transition" title="Editar">
+                                        <button class="edit-expense-btn p-2 text-gray-400 hover:text-blue-500 transition" data-expense-idx="${idx}" title="Editar">
                                             ✏️
                                         </button>
-                                        <button onclick="deleteExpense('${expense.id}')" class="p-2 text-gray-400 hover:text-red-500 transition" title="Eliminar">
+                                        <button class="delete-expense-btn p-2 text-gray-400 hover:text-red-500 transition" data-expense-idx="${idx}" title="Eliminar">
                                             🗑️
                                         </button>
                                     </div>
@@ -9354,17 +9369,16 @@
 
         let editingExpenseId = null;
 
-        function openEditExpenseModal(expenseId) {
-            const expenses = getExpenses();
-            // Compare as strings to handle large numbers
-            const expense = expenses.find(e => String(e.id) === String(expenseId));
+        function openEditExpenseModal(recentIdx) {
+            const recentExpenses = window.currentRecentExpenses || [];
+            const expense = recentExpenses[recentIdx];
 
             if (!expense) {
                 alert('No se encontró el gasto');
                 return;
             }
 
-            editingExpenseId = expenseId;
+            editingExpenseId = expense.id;
 
             // Populate category dropdown
             const categorySelect = document.getElementById('editExpenseCategory');
@@ -9423,11 +9437,16 @@
             render();
         }
 
-        function deleteExpense(expenseId) {
+        function deleteExpense(recentIdx) {
             if (!confirm('¿Eliminar este gasto?')) return;
 
+            const recentExpenses = window.currentRecentExpenses || [];
+            const expenseToDelete = recentExpenses[recentIdx];
+
+            if (!expenseToDelete) return;
+
             const expenses = getExpenses();
-            const index = expenses.findIndex(e => String(e.id) === String(expenseId));
+            const index = expenses.findIndex(e => String(e.id) === String(expenseToDelete.id));
             if (index !== -1) {
                 expenses.splice(index, 1);
                 saveExpenses(expenses);
