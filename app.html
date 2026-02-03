@@ -1178,6 +1178,50 @@
         </div>
     </div>
 
+    <!-- Modal Editar Gasto -->
+    <div id="editExpenseModal" class="fixed inset-0 modal-backdrop z-[60] hidden flex items-center justify-center p-4" onclick="closeEditExpenseModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-800">✏️ Editar Gasto</h3>
+                <button onclick="closeEditExpenseModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tienda / Comercio</label>
+                    <input type="text" id="editExpenseStore" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none" placeholder="Nombre del comercio">
+                </div>
+                <div class="flex gap-3">
+                    <div class="flex-1 min-w-0">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+                        <input type="date" id="editExpenseDate" class="w-full px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none text-sm">
+                    </div>
+                    <div class="w-24 flex-shrink-0">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Total $</label>
+                        <input type="number" step="1" id="editExpenseTotal" class="w-full px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none text-sm text-right" placeholder="0">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                    <select id="editExpenseCategory" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none bg-white"></select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Descripción (opcional)</label>
+                    <input type="text" id="editExpenseDescription" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none" placeholder="Detalles adicionales">
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeEditExpenseModal()" class="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">
+                    Cancelar
+                </button>
+                <button onclick="saveEditedExpense()" class="flex-1 px-4 py-3 theme-btn rounded-xl font-medium hover:opacity-90 transition">
+                    💾 Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Administrar Categorías -->
     <div id="categoriesModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeCategoriesModal()">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 transform transition-all max-h-[85vh] overflow-y-auto" onclick="event.stopPropagation()">
@@ -3609,6 +3653,43 @@
             render();
         }
 
+        function moveActivity(index, direction) {
+            const dateKey = getDateKey();
+            let schedule = getSchedule();
+
+            // Make a copy of the current schedule if not already customized
+            if (!customSchedules[dateKey]) {
+                customSchedules[dateKey] = JSON.parse(JSON.stringify(schedule));
+                schedule = customSchedules[dateKey];
+            } else {
+                schedule = customSchedules[dateKey];
+            }
+
+            const newIndex = index + direction;
+
+            // Validate bounds
+            if (newIndex < 0 || newIndex >= schedule.length) return;
+
+            // Swap activities
+            const temp = schedule[index];
+            schedule[index] = schedule[newIndex];
+            schedule[newIndex] = temp;
+
+            // Also swap completion status
+            const key1 = `${dateKey}-${index}`;
+            const key2 = `${dateKey}-${newIndex}`;
+            const tempCompleted = completedActivities[key1];
+            completedActivities[key1] = completedActivities[key2];
+            completedActivities[key2] = tempCompleted;
+
+            // Save changes
+            customSchedules[dateKey] = schedule;
+            setStorage('custom-schedules', JSON.stringify(customSchedules));
+            setStorage('activities', JSON.stringify(completedActivities));
+
+            render();
+        }
+
         // Animación de celebración con emojis (3 opciones aleatorias)
         function showCelebration() {
             const emojiSets = [
@@ -5508,6 +5589,14 @@
                                         <p class="font-medium ${isCompleted ? 'line-through text-gray-400' : 'text-gray-800'}">${item.activity}</p>
                                     </div>
                                     <div class="flex gap-1 flex-shrink-0">
+                                        <div class="flex flex-col gap-0.5 mr-1">
+                                            <button onclick="moveActivity(${originalIdx}, -1)" class="btn-icon w-7 h-7 rounded bg-gray-100 text-gray-500 flex items-center justify-center hover:bg-gray-200 text-xs ${originalIdx === 0 ? 'opacity-30 cursor-not-allowed' : ''}" title="Subir" ${originalIdx === 0 ? 'disabled' : ''}>
+                                                ▲
+                                            </button>
+                                            <button onclick="moveActivity(${originalIdx}, 1)" class="btn-icon w-7 h-7 rounded bg-gray-100 text-gray-500 flex items-center justify-center hover:bg-gray-200 text-xs ${originalIdx === schedule.length - 1 ? 'opacity-30 cursor-not-allowed' : ''}" title="Bajar" ${originalIdx === schedule.length - 1 ? 'disabled' : ''}>
+                                                ▼
+                                            </button>
+                                        </div>
                                         <button onclick="openEditModal(${originalIdx})" class="btn-icon w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200" title="Editar">
                                             ✏️
                                         </button>
@@ -8852,6 +8941,9 @@
                                         <div class="text-right">
                                             <p class="font-bold text-gray-800">$${parseFloat(expense.total).toLocaleString('es-CL', {minimumFractionDigits: 0})}</p>
                                         </div>
+                                        <button onclick="openEditExpenseModal(${idx})" class="p-2 text-gray-400 hover:text-blue-500 transition" title="Editar">
+                                            ✏️
+                                        </button>
                                         <button onclick="deleteExpense(${idx})" class="p-2 text-gray-400 hover:text-red-500 transition" title="Eliminar">
                                             🗑️
                                         </button>
@@ -9215,6 +9307,67 @@
             const expenses = getExpenses();
             expenses.splice(index, 1);
             saveExpenses(expenses);
+            render();
+        }
+
+        let editingExpenseIndex = null;
+
+        function openEditExpenseModal(index) {
+            editingExpenseIndex = index;
+            const expenses = getExpenses();
+            const expense = expenses[index];
+
+            if (!expense) return;
+
+            // Populate category dropdown
+            const categorySelect = document.getElementById('editExpenseCategory');
+            const categories = getExpenseCategories();
+            categorySelect.innerHTML = categories.map(cat =>
+                `<option value="${cat.id}" ${expense.category === cat.id ? 'selected' : ''}>${cat.emoji} ${cat.name}</option>`
+            ).join('');
+
+            // Populate fields
+            document.getElementById('editExpenseStore').value = expense.store || '';
+            document.getElementById('editExpenseDate').value = expense.date || '';
+            document.getElementById('editExpenseTotal').value = expense.total || '';
+            document.getElementById('editExpenseDescription').value = expense.description || '';
+
+            document.getElementById('editExpenseModal').classList.remove('hidden');
+        }
+
+        function closeEditExpenseModal() {
+            document.getElementById('editExpenseModal').classList.add('hidden');
+            editingExpenseIndex = null;
+        }
+
+        function saveEditedExpense() {
+            if (editingExpenseIndex === null) return;
+
+            const store = document.getElementById('editExpenseStore').value.trim();
+            const date = document.getElementById('editExpenseDate').value;
+            const total = document.getElementById('editExpenseTotal').value;
+            const category = document.getElementById('editExpenseCategory').value;
+            const description = document.getElementById('editExpenseDescription').value.trim();
+
+            if (!total || parseFloat(total) <= 0) {
+                alert('Por favor ingresa un monto válido');
+                return;
+            }
+
+            const expenses = getExpenses();
+            const expense = expenses[editingExpenseIndex];
+
+            // Update expense fields
+            expense.store = store || 'Sin nombre';
+            expense.date = date || getTodayKey();
+            expense.total = parseFloat(total);
+            expense.category = category;
+            expense.description = description;
+            expense.updatedAt = new Date().toISOString();
+
+            saveExpenses(expenses);
+            closeEditExpenseModal();
+            addNotification('Gasto actualizado', '✏️');
             render();
         }
 
