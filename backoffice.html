@@ -882,22 +882,32 @@
             content.className = 'p-6 text-slate-400 text-center';
             modal.classList.remove('hidden');
 
+            // Try to load from localStorage first (for local customers)
+            const users = JSON.parse(localStorage.getItem('gestion-users') || '{}');
+            const localUser = users[email];
+
             if (isConnected) {
                 try {
                     const data = await supabaseAPI.getCustomerDetails(email);
                     renderCustomerDetail(data);
                 } catch (e) {
-                    console.error('Error loading customer:', e);
-                    content.textContent = 'Error al cargar datos: ' + e.message;
-                    content.className = 'p-6 text-red-400 text-center';
+                    // Fallback to localStorage if not found in Supabase
+                    if (localUser) {
+                        renderCustomerDetail({
+                            customer: { full_name: localUser.name, email: email, created_at: localUser.createdAt },
+                            subscriptions: [],
+                            payments: []
+                        });
+                    } else {
+                        console.error('Error loading customer:', e);
+                        content.textContent = 'Error al cargar datos: ' + e.message;
+                        content.className = 'p-6 text-red-400 text-center';
+                    }
                 }
             } else {
-                // Load from localStorage
-                const users = JSON.parse(localStorage.getItem('gestion-users') || '{}');
-                const user = users[email];
-                if (user) {
+                if (localUser) {
                     renderCustomerDetail({
-                        customer: { full_name: user.name, email: email, created_at: user.createdAt },
+                        customer: { full_name: localUser.name, email: email, created_at: localUser.createdAt },
                         subscriptions: [],
                         payments: []
                     });
