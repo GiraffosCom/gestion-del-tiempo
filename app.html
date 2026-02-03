@@ -8992,10 +8992,10 @@
                                         <div class="text-right">
                                             <p class="font-bold text-gray-800">$${parseFloat(expense.total).toLocaleString('es-CL', {minimumFractionDigits: 0})}</p>
                                         </div>
-                                        <button onclick="openEditExpenseModal(${expense.id})" class="p-2 text-gray-400 hover:text-blue-500 transition" title="Editar">
+                                        <button onclick="openEditExpenseModal('${expense.id}')" class="p-2 text-gray-400 hover:text-blue-500 transition" title="Editar">
                                             ✏️
                                         </button>
-                                        <button onclick="deleteExpense(${expense.id})" class="p-2 text-gray-400 hover:text-red-500 transition" title="Eliminar">
+                                        <button onclick="deleteExpense('${expense.id}')" class="p-2 text-gray-400 hover:text-red-500 transition" title="Eliminar">
                                             🗑️
                                         </button>
                                     </div>
@@ -9356,7 +9356,8 @@
 
         function openEditExpenseModal(expenseId) {
             const expenses = getExpenses();
-            const expense = expenses.find(e => e.id === expenseId);
+            // Compare as strings to handle large numbers
+            const expense = expenses.find(e => String(e.id) === String(expenseId));
 
             if (!expense) {
                 alert('No se encontró el gasto');
@@ -9401,7 +9402,7 @@
             }
 
             const expenses = getExpenses();
-            const expenseIndex = expenses.findIndex(e => e.id === editingExpenseId);
+            const expenseIndex = expenses.findIndex(e => String(e.id) === String(editingExpenseId));
 
             if (expenseIndex === -1) {
                 alert('No se encontró el gasto');
@@ -9426,7 +9427,7 @@
             if (!confirm('¿Eliminar este gasto?')) return;
 
             const expenses = getExpenses();
-            const index = expenses.findIndex(e => e.id === expenseId);
+            const index = expenses.findIndex(e => String(e.id) === String(expenseId));
             if (index !== -1) {
                 expenses.splice(index, 1);
                 saveExpenses(expenses);
