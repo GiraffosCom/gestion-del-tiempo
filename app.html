@@ -10,6 +10,7 @@
     <title>Mi Plan - Gestión del Tiempo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="src/js/services/sync-service.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Módulos refactorizados -->
     <script type="module" src="src/js/legacy-bridge.js"></script>
@@ -1481,6 +1482,19 @@
         // User-specific storage key prefix
         const userKey = currentUser ? currentUser.email.replace(/[^a-z0-9]/gi, '_') : 'guest';
 
+        // Initialize Supabase sync service
+        if (currentUser && currentUser.email && typeof syncService !== 'undefined') {
+            syncService.initUser(currentUser.email, currentUser.name || '').then(user => {
+                if (user) {
+                    console.log('Sync service initialized for:', currentUser.email);
+                    // Sync data on load
+                    syncService.syncAll();
+                }
+            }).catch(err => {
+                console.log('Sync service offline, using localStorage');
+            });
+        }
+
         function getStorage(key) {
             return localStorage.getItem(`${userKey}-${key}`);
         }
@@ -1844,6 +1858,23 @@
 
         function setStorage(key, value) {
             localStorage.setItem(`${userKey}-${key}`, value);
+
+            // Auto-sync important data to Supabase
+            if (typeof syncService !== 'undefined' && syncService.userId) {
+                try {
+                    if (key === 'habits') {
+                        const habits = JSON.parse(value || '{}');
+                        Object.entries(habits).forEach(([habitKey, completed]) => {
+                            if (completed) {
+                                const [date, name] = habitKey.split('_');
+                                syncService.saveHabit({ name, date: date || syncService.getTodayDate(), completed: true });
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.log('Sync error:', e);
+                }
+            }
         }
 
         function removeStorage(key) {
