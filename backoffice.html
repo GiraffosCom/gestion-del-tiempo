@@ -806,16 +806,23 @@
                 viewBtn.className = 'p-2 bg-blue-600/20 text-blue-400 rounded-lg hover:bg-blue-600/40 transition';
                 viewBtn.title = 'Ver detalle';
                 viewBtn.textContent = '👁️';
-                viewBtn.onclick = function() { viewCustomer(c.email); };
+                viewBtn.onclick = function() { viewCustomer(c.id, c.email); };
 
                 const manageBtn = document.createElement('button');
                 manageBtn.className = 'p-2 bg-purple-600/20 text-purple-400 rounded-lg hover:bg-purple-600/40 transition';
                 manageBtn.title = 'Gestionar suscripcion';
                 manageBtn.textContent = '💳';
-                manageBtn.onclick = function() { editCustomerSubscription(c.name); };
+                manageBtn.onclick = function() { editCustomerSubscription(c.id); };
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'p-2 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/40 transition';
+                deleteBtn.title = 'Eliminar cliente';
+                deleteBtn.textContent = '🗑️';
+                deleteBtn.onclick = function() { deleteCustomer(c.id, c.full_name || c.email); };
 
                 actionsDiv.appendChild(viewBtn);
                 actionsDiv.appendChild(manageBtn);
+                actionsDiv.appendChild(deleteBtn);
                 td6.appendChild(actionsDiv);
 
                 tr.appendChild(td1);
@@ -842,7 +849,7 @@
             renderCustomersTable(filtered);
         }
 
-        async function viewCustomer(email) {
+        async function viewCustomer(customerId, email) {
             const modal = document.getElementById('customerModal');
             const content = document.getElementById('customerModalContent');
 
@@ -852,10 +859,11 @@
 
             if (isConnected) {
                 try {
-                    const data = await frappeAPI.getCustomerDetails(email);
+                    const data = await supabaseAPI.getCustomerDetails(email);
                     renderCustomerDetail(data);
                 } catch (e) {
-                    content.textContent = 'Error al cargar datos';
+                    console.error('Error loading customer:', e);
+                    content.textContent = 'Error al cargar datos: ' + e.message;
                     content.className = 'p-6 text-red-400 text-center';
                 }
             } else {
@@ -864,12 +872,25 @@
                 const user = users[email];
                 if (user) {
                     renderCustomerDetail({
-                        customer: { full_name: user.name, email: email, creation: user.createdAt },
-                        subscription: null,
-                        plan_details: null,
+                        customer: { full_name: user.name, email: email, created_at: user.createdAt },
+                        subscriptions: [],
                         payments: []
                     });
                 }
+            }
+        }
+
+        async function deleteCustomer(customerId, customerName) {
+            if (!confirm('¿Eliminar cliente "' + customerName + '"? Esta acción no se puede deshacer.')) {
+                return;
+            }
+
+            try {
+                await supabaseAPI.deleteCustomer(customerId);
+                showToast('Cliente eliminado', '✅');
+                loadCustomers();
+            } catch (e) {
+                showToast('Error al eliminar: ' + e.message, '❌');
             }
         }
 
@@ -879,9 +900,9 @@
             content.className = 'p-6 overflow-y-auto max-h-[70vh]';
 
             const customer = data.customer;
-            const subscription = data.subscription;
-            const plan_details = data.plan_details;
-            const payments = data.payments;
+            const subscriptions = data.subscriptions || [];
+            const subscription = subscriptions.find(function(s) { return s.status === 'Active'; }) || subscriptions[0];
+            const payments = data.payments || [];
 
             const wrapper = document.createElement('div');
             wrapper.className = 'space-y-6';
@@ -903,7 +924,7 @@
             emailEl.textContent = customer.email;
             const dateEl = document.createElement('p');
             dateEl.className = 'text-slate-500 text-sm';
-            dateEl.textContent = 'Registrado: ' + formatDate(customer.creation);
+            dateEl.textContent = 'Registrado: ' + formatDate(customer.created_at);
             info.appendChild(nameEl);
             info.appendChild(emailEl);
             info.appendChild(dateEl);
@@ -926,7 +947,7 @@
                 grid.className = 'grid grid-cols-2 gap-4 text-sm';
 
                 const fields = [
-                    { label: 'Plan', value: plan_details ? plan_details.plan_name : subscription.plan },
+                    { label: 'Plan', value: subscription.plan_name || 'N/A' },
                     { label: 'Estado', value: subscription.status },
                     { label: 'Ciclo', value: subscription.billing_cycle },
                     { label: 'Vence', value: formatDate(subscription.end_date) }
