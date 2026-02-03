@@ -700,7 +700,7 @@
             if (isConnected) {
                 try {
                     const result = await frappeAPI.getCustomers({ page: page, pageSize: 20 });
-                    allCustomers = result.customers;
+                    allCustomers = result.data || result.customers || [];
                     renderCustomersTable(allCustomers);
                     updatePagination('customers', result);
                 } catch (e) {
@@ -716,6 +716,7 @@
             const users = JSON.parse(localStorage.getItem('gestion-users') || '{}');
             allCustomers = Object.keys(users).map(function(email) {
                 return {
+                    id: email,  // Use email as ID for localStorage
                     name: email,
                     full_name: users[email].name,
                     email: email,
@@ -818,7 +819,7 @@
                 deleteBtn.className = 'p-2 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/40 transition';
                 deleteBtn.title = 'Eliminar cliente';
                 deleteBtn.textContent = '🗑️';
-                deleteBtn.onclick = function() { deleteCustomer(c.id, c.full_name || c.email); };
+                deleteBtn.onclick = function() { deleteCustomer(c.id, c.email); };
 
                 actionsDiv.appendChild(viewBtn);
                 actionsDiv.appendChild(manageBtn);
@@ -876,21 +877,42 @@
                         subscriptions: [],
                         payments: []
                     });
+                } else {
+                    content.textContent = 'Cliente no encontrado';
+                    content.className = 'p-6 text-red-400 text-center';
                 }
             }
         }
 
-        async function deleteCustomer(customerId, customerName) {
-            if (!confirm('¿Eliminar cliente "' + customerName + '"? Esta acción no se puede deshacer.')) {
+        async function deleteCustomer(customerId, customerEmail) {
+            // Get customer name for confirm dialog
+            const customer = allCustomers.find(function(c) { return c.id === customerId || c.email === customerEmail; });
+            const displayName = customer ? (customer.full_name || customer.email) : customerEmail;
+
+            if (!confirm('¿Eliminar cliente "' + displayName + '"? Esta acción no se puede deshacer.')) {
                 return;
             }
 
-            try {
-                await supabaseAPI.deleteCustomer(customerId);
-                showToast('Cliente eliminado', '✅');
-                loadCustomers();
-            } catch (e) {
-                showToast('Error al eliminar: ' + e.message, '❌');
+            if (isConnected && customerId && customerId !== customerEmail) {
+                // Connected to Supabase and have a real UUID
+                try {
+                    await supabaseAPI.deleteCustomer(customerId);
+                    showToast('Cliente eliminado', '✅');
+                    loadCustomers();
+                } catch (e) {
+                    showToast('Error al eliminar: ' + e.message, '❌');
+                }
+            } else {
+                // Delete from localStorage using email
+                const users = JSON.parse(localStorage.getItem('gestion-users') || '{}');
+                if (users[customerEmail]) {
+                    delete users[customerEmail];
+                    localStorage.setItem('gestion-users', JSON.stringify(users));
+                    showToast('Cliente eliminado', '✅');
+                    loadCustomers();
+                } else {
+                    showToast('Cliente no encontrado', '❌');
+                }
             }
         }
 
