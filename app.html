@@ -8982,17 +8982,7 @@
                             </div>
                         ` : `
                             <div class="space-y-2">
-                                ${recentExpenses.map((expense) => {
-                                    // Find original index by id, or by matching all fields if no id
-                                    let originalIdx = expenses.findIndex(e => e.id && e.id === expense.id);
-                                    if (originalIdx === -1) {
-                                        originalIdx = expenses.findIndex(e =>
-                                            e.store === expense.store &&
-                                            e.date === expense.date &&
-                                            e.total === expense.total
-                                        );
-                                    }
-                                    return `
+                                ${recentExpenses.map((expense) => `
                                     <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition">
                                         <span class="text-2xl">${getExpenseCategoryIcon(expense.category)}</span>
                                         <div class="flex-1 min-w-0">
@@ -9002,14 +8992,14 @@
                                         <div class="text-right">
                                             <p class="font-bold text-gray-800">$${parseFloat(expense.total).toLocaleString('es-CL', {minimumFractionDigits: 0})}</p>
                                         </div>
-                                        <button onclick="openEditExpenseModal(${originalIdx})" class="p-2 text-gray-400 hover:text-blue-500 transition" title="Editar">
+                                        <button onclick="openEditExpenseModal(${expense.id})" class="p-2 text-gray-400 hover:text-blue-500 transition" title="Editar">
                                             ✏️
                                         </button>
-                                        <button onclick="deleteExpense(${originalIdx})" class="p-2 text-gray-400 hover:text-red-500 transition" title="Eliminar">
+                                        <button onclick="deleteExpense(${expense.id})" class="p-2 text-gray-400 hover:text-red-500 transition" title="Eliminar">
                                             🗑️
                                         </button>
                                     </div>
-                                `}).join('')}
+                                `).join('')}
                             </div>
                         `}
                     </div>
@@ -9362,23 +9352,18 @@
             render();
         }
 
-        function deleteExpense(index) {
-            if (!confirm('¿Eliminar este gasto?')) return;
+        let editingExpenseId = null;
 
+        function openEditExpenseModal(expenseId) {
             const expenses = getExpenses();
-            expenses.splice(index, 1);
-            saveExpenses(expenses);
-            render();
-        }
+            const expense = expenses.find(e => e.id === expenseId);
 
-        let editingExpenseIndex = null;
+            if (!expense) {
+                alert('No se encontró el gasto');
+                return;
+            }
 
-        function openEditExpenseModal(index) {
-            editingExpenseIndex = index;
-            const expenses = getExpenses();
-            const expense = expenses[index];
-
-            if (!expense) return;
+            editingExpenseId = expenseId;
 
             // Populate category dropdown
             const categorySelect = document.getElementById('editExpenseCategory');
@@ -9398,11 +9383,11 @@
 
         function closeEditExpenseModal() {
             document.getElementById('editExpenseModal').classList.add('hidden');
-            editingExpenseIndex = null;
+            editingExpenseId = null;
         }
 
         function saveEditedExpense() {
-            if (editingExpenseIndex === null) return;
+            if (editingExpenseId === null) return;
 
             const store = document.getElementById('editExpenseStore').value.trim();
             const date = document.getElementById('editExpenseDate').value;
@@ -9416,20 +9401,37 @@
             }
 
             const expenses = getExpenses();
-            const expense = expenses[editingExpenseIndex];
+            const expenseIndex = expenses.findIndex(e => e.id === editingExpenseId);
+
+            if (expenseIndex === -1) {
+                alert('No se encontró el gasto');
+                return;
+            }
 
             // Update expense fields
-            expense.store = store || 'Sin nombre';
-            expense.date = date || getTodayKey();
-            expense.total = parseFloat(total);
-            expense.category = category;
-            expense.description = description;
-            expense.updatedAt = new Date().toISOString();
+            expenses[expenseIndex].store = store || 'Sin nombre';
+            expenses[expenseIndex].date = date || getTodayKey();
+            expenses[expenseIndex].total = parseFloat(total);
+            expenses[expenseIndex].category = category;
+            expenses[expenseIndex].description = description;
+            expenses[expenseIndex].updatedAt = new Date().toISOString();
 
             saveExpenses(expenses);
             closeEditExpenseModal();
             addNotification('Gasto actualizado', '✏️');
             render();
+        }
+
+        function deleteExpense(expenseId) {
+            if (!confirm('¿Eliminar este gasto?')) return;
+
+            const expenses = getExpenses();
+            const index = expenses.findIndex(e => e.id === expenseId);
+            if (index !== -1) {
+                expenses.splice(index, 1);
+                saveExpenses(expenses);
+                render();
+            }
         }
 
         // ==================== END EXPENSES MODULE ====================
