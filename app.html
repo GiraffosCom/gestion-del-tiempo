@@ -9369,7 +9369,7 @@
 
             // Populate category dropdown
             const categorySelect = document.getElementById('editExpenseCategory');
-            const categories = getExpenseCategories();
+            const categories = getCategories('expenses');
             categorySelect.innerHTML = categories.map(cat =>
                 `<option value="${cat.id}" ${expense.category === cat.id ? 'selected' : ''}>${cat.emoji} ${cat.name}</option>`
             ).join('');
