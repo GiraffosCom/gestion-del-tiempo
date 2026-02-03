@@ -8668,7 +8668,38 @@
         let currentReceiptImage = null;
 
         function getExpenses() {
-            return JSON.parse(getStorage('expenses') || '[]');
+            const expenses = JSON.parse(getStorage('expenses') || '[]');
+
+            // Auto-repair expenses with invalid dates
+            let needsSave = false;
+            expenses.forEach(e => {
+                if (!e.date || isNaN(new Date(e.date).getTime())) {
+                    // Try to get date from createdAt
+                    if (e.createdAt) {
+                        const created = new Date(e.createdAt);
+                        if (!isNaN(created.getTime())) {
+                            e.date = created.toISOString().split('T')[0];
+                            needsSave = true;
+                        }
+                    }
+                    // If still no valid date, use today
+                    if (!e.date || isNaN(new Date(e.date).getTime())) {
+                        e.date = new Date().toISOString().split('T')[0];
+                        needsSave = true;
+                    }
+                }
+                // Ensure expense has an id
+                if (!e.id) {
+                    e.id = Date.now() + Math.random();
+                    needsSave = true;
+                }
+            });
+
+            if (needsSave) {
+                setStorage('expenses', JSON.stringify(expenses));
+            }
+
+            return expenses;
         }
 
         function saveExpenses(expenses) {
