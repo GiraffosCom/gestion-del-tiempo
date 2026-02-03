@@ -48,6 +48,14 @@
 </head>
 <body class="min-h-screen bg-white">
 
+    <!-- Promo Banner -->
+    <div class="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-2 px-4 text-center text-sm font-medium">
+        <span class="animate-pulse inline-block mr-2">🔥</span>
+        <span class="hidden sm:inline">Oferta de lanzamiento:</span>
+        <strong>30 días Pro GRATIS</strong> para nuevos usuarios
+        <a href="login.html?plan=pro" class="ml-2 underline hover:no-underline">Activar ahora →</a>
+    </div>
+
     <!-- Navbar -->
     <nav class="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md z-50 border-b border-gray-100">
         <div class="max-w-6xl mx-auto px-4 py-3">
@@ -58,9 +66,9 @@
                 </div>
                 <div class="hidden md:flex items-center gap-8">
                     <a href="#funciones" class="text-gray-600 hover:text-purple-600 transition">Funciones</a>
+                    <a href="#precios" class="text-gray-600 hover:text-purple-600 transition">Precios</a>
                     <a href="#plantillas" class="text-gray-600 hover:text-purple-600 transition">Plantillas</a>
-                    <a href="#como-funciona" class="text-gray-600 hover:text-purple-600 transition">Cómo funciona</a>
-                    <a href="#beneficios" class="text-gray-600 hover:text-purple-600 transition">Beneficios</a>
+                    <a href="#faq" class="text-gray-600 hover:text-purple-600 transition">FAQ</a>
                 </div>
                 <div class="flex items-center gap-3">
                     <a href="login.html" class="hidden md:block text-gray-600 hover:text-purple-600 transition font-medium">
@@ -440,16 +448,60 @@
                     <p class="text-white/80 text-sm md:text-base">Funcionalidades</p>
                 </div>
                 <div>
-                    <p class="text-4xl md:text-5xl font-bold mb-2">5</p>
-                    <p class="text-white/80 text-sm md:text-base">Plantillas listas</p>
+                    <p class="text-4xl md:text-5xl font-bold mb-2">5,000+</p>
+                    <p class="text-white/80 text-sm md:text-base">Usuarios activos</p>
                 </div>
                 <div>
-                    <p class="text-4xl md:text-5xl font-bold mb-2">100%</p>
-                    <p class="text-white/80 text-sm md:text-base">Personalizable</p>
+                    <p class="text-4xl md:text-5xl font-bold mb-2">4.9⭐</p>
+                    <p class="text-white/80 text-sm md:text-base">Calificación</p>
                 </div>
                 <div>
-                    <p class="text-4xl md:text-5xl font-bold mb-2">$0</p>
-                    <p class="text-white/80 text-sm md:text-base">Totalmente gratis</p>
+                    <p class="text-4xl md:text-5xl font-bold mb-2">30 días</p>
+                    <p class="text-white/80 text-sm md:text-base">Prueba Premium</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Video Section -->
+    <section id="demo" class="py-20 px-4 bg-white">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-12">
+                <span class="inline-block px-4 py-2 bg-rose-100 text-rose-700 rounded-full text-sm font-medium mb-4">
+                    🎬 Mira cómo funciona
+                </span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    Tu día organizado en <span class="gradient-text">menos de 2 minutos</span>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Descubre cómo Arantxa Ramírez organiza su preparación para Miss Universo
+                </p>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <div class="relative bg-gradient-to-br from-purple-100 to-pink-100 rounded-3xl p-4 shadow-2xl">
+                    <div class="bg-gray-900 rounded-2xl overflow-hidden aspect-video relative group cursor-pointer" onclick="window.open('arantxa.html', '_blank')">
+                        <img src="arantxa-vision.jpg" alt="Demo de la app" class="w-full h-full object-cover opacity-70">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-20 h-20 bg-white/90 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+                                <span class="text-4xl ml-1">▶️</span>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <div class="bg-black/70 backdrop-blur-sm rounded-xl p-4 text-white">
+                                <p class="font-bold">Plan Miss Universo - Demo en vivo</p>
+                                <p class="text-sm text-white/70">Haz clic para explorar el plan completo de Arantxa</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-center gap-4 mt-8">
+                    <a href="arantxa.html" target="_blank" class="px-6 py-3 gradient-bg text-white rounded-xl font-semibold hover:opacity-90 transition shadow-lg">
+                        👀 Ver demo completo
+                    </a>
+                    <a href="login.html" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition">
+                        🚀 Crear mi propio plan
+                    </a>
                 </div>
             </div>
         </div>
@@ -502,8 +554,161 @@
         </div>
     </section>
 
+    <!-- Pricing Section -->
+    <section id="precios" class="py-20 px-4 bg-white">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <span class="inline-block px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium mb-4">
+                    💰 Planes y Precios
+                </span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    Elige el plan perfecto para ti
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Comienza gratis y escala cuando lo necesites
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <!-- Free Plan -->
+                <div class="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-lg card-hover">
+                    <div class="text-center mb-6">
+                        <span class="text-4xl mb-4 block">🆓</span>
+                        <h3 class="text-2xl font-bold text-gray-900">Gratis</h3>
+                        <p class="text-gray-500 mt-2">Para comenzar tu transformación</p>
+                    </div>
+                    <div class="text-center mb-6">
+                        <span class="text-5xl font-bold text-gray-900">$0</span>
+                        <span class="text-gray-500">/mes</span>
+                    </div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center gap-3 text-gray-600">
+                            <span class="text-green-500 font-bold">✓</span> Agenda diaria completa
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-600">
+                            <span class="text-green-500 font-bold">✓</span> Hasta 10 hábitos
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-600">
+                            <span class="text-green-500 font-bold">✓</span> 1 rutina de ejercicio
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-600">
+                            <span class="text-green-500 font-bold">✓</span> Control de gastos básico
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-600">
+                            <span class="text-green-500 font-bold">✓</span> Estadísticas semanales
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-400">
+                            <span class="font-bold">✗</span> Plantillas premium
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-400">
+                            <span class="font-bold">✗</span> Sincronización en la nube
+                        </li>
+                    </ul>
+                    <a href="login.html" class="block w-full py-3 text-center bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition">
+                        Comenzar gratis
+                    </a>
+                </div>
+
+                <!-- Pro Plan - Featured -->
+                <div class="bg-gradient-to-br from-purple-600 to-pink-600 rounded-3xl p-8 shadow-2xl card-hover relative transform md:scale-105">
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2">
+                        <span class="px-4 py-1 bg-amber-400 text-amber-900 rounded-full text-sm font-bold shadow-lg">⭐ MÁS POPULAR</span>
+                    </div>
+                    <div class="text-center mb-6">
+                        <span class="text-4xl mb-4 block">🚀</span>
+                        <h3 class="text-2xl font-bold text-white">Pro</h3>
+                        <p class="text-white/80 mt-2">Para quienes van en serio</p>
+                    </div>
+                    <div class="text-center mb-6">
+                        <span class="text-5xl font-bold text-white">$4.990</span>
+                        <span class="text-white/70">/mes</span>
+                        <p class="text-white/60 text-sm mt-1">o $49.990/año (ahorra 17%)</p>
+                    </div>
+                    <ul class="space-y-3 mb-8 text-white">
+                        <li class="flex items-center gap-3">
+                            <span class="text-amber-300 font-bold">✓</span> Todo del plan Gratis
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="text-amber-300 font-bold">✓</span> Hábitos ilimitados
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="text-amber-300 font-bold">✓</span> Rutinas ilimitadas
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="text-amber-300 font-bold">✓</span> Todas las plantillas premium
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="text-amber-300 font-bold">✓</span> OCR para boletas (escaneo)
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="text-amber-300 font-bold">✓</span> Estadísticas avanzadas
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="text-amber-300 font-bold">✓</span> Sincronización en la nube
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="text-amber-300 font-bold">✓</span> Soporte prioritario
+                        </li>
+                    </ul>
+                    <a href="login.html?plan=pro" class="block w-full py-3 text-center bg-white text-purple-600 rounded-xl font-bold hover:bg-gray-100 transition shadow-lg">
+                        Probar 30 días gratis →
+                    </a>
+                    <p class="text-center text-white/60 text-xs mt-3">Sin tarjeta de crédito requerida</p>
+                </div>
+
+                <!-- Teams Plan -->
+                <div class="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-lg card-hover">
+                    <div class="text-center mb-6">
+                        <span class="text-4xl mb-4 block">👥</span>
+                        <h3 class="text-2xl font-bold text-gray-900">Equipos</h3>
+                        <p class="text-gray-500 mt-2">Para empresas y coaches</p>
+                    </div>
+                    <div class="text-center mb-6">
+                        <span class="text-5xl font-bold text-gray-900">$29.990</span>
+                        <span class="text-gray-500">/mes</span>
+                        <p class="text-gray-400 text-sm mt-1">hasta 10 usuarios</p>
+                    </div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center gap-3 text-gray-600">
+                            <span class="text-green-500 font-bold">✓</span> Todo del plan Pro
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-600">
+                            <span class="text-green-500 font-bold">✓</span> Dashboard de equipo
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-600">
+                            <span class="text-green-500 font-bold">✓</span> Plantillas personalizadas
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-600">
+                            <span class="text-green-500 font-bold">✓</span> Reportes de progreso
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-600">
+                            <span class="text-green-500 font-bold">✓</span> Marca blanca (tu logo)
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-600">
+                            <span class="text-green-500 font-bold">✓</span> API de integración
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-600">
+                            <span class="text-green-500 font-bold">✓</span> Soporte dedicado
+                        </li>
+                    </ul>
+                    <a href="mailto:contacto@gestiondeltiempo.cl?subject=Plan Equipos" class="block w-full py-3 text-center bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 transition">
+                        Contactar ventas
+                    </a>
+                </div>
+            </div>
+
+            <!-- Money back guarantee -->
+            <div class="text-center mt-12">
+                <div class="inline-flex items-center gap-3 px-6 py-3 bg-green-50 border border-green-200 rounded-full">
+                    <span class="text-2xl">🛡️</span>
+                    <p class="text-green-700 font-medium">Garantía de devolución de 30 días - Sin preguntas</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Community Templates Section -->
-    <section id="plantillas" class="py-20 px-4">
+    <section id="plantillas" class="py-20 px-4 bg-gray-50">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-16">
                 <span class="inline-block px-4 py-2 bg-amber-100 text-amber-700 rounded-full text-sm font-medium mb-4">
@@ -730,6 +935,72 @@
         </div>
     </section>
 
+    <!-- More Testimonials Section -->
+    <section class="py-16 px-4 bg-gray-50">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-12">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Lo que dicen nuestros usuarios</h3>
+                <div class="flex justify-center gap-1 text-amber-400 text-xl">
+                    <span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span>
+                </div>
+                <p class="text-gray-500 mt-2">4.9 de 5 basado en +500 reseñas</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Testimonial 1 -->
+                <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <div class="flex gap-1 text-amber-400 mb-4">
+                        <span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        "Llevaba años buscando una app que uniera todo. Ahora tengo mi gym, alimentación y metas en un solo lugar. ¡Bajé 8 kilos en 2 meses!"
+                    </p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400 flex items-center justify-center text-white text-sm font-bold">CM</div>
+                        <div>
+                            <p class="font-semibold text-gray-800">Carlos Méndez</p>
+                            <p class="text-sm text-gray-500">Emprendedor</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <div class="flex gap-1 text-amber-400 mb-4">
+                        <span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        "Como mamá de 3 hijos y con un negocio, esta app me salvó la vida. Ahora organizo mi semana en 10 minutos los domingos."
+                    </p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-pink-400 to-rose-400 flex items-center justify-center text-white text-sm font-bold">LF</div>
+                        <div>
+                            <p class="font-semibold text-gray-800">Lucía Fernández</p>
+                            <p class="text-sm text-gray-500">Mamá emprendedora</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <div class="flex gap-1 text-amber-400 mb-4">
+                        <span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        "Pasé de reprobar materias a sacar el mejor promedio de mi carrera. El timer Pomodoro y el seguimiento de hábitos son increíbles."
+                    </p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-emerald-400 to-teal-400 flex items-center justify-center text-white text-sm font-bold">MG</div>
+                        <div>
+                            <p class="font-semibold text-gray-800">María González</p>
+                            <p class="text-sm text-gray-500">Estudiante universitaria</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Premium Features Highlight -->
     <section class="py-20 px-4 bg-white">
         <div class="max-w-6xl mx-auto">
@@ -842,8 +1113,118 @@
         </div>
     </section>
 
+    <!-- FAQ Section -->
+    <section id="faq" class="py-20 px-4 bg-white">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-16">
+                <span class="inline-block px-4 py-2 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium mb-4">
+                    ❓ Preguntas Frecuentes
+                </span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    Resolvemos tus dudas
+                </h2>
+            </div>
+
+            <div class="space-y-4">
+                <!-- FAQ 1 -->
+                <details class="bg-gray-50 rounded-2xl p-6 group cursor-pointer" open>
+                    <summary class="flex justify-between items-center font-semibold text-gray-900 list-none">
+                        <span>¿La app es realmente gratis?</span>
+                        <span class="text-purple-500 group-open:rotate-180 transition-transform">▼</span>
+                    </summary>
+                    <p class="mt-4 text-gray-600">
+                        Sí, puedes usar la versión gratuita sin límite de tiempo. Incluye agenda diaria, hasta 10 hábitos, 1 rutina de ejercicio y control básico de gastos. El plan Pro desbloquea funciones avanzadas como plantillas premium, sincronización en la nube y estadísticas detalladas.
+                    </p>
+                </details>
+
+                <!-- FAQ 2 -->
+                <details class="bg-gray-50 rounded-2xl p-6 group cursor-pointer">
+                    <summary class="flex justify-between items-center font-semibold text-gray-900 list-none">
+                        <span>¿Mis datos están seguros?</span>
+                        <span class="text-purple-500 group-open:rotate-180 transition-transform">▼</span>
+                    </summary>
+                    <p class="mt-4 text-gray-600">
+                        Absolutamente. En el plan gratuito, tus datos se guardan localmente en tu dispositivo (nunca salen de tu navegador). En el plan Pro, usamos encriptación de grado bancario para la sincronización en la nube. Nunca vendemos ni compartimos tu información.
+                    </p>
+                </details>
+
+                <!-- FAQ 3 -->
+                <details class="bg-gray-50 rounded-2xl p-6 group cursor-pointer">
+                    <summary class="flex justify-between items-center font-semibold text-gray-900 list-none">
+                        <span>¿Funciona sin internet?</span>
+                        <span class="text-purple-500 group-open:rotate-180 transition-transform">▼</span>
+                    </summary>
+                    <p class="mt-4 text-gray-600">
+                        Sí, la app funciona 100% offline. Puedes instalarla en tu celular como una app nativa desde el navegador. Todos tus datos se guardan localmente, así que puedes usar la app aunque no tengas conexión.
+                    </p>
+                </details>
+
+                <!-- FAQ 4 -->
+                <details class="bg-gray-50 rounded-2xl p-6 group cursor-pointer">
+                    <summary class="flex justify-between items-center font-semibold text-gray-900 list-none">
+                        <span>¿Puedo cancelar en cualquier momento?</span>
+                        <span class="text-purple-500 group-open:rotate-180 transition-transform">▼</span>
+                    </summary>
+                    <p class="mt-4 text-gray-600">
+                        Sí, puedes cancelar tu suscripción Pro en cualquier momento sin penalizaciones. Además, ofrecemos garantía de devolución de 30 días si no estás satisfecho. Tus datos nunca se pierden al cancelar.
+                    </p>
+                </details>
+
+                <!-- FAQ 5 -->
+                <details class="bg-gray-50 rounded-2xl p-6 group cursor-pointer">
+                    <summary class="flex justify-between items-center font-semibold text-gray-900 list-none">
+                        <span>¿Cómo instalo la app en mi celular?</span>
+                        <span class="text-purple-500 group-open:rotate-180 transition-transform">▼</span>
+                    </summary>
+                    <p class="mt-4 text-gray-600">
+                        Es muy fácil: abre la app en tu navegador móvil (Chrome o Safari), luego busca la opción "Agregar a pantalla de inicio" o "Instalar app". Se instalará como una app nativa con ícono en tu pantalla, sin necesidad de app stores.
+                    </p>
+                </details>
+
+                <!-- FAQ 6 -->
+                <details class="bg-gray-50 rounded-2xl p-6 group cursor-pointer">
+                    <summary class="flex justify-between items-center font-semibold text-gray-900 list-none">
+                        <span>¿Qué métodos de pago aceptan?</span>
+                        <span class="text-purple-500 group-open:rotate-180 transition-transform">▼</span>
+                    </summary>
+                    <p class="mt-4 text-gray-600">
+                        Aceptamos todas las tarjetas de crédito y débito (Visa, Mastercard, American Express), además de transferencia bancaria y WebPay para clientes en Chile. Para empresas, también ofrecemos facturación.
+                    </p>
+                </details>
+            </div>
+
+            <div class="text-center mt-12">
+                <p class="text-gray-500">
+                    ¿Tienes otra pregunta? <a href="mailto:contacto@gestiondeltiempo.cl" class="text-purple-600 font-medium hover:underline">Escríbenos</a>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Install PWA Section -->
+    <section class="py-16 px-4 bg-gradient-to-r from-indigo-600 to-purple-600">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+                <div class="text-white text-center md:text-left">
+                    <h3 class="text-2xl md:text-3xl font-bold mb-2">📱 Instala la app en tu celular</h3>
+                    <p class="text-white/80">Acceso rápido desde tu pantalla de inicio, funciona sin internet</p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <div class="bg-white/10 backdrop-blur-sm rounded-xl px-6 py-4 text-white text-center">
+                        <p class="text-sm text-white/70 mb-1">iPhone / iPad</p>
+                        <p class="font-medium">Safari → Compartir → Agregar a inicio</p>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-sm rounded-xl px-6 py-4 text-white text-center">
+                        <p class="text-sm text-white/70 mb-1">Android</p>
+                        <p class="font-medium">Chrome → Menú → Instalar app</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- CTA Section -->
-    <section id="empezar" class="py-20 px-4">
+    <section id="empezar" class="py-20 px-4 bg-gray-50">
         <div class="max-w-4xl mx-auto">
             <div class="gradient-bg rounded-3xl p-12 text-center text-white shadow-2xl shadow-purple-300 relative overflow-hidden">
                 <!-- Decorative elements -->
@@ -856,13 +1237,18 @@
                         ¿Listo para transformar tu vida?
                     </h2>
                     <p class="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-                        Únete a miles de personas que ya están alcanzando sus metas con nuestra app de gestión del tiempo.
+                        Únete a +5,000 personas que ya están alcanzando sus metas. Comienza con 30 días de prueba Pro gratis.
                     </p>
-                    <a href="login.html" class="inline-block px-10 py-4 bg-white text-purple-600 rounded-xl font-bold text-lg hover:bg-gray-100 transition shadow-xl">
-                        Crear mi plan ahora - ¡Es gratis!
-                    </a>
-                    <p class="text-white/70 text-sm mt-4">
-                        Sin registro • Sin tarjeta de crédito • 100% gratis
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="login.html?plan=pro" class="px-10 py-4 bg-white text-purple-600 rounded-xl font-bold text-lg hover:bg-gray-100 transition shadow-xl">
+                            Probar Pro gratis 30 días →
+                        </a>
+                        <a href="login.html" class="px-10 py-4 bg-white/20 text-white border-2 border-white/50 rounded-xl font-bold text-lg hover:bg-white/30 transition">
+                            Comenzar gratis
+                        </a>
+                    </div>
+                    <p class="text-white/70 text-sm mt-6">
+                        ✓ Sin tarjeta de crédito &nbsp; ✓ Cancela cuando quieras &nbsp; ✓ Garantía 30 días
                     </p>
                 </div>
             </div>
@@ -870,20 +1256,76 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12 px-4">
+    <footer class="bg-gray-900 text-white py-16 px-4">
         <div class="max-w-6xl mx-auto">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-                <div class="flex items-center gap-2">
-                    <span class="text-3xl">⏰</span>
-                    <span class="text-xl font-bold">Gestión del Tiempo</span>
+            <div class="grid md:grid-cols-4 gap-12 mb-12">
+                <!-- Brand -->
+                <div class="md:col-span-1">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="text-3xl">⏰</span>
+                        <span class="text-xl font-bold">Gestión del Tiempo</span>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-4">
+                        La app que transforma tu productividad. Organiza tu vida, alcanza tus metas.
+                    </p>
+                    <div class="flex gap-3">
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                        </a>
+                    </div>
                 </div>
-                <p class="text-gray-400">
-                    © 2026 Gestión del Tiempo. Hecho con 💜 para ayudarte a alcanzar tus metas.
+
+                <!-- Product -->
+                <div>
+                    <h4 class="font-semibold mb-4">Producto</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#funciones" class="hover:text-white transition">Funciones</a></li>
+                        <li><a href="#precios" class="hover:text-white transition">Precios</a></li>
+                        <li><a href="#plantillas" class="hover:text-white transition">Plantillas</a></li>
+                        <li><a href="#demo" class="hover:text-white transition">Demo</a></li>
+                        <li><a href="login.html" class="hover:text-white transition">Comenzar</a></li>
+                    </ul>
+                </div>
+
+                <!-- Support -->
+                <div>
+                    <h4 class="font-semibold mb-4">Soporte</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#faq" class="hover:text-white transition">FAQ</a></li>
+                        <li><a href="mailto:contacto@gestiondeltiempo.cl" class="hover:text-white transition">Contacto</a></li>
+                        <li><a href="#" class="hover:text-white transition">Centro de ayuda</a></li>
+                        <li><a href="#" class="hover:text-white transition">Tutoriales</a></li>
+                    </ul>
+                </div>
+
+                <!-- Legal -->
+                <div>
+                    <h4 class="font-semibold mb-4">Legal</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">Términos de uso</a></li>
+                        <li><a href="#" class="hover:text-white transition">Privacidad</a></li>
+                        <li><a href="#" class="hover:text-white transition">Cookies</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom bar -->
+            <div class="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-gray-500 text-sm">
+                    © 2026 Gestión del Tiempo. Hecho con 💜 en Chile.
                 </p>
-                <div class="flex gap-4">
-                    <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition">📸</a>
-                    <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition">🐦</a>
-                    <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition">💼</a>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 text-gray-500 text-sm">
+                        <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                        Todos los sistemas operativos
+                    </div>
+                    <img src="https://img.shields.io/badge/SSL-Secured-green?style=flat-square" alt="SSL Secured" class="h-5 opacity-70">
                 </div>
             </div>
         </div>
