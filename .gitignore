@@ -29,6 +29,9 @@ npm-debug.log*
 # Test coverage
 coverage/
 
+# Playwright
+.playwright-mcp/
+
 # Cache
 .cache/
 .eslintcache
