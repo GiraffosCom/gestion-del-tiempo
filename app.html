@@ -8850,7 +8850,27 @@
 
             // Filter expenses for current month
             const monthlyExpenses = expenses.filter(e => {
-                const d = new Date(e.date);
+                // Try to get a valid date from the expense
+                let d = null;
+
+                // First try the date field
+                if (e.date) {
+                    d = new Date(e.date);
+                }
+
+                // If invalid, try createdAt
+                if (!d || isNaN(d.getTime())) {
+                    if (e.createdAt) {
+                        d = new Date(e.createdAt);
+                    }
+                }
+
+                // If still invalid, skip this expense
+                if (!d || isNaN(d.getTime())) {
+                    console.log('Expense with invalid date:', e);
+                    return false;
+                }
+
                 return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
             });
 
