@@ -1948,19 +1948,6 @@
                 notifMenu.classList.add('hidden');
             }
 
-            // Handle expense edit button clicks
-            const editExpenseBtn = e.target.closest('.edit-expense-btn');
-            if (editExpenseBtn) {
-                const idx = parseInt(editExpenseBtn.dataset.expenseIdx);
-                openEditExpenseModal(idx);
-            }
-
-            // Handle expense delete button clicks
-            const deleteExpenseBtn = e.target.closest('.delete-expense-btn');
-            if (deleteExpenseBtn) {
-                const idx = parseInt(deleteExpenseBtn.dataset.expenseIdx);
-                deleteExpense(idx);
-            }
         });
 
         // ==================== NOTIFICATIONS SYSTEM ====================
@@ -9007,10 +8994,10 @@
                                         <div class="text-right">
                                             <p class="font-bold text-gray-800">$${parseFloat(expense.total).toLocaleString('es-CL', {minimumFractionDigits: 0})}</p>
                                         </div>
-                                        <button class="edit-expense-btn p-2 text-gray-400 hover:text-blue-500 transition" data-expense-idx="${idx}" title="Editar">
+                                        <button onclick="openEditExpenseModal(${idx})" class="p-2 text-gray-400 hover:text-blue-500 transition" title="Editar">
                                             ✏️
                                         </button>
-                                        <button class="delete-expense-btn p-2 text-gray-400 hover:text-red-500 transition" data-expense-idx="${idx}" title="Eliminar">
+                                        <button onclick="deleteExpense(${idx})" class="p-2 text-gray-400 hover:text-red-500 transition" title="Eliminar">
                                             🗑️
                                         </button>
                                     </div>
@@ -9374,7 +9361,7 @@
             const expense = recentExpenses[recentIdx];
 
             if (!expense) {
-                alert('No se encontró el gasto');
+                alert('No se encontró el gasto. Debug: idx=' + recentIdx + ', total=' + recentExpenses.length);
                 return;
             }
 
