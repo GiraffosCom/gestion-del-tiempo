@@ -701,6 +701,15 @@
                 try {
                     const result = await frappeAPI.getCustomers({ page: page, pageSize: 20 });
                     allCustomers = result.data || result.customers || [];
+
+                    // Also include local customers that might not be in Supabase
+                    const localCustomers = getLocalCustomersArray();
+                    const supabaseEmails = allCustomers.map(function(c) { return c.email; });
+                    const missingLocal = localCustomers.filter(function(c) {
+                        return supabaseEmails.indexOf(c.email) === -1;
+                    });
+                    allCustomers = allCustomers.concat(missingLocal);
+
                     renderCustomersTable(allCustomers);
                     updatePagination('customers', result);
                 } catch (e) {
@@ -710,6 +719,21 @@
             } else {
                 loadLocalCustomers();
             }
+        }
+
+        function getLocalCustomersArray() {
+            const users = JSON.parse(localStorage.getItem('gestion-users') || '{}');
+            return Object.keys(users).map(function(email) {
+                return {
+                    id: email,
+                    name: email,
+                    full_name: users[email].name,
+                    email: email,
+                    plan_name: 'Free (Local)',
+                    subscription: { status: 'Active' },
+                    creation: users[email].createdAt
+                };
+            });
         }
 
         function loadLocalCustomers() {
