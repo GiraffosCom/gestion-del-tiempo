@@ -9486,6 +9486,9 @@
 
         // ==================== END EXPENSES MODULE ====================
 
+        // Variable para el período seleccionado en estadísticas
+        let statsPeriod = 'month';
+
         function renderStats() {
             const weeklyData = getWeeklyProgressData();
             const categoryData = getCategoryDistribution();
@@ -9494,6 +9497,9 @@
             const currentStreak = getStreak();
             const bestStreak = getBestStreak();
             const pomodorosToday = getPomodoroCount();
+
+            // Obtener estadísticas de gastos
+            const expenseStats = getExpenseStats(statsPeriod);
 
             const categoryNames = {
                 habitos: '☀️ Hábitos',
@@ -9515,11 +9521,114 @@
                 descanso: 'bg-gray-400'
             };
 
+            const periodLabels = {
+                week: 'Esta Semana',
+                month: 'Este Mes',
+                last30: 'Últimos 30 días',
+                last90: 'Últimos 90 días',
+                year: 'Este Año'
+            };
+
             return `
                 <div class="space-y-6">
-                    <!-- Resumen General -->
+                    <!-- Selector de Período -->
+                    <div class="bg-white rounded-2xl p-4 shadow-sm">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-gray-800">📅 Período</h3>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            ${Object.entries(periodLabels).map(([key, label]) => `
+                                <button onclick="changeStatsPeriod('${key}')"
+                                    class="px-3 py-1.5 rounded-lg text-sm font-medium transition ${statsPeriod === key ? 'theme-btn' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
+                                    ${label}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- 💰 ESTADÍSTICAS DE GASTOS -->
                     <div class="bg-white rounded-2xl p-5 shadow-sm">
-                        <h3 class="font-bold text-gray-800 text-lg mb-4">📊 Resumen General</h3>
+                        <h3 class="font-bold text-gray-800 text-lg mb-4">💰 Resumen de Gastos - ${periodLabels[statsPeriod]}</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            <div class="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl">
+                                <p class="text-2xl font-bold text-green-600">$${expenseStats.total.toLocaleString('es-CL')}</p>
+                                <p class="text-sm text-gray-500">Total gastado</p>
+                            </div>
+                            <div class="text-center p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl">
+                                <p class="text-2xl font-bold text-blue-600">$${expenseStats.average.toLocaleString('es-CL')}</p>
+                                <p class="text-sm text-gray-500">Promedio diario</p>
+                            </div>
+                            <div class="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl">
+                                <p class="text-2xl font-bold text-purple-600">${expenseStats.count}</p>
+                                <p class="text-sm text-gray-500">Transacciones</p>
+                            </div>
+                            <div class="text-center p-4 bg-gradient-to-br ${expenseStats.comparison.percentageChange > 0 ? 'from-red-50 to-orange-50' : 'from-green-50 to-teal-50'} rounded-xl">
+                                <p class="text-2xl font-bold ${expenseStats.comparison.percentageChange > 0 ? 'text-red-600' : 'text-green-600'}">
+                                    ${expenseStats.comparison.percentageChange > 0 ? '↑' : '↓'} ${Math.abs(expenseStats.comparison.percentageChange)}%
+                                </p>
+                                <p class="text-sm text-gray-500">vs período anterior</p>
+                            </div>
+                        </div>
+
+                        <!-- Gráfica de Gastos por Categoría -->
+                        <h4 class="font-semibold text-gray-700 mb-3">📊 Gastos por Categoría</h4>
+                        ${expenseStats.byCategory.length > 0 ? `
+                            <div class="space-y-3 mb-6">
+                                ${expenseStats.byCategory.map(cat => `
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-lg w-8">${cat.emoji}</span>
+                                        <span class="text-sm w-28 truncate">${cat.name}</span>
+                                        <div class="flex-1 h-6 bg-gray-100 rounded-full overflow-hidden">
+                                            <div class="h-full rounded-full transition-all" style="width: ${cat.percentage}%; background-color: ${cat.color};"></div>
+                                        </div>
+                                        <span class="text-sm font-medium text-gray-700 w-24 text-right">$${cat.total.toLocaleString('es-CL')}</span>
+                                        <span class="text-xs text-gray-400 w-12 text-right">${cat.percentage}%</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : `<p class="text-center text-gray-400 py-4">No hay gastos registrados</p>`}
+
+                        <!-- Gastos por Mes (Gráfica de Barras) -->
+                        <h4 class="font-semibold text-gray-700 mb-3">📈 Evolución Mensual</h4>
+                        ${expenseStats.byMonth.length > 0 ? `
+                            <div class="flex items-end justify-between gap-2 h-40">
+                                ${expenseStats.byMonth.map(month => {
+                                    const maxTotal = Math.max(...expenseStats.byMonth.map(m => m.total));
+                                    const heightPercent = maxTotal > 0 ? (month.total / maxTotal) * 100 : 0;
+                                    const isCurrentMonth = month.month === new Date().toISOString().substring(0, 7);
+                                    return `
+                                        <div class="flex-1 flex flex-col items-center">
+                                            <div class="w-full bg-gray-100 rounded-t-lg relative" style="height: 120px;">
+                                                <div class="absolute bottom-0 w-full rounded-t-lg transition-all ${isCurrentMonth ? 'bg-gradient-to-t from-green-500 to-emerald-400' : 'bg-gradient-to-t from-green-300 to-emerald-200'}" style="height: ${heightPercent}%;">
+                                                </div>
+                                            </div>
+                                            <span class="text-xs mt-2 font-medium ${isCurrentMonth ? 'text-green-600' : 'text-gray-500'}">${month.label.split(' ')[0]}</span>
+                                            <span class="text-xs ${isCurrentMonth ? 'text-green-600 font-bold' : 'text-gray-400'}">$${(month.total/1000).toFixed(0)}k</span>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        ` : `<p class="text-center text-gray-400 py-4">No hay datos</p>`}
+
+                        <!-- Top Gastos -->
+                        ${expenseStats.topExpenses.length > 0 ? `
+                            <h4 class="font-semibold text-gray-700 mt-6 mb-3">🏆 Mayores Gastos</h4>
+                            <div class="space-y-2">
+                                ${expenseStats.topExpenses.map((expense, i) => `
+                                    <div class="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                                        <span class="text-lg font-bold text-gray-400 w-6">${i + 1}</span>
+                                        <span class="flex-1 text-sm truncate">${expense.store || 'Sin nombre'}</span>
+                                        <span class="text-xs text-gray-400">${expense.date}</span>
+                                        <span class="font-semibold text-gray-700">$${parseFloat(expense.total).toLocaleString('es-CL')}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Resumen General de Actividades -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm">
+                        <h3 class="font-bold text-gray-800 text-lg mb-4">📊 Resumen de Actividades</h3>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div class="text-center p-4 bg-gradient-to-br from-rose-50 to-purple-50 rounded-xl">
                                 <p class="text-3xl font-bold text-purple-600">${stats.completionRate}%</p>
@@ -9575,7 +9684,7 @@
                         </div>
                     </div>
 
-                    <!-- Distribución por Categoría -->
+                    <!-- Distribución por Categoría de Actividades -->
                     <div class="bg-white rounded-2xl p-5 shadow-sm">
                         <h3 class="font-bold text-gray-800 text-lg mb-4">🎨 Distribución por Categoría</h3>
                         <div class="space-y-3">
@@ -9623,6 +9732,160 @@
                     </div>
                 </div>
             `;
+        }
+
+        // Función para cambiar el período de estadísticas
+        function changeStatsPeriod(period) {
+            statsPeriod = period;
+            render();
+        }
+
+        // Función para obtener estadísticas de gastos
+        function getExpenseStats(period) {
+            const expenses = getExpenses();
+            const now = new Date();
+            let start, end;
+
+            end = new Date(now);
+            end.setHours(23, 59, 59, 999);
+            start = new Date(now);
+            start.setHours(0, 0, 0, 0);
+
+            switch (period) {
+                case 'week':
+                    start.setDate(start.getDate() - start.getDay() + 1);
+                    break;
+                case 'month':
+                    start.setDate(1);
+                    break;
+                case 'last30':
+                    start.setDate(start.getDate() - 30);
+                    break;
+                case 'last90':
+                    start.setDate(start.getDate() - 90);
+                    break;
+                case 'year':
+                    start.setMonth(0, 1);
+                    break;
+            }
+
+            // Filtrar por período
+            const filtered = expenses.filter(e => {
+                const expenseDate = new Date(e.date);
+                return expenseDate >= start && expenseDate <= end;
+            });
+
+            // Calcular totales
+            const total = filtered.reduce((sum, e) => sum + (parseFloat(e.total) || 0), 0);
+            const days = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
+            const average = Math.round(total / days);
+
+            // Agrupar por categoría
+            const byCategory = {};
+            const expenseCategoryInfo = {
+                'alimentacion': { name: 'Alimentación', emoji: '🍔', color: '#f59e0b' },
+                'transporte': { name: 'Transporte', emoji: '🚗', color: '#3b82f6' },
+                'salud': { name: 'Salud', emoji: '💊', color: '#10b981' },
+                'entretenimiento': { name: 'Entretenimiento', emoji: '🎬', color: '#8b5cf6' },
+                'ropa': { name: 'Ropa', emoji: '👕', color: '#ec4899' },
+                'servicios': { name: 'Servicios', emoji: '📱', color: '#6366f1' },
+                'hogar': { name: 'Hogar', emoji: '🏠', color: '#14b8a6' },
+                'educacion': { name: 'Educación', emoji: '📚', color: '#f97316' },
+                'belleza': { name: 'Belleza', emoji: '💄', color: '#e11d48' },
+                'otro': { name: 'Otro', emoji: '📦', color: '#6b7280' }
+            };
+
+            filtered.forEach(expense => {
+                let catId = 'otro';
+                const cat = expense.category || '';
+
+                // Extraer ID de categoría
+                for (const [id, info] of Object.entries(expenseCategoryInfo)) {
+                    if (cat.toLowerCase().includes(id) || cat.includes(info.emoji) || cat.toLowerCase().includes(info.name.toLowerCase())) {
+                        catId = id;
+                        break;
+                    }
+                }
+
+                if (!byCategory[catId]) {
+                    byCategory[catId] = { total: 0, count: 0 };
+                }
+                byCategory[catId].total += parseFloat(expense.total) || 0;
+                byCategory[catId].count++;
+            });
+
+            const categoryArray = Object.entries(byCategory).map(([id, data]) => {
+                const info = expenseCategoryInfo[id] || expenseCategoryInfo.otro;
+                return {
+                    id,
+                    name: info.name,
+                    emoji: info.emoji,
+                    color: info.color,
+                    total: data.total,
+                    count: data.count,
+                    percentage: total > 0 ? Math.round((data.total / total) * 100) : 0
+                };
+            }).sort((a, b) => b.total - a.total);
+
+            // Gastos por mes (últimos 6 meses)
+            const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            const byMonth = [];
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date();
+                date.setMonth(date.getMonth() - i);
+                const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                const monthTotal = expenses.filter(e => e.date && e.date.startsWith(key))
+                    .reduce((sum, e) => sum + (parseFloat(e.total) || 0), 0);
+                byMonth.push({
+                    month: key,
+                    label: `${monthNames[date.getMonth()]} ${date.getFullYear()}`,
+                    total: monthTotal
+                });
+            }
+
+            // Top gastos
+            const topExpenses = filtered
+                .sort((a, b) => (parseFloat(b.total) || 0) - (parseFloat(a.total) || 0))
+                .slice(0, 5);
+
+            // Comparación con período anterior
+            const prevEnd = new Date(start);
+            prevEnd.setDate(prevEnd.getDate() - 1);
+            const prevStart = new Date(prevEnd);
+
+            switch (period) {
+                case 'week':
+                    prevStart.setDate(prevStart.getDate() - 6);
+                    break;
+                case 'month':
+                    prevStart.setDate(1);
+                    break;
+                default:
+                    prevStart.setDate(prevStart.getDate() - days);
+            }
+
+            const prevFiltered = expenses.filter(e => {
+                const expenseDate = new Date(e.date);
+                return expenseDate >= prevStart && expenseDate <= prevEnd;
+            });
+            const prevTotal = prevFiltered.reduce((sum, e) => sum + (parseFloat(e.total) || 0), 0);
+            const difference = total - prevTotal;
+            const percentageChange = prevTotal > 0 ? Math.round((difference / prevTotal) * 100) : 0;
+
+            return {
+                total,
+                average,
+                count: filtered.length,
+                byCategory: categoryArray,
+                byMonth,
+                topExpenses,
+                comparison: {
+                    current: total,
+                    previous: prevTotal,
+                    difference,
+                    percentageChange
+                }
+            };
         }
 
         // Initial render
