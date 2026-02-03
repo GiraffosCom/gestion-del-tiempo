@@ -12,3 +12,11 @@ export {
   isOfflineCapable,
   onConnectivityChange,
 } from './sw-register.js';
+export {
+  processReceipt,
+  parseChileanReceipt,
+  preprocessImage,
+  formatCLP,
+  detectCategory,
+  detectCategoryByProducts,
+} from './ocr.js';

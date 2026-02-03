@@ -9109,7 +9109,7 @@
             document.getElementById('receiptImagePreview').src = '';
         }
 
-        // OCR Processing
+        // OCR Processing - Usando módulo mejorado para boletas chilenas
         async function processReceiptImage() {
             if (!currentReceiptImage) return;
 
@@ -9120,46 +9120,83 @@
             try {
                 const progressEl = document.getElementById('ocrProgress');
 
-                // Use Tesseract.js for OCR
-                const result = await Tesseract.recognize(
-                    currentReceiptImage,
-                    'spa', // Spanish
-                    {
-                        logger: m => {
-                            if (m.status === 'recognizing text') {
-                                progressEl.textContent = `Procesando: ${Math.round(m.progress * 100)}%`;
-                            } else {
-                                progressEl.textContent = m.status;
-                            }
-                        }
-                    }
-                );
+                // Importar módulo OCR mejorado
+                const { processReceipt } = await import('./src/js/services/ocr.js');
 
-                const text = result.data.text;
-                console.log('OCR Result:', text);
+                // Procesar con el nuevo módulo optimizado para Chile
+                const result = await processReceipt(currentReceiptImage, (progress) => {
+                    progressEl.textContent = progress.status;
+                });
 
-                // Parse the receipt text
-                const parsed = parseReceiptText(text);
+                console.log('OCR Result:', result);
 
-                // Fill the form
-                document.getElementById('expenseStore').value = parsed.store;
-                document.getElementById('expenseDate').value = parsed.date || getTodayKey();
-                document.getElementById('expenseTotal').value = parsed.total || '';
-                document.getElementById('expenseDescription').value = parsed.description || '';
+                // Fill the form with parsed data
+                document.getElementById('expenseStore').value = result.store || '';
+                document.getElementById('expenseDate').value = result.date || getTodayKey();
+                document.getElementById('expenseTotal').value = result.total || '';
+                document.getElementById('expenseDescription').value = result.description || '';
 
-                if (parsed.items && parsed.items.length > 0) {
-                    const itemsContainer = document.getElementById('extractedItemsContainer');
-                    const itemsList = document.getElementById('extractedItems');
+                // Mostrar items extraídos usando DOM seguro
+                const itemsContainer = document.getElementById('extractedItemsContainer');
+                const itemsList = document.getElementById('extractedItems');
+
+                if (result.items && result.items.length > 0) {
                     itemsContainer.classList.remove('hidden');
-                    itemsList.innerHTML = parsed.items.map(item => `<div class="py-1">${item}</div>`).join('');
+                    itemsList.textContent = ''; // Limpiar contenido previo
+
+                    result.items.forEach(item => {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'py-1 flex justify-between';
+
+                        const nameSpan = document.createElement('span');
+                        nameSpan.textContent = item.name;
+
+                        const priceSpan = document.createElement('span');
+                        priceSpan.className = 'text-gray-500';
+                        priceSpan.textContent = item.priceFormatted;
+
+                        itemDiv.appendChild(nameSpan);
+                        itemDiv.appendChild(priceSpan);
+                        itemsList.appendChild(itemDiv);
+                    });
                 } else {
-                    document.getElementById('extractedItemsContainer').classList.add('hidden');
+                    itemsContainer.classList.add('hidden');
                 }
 
                 // Show results form
                 document.getElementById('scanStep2').classList.add('hidden');
                 document.getElementById('scanStep3').classList.remove('hidden');
                 populateCategorySelect('expenseCategory', 'expenses');
+
+                // Pre-seleccionar categoría sugerida
+                if (result.suggestedCategory) {
+                    const categorySelect = document.getElementById('expenseCategory');
+                    const categoryMap = {
+                        'alimentacion': '🍔 Alimentación',
+                        'transporte': '🚗 Transporte',
+                        'salud': '💊 Salud',
+                        'entretenimiento': '🎬 Entretenimiento',
+                        'ropa': '👕 Ropa',
+                        'servicios': '📱 Servicios',
+                        'hogar': '🏠 Hogar',
+                        'educacion': '📚 Educación',
+                        'otro': '📦 Otro'
+                    };
+                    const categoryValue = categoryMap[result.suggestedCategory];
+                    if (categoryValue) {
+                        for (let option of categorySelect.options) {
+                            if (option.value === categoryValue || option.text === categoryValue) {
+                                option.selected = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // Mostrar confianza del OCR
+                if (result.confidence) {
+                    console.log(`[OCR] Confianza: ${result.confidence.toFixed(1)}%`);
+                }
 
             } catch (error) {
                 console.error('OCR Error:', error);
