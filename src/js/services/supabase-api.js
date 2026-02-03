@@ -638,6 +638,104 @@ class SupabaseAPI {
         }
     }
 
+    // ==================== Authentication ====================
+
+    /**
+     * Hash a password using SHA-256
+     */
+    async hashPassword(password) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    /**
+     * Register a new user
+     */
+    async registerUser({ email, password, name, goal, duration }) {
+        const normalizedEmail = email.toLowerCase().trim();
+
+        // Check if user already exists
+        const existing = await this.request('customers', {
+            filters: [['email', 'eq', normalizedEmail]]
+        });
+
+        if (existing && existing.length > 0) {
+            throw new Error('Ya existe una cuenta con este email');
+        }
+
+        // Hash password
+        const passwordHash = await this.hashPassword(password);
+
+        // Create user in Supabase
+        const userData = {
+            email: normalizedEmail,
+            full_name: name.trim(),
+            password_hash: passwordHash,
+            goal: goal || 'personal',
+            duration: duration || 60,
+            start_date: new Date().toISOString().split('T')[0],
+            created_at: new Date().toISOString()
+        };
+
+        const result = await this.createCustomer(userData);
+        return result;
+    }
+
+    /**
+     * Login user - verify credentials against Supabase
+     */
+    async loginUser(email, password) {
+        const normalizedEmail = email.toLowerCase().trim();
+
+        // Find user by email
+        const users = await this.request('customers', {
+            filters: [['email', 'eq', normalizedEmail]]
+        });
+
+        if (!users || users.length === 0) {
+            throw new Error('No existe una cuenta con este email');
+        }
+
+        const user = users[0];
+
+        // Verify password
+        const passwordHash = await this.hashPassword(password);
+
+        if (user.password_hash !== passwordHash) {
+            throw new Error('Contraseña incorrecta');
+        }
+
+        return user;
+    }
+
+    /**
+     * Get user by email
+     */
+    async getUserByEmail(email) {
+        const normalizedEmail = email.toLowerCase().trim();
+        const users = await this.request('customers', {
+            filters: [['email', 'eq', normalizedEmail]]
+        });
+
+        return users && users.length > 0 ? users[0] : null;
+    }
+
+    /**
+     * Update user password
+     */
+    async updateUserPassword(email, newPassword) {
+        const user = await this.getUserByEmail(email);
+        if (!user) {
+            throw new Error('Usuario no encontrado');
+        }
+
+        const passwordHash = await this.hashPassword(newPassword);
+        await this.updateCustomer(user.id, { password_hash: passwordHash });
+    }
+
     // ==================== Utility Methods ====================
 
     formatCurrency(amount) {

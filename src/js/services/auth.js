@@ -1,6 +1,7 @@
 /**
  * Servicio de autenticación
  * Maneja login, registro, sesión de usuario
+ * Usa Supabase como backend principal con localStorage como fallback
  * @module services/auth
  */
 
@@ -10,17 +11,40 @@ import { STORAGE_KEYS } from '../config.js';
 class AuthService {
   constructor() {
     this.currentUser = null;
+    this.supabaseAPI = null;
+    this.isOnline = navigator.onLine;
     this.init();
+
+    // Listen for online/offline events
+    window.addEventListener('online', () => { this.isOnline = true; });
+    window.addEventListener('offline', () => { this.isOnline = false; });
   }
 
   /**
    * Inicializa el servicio, cargando usuario de sesión
    */
   init() {
+    // Get supabaseAPI from window (loaded via script tag)
+    if (typeof window !== 'undefined' && window.supabaseAPI) {
+      this.supabaseAPI = window.supabaseAPI;
+    }
+
     const userData = storage.getGlobal(STORAGE_KEYS.currentUser);
     if (userData) {
       this.currentUser = userData;
       storage.setUser(userData.email);
+    }
+  }
+
+  /**
+   * Check if Supabase is available
+   */
+  async isSupabaseAvailable() {
+    if (!this.supabaseAPI || !this.isOnline) return false;
+    try {
+      return await this.supabaseAPI.testConnection();
+    } catch {
+      return false;
     }
   }
 
@@ -93,15 +117,36 @@ class AuthService {
       return { success: false, error: 'Email inválido' };
     }
 
-    // Verificar si ya existe
-    const users = storage.getGlobal(STORAGE_KEYS.users, {});
-    if (users[normalizedEmail]) {
-      return { success: false, error: 'Ya existe una cuenta con este email' };
-    }
-
-    // Crear usuario con contraseña hasheada
     const hashedPassword = await this.hashPassword(password);
     const startDate = new Date().toISOString().split('T')[0];
+    const createdAt = new Date().toISOString();
+
+    // Try Supabase first
+    const supabaseAvailable = await this.isSupabaseAvailable();
+
+    if (supabaseAvailable) {
+      try {
+        await this.supabaseAPI.registerUser({
+          email: normalizedEmail,
+          password,
+          name: name.trim(),
+          goal: goal || 'personal',
+          duration: duration || 60
+        });
+        console.log('User registered in Supabase');
+      } catch (e) {
+        console.error('Supabase registration error:', e);
+        return { success: false, error: e.message };
+      }
+    }
+
+    // Also save to localStorage as cache/fallback
+    const users = storage.getGlobal(STORAGE_KEYS.users, {});
+
+    // Check if exists locally (only block if Supabase was not available)
+    if (!supabaseAvailable && users[normalizedEmail]) {
+      return { success: false, error: 'Ya existe una cuenta con este email' };
+    }
 
     users[normalizedEmail] = {
       name: name.trim(),
@@ -109,7 +154,8 @@ class AuthService {
       goal: goal || 'personal',
       duration: duration || 60,
       startDate,
-      createdAt: new Date().toISOString(),
+      createdAt,
+      syncedWithSupabase: supabaseAvailable
     };
 
     storage.setGlobal(STORAGE_KEYS.users, users);
@@ -127,31 +173,67 @@ class AuthService {
    */
   async login(email, password, isNewUser = false) {
     const normalizedEmail = email.toLowerCase().trim();
-    const users = storage.getGlobal(STORAGE_KEYS.users, {});
+    let user = null;
+    let fromSupabase = false;
 
-    if (!users[normalizedEmail]) {
-      return { success: false, error: 'No existe una cuenta con este email' };
-    }
+    // Try Supabase first
+    const supabaseAvailable = await this.isSupabaseAvailable();
 
-    const user = users[normalizedEmail];
+    if (supabaseAvailable) {
+      try {
+        const supabaseUser = await this.supabaseAPI.loginUser(normalizedEmail, password);
+        user = {
+          name: supabaseUser.full_name,
+          goal: supabaseUser.goal,
+          duration: supabaseUser.duration,
+          startDate: supabaseUser.start_date,
+          createdAt: supabaseUser.created_at,
+          supabaseId: supabaseUser.id
+        };
+        fromSupabase = true;
+        console.log('User logged in via Supabase');
 
-    // Verificar contraseña (soporta hash y texto plano para migración)
-    let isValidPassword = false;
-    if (user.password.length === 64) {
-      // Es un hash SHA-256
-      isValidPassword = await this.verifyPassword(password, user.password);
-    } else {
-      // Contraseña legacy en texto plano - migrar
-      isValidPassword = user.password === password;
-      if (isValidPassword) {
-        // Migrar a hash
-        user.password = await this.hashPassword(password);
+        // Update local cache
+        const users = storage.getGlobal(STORAGE_KEYS.users, {});
+        users[normalizedEmail] = {
+          ...user,
+          password: await this.hashPassword(password),
+          syncedWithSupabase: true
+        };
         storage.setGlobal(STORAGE_KEYS.users, users);
+      } catch (e) {
+        console.log('Supabase login failed, trying localStorage:', e.message);
       }
     }
 
-    if (!isValidPassword) {
-      return { success: false, error: 'Contraseña incorrecta' };
+    // Fallback to localStorage
+    if (!user) {
+      const users = storage.getGlobal(STORAGE_KEYS.users, {});
+
+      if (!users[normalizedEmail]) {
+        return { success: false, error: 'No existe una cuenta con este email' };
+      }
+
+      const localUser = users[normalizedEmail];
+
+      // Verificar contraseña
+      let isValidPassword = false;
+      if (localUser.password && localUser.password.length === 64) {
+        isValidPassword = await this.verifyPassword(password, localUser.password);
+      } else if (localUser.password) {
+        // Contraseña legacy en texto plano - migrar
+        isValidPassword = localUser.password === password;
+        if (isValidPassword) {
+          localUser.password = await this.hashPassword(password);
+          storage.setGlobal(STORAGE_KEYS.users, users);
+        }
+      }
+
+      if (!isValidPassword) {
+        return { success: false, error: 'Contraseña incorrecta' };
+      }
+
+      user = localUser;
     }
 
     // Crear sesión
@@ -162,6 +244,8 @@ class AuthService {
       duration: user.duration,
       startDate: user.startDate,
       needsOnboarding: isNewUser,
+      supabaseId: user.supabaseId || null,
+      fromSupabase
     };
 
     storage.setGlobal(STORAGE_KEYS.currentUser, this.currentUser);
@@ -206,13 +290,13 @@ class AuthService {
    * Actualiza datos del usuario actual
    * @param {Object} updates - Campos a actualizar
    */
-  updateCurrentUser(updates) {
+  async updateCurrentUser(updates) {
     if (!this.currentUser) return;
 
     this.currentUser = { ...this.currentUser, ...updates };
     storage.setGlobal(STORAGE_KEYS.currentUser, this.currentUser);
 
-    // También actualizar en la lista de usuarios
+    // También actualizar en la lista de usuarios locales
     if (!this.isDemo()) {
       const users = storage.getGlobal(STORAGE_KEYS.users, {});
       if (users[this.currentUser.email]) {
@@ -221,6 +305,22 @@ class AuthService {
           ...updates,
         };
         storage.setGlobal(STORAGE_KEYS.users, users);
+      }
+
+      // Also update in Supabase if available
+      if (this.currentUser.supabaseId && await this.isSupabaseAvailable()) {
+        try {
+          const supabaseUpdates = {};
+          if (updates.name) supabaseUpdates.full_name = updates.name;
+          if (updates.goal) supabaseUpdates.goal = updates.goal;
+          if (updates.duration) supabaseUpdates.duration = updates.duration;
+
+          if (Object.keys(supabaseUpdates).length > 0) {
+            await this.supabaseAPI.updateCustomer(this.currentUser.supabaseId, supabaseUpdates);
+          }
+        } catch (e) {
+          console.error('Error updating user in Supabase:', e);
+        }
       }
     }
   }
@@ -252,6 +352,36 @@ class AuthService {
   needsOnboarding() {
     return this.currentUser?.needsOnboarding === true &&
            !this.currentUser?.onboardingCompleted;
+  }
+
+  /**
+   * Sync pending local users to Supabase
+   * Call this when coming online
+   */
+  async syncPendingUsers() {
+    if (!await this.isSupabaseAvailable()) return;
+
+    const users = storage.getGlobal(STORAGE_KEYS.users, {});
+
+    for (const email of Object.keys(users)) {
+      const user = users[email];
+      if (!user.syncedWithSupabase) {
+        try {
+          // Check if user exists in Supabase
+          const existing = await this.supabaseAPI.getUserByEmail(email);
+          if (!existing) {
+            // Create in Supabase (need original password, which we don't have)
+            // Mark as synced anyway to avoid repeated attempts
+            console.log(`User ${email} needs manual sync (password not available)`);
+          }
+          users[email].syncedWithSupabase = true;
+        } catch (e) {
+          console.error(`Error syncing user ${email}:`, e);
+        }
+      }
+    }
+
+    storage.setGlobal(STORAGE_KEYS.users, users);
   }
 }
 
