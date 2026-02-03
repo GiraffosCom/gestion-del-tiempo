@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Backoffice - Gestión del Tiempo</title>
+    <title>Backoffice - Gestion del Tiempo</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Poppins', sans-serif; }
@@ -12,617 +14,1637 @@
         .card-hover { transition: all 0.3s ease; }
         .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
         .modal-backdrop { background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
+        .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; }
+        .sidebar-item { transition: all 0.2s ease; }
+        .sidebar-item:hover { background: rgba(59, 130, 246, 0.1); }
+        .sidebar-item.active { background: rgba(59, 130, 246, 0.2); border-left: 3px solid #3b82f6; }
     </style>
 </head>
 <body class="min-h-screen bg-slate-900">
 
-    <!-- Navbar -->
-    <nav class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <span class="text-3xl">🔐</span>
-                    <div>
-                        <h1 class="text-xl font-bold text-white">Backoffice</h1>
-                        <p class="text-sm text-slate-400">Gestión del Tiempo</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-4">
-                    <button onclick="openChangePasswordModal()" class="px-4 py-2 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 transition text-sm">
-                        🔑 Cambiar contraseña admin
-                    </button>
-                    <button onclick="logout()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm">
-                        🚪 Salir
-                    </button>
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-slate-800 border-r border-slate-700 z-40 transform -translate-x-full md:translate-x-0 transition-transform">
+        <div class="p-6 border-b border-slate-700">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl">🔐</span>
+                <div>
+                    <h1 class="text-xl font-bold text-white">Backoffice</h1>
+                    <p class="text-sm text-slate-400">Gestion del Tiempo</p>
                 </div>
             </div>
         </div>
-    </nav>
+
+        <nav class="p-4 space-y-2">
+            <button onclick="showSection('dashboard')" class="sidebar-item active w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white" data-section="dashboard">
+                <span>📊</span> Dashboard
+            </button>
+            <button onclick="showSection('customers')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white" data-section="customers">
+                <span>👥</span> Clientes
+            </button>
+            <button onclick="showSection('subscriptions')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white" data-section="subscriptions">
+                <span>💳</span> Suscripciones
+            </button>
+            <button onclick="showSection('payments')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white" data-section="payments">
+                <span>💰</span> Pagos
+            </button>
+            <button onclick="showSection('reports')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white" data-section="reports">
+                <span>📈</span> Reportes
+            </button>
+            <button onclick="showSection('settings')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white" data-section="settings">
+                <span>⚙️</span> Configuracion
+            </button>
+        </nav>
+
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700">
+            <button onclick="logout()" class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm flex items-center justify-center gap-2">
+                <span>🚪</span> Cerrar Sesion
+            </button>
+        </div>
+    </aside>
+
+    <!-- Mobile menu toggle -->
+    <button onclick="toggleSidebar()" class="md:hidden fixed top-4 left-4 z-50 p-2 bg-slate-800 rounded-lg text-white">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+    </button>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 py-8">
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-6 text-white">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-blue-200 text-sm">Total Usuarios</p>
-                        <p id="statTotalUsers" class="text-4xl font-bold mt-1">0</p>
+    <main class="md:ml-64 min-h-screen">
+        <!-- Top Bar -->
+        <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-30">
+            <div class="px-6 py-4 flex items-center justify-between">
+                <h2 id="pageTitle" class="text-xl font-bold text-white">Dashboard</h2>
+                <div class="flex items-center gap-4">
+                    <div id="connectionStatus" class="flex items-center gap-2 px-3 py-1 rounded-full text-sm">
+                        <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                        <span class="text-slate-400">Conectando...</span>
                     </div>
-                    <span class="text-5xl opacity-80">👥</span>
+                    <button onclick="refreshData()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm flex items-center gap-2">
+                        <span>🔄</span> Actualizar
+                    </button>
                 </div>
             </div>
-            <div class="bg-gradient-to-br from-green-600 to-green-700 rounded-2xl p-6 text-white">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-green-200 text-sm">Usuarios Activos (7d)</p>
-                        <p id="statActiveUsers" class="text-4xl font-bold mt-1">0</p>
-                    </div>
-                    <span class="text-5xl opacity-80">✅</span>
-                </div>
-            </div>
-            <div class="bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl p-6 text-white">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-purple-200 text-sm">Objetivo más popular</p>
-                        <p id="statTopGoal" class="text-lg font-bold mt-1">-</p>
-                    </div>
-                    <span class="text-5xl opacity-80">🎯</span>
-                </div>
-            </div>
-            <div class="bg-gradient-to-br from-amber-600 to-amber-700 rounded-2xl p-6 text-white">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-amber-200 text-sm">Registros hoy</p>
-                        <p id="statTodayUsers" class="text-4xl font-bold mt-1">0</p>
-                    </div>
-                    <span class="text-5xl opacity-80">📈</span>
-                </div>
-            </div>
-        </div>
+        </header>
 
-        <!-- Users Table -->
-        <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
-            <div class="p-6 border-b border-slate-700">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <h2 class="text-xl font-bold text-white">👥 Usuarios Registrados</h2>
-                    <div class="flex gap-3">
-                        <input type="text" id="searchInput" onkeyup="filterUsers()" placeholder="🔍 Buscar usuario..."
-                            class="px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 outline-none">
-                        <select id="filterGoal" onchange="filterUsers()" class="px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
-                            <option value="">Todos los objetivos</option>
-                            <option value="fitness">💪 Fitness</option>
-                            <option value="productivity">📈 Productividad</option>
-                            <option value="learning">📚 Aprendizaje</option>
-                            <option value="health">🥗 Salud</option>
-                            <option value="business">💼 Negocios</option>
-                            <option value="competition">👑 Competencia</option>
-                            <option value="personal">✨ Personal</option>
-                        </select>
-                        <button onclick="exportUsers()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-                            📥 Exportar
-                        </button>
+        <div class="p-6">
+            <!-- Dashboard Section -->
+            <section id="section-dashboard" class="section">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-6 text-white card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-blue-200 text-sm">MRR</p>
+                                <p id="statMRR" class="text-3xl font-bold mt-1">$0</p>
+                            </div>
+                            <span class="text-5xl opacity-80">💵</span>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-br from-green-600 to-green-700 rounded-2xl p-6 text-white card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-green-200 text-sm">Clientes Activos</p>
+                                <p id="statActiveCustomers" class="text-3xl font-bold mt-1">0</p>
+                            </div>
+                            <span class="text-5xl opacity-80">👥</span>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl p-6 text-white card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-purple-200 text-sm">Nuevos este mes</p>
+                                <p id="statNewCustomers" class="text-3xl font-bold mt-1">0</p>
+                            </div>
+                            <span class="text-5xl opacity-80">🆕</span>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-br from-amber-600 to-amber-700 rounded-2xl p-6 text-white card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-amber-200 text-sm">Churn Rate</p>
+                                <p id="statChurnRate" class="text-3xl font-bold mt-1">0%</p>
+                            </div>
+                            <span class="text-5xl opacity-80">📉</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-slate-700/50">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Usuario</th>
-                            <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Email</th>
-                            <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Objetivo</th>
-                            <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Duración</th>
-                            <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Inicio</th>
-                            <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Progreso</th>
-                            <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersTableBody" class="divide-y divide-slate-700">
-                        <!-- Users will be loaded here -->
-                    </tbody>
-                </table>
-            </div>
+                <!-- Charts Row -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700">
+                        <h3 class="text-lg font-bold text-white mb-4">📈 Ingresos Mensuales</h3>
+                        <canvas id="revenueChart" height="200"></canvas>
+                    </div>
+                    <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700">
+                        <h3 class="text-lg font-bold text-white mb-4">🥧 Clientes por Plan</h3>
+                        <canvas id="planDistributionChart" height="200"></canvas>
+                    </div>
+                </div>
 
-            <div id="noUsersMessage" class="hidden p-12 text-center">
-                <span class="text-6xl block mb-4">👤</span>
-                <p class="text-slate-400 text-lg">No hay usuarios registrados aún</p>
-                <p class="text-slate-500 text-sm mt-2">Los usuarios aparecerán aquí cuando se registren</p>
-            </div>
+                <!-- Recent Activity -->
+                <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
+                    <div class="p-6 border-b border-slate-700">
+                        <h3 class="text-lg font-bold text-white">🕐 Actividad Reciente</h3>
+                    </div>
+                    <div id="recentActivity" class="p-6 space-y-4">
+                        <p class="text-slate-400 text-center">Cargando actividad...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Customers Section -->
+            <section id="section-customers" class="section hidden">
+                <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
+                    <div class="p-6 border-b border-slate-700">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <h3 class="text-lg font-bold text-white">👥 Clientes</h3>
+                            <div class="flex flex-wrap gap-3">
+                                <input type="text" id="customerSearch" onkeyup="filterCustomers()" placeholder="🔍 Buscar..."
+                                    class="px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 outline-none">
+                                <select id="customerPlanFilter" onchange="filterCustomers()" class="px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <option value="">Todos los planes</option>
+                                    <option value="Free">Free</option>
+                                    <option value="Pro">Pro</option>
+                                    <option value="Teams">Teams</option>
+                                </select>
+                                <button onclick="exportCustomers()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                                    📥 Exportar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-slate-700/50">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Cliente</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Email</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Plan</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Estado</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Registro</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customersTableBody" class="divide-y divide-slate-700">
+                                <tr><td colspan="6" class="px-6 py-12 text-center text-slate-400">Cargando clientes...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="customersPagination" class="p-4 border-t border-slate-700 flex items-center justify-between">
+                        <p class="text-slate-400 text-sm">Mostrando <span id="customersShowing">0</span> de <span id="customersTotal">0</span></p>
+                        <div class="flex gap-2">
+                            <button onclick="loadCustomers(currentCustomerPage - 1)" id="customersPrevBtn" class="px-3 py-1 bg-slate-700 text-white rounded hover:bg-slate-600 disabled:opacity-50" disabled>Anterior</button>
+                            <button onclick="loadCustomers(currentCustomerPage + 1)" id="customersNextBtn" class="px-3 py-1 bg-slate-700 text-white rounded hover:bg-slate-600 disabled:opacity-50">Siguiente</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Subscriptions Section -->
+            <section id="section-subscriptions" class="section hidden">
+                <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
+                    <div class="p-6 border-b border-slate-700">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <h3 class="text-lg font-bold text-white">💳 Suscripciones</h3>
+                            <div class="flex flex-wrap gap-3">
+                                <select id="subscriptionStatusFilter" onchange="filterSubscriptions()" class="px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <option value="">Todos los estados</option>
+                                    <option value="Active">Activas</option>
+                                    <option value="Paused">Pausadas</option>
+                                    <option value="Cancelled">Canceladas</option>
+                                    <option value="Expired">Expiradas</option>
+                                </select>
+                                <button onclick="exportSubscriptions()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                                    📥 Exportar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-slate-700/50">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">ID</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Cliente</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Plan</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Ciclo</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Estado</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Vence</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subscriptionsTableBody" class="divide-y divide-slate-700">
+                                <tr><td colspan="7" class="px-6 py-12 text-center text-slate-400">Cargando suscripciones...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="subscriptionsPagination" class="p-4 border-t border-slate-700 flex items-center justify-between">
+                        <p class="text-slate-400 text-sm">Mostrando <span id="subscriptionsShowing">0</span> de <span id="subscriptionsTotal">0</span></p>
+                        <div class="flex gap-2">
+                            <button onclick="loadSubscriptions(currentSubscriptionPage - 1)" id="subscriptionsPrevBtn" class="px-3 py-1 bg-slate-700 text-white rounded hover:bg-slate-600 disabled:opacity-50" disabled>Anterior</button>
+                            <button onclick="loadSubscriptions(currentSubscriptionPage + 1)" id="subscriptionsNextBtn" class="px-3 py-1 bg-slate-700 text-white rounded hover:bg-slate-600 disabled:opacity-50">Siguiente</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Payments Section -->
+            <section id="section-payments" class="section hidden">
+                <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
+                    <div class="p-6 border-b border-slate-700">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <h3 class="text-lg font-bold text-white">💰 Pagos</h3>
+                            <div class="flex flex-wrap gap-3">
+                                <input type="date" id="paymentDateFrom" class="px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                                <input type="date" id="paymentDateTo" class="px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                                <button onclick="filterPayments()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                                    Filtrar
+                                </button>
+                                <button onclick="exportPayments()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                                    📥 Exportar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-slate-700/50">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">ID</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Cliente</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Monto</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Fecha</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Metodo</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Estado</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Transaccion</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paymentsTableBody" class="divide-y divide-slate-700">
+                                <tr><td colspan="7" class="px-6 py-12 text-center text-slate-400">Cargando pagos...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="paymentsPagination" class="p-4 border-t border-slate-700 flex items-center justify-between">
+                        <p class="text-slate-400 text-sm">Mostrando <span id="paymentsShowing">0</span> de <span id="paymentsTotal">0</span></p>
+                        <div class="flex gap-2">
+                            <button onclick="loadPayments(currentPaymentPage - 1)" id="paymentsPrevBtn" class="px-3 py-1 bg-slate-700 text-white rounded hover:bg-slate-600 disabled:opacity-50" disabled>Anterior</button>
+                            <button onclick="loadPayments(currentPaymentPage + 1)" id="paymentsNextBtn" class="px-3 py-1 bg-slate-700 text-white rounded hover:bg-slate-600 disabled:opacity-50">Siguiente</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="section-reports" class="section hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6 card-hover cursor-pointer" onclick="generateReport('customers')">
+                        <div class="text-4xl mb-4">👥</div>
+                        <h3 class="text-lg font-bold text-white mb-2">Reporte de Clientes</h3>
+                        <p class="text-slate-400 text-sm">Lista completa de clientes con informacion de contacto y plan.</p>
+                    </div>
+                    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6 card-hover cursor-pointer" onclick="generateReport('subscriptions')">
+                        <div class="text-4xl mb-4">💳</div>
+                        <h3 class="text-lg font-bold text-white mb-2">Reporte de Suscripciones</h3>
+                        <p class="text-slate-400 text-sm">Estado de todas las suscripciones, activas y canceladas.</p>
+                    </div>
+                    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6 card-hover cursor-pointer" onclick="generateReport('payments')">
+                        <div class="text-4xl mb-4">💰</div>
+                        <h3 class="text-lg font-bold text-white mb-2">Reporte de Pagos</h3>
+                        <p class="text-slate-400 text-sm">Historial de pagos con montos, fechas y metodos.</p>
+                    </div>
+                    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6 card-hover cursor-pointer" onclick="generateReport('revenue')">
+                        <div class="text-4xl mb-4">📈</div>
+                        <h3 class="text-lg font-bold text-white mb-2">Reporte de Ingresos</h3>
+                        <p class="text-slate-400 text-sm">Ingresos mensuales con totales y tendencias.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="section-settings" class="section hidden">
+                <div class="max-w-2xl space-y-6">
+                    <!-- API Configuration -->
+                    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6">
+                        <h3 class="text-lg font-bold text-white mb-4">🔗 Configuracion de Supabase</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">URL del Proyecto Supabase</label>
+                                <input type="url" id="apiUrlInput" placeholder="https://xxxxx.supabase.co"
+                                    class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">API Key (anon public)</label>
+                                <input type="password" id="apiKeyInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                                    class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <button onclick="saveApiConfig()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                                Guardar y Conectar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Admin Password -->
+                    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6">
+                        <h3 class="text-lg font-bold text-white mb-4">🔑 Cambiar Contrasena Admin</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Contrasena Actual</label>
+                                <input type="password" id="currentPassword"
+                                    class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Nueva Contrasena</label>
+                                <input type="password" id="newPassword"
+                                    class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Confirmar Nueva Contrasena</label>
+                                <input type="password" id="confirmPassword"
+                                    class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <button onclick="changePassword()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                                Cambiar Contrasena
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Subscription Plans -->
+                    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6">
+                        <h3 class="text-lg font-bold text-white mb-4">📋 Planes de Suscripcion</h3>
+                        <div id="plansContainer" class="space-y-4">
+                            <p class="text-slate-400">Cargando planes...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
     </main>
 
-    <!-- Modal: Ver Plan del Usuario -->
-    <div id="viewPlanModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden border border-slate-700">
+    <!-- Customer Detail Modal -->
+    <div id="customerModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden border border-slate-700">
             <div class="p-6 border-b border-slate-700 flex items-center justify-between">
-                <h3 class="text-xl font-bold text-white">📋 Plan del Usuario</h3>
-                <button onclick="closeViewPlanModal()" class="text-slate-400 hover:text-white text-2xl">&times;</button>
+                <h3 class="text-xl font-bold text-white">👤 Detalle del Cliente</h3>
+                <button onclick="closeModal('customerModal')" class="text-slate-400 hover:text-white text-2xl">&times;</button>
             </div>
-            <div id="viewPlanContent" class="p-6 overflow-y-auto max-h-[70vh]">
-                <!-- Plan content will be loaded here -->
+            <div id="customerModalContent" class="p-6 overflow-y-auto max-h-[70vh]">
+                <!-- Content loaded dynamically -->
             </div>
         </div>
     </div>
 
-    <!-- Modal: Editar Usuario -->
-    <div id="editUserModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+    <!-- Subscription Action Modal -->
+    <div id="subscriptionModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md border border-slate-700">
             <div class="p-6 border-b border-slate-700">
-                <h3 class="text-xl font-bold text-white">✏️ Editar Usuario</h3>
+                <h3 id="subscriptionModalTitle" class="text-xl font-bold text-white">Accion de Suscripcion</h3>
             </div>
-            <div class="p-6 space-y-4">
-                <input type="hidden" id="editUserEmail">
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-2">Nombre</label>
-                    <input type="text" id="editUserName" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-2">Nueva Contraseña (dejar vacío para mantener)</label>
-                    <input type="password" id="editUserPassword" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none" placeholder="••••••••">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-2">Objetivo</label>
-                    <select id="editUserGoal" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
-                        <option value="fitness">💪 Fitness</option>
-                        <option value="productivity">📈 Productividad</option>
-                        <option value="learning">📚 Aprendizaje</option>
-                        <option value="health">🥗 Salud</option>
-                        <option value="business">💼 Negocios</option>
-                        <option value="competition">👑 Competencia</option>
-                        <option value="personal">✨ Personal</option>
-                        <option value="other">🎯 Otro</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-2">Duración (días)</label>
-                    <input type="number" id="editUserDuration" min="1" max="365" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
-            </div>
-            <div class="p-6 border-t border-slate-700 flex gap-3">
-                <button onclick="closeEditUserModal()" class="flex-1 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition">Cancelar</button>
-                <button onclick="saveUserEdit()" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Guardar</button>
+            <div id="subscriptionModalContent" class="p-6">
+                <!-- Content loaded dynamically -->
             </div>
         </div>
     </div>
 
-    <!-- Modal: Cambiar Contraseña Admin -->
-    <div id="changePasswordModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md border border-slate-700">
-            <div class="p-6 border-b border-slate-700">
-                <h3 class="text-xl font-bold text-white">🔑 Cambiar Contraseña Admin</h3>
-            </div>
-            <div class="p-6 space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-2">Contraseña Actual</label>
-                    <input type="password" id="currentAdminPassword" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-2">Nueva Contraseña</label>
-                    <input type="password" id="newAdminPassword" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-2">Confirmar Nueva Contraseña</label>
-                    <input type="password" id="confirmAdminPassword" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
-                <div id="passwordError" class="hidden text-red-400 text-sm py-2"></div>
-            </div>
-            <div class="p-6 border-t border-slate-700 flex gap-3">
-                <button onclick="closeChangePasswordModal()" class="flex-1 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition">Cancelar</button>
-                <button onclick="saveAdminPassword()" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Guardar</button>
-            </div>
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 right-4 transform translate-y-full transition-transform duration-300 z-50">
+        <div class="bg-slate-800 border border-slate-700 rounded-lg p-4 shadow-xl flex items-center gap-3">
+            <span id="toastIcon" class="text-2xl">✅</span>
+            <span id="toastMessage" class="text-white">Mensaje</span>
         </div>
     </div>
 
-    <!-- Modal: Confirmar Eliminar -->
-    <div id="deleteUserModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm border border-slate-700">
-            <div class="p-6 text-center">
-                <span class="text-6xl">⚠️</span>
-                <h3 class="text-xl font-bold text-white mt-4">¿Eliminar usuario?</h3>
-                <p class="text-slate-400 mt-2" id="deleteUserName">Esta acción no se puede deshacer</p>
-            </div>
-            <div class="p-6 border-t border-slate-700 flex gap-3">
-                <button onclick="closeDeleteUserModal()" class="flex-1 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition">Cancelar</button>
-                <button onclick="confirmDeleteUser()" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">Eliminar</button>
-            </div>
-        </div>
-    </div>
-
+    <script src="src/js/services/supabase-api.js"></script>
+    <script>
+        // Alias for compatibility with existing code
+        const frappeAPI = supabaseAPI;
+    </script>
     <script>
         // Check admin session
         if (!localStorage.getItem('gestion-admin-session')) {
             window.location.href = 'admin-login.html';
         }
 
-        let allUsers = {};
-        let deletingEmail = null;
-
-        const goalLabels = {
-            fitness: '💪 Fitness',
-            productivity: '📈 Productividad',
-            learning: '📚 Aprendizaje',
-            health: '🥗 Salud',
-            business: '💼 Negocios',
-            competition: '👑 Competencia',
-            personal: '✨ Personal',
-            other: '🎯 Otro'
-        };
-
-        function loadUsers() {
-            allUsers = JSON.parse(localStorage.getItem('gestion-users') || '{}');
-            renderUsers(allUsers);
-            updateStats();
+        // Sanitize HTML helper - uses DOMPurify
+        function sanitizeHTML(html) {
+            return DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
         }
 
-        function renderUsers(users) {
-            const tbody = document.getElementById('usersTableBody');
-            const noUsersMessage = document.getElementById('noUsersMessage');
+        // Escape text for safe display
+        function escapeHTML(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // State
+        let currentSection = 'dashboard';
+        let currentCustomerPage = 1;
+        let currentSubscriptionPage = 1;
+        let currentPaymentPage = 1;
+        let allCustomers = [];
+        let allSubscriptions = [];
+        let allPayments = [];
+        let subscriptionPlans = [];
+        let revenueChart = null;
+        let planChart = null;
+        let isConnected = false;
+
+        // Initialize Supabase config
+        document.getElementById('apiUrlInput').value = localStorage.getItem('supabase_url') || 'https://crpotifjwqoljvcvsdje.supabase.co';
+        document.getElementById('apiKeyInput').value = localStorage.getItem('supabase_key') || '';
+
+        // ==================== Navigation ====================
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        function showSection(section) {
+            currentSection = section;
+
+            // Update sidebar
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.section === section) {
+                    item.classList.add('active');
+                }
+            });
+
+            // Update content
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('section-' + section).classList.remove('hidden');
+
+            // Update title
+            const titles = {
+                dashboard: 'Dashboard',
+                customers: 'Clientes',
+                subscriptions: 'Suscripciones',
+                payments: 'Pagos',
+                reports: 'Reportes',
+                settings: 'Configuracion'
+            };
+            document.getElementById('pageTitle').textContent = titles[section];
+
+            // Load data for section
+            if (section === 'customers') loadCustomers();
+            if (section === 'subscriptions') loadSubscriptions();
+            if (section === 'payments') loadPayments();
+            if (section === 'settings') loadPlans();
+
+            // Close mobile sidebar
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+        }
+
+        // ==================== Connection & Data Loading ====================
+
+        async function checkConnection() {
+            const statusEl = document.getElementById('connectionStatus');
+            try {
+                const connected = await supabaseAPI.testConnection();
+                if (connected) {
+                    isConnected = true;
+                    statusEl.innerHTML = sanitizeHTML('<span class="w-2 h-2 rounded-full bg-green-500"></span><span class="text-green-400">Supabase Conectado</span>');
+                    return true;
+                }
+            } catch (e) {
+                console.log('Supabase not available, using localStorage fallback');
+            }
+            isConnected = false;
+            statusEl.innerHTML = sanitizeHTML('<span class="w-2 h-2 rounded-full bg-yellow-500"></span><span class="text-yellow-400">Modo Local</span>');
+            return false;
+        }
+
+        async function refreshData() {
+            await checkConnection();
+            if (isConnected) {
+                loadDashboard();
+            } else {
+                loadLocalData();
+            }
+        }
+
+        async function loadDashboard() {
+            if (isConnected) {
+                try {
+                    const stats = await frappeAPI.getDashboardStats();
+                    updateDashboardUI(stats);
+                } catch (e) {
+                    console.error('Error loading dashboard:', e);
+                    loadLocalData();
+                }
+            } else {
+                loadLocalData();
+            }
+        }
+
+        function loadLocalData() {
+            // Load from localStorage as fallback
+            const users = JSON.parse(localStorage.getItem('gestion-users') || '{}');
             const emails = Object.keys(users);
 
-            if (emails.length === 0) {
-                tbody.innerHTML = '';
-                noUsersMessage.classList.remove('hidden');
+            document.getElementById('statMRR').textContent = '$0';
+            document.getElementById('statActiveCustomers').textContent = String(emails.length);
+            document.getElementById('statNewCustomers').textContent = String(countNewThisMonth(users));
+            document.getElementById('statChurnRate').textContent = '0%';
+
+            // Update charts with local data
+            updateRevenueChart([
+                { month: 'Ene', revenue: 0 },
+                { month: 'Feb', revenue: 0 },
+                { month: 'Mar', revenue: 0 },
+                { month: 'Abr', revenue: 0 },
+                { month: 'May', revenue: 0 },
+                { month: 'Jun', revenue: 0 }
+            ]);
+
+            updatePlanChart([
+                { plan_name: 'Free', customer_count: emails.length }
+            ]);
+
+            updateRecentActivity([]);
+        }
+
+        function countNewThisMonth(users) {
+            const now = new Date();
+            const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            let count = 0;
+            Object.values(users).forEach(function(user) {
+                if (user.createdAt && new Date(user.createdAt) >= firstOfMonth) count++;
+            });
+            return count;
+        }
+
+        function updateDashboardUI(stats) {
+            document.getElementById('statMRR').textContent = frappeAPI.formatCurrency(stats.mrr);
+            document.getElementById('statActiveCustomers').textContent = String(stats.active_subscriptions);
+            document.getElementById('statNewCustomers').textContent = String(stats.new_customers_month);
+            document.getElementById('statChurnRate').textContent = stats.churn_rate + '%';
+
+            updateRevenueChart(stats.revenue_trend);
+            updatePlanChart(stats.customers_by_plan);
+            updateRecentActivity([]);
+        }
+
+        function updateRevenueChart(data) {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+
+            if (revenueChart) revenueChart.destroy();
+
+            revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(function(d) { return d.month; }),
+                    datasets: [{
+                        label: 'Ingresos',
+                        data: data.map(function(d) { return d.revenue; }),
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        },
+                        x: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updatePlanChart(data) {
+            const ctx = document.getElementById('planDistributionChart').getContext('2d');
+
+            if (planChart) planChart.destroy();
+
+            planChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.map(function(d) { return d.plan_name; }),
+                    datasets: [{
+                        data: data.map(function(d) { return d.customer_count; }),
+                        backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateRecentActivity(activities) {
+            const container = document.getElementById('recentActivity');
+            if (activities.length === 0) {
+                container.textContent = 'No hay actividad reciente';
+                container.className = 'p-6 text-slate-400 text-center';
+                return;
+            }
+            // Clear and rebuild using DOM methods
+            container.innerHTML = '';
+            container.className = 'p-6 space-y-4';
+            activities.forEach(function(a) {
+                const div = document.createElement('div');
+                div.className = 'flex items-center gap-4 p-3 bg-slate-700/50 rounded-lg';
+
+                const icon = document.createElement('span');
+                icon.className = 'text-2xl';
+                icon.textContent = a.icon;
+
+                const info = document.createElement('div');
+                const msg = document.createElement('p');
+                msg.className = 'text-white';
+                msg.textContent = a.message;
+                const time = document.createElement('p');
+                time.className = 'text-slate-500 text-sm';
+                time.textContent = a.time;
+                info.appendChild(msg);
+                info.appendChild(time);
+
+                div.appendChild(icon);
+                div.appendChild(info);
+                container.appendChild(div);
+            });
+        }
+
+        // ==================== Customers ====================
+
+        async function loadCustomers(page) {
+            page = page || 1;
+            currentCustomerPage = page;
+            const tbody = document.getElementById('customersTableBody');
+
+            if (isConnected) {
+                try {
+                    const result = await frappeAPI.getCustomers({ page: page, pageSize: 20 });
+                    allCustomers = result.customers;
+                    renderCustomersTable(allCustomers);
+                    updatePagination('customers', result);
+                } catch (e) {
+                    console.error('Error loading customers:', e);
+                    loadLocalCustomers();
+                }
+            } else {
+                loadLocalCustomers();
+            }
+        }
+
+        function loadLocalCustomers() {
+            const users = JSON.parse(localStorage.getItem('gestion-users') || '{}');
+            allCustomers = Object.keys(users).map(function(email) {
+                return {
+                    name: email,
+                    full_name: users[email].name,
+                    email: email,
+                    plan_name: 'Free',
+                    subscription: { status: 'Active' },
+                    creation: users[email].createdAt
+                };
+            });
+            renderCustomersTable(allCustomers);
+            document.getElementById('customersTotal').textContent = String(allCustomers.length);
+            document.getElementById('customersShowing').textContent = String(allCustomers.length);
+        }
+
+        function renderCustomersTable(customers) {
+            const tbody = document.getElementById('customersTableBody');
+            tbody.innerHTML = '';
+
+            if (customers.length === 0) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 6;
+                td.className = 'px-6 py-12 text-center text-slate-400';
+                td.textContent = 'No hay clientes';
+                tr.appendChild(td);
+                tbody.appendChild(tr);
                 return;
             }
 
-            noUsersMessage.classList.add('hidden');
+            customers.forEach(function(c) {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-700/50 transition';
 
-            tbody.innerHTML = emails.map(email => {
+                // Client cell
+                const td1 = document.createElement('td');
+                td1.className = 'px-6 py-4';
+                const div1 = document.createElement('div');
+                div1.className = 'flex items-center gap-3';
+                const avatar = document.createElement('div');
+                avatar.className = 'w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold';
+                avatar.textContent = (c.full_name || '?').charAt(0).toUpperCase();
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'text-white font-medium';
+                nameSpan.textContent = c.full_name || '-';
+                div1.appendChild(avatar);
+                div1.appendChild(nameSpan);
+                td1.appendChild(div1);
+
+                // Email cell
+                const td2 = document.createElement('td');
+                td2.className = 'px-6 py-4 text-slate-300';
+                td2.textContent = c.email;
+
+                // Plan cell
+                const td3 = document.createElement('td');
+                td3.className = 'px-6 py-4';
+                const planBadge = document.createElement('span');
+                planBadge.className = 'px-3 py-1 bg-blue-600/20 text-blue-400 rounded-full text-sm';
+                planBadge.textContent = c.plan_name || 'Free';
+                td3.appendChild(planBadge);
+
+                // Status cell
+                const td4 = document.createElement('td');
+                td4.className = 'px-6 py-4';
+                const status = c.subscription ? c.subscription.status : 'Active';
+                const statusBadge = document.createElement('span');
+                const statusStyles = {
+                    Active: 'bg-green-600/20 text-green-400',
+                    Paused: 'bg-yellow-600/20 text-yellow-400',
+                    Cancelled: 'bg-red-600/20 text-red-400',
+                    Expired: 'bg-slate-600/20 text-slate-400'
+                };
+                statusBadge.className = 'px-3 py-1 rounded-full text-sm ' + (statusStyles[status] || statusStyles.Active);
+                statusBadge.textContent = status;
+                td4.appendChild(statusBadge);
+
+                // Date cell
+                const td5 = document.createElement('td');
+                td5.className = 'px-6 py-4 text-slate-300';
+                td5.textContent = formatDate(c.creation);
+
+                // Actions cell
+                const td6 = document.createElement('td');
+                td6.className = 'px-6 py-4';
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'flex gap-2';
+
+                const viewBtn = document.createElement('button');
+                viewBtn.className = 'p-2 bg-blue-600/20 text-blue-400 rounded-lg hover:bg-blue-600/40 transition';
+                viewBtn.title = 'Ver detalle';
+                viewBtn.textContent = '👁️';
+                viewBtn.onclick = function() { viewCustomer(c.email); };
+
+                const manageBtn = document.createElement('button');
+                manageBtn.className = 'p-2 bg-purple-600/20 text-purple-400 rounded-lg hover:bg-purple-600/40 transition';
+                manageBtn.title = 'Gestionar suscripcion';
+                manageBtn.textContent = '💳';
+                manageBtn.onclick = function() { editCustomerSubscription(c.name); };
+
+                actionsDiv.appendChild(viewBtn);
+                actionsDiv.appendChild(manageBtn);
+                td6.appendChild(actionsDiv);
+
+                tr.appendChild(td1);
+                tr.appendChild(td2);
+                tr.appendChild(td3);
+                tr.appendChild(td4);
+                tr.appendChild(td5);
+                tr.appendChild(td6);
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterCustomers() {
+            const search = document.getElementById('customerSearch').value.toLowerCase();
+            const planFilter = document.getElementById('customerPlanFilter').value;
+
+            const filtered = allCustomers.filter(function(c) {
+                const matchesSearch = (c.full_name || '').toLowerCase().indexOf(search) !== -1 ||
+                                     c.email.toLowerCase().indexOf(search) !== -1;
+                const matchesPlan = !planFilter || c.plan_name === planFilter;
+                return matchesSearch && matchesPlan;
+            });
+
+            renderCustomersTable(filtered);
+        }
+
+        async function viewCustomer(email) {
+            const modal = document.getElementById('customerModal');
+            const content = document.getElementById('customerModalContent');
+
+            content.textContent = 'Cargando...';
+            content.className = 'p-6 text-slate-400 text-center';
+            modal.classList.remove('hidden');
+
+            if (isConnected) {
+                try {
+                    const data = await frappeAPI.getCustomerDetails(email);
+                    renderCustomerDetail(data);
+                } catch (e) {
+                    content.textContent = 'Error al cargar datos';
+                    content.className = 'p-6 text-red-400 text-center';
+                }
+            } else {
+                // Load from localStorage
+                const users = JSON.parse(localStorage.getItem('gestion-users') || '{}');
                 const user = users[email];
-                const progress = calculateUserProgress(email);
-                const daysLeft = calculateDaysLeft(user);
-
-                return `
-                    <tr class="hover:bg-slate-700/50 transition">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                                    ${user.name.charAt(0).toUpperCase()}
-                                </div>
-                                <div>
-                                    <p class="text-white font-medium">${user.name}</p>
-                                    <p class="text-slate-500 text-xs">Creado: ${formatDate(user.createdAt)}</p>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-slate-300">${email}</td>
-                        <td class="px-6 py-4">
-                            <span class="px-3 py-1 bg-slate-700 text-slate-300 rounded-full text-sm">
-                                ${goalLabels[user.goal] || user.goal}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-slate-300">${user.duration} días</td>
-                        <td class="px-6 py-4 text-slate-300">${user.startDate}</td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-2">
-                                <div class="w-24 h-2 bg-slate-700 rounded-full overflow-hidden">
-                                    <div class="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" style="width: ${progress}%"></div>
-                                </div>
-                                <span class="text-slate-300 text-sm">${progress}%</span>
-                            </div>
-                            <p class="text-slate-500 text-xs mt-1">${daysLeft > 0 ? daysLeft + ' días restantes' : 'Plan finalizado'}</p>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="flex gap-2">
-                                <button onclick="viewUserPlan('${email}')" class="p-2 bg-blue-600/20 text-blue-400 rounded-lg hover:bg-blue-600/40 transition" title="Ver plan">
-                                    👁️
-                                </button>
-                                <button onclick="openEditUserModal('${email}')" class="p-2 bg-amber-600/20 text-amber-400 rounded-lg hover:bg-amber-600/40 transition" title="Editar">
-                                    ✏️
-                                </button>
-                                <button onclick="openDeleteUserModal('${email}')" class="p-2 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/40 transition" title="Eliminar">
-                                    🗑️
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function updateStats() {
-            const emails = Object.keys(allUsers);
-            const today = new Date().toISOString().split('T')[0];
-
-            // Total users
-            document.getElementById('statTotalUsers').textContent = emails.length;
-
-            // Today's registrations
-            const todayUsers = emails.filter(email => {
-                const created = allUsers[email].createdAt?.split('T')[0];
-                return created === today;
-            }).length;
-            document.getElementById('statTodayUsers').textContent = todayUsers;
-
-            // Active users (simplified - users with any activity)
-            let activeCount = 0;
-            emails.forEach(email => {
-                const userKey = email.replace(/[^a-z0-9]/gi, '_');
-                const activities = localStorage.getItem(`${userKey}-activities`);
-                if (activities && activities !== '{}') activeCount++;
-            });
-            document.getElementById('statActiveUsers').textContent = activeCount;
-
-            // Top goal
-            const goalCounts = {};
-            emails.forEach(email => {
-                const goal = allUsers[email].goal;
-                goalCounts[goal] = (goalCounts[goal] || 0) + 1;
-            });
-            const topGoal = Object.keys(goalCounts).sort((a, b) => goalCounts[b] - goalCounts[a])[0];
-            document.getElementById('statTopGoal').textContent = goalLabels[topGoal] || '-';
-        }
-
-        function calculateUserProgress(email) {
-            const userKey = email.replace(/[^a-z0-9]/gi, '_');
-            const activities = JSON.parse(localStorage.getItem(`${userKey}-activities`) || '{}');
-            const completedCount = Object.values(activities).filter(v => v).length;
-
-            // Estimate total activities (roughly 17 per day for 60 days)
-            const user = allUsers[email];
-            const totalEstimate = user.duration * 17;
-
-            return totalEstimate > 0 ? Math.min(100, Math.round((completedCount / totalEstimate) * 100)) : 0;
-        }
-
-        function calculateDaysLeft(user) {
-            const start = new Date(user.startDate);
-            const end = new Date(start);
-            end.setDate(end.getDate() + user.duration);
-            const today = new Date();
-            const diff = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
-            return Math.max(0, diff);
-        }
-
-        function formatDate(dateStr) {
-            if (!dateStr) return '-';
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
-        }
-
-        function filterUsers() {
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            const goalFilter = document.getElementById('filterGoal').value;
-
-            const filtered = {};
-            Object.keys(allUsers).forEach(email => {
-                const user = allUsers[email];
-                const matchesSearch = user.name.toLowerCase().includes(search) || email.toLowerCase().includes(search);
-                const matchesGoal = !goalFilter || user.goal === goalFilter;
-
-                if (matchesSearch && matchesGoal) {
-                    filtered[email] = user;
-                }
-            });
-
-            renderUsers(filtered);
-        }
-
-        function viewUserPlan(email) {
-            const user = allUsers[email];
-            const userKey = email.replace(/[^a-z0-9]/gi, '_');
-
-            const habits = JSON.parse(localStorage.getItem(`${userKey}-habits`) || '{}');
-            const activities = JSON.parse(localStorage.getItem(`${userKey}-activities`) || '{}');
-            const customSchedules = JSON.parse(localStorage.getItem(`${userKey}-custom-schedules`) || '{}');
-            const customHabits = JSON.parse(localStorage.getItem(`${userKey}-custom-habits`) || 'null');
-            const customGoals = JSON.parse(localStorage.getItem(`${userKey}-custom-goals`) || 'null');
-
-            const completedHabits = Object.values(habits).filter(v => v).length;
-            const completedActivities = Object.values(activities).filter(v => v).length;
-            const customDays = Object.keys(customSchedules).length;
-
-            const content = `
-                <div class="space-y-6">
-                    <div class="flex items-center gap-4 p-4 bg-slate-700/50 rounded-xl">
-                        <div class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold">
-                            ${user.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                            <h4 class="text-xl font-bold text-white">${user.name}</h4>
-                            <p class="text-slate-400">${email}</p>
-                            <p class="text-slate-500 text-sm">${goalLabels[user.goal]}</p>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="bg-slate-700/50 rounded-xl p-4 text-center">
-                            <p class="text-3xl font-bold text-blue-400">${user.duration}</p>
-                            <p class="text-slate-400 text-sm">Días totales</p>
-                        </div>
-                        <div class="bg-slate-700/50 rounded-xl p-4 text-center">
-                            <p class="text-3xl font-bold text-green-400">${completedActivities}</p>
-                            <p class="text-slate-400 text-sm">Actividades completadas</p>
-                        </div>
-                        <div class="bg-slate-700/50 rounded-xl p-4 text-center">
-                            <p class="text-3xl font-bold text-purple-400">${completedHabits}</p>
-                            <p class="text-slate-400 text-sm">Hábitos marcados</p>
-                        </div>
-                        <div class="bg-slate-700/50 rounded-xl p-4 text-center">
-                            <p class="text-3xl font-bold text-amber-400">${customDays}</p>
-                            <p class="text-slate-400 text-sm">Días personalizados</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-700/50 rounded-xl p-4">
-                        <h5 class="font-bold text-white mb-3">📅 Información del Plan</h5>
-                        <div class="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                                <p class="text-slate-400">Fecha de inicio</p>
-                                <p class="text-white">${user.startDate}</p>
-                            </div>
-                            <div>
-                                <p class="text-slate-400">Fecha de registro</p>
-                                <p class="text-white">${formatDate(user.createdAt)}</p>
-                            </div>
-                            <div>
-                                <p class="text-slate-400">Días restantes</p>
-                                <p class="text-white">${calculateDaysLeft(user)} días</p>
-                            </div>
-                            <div>
-                                <p class="text-slate-400">Progreso general</p>
-                                <p class="text-white">${calculateUserProgress(email)}%</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    ${customHabits ? `
-                        <div class="bg-slate-700/50 rounded-xl p-4">
-                            <h5 class="font-bold text-white mb-3">✅ Hábitos personalizados (${customHabits.length})</h5>
-                            <div class="flex flex-wrap gap-2">
-                                ${customHabits.map(h => `<span class="px-3 py-1 bg-slate-600 rounded-full text-sm text-slate-300">${h.icon} ${h.name}</span>`).join('')}
-                            </div>
-                        </div>
-                    ` : ''}
-
-                    ${customGoals ? `
-                        <div class="bg-slate-700/50 rounded-xl p-4">
-                            <h5 class="font-bold text-white mb-3">🎯 Metas personalizadas</h5>
-                            <p class="text-slate-400 text-sm">El usuario ha personalizado ${customGoals.length} semanas de metas</p>
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-
-            document.getElementById('viewPlanContent').innerHTML = content;
-            document.getElementById('viewPlanModal').classList.remove('hidden');
-        }
-
-        function closeViewPlanModal() {
-            document.getElementById('viewPlanModal').classList.add('hidden');
-        }
-
-        function openEditUserModal(email) {
-            const user = allUsers[email];
-            document.getElementById('editUserEmail').value = email;
-            document.getElementById('editUserName').value = user.name;
-            document.getElementById('editUserPassword').value = '';
-            document.getElementById('editUserGoal').value = user.goal;
-            document.getElementById('editUserDuration').value = user.duration;
-            document.getElementById('editUserModal').classList.remove('hidden');
-        }
-
-        function closeEditUserModal() {
-            document.getElementById('editUserModal').classList.add('hidden');
-        }
-
-        function saveUserEdit() {
-            const email = document.getElementById('editUserEmail').value;
-            const newPassword = document.getElementById('editUserPassword').value;
-
-            allUsers[email].name = document.getElementById('editUserName').value;
-            allUsers[email].goal = document.getElementById('editUserGoal').value;
-            allUsers[email].duration = parseInt(document.getElementById('editUserDuration').value);
-
-            if (newPassword) {
-                allUsers[email].password = newPassword;
-            }
-
-            localStorage.setItem('gestion-users', JSON.stringify(allUsers));
-            closeEditUserModal();
-            loadUsers();
-            alert('✅ Usuario actualizado correctamente');
-        }
-
-        function openDeleteUserModal(email) {
-            deletingEmail = email;
-            document.getElementById('deleteUserName').textContent = `Se eliminará a "${allUsers[email].name}" y todos sus datos`;
-            document.getElementById('deleteUserModal').classList.remove('hidden');
-        }
-
-        function closeDeleteUserModal() {
-            document.getElementById('deleteUserModal').classList.add('hidden');
-            deletingEmail = null;
-        }
-
-        function confirmDeleteUser() {
-            if (!deletingEmail) return;
-
-            // Delete user data
-            const userKey = deletingEmail.replace(/[^a-z0-9]/gi, '_');
-            const keysToRemove = [];
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.startsWith(userKey)) {
-                    keysToRemove.push(key);
+                if (user) {
+                    renderCustomerDetail({
+                        customer: { full_name: user.name, email: email, creation: user.createdAt },
+                        subscription: null,
+                        plan_details: null,
+                        payments: []
+                    });
                 }
             }
-            keysToRemove.forEach(key => localStorage.removeItem(key));
-
-            // Delete user from users list
-            delete allUsers[deletingEmail];
-            localStorage.setItem('gestion-users', JSON.stringify(allUsers));
-
-            closeDeleteUserModal();
-            loadUsers();
-            alert('✅ Usuario eliminado correctamente');
         }
 
-        function openChangePasswordModal() {
-            document.getElementById('currentAdminPassword').value = '';
-            document.getElementById('newAdminPassword').value = '';
-            document.getElementById('confirmAdminPassword').value = '';
-            document.getElementById('passwordError').classList.add('hidden');
-            document.getElementById('changePasswordModal').classList.remove('hidden');
+        function renderCustomerDetail(data) {
+            const content = document.getElementById('customerModalContent');
+            content.innerHTML = '';
+            content.className = 'p-6 overflow-y-auto max-h-[70vh]';
+
+            const customer = data.customer;
+            const subscription = data.subscription;
+            const plan_details = data.plan_details;
+            const payments = data.payments;
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'space-y-6';
+
+            // Header
+            const header = document.createElement('div');
+            header.className = 'flex items-center gap-4 p-4 bg-slate-700/50 rounded-xl';
+
+            const avatar = document.createElement('div');
+            avatar.className = 'w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold';
+            avatar.textContent = (customer.full_name || '?').charAt(0).toUpperCase();
+
+            const info = document.createElement('div');
+            const nameEl = document.createElement('h4');
+            nameEl.className = 'text-xl font-bold text-white';
+            nameEl.textContent = customer.full_name || '-';
+            const emailEl = document.createElement('p');
+            emailEl.className = 'text-slate-400';
+            emailEl.textContent = customer.email;
+            const dateEl = document.createElement('p');
+            dateEl.className = 'text-slate-500 text-sm';
+            dateEl.textContent = 'Registrado: ' + formatDate(customer.creation);
+            info.appendChild(nameEl);
+            info.appendChild(emailEl);
+            info.appendChild(dateEl);
+
+            header.appendChild(avatar);
+            header.appendChild(info);
+            wrapper.appendChild(header);
+
+            // Subscription info
+            if (subscription) {
+                const subSection = document.createElement('div');
+                subSection.className = 'p-4 bg-slate-700/50 rounded-xl';
+
+                const subTitle = document.createElement('h5');
+                subTitle.className = 'font-bold text-white mb-3';
+                subTitle.textContent = '💳 Suscripcion';
+                subSection.appendChild(subTitle);
+
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-2 gap-4 text-sm';
+
+                const fields = [
+                    { label: 'Plan', value: plan_details ? plan_details.plan_name : subscription.plan },
+                    { label: 'Estado', value: subscription.status },
+                    { label: 'Ciclo', value: subscription.billing_cycle },
+                    { label: 'Vence', value: formatDate(subscription.end_date) }
+                ];
+
+                fields.forEach(function(f) {
+                    const cell = document.createElement('div');
+                    const label = document.createElement('p');
+                    label.className = 'text-slate-400';
+                    label.textContent = f.label;
+                    const val = document.createElement('p');
+                    val.className = 'text-white';
+                    val.textContent = f.value;
+                    cell.appendChild(label);
+                    cell.appendChild(val);
+                    grid.appendChild(cell);
+                });
+
+                subSection.appendChild(grid);
+                wrapper.appendChild(subSection);
+            } else {
+                const noSub = document.createElement('div');
+                noSub.className = 'p-4 bg-slate-700/50 rounded-xl text-center';
+                noSub.textContent = 'Sin suscripcion activa';
+                noSub.style.color = '#94a3b8';
+                wrapper.appendChild(noSub);
+            }
+
+            // Payments
+            if (payments && payments.length > 0) {
+                const paySection = document.createElement('div');
+                paySection.className = 'p-4 bg-slate-700/50 rounded-xl';
+
+                const payTitle = document.createElement('h5');
+                payTitle.className = 'font-bold text-white mb-3';
+                payTitle.textContent = '💰 Ultimos Pagos';
+                paySection.appendChild(payTitle);
+
+                const payList = document.createElement('div');
+                payList.className = 'space-y-2';
+
+                payments.slice(0, 5).forEach(function(p) {
+                    const row = document.createElement('div');
+                    row.className = 'flex justify-between items-center text-sm';
+
+                    const date = document.createElement('span');
+                    date.className = 'text-slate-300';
+                    date.textContent = formatDate(p.payment_date);
+
+                    const amount = document.createElement('span');
+                    amount.className = 'text-white font-medium';
+                    amount.textContent = formatCurrency(p.amount);
+
+                    const status = document.createElement('span');
+                    status.className = p.status === 'Completed' ? 'text-green-400' : 'text-yellow-400';
+                    status.textContent = p.status;
+
+                    row.appendChild(date);
+                    row.appendChild(amount);
+                    row.appendChild(status);
+                    payList.appendChild(row);
+                });
+
+                paySection.appendChild(payList);
+                wrapper.appendChild(paySection);
+            }
+
+            content.appendChild(wrapper);
         }
 
-        function closeChangePasswordModal() {
-            document.getElementById('changePasswordModal').classList.add('hidden');
+        function editCustomerSubscription(customerId) {
+            showToast('Funcion disponible con backend conectado', '⚠️');
         }
 
-        function saveAdminPassword() {
-            const current = document.getElementById('currentAdminPassword').value;
-            const newPass = document.getElementById('newAdminPassword').value;
-            const confirm = document.getElementById('confirmAdminPassword').value;
-            const errorDiv = document.getElementById('passwordError');
+        async function exportCustomers() {
+            if (isConnected) {
+                try {
+                    const data = await frappeAPI.exportReport('customers');
+                    frappeAPI.downloadAsCSV(data, 'clientes');
+                    showToast('Reporte exportado', '✅');
+                } catch (e) {
+                    showToast('Error al exportar', '❌');
+                }
+            } else {
+                const rows = allCustomers.map(function(c) {
+                    return '"' + escapeCSV(c.full_name) + '","' + escapeCSV(c.email) + '","' + escapeCSV(c.plan_name) + '","' + formatDate(c.creation) + '"';
+                });
+                downloadCSV('Nombre,Email,Plan,Registro\n' + rows.join('\n'), 'clientes');
+            }
+        }
 
-            const admin = JSON.parse(localStorage.getItem('gestion-admin'));
+        function escapeCSV(str) {
+            if (!str) return '';
+            return String(str).replace(/"/g, '""');
+        }
+
+        // ==================== Subscriptions ====================
+
+        async function loadSubscriptions(page) {
+            page = page || 1;
+            currentSubscriptionPage = page;
+
+            if (isConnected) {
+                try {
+                    const statusFilter = document.getElementById('subscriptionStatusFilter').value;
+                    const filters = statusFilter ? { status: statusFilter } : null;
+                    const result = await frappeAPI.getSubscriptions({ page: page, pageSize: 20, filters: filters });
+                    allSubscriptions = result.subscriptions;
+                    renderSubscriptionsTable(allSubscriptions);
+                    updatePagination('subscriptions', result);
+                } catch (e) {
+                    console.error('Error loading subscriptions:', e);
+                    renderSubscriptionsTable([]);
+                }
+            } else {
+                renderSubscriptionsTable([]);
+            }
+        }
+
+        function renderSubscriptionsTable(subscriptions) {
+            const tbody = document.getElementById('subscriptionsTableBody');
+            tbody.innerHTML = '';
+
+            if (subscriptions.length === 0) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 7;
+                td.className = 'px-6 py-12 text-center text-slate-400';
+                td.textContent = 'No hay suscripciones (conectar backend)';
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                return;
+            }
+
+            subscriptions.forEach(function(s) {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-700/50 transition';
+
+                // ID
+                const td1 = document.createElement('td');
+                td1.className = 'px-6 py-4 text-slate-300';
+                td1.textContent = s.name;
+
+                // Customer
+                const td2 = document.createElement('td');
+                td2.className = 'px-6 py-4';
+                const custDiv = document.createElement('div');
+                const custName = document.createElement('p');
+                custName.className = 'text-white';
+                custName.textContent = s.customer_name || '-';
+                const custEmail = document.createElement('p');
+                custEmail.className = 'text-slate-500 text-sm';
+                custEmail.textContent = s.customer_email || '-';
+                custDiv.appendChild(custName);
+                custDiv.appendChild(custEmail);
+                td2.appendChild(custDiv);
+
+                // Plan
+                const td3 = document.createElement('td');
+                td3.className = 'px-6 py-4';
+                const planBadge = document.createElement('span');
+                planBadge.className = 'px-3 py-1 bg-blue-600/20 text-blue-400 rounded-full text-sm';
+                planBadge.textContent = s.plan_name || s.plan;
+                td3.appendChild(planBadge);
+
+                // Billing cycle
+                const td4 = document.createElement('td');
+                td4.className = 'px-6 py-4 text-slate-300';
+                td4.textContent = s.billing_cycle;
+
+                // Status
+                const td5 = document.createElement('td');
+                td5.className = 'px-6 py-4';
+                const statusBadge = document.createElement('span');
+                const statusStyles = {
+                    Active: 'bg-green-600/20 text-green-400',
+                    Paused: 'bg-yellow-600/20 text-yellow-400',
+                    Cancelled: 'bg-red-600/20 text-red-400',
+                    Expired: 'bg-slate-600/20 text-slate-400'
+                };
+                statusBadge.className = 'px-3 py-1 rounded-full text-sm ' + (statusStyles[s.status] || statusStyles.Active);
+                statusBadge.textContent = s.status;
+                td5.appendChild(statusBadge);
+
+                // End date
+                const td6 = document.createElement('td');
+                td6.className = 'px-6 py-4 text-slate-300';
+                td6.textContent = formatDate(s.end_date);
+
+                // Actions
+                const td7 = document.createElement('td');
+                td7.className = 'px-6 py-4';
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'flex gap-2';
+
+                if (s.status === 'Active') {
+                    const extendBtn = document.createElement('button');
+                    extendBtn.className = 'p-2 bg-green-600/20 text-green-400 rounded-lg hover:bg-green-600/40 transition';
+                    extendBtn.title = 'Extender';
+                    extendBtn.textContent = '➕';
+                    extendBtn.onclick = function() { showExtendModal(s.name); };
+                    actionsDiv.appendChild(extendBtn);
+
+                    const cancelBtn = document.createElement('button');
+                    cancelBtn.className = 'p-2 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/40 transition';
+                    cancelBtn.title = 'Cancelar';
+                    cancelBtn.textContent = '❌';
+                    cancelBtn.onclick = function() { showCancelModal(s.name); };
+                    actionsDiv.appendChild(cancelBtn);
+                }
+
+                const upgradeBtn = document.createElement('button');
+                upgradeBtn.className = 'p-2 bg-purple-600/20 text-purple-400 rounded-lg hover:bg-purple-600/40 transition';
+                upgradeBtn.title = 'Cambiar plan';
+                upgradeBtn.textContent = '🔄';
+                upgradeBtn.onclick = function() { showUpgradeModal(s.name, s.plan); };
+                actionsDiv.appendChild(upgradeBtn);
+
+                td7.appendChild(actionsDiv);
+
+                tr.appendChild(td1);
+                tr.appendChild(td2);
+                tr.appendChild(td3);
+                tr.appendChild(td4);
+                tr.appendChild(td5);
+                tr.appendChild(td6);
+                tr.appendChild(td7);
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterSubscriptions() {
+            loadSubscriptions(1);
+        }
+
+        function showExtendModal(subscriptionId) {
+            const modal = document.getElementById('subscriptionModal');
+            document.getElementById('subscriptionModalTitle').textContent = 'Extender Suscripcion';
+
+            const content = document.getElementById('subscriptionModalContent');
+            content.innerHTML = '';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'space-y-4';
+
+            const inputDiv = document.createElement('div');
+            const label = document.createElement('label');
+            label.className = 'block text-sm font-medium text-slate-300 mb-2';
+            label.textContent = 'Dias a extender';
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.id = 'extendDays';
+            input.value = '30';
+            input.min = '1';
+            input.max = '365';
+            input.className = 'w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none';
+            inputDiv.appendChild(label);
+            inputDiv.appendChild(input);
+
+            const btnDiv = document.createElement('div');
+            btnDiv.className = 'flex gap-3';
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'flex-1 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition';
+            cancelBtn.textContent = 'Cancelar';
+            cancelBtn.onclick = function() { closeModal('subscriptionModal'); };
+
+            const confirmBtn = document.createElement('button');
+            confirmBtn.className = 'flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition';
+            confirmBtn.textContent = 'Extender';
+            confirmBtn.onclick = function() { extendSubscription(subscriptionId); };
+
+            btnDiv.appendChild(cancelBtn);
+            btnDiv.appendChild(confirmBtn);
+
+            wrapper.appendChild(inputDiv);
+            wrapper.appendChild(btnDiv);
+            content.appendChild(wrapper);
+
+            modal.classList.remove('hidden');
+        }
+
+        async function extendSubscription(subscriptionId) {
+            const days = document.getElementById('extendDays').value;
+            try {
+                await frappeAPI.extendSubscription(subscriptionId, days);
+                closeModal('subscriptionModal');
+                showToast('Suscripcion extendida ' + days + ' dias', '✅');
+                loadSubscriptions(currentSubscriptionPage);
+            } catch (e) {
+                showToast('Error al extender', '❌');
+            }
+        }
+
+        function showCancelModal(subscriptionId) {
+            const modal = document.getElementById('subscriptionModal');
+            document.getElementById('subscriptionModalTitle').textContent = 'Cancelar Suscripcion';
+
+            const content = document.getElementById('subscriptionModalContent');
+            content.innerHTML = '';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'space-y-4';
+
+            const msg = document.createElement('p');
+            msg.className = 'text-slate-300';
+            msg.textContent = '¿Estas seguro de cancelar esta suscripcion?';
+
+            const inputDiv = document.createElement('div');
+            const label = document.createElement('label');
+            label.className = 'block text-sm font-medium text-slate-300 mb-2';
+            label.textContent = 'Razon (opcional)';
+            const textarea = document.createElement('textarea');
+            textarea.id = 'cancelReason';
+            textarea.rows = 3;
+            textarea.className = 'w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none';
+            inputDiv.appendChild(label);
+            inputDiv.appendChild(textarea);
+
+            const btnDiv = document.createElement('div');
+            btnDiv.className = 'flex gap-3';
+
+            const keepBtn = document.createElement('button');
+            keepBtn.className = 'flex-1 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition';
+            keepBtn.textContent = 'No, mantener';
+            keepBtn.onclick = function() { closeModal('subscriptionModal'); };
+
+            const confirmBtn = document.createElement('button');
+            confirmBtn.className = 'flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition';
+            confirmBtn.textContent = 'Si, cancelar';
+            confirmBtn.onclick = function() { cancelSubscription(subscriptionId); };
+
+            btnDiv.appendChild(keepBtn);
+            btnDiv.appendChild(confirmBtn);
+
+            wrapper.appendChild(msg);
+            wrapper.appendChild(inputDiv);
+            wrapper.appendChild(btnDiv);
+            content.appendChild(wrapper);
+
+            modal.classList.remove('hidden');
+        }
+
+        async function cancelSubscription(subscriptionId) {
+            const reason = document.getElementById('cancelReason').value;
+            try {
+                await frappeAPI.cancelSubscription(subscriptionId, reason);
+                closeModal('subscriptionModal');
+                showToast('Suscripcion cancelada', '✅');
+                loadSubscriptions(currentSubscriptionPage);
+            } catch (e) {
+                showToast('Error al cancelar', '❌');
+            }
+        }
+
+        function showUpgradeModal(subscriptionId, currentPlan) {
+            const modal = document.getElementById('subscriptionModal');
+            document.getElementById('subscriptionModalTitle').textContent = 'Cambiar Plan';
+
+            const content = document.getElementById('subscriptionModalContent');
+            content.innerHTML = '';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'space-y-4';
+
+            const inputDiv = document.createElement('div');
+            const label = document.createElement('label');
+            label.className = 'block text-sm font-medium text-slate-300 mb-2';
+            label.textContent = 'Nuevo plan';
+            const select = document.createElement('select');
+            select.id = 'newPlan';
+            select.className = 'w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none';
+
+            subscriptionPlans.forEach(function(p) {
+                const opt = document.createElement('option');
+                opt.value = p.name;
+                opt.textContent = p.plan_name + ' - ' + formatCurrency(p.price_monthly) + '/mes';
+                if (p.plan_name === currentPlan) opt.selected = true;
+                select.appendChild(opt);
+            });
+
+            inputDiv.appendChild(label);
+            inputDiv.appendChild(select);
+
+            const btnDiv = document.createElement('div');
+            btnDiv.className = 'flex gap-3';
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'flex-1 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition';
+            cancelBtn.textContent = 'Cancelar';
+            cancelBtn.onclick = function() { closeModal('subscriptionModal'); };
+
+            const confirmBtn = document.createElement('button');
+            confirmBtn.className = 'flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition';
+            confirmBtn.textContent = 'Cambiar';
+            confirmBtn.onclick = function() { upgradePlan(subscriptionId); };
+
+            btnDiv.appendChild(cancelBtn);
+            btnDiv.appendChild(confirmBtn);
+
+            wrapper.appendChild(inputDiv);
+            wrapper.appendChild(btnDiv);
+            content.appendChild(wrapper);
+
+            modal.classList.remove('hidden');
+        }
+
+        async function upgradePlan(subscriptionId) {
+            const newPlan = document.getElementById('newPlan').value;
+            try {
+                await frappeAPI.upgradePlan(subscriptionId, newPlan);
+                closeModal('subscriptionModal');
+                showToast('Plan actualizado', '✅');
+                loadSubscriptions(currentSubscriptionPage);
+            } catch (e) {
+                showToast('Error al cambiar plan', '❌');
+            }
+        }
+
+        async function exportSubscriptions() {
+            if (isConnected) {
+                try {
+                    const data = await frappeAPI.exportReport('subscriptions');
+                    frappeAPI.downloadAsCSV(data, 'suscripciones');
+                    showToast('Reporte exportado', '✅');
+                } catch (e) {
+                    showToast('Error al exportar', '❌');
+                }
+            }
+        }
+
+        // ==================== Payments ====================
+
+        async function loadPayments(page) {
+            page = page || 1;
+            currentPaymentPage = page;
+
+            if (isConnected) {
+                try {
+                    const result = await frappeAPI.getPayments({ page: page, pageSize: 20 });
+                    allPayments = result.payments;
+                    renderPaymentsTable(allPayments);
+                    updatePagination('payments', result);
+                } catch (e) {
+                    console.error('Error loading payments:', e);
+                    renderPaymentsTable([]);
+                }
+            } else {
+                renderPaymentsTable([]);
+            }
+        }
+
+        function renderPaymentsTable(payments) {
+            const tbody = document.getElementById('paymentsTableBody');
+            tbody.innerHTML = '';
+
+            if (payments.length === 0) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 7;
+                td.className = 'px-6 py-12 text-center text-slate-400';
+                td.textContent = 'No hay pagos registrados (conectar backend)';
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                return;
+            }
+
+            payments.forEach(function(p) {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-700/50 transition';
+
+                // ID
+                const td1 = document.createElement('td');
+                td1.className = 'px-6 py-4 text-slate-300';
+                td1.textContent = p.name;
+
+                // Customer
+                const td2 = document.createElement('td');
+                td2.className = 'px-6 py-4';
+                const custDiv = document.createElement('div');
+                const custName = document.createElement('p');
+                custName.className = 'text-white';
+                custName.textContent = p.customer_name || '-';
+                const custEmail = document.createElement('p');
+                custEmail.className = 'text-slate-500 text-sm';
+                custEmail.textContent = p.customer_email || '-';
+                custDiv.appendChild(custName);
+                custDiv.appendChild(custEmail);
+                td2.appendChild(custDiv);
+
+                // Amount
+                const td3 = document.createElement('td');
+                td3.className = 'px-6 py-4 text-white font-medium';
+                td3.textContent = formatCurrency(p.amount);
+
+                // Date
+                const td4 = document.createElement('td');
+                td4.className = 'px-6 py-4 text-slate-300';
+                td4.textContent = formatDate(p.payment_date);
+
+                // Method
+                const td5 = document.createElement('td');
+                td5.className = 'px-6 py-4 text-slate-300';
+                td5.textContent = p.payment_method;
+
+                // Status
+                const td6 = document.createElement('td');
+                td6.className = 'px-6 py-4';
+                const statusBadge = document.createElement('span');
+                const statusStyles = {
+                    Completed: 'bg-green-600/20 text-green-400',
+                    Pending: 'bg-yellow-600/20 text-yellow-400',
+                    Failed: 'bg-red-600/20 text-red-400',
+                    Refunded: 'bg-purple-600/20 text-purple-400'
+                };
+                statusBadge.className = 'px-3 py-1 rounded-full text-sm ' + (statusStyles[p.status] || statusStyles.Pending);
+                statusBadge.textContent = p.status;
+                td6.appendChild(statusBadge);
+
+                // Transaction ID
+                const td7 = document.createElement('td');
+                td7.className = 'px-6 py-4 text-slate-400 text-sm';
+                td7.textContent = p.transaction_id || '-';
+
+                tr.appendChild(td1);
+                tr.appendChild(td2);
+                tr.appendChild(td3);
+                tr.appendChild(td4);
+                tr.appendChild(td5);
+                tr.appendChild(td6);
+                tr.appendChild(td7);
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterPayments() {
+            loadPayments(1);
+        }
+
+        async function exportPayments() {
+            if (isConnected) {
+                try {
+                    const dateFrom = document.getElementById('paymentDateFrom').value || null;
+                    const dateTo = document.getElementById('paymentDateTo').value || null;
+                    const data = await frappeAPI.exportReport('payments', dateFrom, dateTo);
+                    frappeAPI.downloadAsCSV(data, 'pagos');
+                    showToast('Reporte exportado', '✅');
+                } catch (e) {
+                    showToast('Error al exportar', '❌');
+                }
+            }
+        }
+
+        // ==================== Reports ====================
+
+        async function generateReport(type) {
+            showToast('Generando reporte...', '⏳');
+            try {
+                const data = await frappeAPI.exportReport(type);
+                frappeAPI.downloadAsCSV(data, 'reporte_' + type);
+                showToast('Reporte descargado', '✅');
+            } catch (e) {
+                showToast('Error al generar reporte', '❌');
+            }
+        }
+
+        // ==================== Settings ====================
+
+        async function loadPlans() {
+            const container = document.getElementById('plansContainer');
+
+            if (isConnected) {
+                try {
+                    subscriptionPlans = await frappeAPI.getSubscriptionPlans();
+                    renderPlans(subscriptionPlans);
+                } catch (e) {
+                    container.textContent = 'Error al cargar planes';
+                    container.className = 'text-red-400';
+                }
+            } else {
+                // Default plans
+                subscriptionPlans = [
+                    { name: 'Free', plan_name: 'Free', price_monthly: 0, price_yearly: 0 },
+                    { name: 'Pro', plan_name: 'Pro', price_monthly: 9900, price_yearly: 99000 },
+                    { name: 'Teams', plan_name: 'Teams', price_monthly: 29900, price_yearly: 299000 }
+                ];
+                renderPlans(subscriptionPlans);
+            }
+        }
+
+        function renderPlans(plans) {
+            const container = document.getElementById('plansContainer');
+            container.innerHTML = '';
+            container.className = 'space-y-4';
+
+            plans.forEach(function(p) {
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between p-4 bg-slate-700/50 rounded-lg';
+
+                const info = document.createElement('div');
+                const name = document.createElement('p');
+                name.className = 'text-white font-medium';
+                name.textContent = p.plan_name;
+                const price = document.createElement('p');
+                price.className = 'text-slate-400 text-sm';
+                price.textContent = formatCurrency(p.price_monthly) + '/mes - ' + formatCurrency(p.price_yearly) + '/año';
+                info.appendChild(name);
+                info.appendChild(price);
+
+                const icon = document.createElement('span');
+                icon.className = 'text-2xl';
+                icon.textContent = p.price_monthly === 0 ? '🆓' : (p.plan_name === 'Pro' ? '⭐' : '👥');
+
+                div.appendChild(info);
+                div.appendChild(icon);
+                container.appendChild(div);
+            });
+        }
+
+        function saveApiConfig() {
+            const url = document.getElementById('apiUrlInput').value;
+            const key = document.getElementById('apiKeyInput').value;
+            if (url && key) {
+                supabaseAPI.configure(url, key);
+                showToast('Configuracion guardada', '✅');
+                refreshData();
+            } else {
+                showToast('Completa URL y API Key', '⚠️');
+            }
+        }
+
+        // Legacy alias
+        function saveApiUrl() { saveApiConfig(); }
+
+        function changePassword() {
+            const current = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+
+            const admin = JSON.parse(localStorage.getItem('gestion-admin') || '{}');
 
             if (current !== admin.password) {
-                errorDiv.textContent = '❌ Contraseña actual incorrecta';
-                errorDiv.classList.remove('hidden');
+                showToast('Contrasena actual incorrecta', '❌');
                 return;
             }
 
             if (newPass.length < 6) {
-                errorDiv.textContent = '❌ La nueva contraseña debe tener al menos 6 caracteres';
-                errorDiv.classList.remove('hidden');
+                showToast('La contrasena debe tener al menos 6 caracteres', '❌');
                 return;
             }
 
             if (newPass !== confirm) {
-                errorDiv.textContent = '❌ Las contraseñas no coinciden';
-                errorDiv.classList.remove('hidden');
+                showToast('Las contrasenas no coinciden', '❌');
                 return;
             }
 
             admin.password = newPass;
             localStorage.setItem('gestion-admin', JSON.stringify(admin));
-            closeChangePasswordModal();
-            alert('✅ Contraseña actualizada correctamente');
+            showToast('Contrasena actualizada', '✅');
+
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
         }
 
-        function exportUsers() {
-            const emails = Object.keys(allUsers);
-            if (emails.length === 0) {
-                alert('No hay usuarios para exportar');
-                return;
-            }
+        // ==================== Utilities ====================
 
-            let csv = 'Nombre,Email,Objetivo,Duración,Fecha Inicio,Fecha Registro,Progreso\n';
-            emails.forEach(email => {
-                const user = allUsers[email];
-                csv += `"${user.name}","${email}","${user.goal}","${user.duration}","${user.startDate}","${user.createdAt || ''}","${calculateUserProgress(email)}%"\n`;
-            });
+        function updatePagination(type, result) {
+            var page = result.page;
+            var total = result.total;
+            var page_size = result.page_size;
+            var total_pages = result.total_pages;
+            var showing = Math.min(page * page_size, total);
 
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
+            document.getElementById(type + 'Total').textContent = String(total);
+            document.getElementById(type + 'Showing').textContent = String(showing);
+            document.getElementById(type + 'PrevBtn').disabled = page <= 1;
+            document.getElementById(type + 'NextBtn').disabled = page >= total_pages;
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            return new Intl.DateTimeFormat('es-CL', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            }).format(new Date(dateStr));
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('es-CL', {
+                style: 'currency',
+                currency: 'CLP',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function downloadCSV(content, filename) {
+            var blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
             a.href = url;
-            a.download = `usuarios_gestion_tiempo_${new Date().toISOString().split('T')[0]}.csv`;
+            a.download = filename + '_' + new Date().toISOString().split('T')[0] + '.csv';
             a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function showToast(message, icon) {
+            icon = icon || '✅';
+            var toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            document.getElementById('toastIcon').textContent = icon;
+            toast.classList.remove('translate-y-full');
+            setTimeout(function() { toast.classList.add('translate-y-full'); }, 3000);
         }
 
         function logout() {
@@ -630,8 +1652,15 @@
             window.location.href = 'admin-login.html';
         }
 
-        // Initial load
-        loadUsers();
+        // ==================== Initialize ====================
+
+        async function init() {
+            await checkConnection();
+            loadDashboard();
+            loadPlans();
+        }
+
+        init();
     </script>
 </body>
 </html>
