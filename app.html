@@ -8931,7 +8931,17 @@
                             </div>
                         ` : `
                             <div class="space-y-2">
-                                ${recentExpenses.map((expense, idx) => `
+                                ${recentExpenses.map((expense) => {
+                                    // Find original index by id, or by matching all fields if no id
+                                    let originalIdx = expenses.findIndex(e => e.id && e.id === expense.id);
+                                    if (originalIdx === -1) {
+                                        originalIdx = expenses.findIndex(e =>
+                                            e.store === expense.store &&
+                                            e.date === expense.date &&
+                                            e.total === expense.total
+                                        );
+                                    }
+                                    return `
                                     <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition">
                                         <span class="text-2xl">${getExpenseCategoryIcon(expense.category)}</span>
                                         <div class="flex-1 min-w-0">
@@ -8941,14 +8951,14 @@
                                         <div class="text-right">
                                             <p class="font-bold text-gray-800">$${parseFloat(expense.total).toLocaleString('es-CL', {minimumFractionDigits: 0})}</p>
                                         </div>
-                                        <button onclick="openEditExpenseModal(${idx})" class="p-2 text-gray-400 hover:text-blue-500 transition" title="Editar">
+                                        <button onclick="openEditExpenseModal(${originalIdx})" class="p-2 text-gray-400 hover:text-blue-500 transition" title="Editar">
                                             ✏️
                                         </button>
-                                        <button onclick="deleteExpense(${idx})" class="p-2 text-gray-400 hover:text-red-500 transition" title="Eliminar">
+                                        <button onclick="deleteExpense(${originalIdx})" class="p-2 text-gray-400 hover:text-red-500 transition" title="Eliminar">
                                             🗑️
                                         </button>
                                     </div>
-                                `).join('')}
+                                `}).join('')}
                             </div>
                         `}
                     </div>
