@@ -209,6 +209,17 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+        /* Prevent scroll chaining and improve scroll stability */
+        html, body {
+            overscroll-behavior: none;
+            scroll-behavior: auto;
+        }
+
+        /* Prevent nested scroll containers from affecting main scroll */
+        .overflow-y-auto, .overflow-x-auto {
+            overscroll-behavior: contain;
+        }
+
         /* ====== MODOS DE VISTA ====== */
 
         /* Vista Minimalista - Oculta elementos, mismas fuentes */
@@ -5989,6 +6000,9 @@
         }
 
         function render() {
+            // Preserve scroll position before re-render
+            const scrollY = window.scrollY;
+
             const dayIndex = currentDate.getDay();
             const weekNum = getWeekNumber();
             const dayNum = getDayNumber();
@@ -6241,7 +6255,7 @@
                 <!-- Tabs -->
                 <div class="bg-white/40 border-b sticky top-[56px] z-40 mt-1">
                     <div class="max-w-4xl mx-auto px-4 py-2">
-                        <div data-tabs-container="main" class="flex gap-2 overflow-x-auto no-scrollbar py-1 relative" style="scroll-behavior: smooth; -webkit-overflow-scrolling: touch;">
+                        <div data-tabs-container="main" class="flex gap-2 overflow-x-auto no-scrollbar py-1 relative" style="-webkit-overflow-scrolling: touch;">
                             ${getMainTabsOrder().map((tabId, index) => {
                                 const tabsConfig = getMainTabsConfig();
                                 const tab = tabsConfig[tabId];
@@ -6289,6 +6303,11 @@
                     </div>
                 </footer>
             `;
+
+            // Restore scroll position after re-render
+            requestAnimationFrame(() => {
+                window.scrollTo(0, scrollY);
+            });
         }
 
         function renderAgenda(schedule, gym, dateKey, dailyProgress, isCustomized) {
@@ -8126,12 +8145,11 @@
                 currentDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
                 activeTab = 'notes';
                 render();
-                // Enfocar el textarea después del render
+                // Enfocar el textarea después del render (sin scroll)
                 setTimeout(() => {
                     const textarea = document.getElementById('notesTextarea');
                     if (textarea) {
-                        textarea.focus();
-                        textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        textarea.focus({ preventScroll: true });
                     }
                 }, 100);
             }
@@ -9061,7 +9079,7 @@
                 setTimeout(() => {
                     const searchInput = document.getElementById('searchInput');
                     if (searchInput) {
-                        searchInput.focus();
+                        searchInput.focus({ preventScroll: true });
                     }
                 }, 100);
             }
@@ -9074,14 +9092,13 @@
                 setTimeout(() => {
                     const searchInput = document.getElementById('searchInput');
                     if (searchInput) {
-                        searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        searchInput.focus();
+                        searchInput.focus({ preventScroll: true });
                     }
                 }, 100);
             } else {
                 const searchInput = document.getElementById('searchInput');
                 if (searchInput) {
-                    searchInput.focus();
+                    searchInput.focus({ preventScroll: true });
                     searchInput.select();
                 }
             }
@@ -9091,11 +9108,11 @@
             const input = document.getElementById('searchInput');
             searchQuery = input ? input.value : '';
             render();
-            // Restaurar foco al input después del render
+            // Restaurar foco al input después del render (sin scroll)
             setTimeout(() => {
                 const newInput = document.getElementById('searchInput');
                 if (newInput) {
-                    newInput.focus();
+                    newInput.focus({ preventScroll: true });
                     newInput.setSelectionRange(newInput.value.length, newInput.value.length);
                 }
             }, 0);
