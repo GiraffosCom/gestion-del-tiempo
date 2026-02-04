@@ -1879,6 +1879,41 @@
         </div>
     </div>
 
+    <!-- Modal Guardar/Cargar Rutina -->
+    <div id="routineTemplatesModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeRoutineTemplatesModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[80vh] overflow-hidden transform transition-all" onclick="event.stopPropagation()">
+            <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="text-lg font-bold text-gray-800">📋 Mis Rutinas Guardadas</h3>
+                <button onclick="closeRoutineTemplatesModal()" class="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+            </div>
+            <div id="routineTemplatesContent" class="p-4 overflow-y-auto max-h-[60vh]">
+                <!-- Templates will be rendered here -->
+            </div>
+            <div class="p-4 border-t border-gray-100">
+                <button onclick="saveCurrentRoutineAsTemplate()" class="w-full px-4 py-3 bg-gradient-to-r from-rose-500 to-purple-500 text-white rounded-xl font-medium hover:opacity-90 transition">
+                    💾 Guardar rutina actual
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nombrar Rutina -->
+    <div id="nameRoutineModal" class="fixed inset-0 modal-backdrop z-[60] hidden flex items-center justify-center p-4" onclick="closeNameRoutineModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all" onclick="event.stopPropagation()">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">💾 Guardar Rutina</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Nombre de la rutina</label>
+                    <input type="text" id="routineTemplateName" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none" placeholder="ej: Piernas intenso, Full body...">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeNameRoutineModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
+                <button onclick="confirmSaveRoutineTemplate()" class="flex-1 px-4 py-2 theme-btn rounded-xl hover:opacity-90 transition font-medium">Guardar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Check login
         const currentUser = JSON.parse(localStorage.getItem('gestion-currentUser'));
@@ -5826,6 +5861,174 @@
             }
         }
 
+        function addSetToExercise(exerciseIdx) {
+            const workout = getTodayWorkout();
+            const exercise = workout.exercises[exerciseIdx];
+            exercise.sets.push(null);
+            saveTodayWorkout(workout);
+            render();
+        }
+
+        function removeSetFromExercise(exerciseIdx, setIdx) {
+            const workout = getTodayWorkout();
+            const exercise = workout.exercises[exerciseIdx];
+            if (exercise.sets.length > 1) {
+                exercise.sets.splice(setIdx, 1);
+                saveTodayWorkout(workout);
+                render();
+            }
+        }
+
+        // Routine Templates Functions
+        function getRoutineTemplates() {
+            return JSON.parse(getStorage('routine-templates') || '[]');
+        }
+
+        function saveRoutineTemplates(templates) {
+            setStorage('routine-templates', JSON.stringify(templates));
+        }
+
+        function openRoutineTemplatesModal() {
+            renderRoutineTemplates();
+            document.getElementById('routineTemplatesModal').classList.remove('hidden');
+        }
+
+        function closeRoutineTemplatesModal() {
+            document.getElementById('routineTemplatesModal').classList.add('hidden');
+        }
+
+        function renderRoutineTemplates() {
+            const templates = getRoutineTemplates();
+            const container = document.getElementById('routineTemplatesContent');
+
+            if (templates.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8">
+                        <span class="text-4xl block mb-3">📋</span>
+                        <p class="text-gray-500 mb-2">No tienes rutinas guardadas</p>
+                        <p class="text-sm text-gray-400">Guarda tu rutina actual para usarla otro día</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = templates.map(function(template, idx) {
+                var exerciseCount = template.exercises.length;
+                var exerciseNames = template.exercises.map(function(e) { return e.name; }).slice(0, 3).join(', ');
+                if (template.exercises.length > 3) exerciseNames += '...';
+                return `
+                    <div class="bg-gray-50 rounded-xl p-4 mb-3">
+                        <div class="flex items-start justify-between mb-2">
+                            <div>
+                                <h4 class="font-bold text-gray-800">${template.name}</h4>
+                                <p class="text-xs text-gray-500">${exerciseCount} ejercicios</p>
+                            </div>
+                            <button onclick="deleteRoutineTemplate(${idx})" class="text-gray-400 hover:text-red-500 p-1" title="Eliminar">🗑️</button>
+                        </div>
+                        <p class="text-xs text-gray-600 mb-3">${exerciseNames}</p>
+                        <button onclick="loadRoutineTemplate(${idx})" class="w-full py-2 bg-purple-100 text-purple-700 rounded-lg font-medium hover:bg-purple-200 transition text-sm">
+                            📥 Cargar esta rutina
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function saveCurrentRoutineAsTemplate() {
+            const workout = getTodayWorkout();
+            if (workout.exercises.length === 0) {
+                alert('No hay ejercicios para guardar. Agrega ejercicios primero.');
+                return;
+            }
+            document.getElementById('routineTemplateName').value = '';
+            document.getElementById('nameRoutineModal').classList.remove('hidden');
+        }
+
+        function closeNameRoutineModal() {
+            document.getElementById('nameRoutineModal').classList.add('hidden');
+        }
+
+        function confirmSaveRoutineTemplate() {
+            var name = document.getElementById('routineTemplateName').value.trim();
+            if (!name) {
+                alert('Por favor ingresa un nombre para la rutina');
+                return;
+            }
+
+            var workout = getTodayWorkout();
+            var templates = getRoutineTemplates();
+
+            var template = {
+                id: Date.now(),
+                name: name,
+                createdAt: new Date().toISOString(),
+                exercises: workout.exercises.map(function(ex) {
+                    return {
+                        name: ex.name,
+                        targetSets: Math.max(4, ex.sets.length)
+                    };
+                })
+            };
+
+            templates.push(template);
+            saveRoutineTemplates(templates);
+
+            closeNameRoutineModal();
+            renderRoutineTemplates();
+            showNotification('Rutina guardada: ' + name, '💾');
+        }
+
+        function loadRoutineTemplate(templateIdx) {
+            var templates = getRoutineTemplates();
+            var template = templates[templateIdx];
+            if (!template) return;
+
+            if (confirm('¿Cargar la rutina "' + template.name + '"? Se agregarán los ejercicios a tu entrenamiento de hoy.')) {
+                var workout = getTodayWorkout();
+
+                template.exercises.forEach(function(ex) {
+                    var exists = workout.exercises.some(function(e) { return e.name === ex.name; });
+                    if (!exists) {
+                        workout.exercises.push({
+                            name: ex.name,
+                            sets: Array(ex.targetSets || 4).fill(null)
+                        });
+                    }
+                });
+
+                saveTodayWorkout(workout);
+                closeRoutineTemplatesModal();
+                render();
+                showNotification('Rutina cargada: ' + template.name, '📥');
+            }
+        }
+
+        function deleteRoutineTemplate(templateIdx) {
+            if (confirm('¿Eliminar esta rutina guardada?')) {
+                var templates = getRoutineTemplates();
+                templates.splice(templateIdx, 1);
+                saveRoutineTemplates(templates);
+                renderRoutineTemplates();
+            }
+        }
+
+        function showNotification(message, icon) {
+            var existing = document.getElementById('quickNotification');
+            if (existing) existing.remove();
+
+            var notification = document.createElement('div');
+            notification.id = 'quickNotification';
+            notification.className = 'fixed bottom-24 left-1/2 transform -translate-x-1/2 z-[100]';
+            notification.innerHTML = '<div class="bg-gray-800 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2"><span>' + icon + '</span><span>' + message + '</span></div>';
+            document.body.appendChild(notification);
+
+            setTimeout(function() {
+                notification.style.transition = 'opacity 0.3s';
+                notification.style.opacity = '0';
+                setTimeout(function() { notification.remove(); }, 300);
+            }, 2500);
+        }
+
         // Rest Timer
         function startRestTimer(seconds = 90) {
             restTimerSeconds = seconds;
@@ -5876,18 +6079,81 @@
 
             // Play sound or vibrate
             if ('vibrate' in navigator) {
-                navigator.vibrate([200, 100, 200]);
+                navigator.vibrate([200, 100, 200, 100, 200]);
             }
 
-            // Visual alert
+            // Try to play a sound
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            } catch (e) {}
+
+            // Visual alert in timer
             const display = document.getElementById('restTimerDisplay');
             display.textContent = '¡GO!';
             display.classList.add('animate-pulse');
 
+            // Show motivational notification
+            const messages = [
+                '¡Se terminó el descanso! ¡Vamos con todo! 💪',
+                '¡A darle! ¡Siguiente serie! 🔥',
+                '¡Descanso completado! ¡Tú puedes! 💥',
+                '¡Vamos! ¡Una serie más! 🚀',
+                '¡Arriba! ¡A por la siguiente! ⚡'
+            ];
+            const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+            showRestEndNotification(randomMsg);
+
             setTimeout(() => {
                 display.classList.remove('animate-pulse');
                 closeRestTimer();
-            }, 3000);
+            }, 4000);
+        }
+
+        function showRestEndNotification(message) {
+            // Remove existing notification if any
+            const existing = document.getElementById('restEndNotification');
+            if (existing) existing.remove();
+
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.id = 'restEndNotification';
+            notification.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 z-[100] animate-bounce';
+            notification.innerHTML = `
+                <div class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3">
+                    <span class="text-3xl">⏰</span>
+                    <div>
+                        <p class="font-bold text-lg">${message}</p>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(notification);
+
+            // Remove after 4 seconds
+            setTimeout(() => {
+                notification.style.transition = 'opacity 0.5s, transform 0.5s';
+                notification.style.opacity = '0';
+                notification.style.transform = 'translate(-50%, -20px)';
+                setTimeout(() => notification.remove(), 500);
+            }, 4000);
+
+            // Also try browser notification if permitted
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('⏰ ¡Descanso terminado!', {
+                    body: message,
+                    icon: '/icons/icon-192x192.png',
+                    tag: 'rest-timer'
+                });
+            }
         }
 
         function closeRestTimer() {
@@ -6828,20 +7094,19 @@
                 </div>
 
                 <!-- Plan Actions -->
-                ${activePlan ? `
-                    <div class="flex gap-2">
-                        <button onclick="openAddWorkoutExerciseModal()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-dashed border-purple-200">
-                            <span class="text-lg">➕</span> Agregar Ejercicio
-                        </button>
+                <div class="flex gap-2">
+                    <button onclick="openAddWorkoutExerciseModal()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-dashed border-purple-200">
+                        <span class="text-lg">➕</span> Ejercicio
+                    </button>
+                    <button onclick="openRoutineTemplatesModal()" class="px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition text-amber-600 border border-amber-200" title="Mis rutinas guardadas">
+                        📋
+                    </button>
+                    ${activePlan ? `
                         <button onclick="deleteTrainingPlan()" class="px-4 py-3 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 transition" title="Eliminar plan">
                             🗑️
                         </button>
-                    </div>
-                ` : `
-                    <button onclick="openAddWorkoutExerciseModal()" class="w-full flex items-center justify-center gap-2 px-4 py-4 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-dashed border-purple-200">
-                        <span class="text-xl">➕</span> Agregar Ejercicio
-                    </button>
-                `}
+                    ` : ''}
+                </div>
 
                 <!-- Exercises -->
                 ${todayWorkout.exercises.length === 0 ? `
@@ -6883,20 +7148,27 @@
                                             <span>REPS</span>
                                             <span></span>
                                         </div>
-                                        ${[0, 1, 2, 3].map(setIdx => {
-                                            const set = exercise.sets[setIdx];
-                                            const isCompleted = !!set;
-                                            return `
-                                                <div class="grid grid-cols-4 gap-2 items-center py-2 ${isCompleted ? 'bg-green-50 -mx-4 px-4 rounded' : ''}">
-                                                    <span class="font-bold text-center ${isCompleted ? 'text-green-600' : 'text-gray-400'}">${setIdx + 1}</span>
-                                                    <span class="text-center font-medium ${isCompleted ? 'text-gray-800' : 'text-gray-300'}">${set ? set.weight : '-'}</span>
-                                                    <span class="text-center font-medium ${isCompleted ? 'text-gray-800' : 'text-gray-300'}">${set ? set.reps : '-'}</span>
-                                                    <button onclick="openLogSetModal(${exIdx}, ${setIdx})" class="py-2 px-3 rounded-lg text-sm font-medium transition ${isCompleted ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}">
-                                                        ${isCompleted ? '✓' : 'Log'}
-                                                    </button>
-                                                </div>
-                                            `;
-                                        }).join('')}
+                                        ${(() => {
+                                            const numSets = Math.max(4, exercise.sets.length);
+                                            return Array.from({length: numSets}, (_, setIdx) => {
+                                                const set = exercise.sets[setIdx];
+                                                const isCompleted = !!set;
+                                                return `
+                                                    <div class="grid grid-cols-4 gap-2 items-center py-2 ${isCompleted ? 'bg-green-50 -mx-4 px-4 rounded' : ''}">
+                                                        <span class="font-bold text-center ${isCompleted ? 'text-green-600' : 'text-gray-400'}">${setIdx + 1}</span>
+                                                        <span class="text-center font-medium ${isCompleted ? 'text-gray-800' : 'text-gray-300'}">${set ? set.weight : '-'}</span>
+                                                        <span class="text-center font-medium ${isCompleted ? 'text-gray-800' : 'text-gray-300'}">${set ? set.reps : '-'}</span>
+                                                        <button onclick="openLogSetModal(${exIdx}, ${setIdx})" class="py-2 px-3 rounded-lg text-sm font-medium transition ${isCompleted ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}" title="${isCompleted ? 'Editar serie' : 'Registrar serie'}">
+                                                            ${isCompleted ? '✏️' : 'Log'}
+                                                        </button>
+                                                    </div>
+                                                `;
+                                            }).join('');
+                                        })()}
+                                        <!-- Add Set Button -->
+                                        <button onclick="addSetToExercise(${exIdx})" class="w-full mt-2 py-2 border-2 border-dashed border-gray-200 rounded-lg text-gray-500 hover:border-purple-300 hover:text-purple-600 text-sm font-medium transition">
+                                            + Agregar serie
+                                        </button>
                                     </div>
                                 </div>
                             `;
