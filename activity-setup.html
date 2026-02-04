@@ -283,14 +283,41 @@
             ]
         };
 
-        // Pre-select from onboarding preferences
+        // Pre-select from onboarding preferences or existing template
         function initFromPreferences() {
-            if (userPreferences.habits) {
+            // Try to load from existing template first (if user is re-running wizard)
+            const existingTemplate = localStorage.getItem(userKey + '-template-schedules');
+            if (existingTemplate) {
+                try {
+                    const template = JSON.parse(existingTemplate);
+                    if (template.selectedHabits && template.selectedHabits.length > 0) {
+                        selectedHabits = [...template.selectedHabits];
+                        console.log('Loaded habits from template:', selectedHabits);
+                    }
+                    if (template.selectedExercises && template.selectedExercises.length > 0) {
+                        selectedExercises = [...template.selectedExercises];
+                        console.log('Loaded exercises from template:', selectedExercises);
+                    }
+                    if (template.selectedTasks) {
+                        selectedTasks = JSON.parse(JSON.stringify(template.selectedTasks));
+                        console.log('Loaded tasks from template:', selectedTasks);
+                    }
+                } catch (e) {
+                    console.warn('Error parsing existing template:', e);
+                }
+            }
+
+            // If no template, try onboarding preferences
+            if (selectedHabits.length === 0 && userPreferences.habits) {
                 selectedHabits = [...userPreferences.habits];
+                console.log('Loaded habits from onboarding:', selectedHabits);
             }
-            if (userPreferences.exercise) {
+            if (selectedExercises.length === 0 && userPreferences.exercise) {
                 selectedExercises = userPreferences.exercise.filter(function(e) { return e !== 'none'; });
+                console.log('Loaded exercises from onboarding:', selectedExercises);
             }
+
+            console.log('Init complete - habits:', selectedHabits, 'exercises:', selectedExercises);
         }
 
         function renderHabits() {
@@ -454,10 +481,19 @@
                 }
             });
 
+            console.log('renderTasks - selectedHabits:', selectedHabits);
+            console.log('renderTasks - selectedExercises:', selectedExercises);
+
             // Render habit sections
             selectedHabits.forEach(function(habitId) {
                 const habit = habitsData[habitId];
                 const tasks = habitTasks[habitId] || [];
+
+                // Skip if habit data not found
+                if (!habit) {
+                    console.warn('Habit not found:', habitId);
+                    return;
+                }
 
                 const section = document.createElement('div');
                 section.className = 'bg-white rounded-xl p-4 border border-gray-200 habit-section';
@@ -499,6 +535,12 @@
             selectedExercises.forEach(function(exerciseId) {
                 const exercise = exercisesData[exerciseId];
                 const tasks = exerciseTasks[exerciseId] || [];
+
+                // Skip if exercise data not found
+                if (!exercise) {
+                    console.warn('Exercise not found:', exerciseId);
+                    return;
+                }
 
                 const section = document.createElement('div');
                 section.className = 'bg-white rounded-xl p-4 border border-gray-200 exercise-section';
