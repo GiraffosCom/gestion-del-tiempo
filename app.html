@@ -2949,8 +2949,8 @@
         let activeFilter = '';
         let searchVisible = false;
 
-        // Dashboard visibility state
-        let dashboardVisible = getStorage('dashboard-visible') !== 'false';
+        // Dashboard visibility state - hidden by default
+        let dashboardVisible = getStorage('dashboard-visible') === 'true';
 
         const daysSpanish = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
         const monthsSpanish = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
