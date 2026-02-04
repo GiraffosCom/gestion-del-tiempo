@@ -20,3 +20,5 @@ export {
   detectCategory,
   detectCategoryByProducts,
 } from './ocr.js';
+export { voiceAssistant, INTENT_TYPES } from './voice-assistant.js';
+export { voiceExecutor } from './voice-executor.js';

@@ -13,9 +13,15 @@ import { habitsManager } from './modules/habits.js';
 import { scheduleManager } from './modules/schedule.js';
 import { goalsManager } from './modules/goals.js';
 import { expensesManager } from './modules/expenses.js';
+import { gymManager } from './modules/gym.js';
+import { fastingManager, FASTING_TYPES } from './modules/fasting.js';
+import { voiceAssistant, INTENT_TYPES } from './services/voice-assistant.js';
+import { voiceExecutor } from './services/voice-executor.js';
 import * as dateUtils from './utils/date.js';
 import * as validation from './utils/validation.js';
 import * as helpers from './utils/helpers.js';
+import * as exercisesData from './data/exercises.js';
+import * as habitsPresets from './data/habits-presets.js';
 
 // Inicializar storage con el usuario actual
 const currentUser = auth.getCurrentUser();
@@ -47,6 +53,20 @@ window.GestionApp = {
   scheduleManager,
   goalsManager,
   expensesManager,
+  gymManager,
+  fastingManager,
+
+  // Asistente de voz
+  voiceAssistant,
+  voiceExecutor,
+
+  // Datos
+  data: {
+    exercises: exercisesData,
+    habitsPresets,
+    FASTING_TYPES,
+    INTENT_TYPES,
+  },
 
   // Utilidades
   utils: {

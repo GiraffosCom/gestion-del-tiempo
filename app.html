@@ -13,6 +13,10 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="src/js/services/sync-service.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- CSS Modular -->
+    <link rel="stylesheet" href="src/css/base.css">
+    <link rel="stylesheet" href="src/css/themes.css">
+    <link rel="stylesheet" href="src/css/components.css">
     <!-- Módulos refactorizados -->
     <script type="module" src="src/js/legacy-bridge.js"></script>
     <style>
@@ -309,6 +313,107 @@
 </head>
 <body class="min-h-screen bg-gradient-to-br from-rose-50 via-purple-50 to-blue-50">
     <div id="app"></div>
+
+    <!-- Voice Assistant FAB -->
+    <button id="voiceFab" onclick="toggleVoiceAssistant()"
+        class="fixed bottom-24 right-6 w-14 h-14 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-full shadow-2xl flex items-center justify-center z-40 transition-all duration-300 hover:scale-110 hover:shadow-purple-500/50 active:scale-95"
+        title="Asistente de voz">
+        <svg id="voiceFabIcon" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+        </svg>
+        <!-- Recording indicator -->
+        <span id="voiceRecordingPulse" class="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-0 pointer-events-none"></span>
+    </button>
+
+    <!-- Voice Assistant Modal/Overlay -->
+    <div id="voiceModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-opacity duration-300">
+        <div class="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-rose-500 to-purple-600 p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-bold flex items-center gap-2">
+                        <span id="voiceStatusIcon">🎤</span>
+                        <span id="voiceStatusText">Asistente de Voz</span>
+                    </h3>
+                    <button onclick="closeVoiceModal()" class="p-2 hover:bg-white/20 rounded-full transition">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6">
+                <!-- Listening Animation -->
+                <div id="voiceListeningUI" class="text-center py-8">
+                    <div class="relative inline-block">
+                        <div class="w-24 h-24 rounded-full bg-gradient-to-r from-rose-100 to-purple-100 flex items-center justify-center">
+                            <div id="voiceWaveform" class="flex items-center justify-center gap-1">
+                                <span class="w-1 h-8 bg-rose-500 rounded-full animate-pulse" style="animation-delay: 0ms"></span>
+                                <span class="w-1 h-12 bg-purple-500 rounded-full animate-pulse" style="animation-delay: 100ms"></span>
+                                <span class="w-1 h-6 bg-rose-500 rounded-full animate-pulse" style="animation-delay: 200ms"></span>
+                                <span class="w-1 h-10 bg-purple-500 rounded-full animate-pulse" style="animation-delay: 300ms"></span>
+                                <span class="w-1 h-8 bg-rose-500 rounded-full animate-pulse" style="animation-delay: 400ms"></span>
+                            </div>
+                        </div>
+                        <div id="voiceListeningRing" class="absolute inset-0 rounded-full border-4 border-rose-500 animate-ping opacity-75"></div>
+                    </div>
+                    <p class="mt-4 text-gray-600 dark:text-gray-400 font-medium">Escuchando...</p>
+                    <p id="voiceInterimText" class="mt-2 text-gray-500 dark:text-gray-500 text-sm italic min-h-[20px]"></p>
+                </div>
+
+                <!-- Transcript Display -->
+                <div id="voiceTranscriptUI" class="hidden">
+                    <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 mb-4">
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Escuché:</p>
+                        <p id="voiceTranscriptText" class="text-lg font-medium text-gray-800 dark:text-gray-200"></p>
+                    </div>
+                </div>
+
+                <!-- Result Display -->
+                <div id="voiceResultUI" class="hidden">
+                    <div id="voiceResultContent" class="rounded-xl p-4 mb-4">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+
+                <!-- Example Commands (when idle) -->
+                <div id="voiceExamplesUI" class="hidden">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Ejemplos de comandos:</p>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                            <span class="text-rose-500">📅</span>
+                            <span>"Agregar ir al banco a las 3 PM"</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                            <span class="text-purple-500">✅</span>
+                            <span>"Completar hábito beber agua"</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                            <span class="text-green-500">💰</span>
+                            <span>"Gasto 150 pesos en comida"</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                            <span class="text-orange-500">⏱️</span>
+                            <span>"Iniciar ayuno 16 horas"</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Actions -->
+            <div class="px-6 pb-6">
+                <button id="voiceActionBtn" onclick="handleVoiceAction()"
+                    class="w-full py-4 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-xl font-semibold hover:opacity-90 transition flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                    <span id="voiceActionText">Empezar a grabar</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal para Editar Actividad -->
     <div id="editModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
@@ -13293,6 +13398,315 @@
         // Initial render
         render();
         updateFloatingButtons();
+
+        // ==================== Voice Assistant ====================
+
+        // Voice assistant state
+        let voiceIsListening = false;
+        let voiceLastResult = null;
+
+        /**
+         * Check if voice assistant is supported
+         */
+        function isVoiceSupported() {
+            return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+        }
+
+        /**
+         * Initialize voice assistant
+         */
+        function initVoiceAssistant() {
+            if (!isVoiceSupported()) {
+                const fab = document.getElementById('voiceFab');
+                if (fab) {
+                    fab.style.display = 'none';
+                }
+                console.log('[Voice] Speech Recognition not supported');
+                return;
+            }
+
+            // Set up voice assistant callbacks via GestionApp
+            if (window.GestionApp && window.GestionApp.voiceAssistant) {
+                const va = window.GestionApp.voiceAssistant;
+
+                va.onStart = () => {
+                    voiceIsListening = true;
+                    updateVoiceFabState(true);
+                    showVoiceListening();
+                };
+
+                va.onEnd = () => {
+                    voiceIsListening = false;
+                    updateVoiceFabState(false);
+                };
+
+                va.onInterimResult = (interim) => {
+                    const interimEl = document.getElementById('voiceInterimText');
+                    if (interimEl) {
+                        interimEl.textContent = interim;
+                    }
+                };
+
+                va.onResult = async (result) => {
+                    voiceLastResult = result;
+                    showVoiceTranscript(result.transcript);
+
+                    // Execute the command
+                    if (window.GestionApp.voiceExecutor) {
+                        // Set managers for the executor
+                        window.GestionApp.voiceExecutor.setManagers({
+                            scheduleManager: window.GestionApp.scheduleManager,
+                            habitsManager: window.GestionApp.habitsManager,
+                            expensesManager: window.GestionApp.expensesManager,
+                            fastingManager: window.GestionApp.fastingManager,
+                            gymManager: window.GestionApp.gymManager
+                        });
+
+                        const execResult = await window.GestionApp.voiceExecutor.execute(result.parsed);
+                        showVoiceResult(execResult);
+
+                        // Refresh UI if needed
+                        if (execResult.refreshUI || execResult.success) {
+                            setTimeout(() => {
+                                render();
+                            }, 500);
+                        }
+                    }
+                };
+
+                va.onError = (message, code) => {
+                    showVoiceError(message);
+                };
+
+                console.log('[Voice] Assistant initialized');
+            }
+        }
+
+        /**
+         * Toggle voice assistant (FAB click)
+         */
+        function toggleVoiceAssistant() {
+            if (!isVoiceSupported()) {
+                showToast('Tu navegador no soporta reconocimiento de voz', 'error');
+                return;
+            }
+
+            if (voiceIsListening) {
+                stopVoiceListening();
+            } else {
+                openVoiceModal();
+            }
+        }
+
+        /**
+         * Open voice modal
+         */
+        function openVoiceModal() {
+            const modal = document.getElementById('voiceModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                showVoiceExamples();
+            }
+        }
+
+        /**
+         * Close voice modal
+         */
+        function closeVoiceModal() {
+            const modal = document.getElementById('voiceModal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+            stopVoiceListening();
+        }
+
+        /**
+         * Handle voice action button click
+         */
+        function handleVoiceAction() {
+            if (voiceIsListening) {
+                stopVoiceListening();
+            } else {
+                startVoiceListening();
+            }
+        }
+
+        /**
+         * Start voice listening
+         */
+        function startVoiceListening() {
+            if (window.GestionApp && window.GestionApp.voiceAssistant) {
+                window.GestionApp.voiceAssistant.start();
+            }
+        }
+
+        /**
+         * Stop voice listening
+         */
+        function stopVoiceListening() {
+            if (window.GestionApp && window.GestionApp.voiceAssistant) {
+                window.GestionApp.voiceAssistant.stop();
+            }
+            voiceIsListening = false;
+            updateVoiceFabState(false);
+        }
+
+        /**
+         * Update FAB visual state
+         */
+        function updateVoiceFabState(isListening) {
+            const fab = document.getElementById('voiceFab');
+            const pulse = document.getElementById('voiceRecordingPulse');
+
+            if (fab) {
+                if (isListening) {
+                    fab.classList.add('bg-red-500');
+                    fab.classList.remove('from-rose-500', 'to-purple-600');
+                } else {
+                    fab.classList.remove('bg-red-500');
+                    fab.classList.add('from-rose-500', 'to-purple-600');
+                }
+            }
+
+            if (pulse) {
+                pulse.style.opacity = isListening ? '0.75' : '0';
+            }
+        }
+
+        /**
+         * Show examples UI
+         */
+        function showVoiceExamples() {
+            hideAllVoiceUI();
+            const examplesUI = document.getElementById('voiceExamplesUI');
+            if (examplesUI) examplesUI.classList.remove('hidden');
+
+            updateVoiceStatus('🎤', 'Asistente de Voz');
+            updateVoiceActionBtn('Empezar a grabar', false);
+        }
+
+        /**
+         * Show listening UI
+         */
+        function showVoiceListening() {
+            hideAllVoiceUI();
+            const listeningUI = document.getElementById('voiceListeningUI');
+            if (listeningUI) listeningUI.classList.remove('hidden');
+
+            const interimEl = document.getElementById('voiceInterimText');
+            if (interimEl) interimEl.textContent = '';
+
+            updateVoiceStatus('🔴', 'Escuchando...');
+            updateVoiceActionBtn('Detener', true);
+        }
+
+        /**
+         * Show transcript UI
+         */
+        function showVoiceTranscript(transcript) {
+            hideAllVoiceUI();
+            const transcriptUI = document.getElementById('voiceTranscriptUI');
+            const transcriptText = document.getElementById('voiceTranscriptText');
+
+            if (transcriptUI) transcriptUI.classList.remove('hidden');
+            if (transcriptText) transcriptText.textContent = `"${transcript}"`;
+
+            updateVoiceStatus('💭', 'Procesando...');
+            updateVoiceActionBtn('Procesando...', false);
+        }
+
+        /**
+         * Show result UI
+         */
+        function showVoiceResult(result) {
+            const resultUI = document.getElementById('voiceResultUI');
+            const resultContent = document.getElementById('voiceResultContent');
+
+            if (resultUI && resultContent) {
+                resultUI.classList.remove('hidden');
+
+                const bgClass = result.success
+                    ? 'bg-green-50 border border-green-200'
+                    : 'bg-red-50 border border-red-200';
+
+                const icon = result.success ? '✅' : '❌';
+                const textClass = result.success ? 'text-green-800' : 'text-red-800';
+
+                resultContent.className = `rounded-xl p-4 mb-4 ${bgClass}`;
+                resultContent.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <span class="text-2xl">${icon}</span>
+                        <div>
+                            <p class="${textClass} font-medium">${result.message}</p>
+                            ${result.data && result.data.name ? `<p class="text-sm text-gray-600 mt-1">${result.data.time || ''} ${result.data.name}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+
+                updateVoiceStatus(result.success ? '✅' : '❌', result.success ? 'Completado' : 'Error');
+                updateVoiceActionBtn('Nuevo comando', false);
+
+                // Auto close after success
+                if (result.success) {
+                    setTimeout(() => {
+                        closeVoiceModal();
+                    }, 2000);
+                }
+            }
+        }
+
+        /**
+         * Show error UI
+         */
+        function showVoiceError(message) {
+            showVoiceResult({ success: false, message });
+        }
+
+        /**
+         * Hide all voice UI sections
+         */
+        function hideAllVoiceUI() {
+            const sections = ['voiceListeningUI', 'voiceTranscriptUI', 'voiceResultUI', 'voiceExamplesUI'];
+            sections.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+        }
+
+        /**
+         * Update voice status header
+         */
+        function updateVoiceStatus(icon, text) {
+            const iconEl = document.getElementById('voiceStatusIcon');
+            const textEl = document.getElementById('voiceStatusText');
+            if (iconEl) iconEl.textContent = icon;
+            if (textEl) textEl.textContent = text;
+        }
+
+        /**
+         * Update voice action button
+         */
+        function updateVoiceActionBtn(text, isRecording) {
+            const btn = document.getElementById('voiceActionBtn');
+            const textEl = document.getElementById('voiceActionText');
+
+            if (textEl) textEl.textContent = text;
+
+            if (btn) {
+                if (isRecording) {
+                    btn.classList.remove('from-rose-500', 'to-purple-600');
+                    btn.classList.add('bg-red-500');
+                } else {
+                    btn.classList.add('from-rose-500', 'to-purple-600');
+                    btn.classList.remove('bg-red-500');
+                }
+            }
+        }
+
+        // Initialize voice assistant after a short delay to ensure modules are loaded
+        setTimeout(initVoiceAssistant, 500);
+
+        // ==================== End Voice Assistant ====================
 
         // Initialize fasting timer if there's an active fast
         if (hasActiveFast()) {
