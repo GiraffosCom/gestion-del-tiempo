@@ -2519,13 +2519,8 @@
         function setIconStyle(style) {
             if (['emoji', 'lucide'].includes(style)) {
                 setStorage('icon-style', style);
+                // Force full re-render to apply icon changes
                 render();
-                // Re-initialize lucide icons after render
-                setTimeout(function() {
-                    if (style === 'lucide' && window.lucide) {
-                        lucide.createIcons();
-                    }
-                }, 100);
             }
         }
 
@@ -2644,11 +2639,91 @@
 
         // Initialize lucide icons after DOM updates
         function initLucideIcons() {
-            if (isLucideMode() && window.lucide) {
+            if (!window.lucide) return;
+
+            if (isLucideMode()) {
+                // Replace emojis with Lucide icons in the DOM
                 setTimeout(function() {
+                    replaceEmojisWithLucide();
                     lucide.createIcons();
                 }, 50);
             }
+        }
+
+        // Replace emojis in the DOM with Lucide icon elements
+        function replaceEmojisWithLucide() {
+            var app = document.getElementById('app');
+            if (!app) return;
+
+            // Get all text nodes and elements that might contain emojis
+            var walker = document.createTreeWalker(
+                app,
+                NodeFilter.SHOW_TEXT,
+                null,
+                false
+            );
+
+            var textNodes = [];
+            var node;
+            while (node = walker.nextNode()) {
+                // Skip script and style tags
+                if (node.parentNode.tagName === 'SCRIPT' || node.parentNode.tagName === 'STYLE') continue;
+                // Check if the text contains any emoji from our map
+                var hasEmoji = Object.keys(ICON_MAP).some(function(emoji) {
+                    return node.textContent.indexOf(emoji) !== -1;
+                });
+                if (hasEmoji) {
+                    textNodes.push(node);
+                }
+            }
+
+            // Replace emojis in collected text nodes
+            textNodes.forEach(function(textNode) {
+                var text = textNode.textContent;
+                var parent = textNode.parentNode;
+
+                // Skip if parent is an input, textarea, or already processed
+                if (parent.tagName === 'INPUT' || parent.tagName === 'TEXTAREA') return;
+                if (parent.classList && parent.classList.contains('lucide-processed')) return;
+
+                var hasReplacement = false;
+                var html = text;
+
+                Object.keys(ICON_MAP).forEach(function(emoji) {
+                    if (html.indexOf(emoji) !== -1) {
+                        var iconName = ICON_MAP[emoji];
+                        var replacement = '<i data-lucide="' + iconName + '" class="w-5 h-5 inline-block align-middle"></i>';
+                        html = html.split(emoji).join(replacement);
+                        hasReplacement = true;
+                    }
+                });
+
+                if (hasReplacement) {
+                    var span = document.createElement('span');
+                    span.innerHTML = html;
+                    span.className = 'lucide-processed';
+                    parent.replaceChild(span, textNode);
+                }
+            });
+
+            // Also handle elements with emoji in specific attributes or as direct content
+            var emojiElements = app.querySelectorAll('.text-xl, .text-2xl, .text-3xl, .text-4xl, .text-5xl');
+            emojiElements.forEach(function(el) {
+                if (el.classList.contains('lucide-processed')) return;
+                if (el.children.length > 0) return; // Skip if has child elements
+
+                var text = el.textContent.trim();
+                if (ICON_MAP[text]) {
+                    var iconName = ICON_MAP[text];
+                    var sizeClass = 'w-6 h-6';
+                    if (el.classList.contains('text-3xl')) sizeClass = 'w-8 h-8';
+                    if (el.classList.contains('text-4xl')) sizeClass = 'w-10 h-10';
+                    if (el.classList.contains('text-5xl')) sizeClass = 'w-12 h-12';
+
+                    el.innerHTML = '<i data-lucide="' + iconName + '" class="' + sizeClass + '"></i>';
+                    el.classList.add('lucide-processed');
+                }
+            });
         }
 
         // Apply dark mode, theme, and view mode on page load
