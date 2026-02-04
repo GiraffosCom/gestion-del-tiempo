@@ -1,0 +1,208 @@
+/**
+ * Themes CSS - Color themes and dark mode
+ * @description Definición de todos los temas de color
+ */
+
+/* ==================== Theme: Male (Azul) ==================== */
+body.theme-male {
+    --theme-primary: #3b82f6;
+    --theme-secondary: #06b6d4;
+    --theme-accent: #6366f1;
+    --theme-glow-1: rgba(59, 130, 246, 0.4);
+    --theme-glow-2: rgba(6, 182, 212, 0.3);
+    --theme-ring: rgba(99, 102, 241, 0.4);
+    --theme-bg-light: #eff6ff;
+    --theme-bg-light-2: #e0f2fe;
+}
+
+body.theme-male .photo-border { border-color: #93c5fd; }
+body.theme-male .theme-bar-light { background: linear-gradient(to top, #93c5fd, #60a5fa); }
+body.theme-male .theme-share { background: linear-gradient(to bottom right, #3b82f6, #6366f1, #06b6d4); }
+
+/* Tailwind overrides for male theme */
+body.theme-male .text-purple-600 { color: #3b82f6 !important; }
+body.theme-male .text-purple-500 { color: #60a5fa !important; }
+body.theme-male .ring-purple-400 { --tw-ring-color: rgb(96 165 250) !important; }
+body.theme-male .ring-purple-200 { --tw-ring-color: rgb(191 219 254) !important; }
+body.theme-male .focus\:ring-purple-400:focus { --tw-ring-color: rgb(96 165 250) !important; }
+body.theme-male .focus\:ring-purple-500:focus { --tw-ring-color: rgb(59 130 246) !important; }
+body.theme-male .border-purple-200 { border-color: rgb(191 219 254) !important; }
+body.theme-male .bg-purple-100 { background-color: rgb(219 234 254) !important; }
+body.theme-male .bg-purple-500 { background-color: rgb(59 130 246) !important; }
+body.theme-male .hover\:bg-purple-600:hover { background-color: rgb(37 99 235) !important; }
+body.theme-male .bg-rose-100 { background-color: rgb(219 234 254) !important; }
+body.theme-male .text-rose-600 { color: #3b82f6 !important; }
+body.theme-male .hover\:bg-rose-200:hover { background-color: rgb(191 219 254) !important; }
+
+/* ==================== Theme: Verde (Emerald) ==================== */
+body.theme-verde {
+    --theme-primary: #10b981;
+    --theme-secondary: #059669;
+    --theme-accent: #34d399;
+    --theme-glow-1: rgba(16, 185, 129, 0.4);
+    --theme-glow-2: rgba(5, 150, 105, 0.3);
+    --theme-ring: rgba(52, 211, 153, 0.4);
+    --theme-bg-light: #ecfdf5;
+    --theme-bg-light-2: #d1fae5;
+}
+
+body.theme-verde .photo-border { border-color: #6ee7b7; }
+body.theme-verde .theme-bar-light { background: linear-gradient(to top, #6ee7b7, #34d399); }
+body.theme-verde .text-purple-600 { color: #059669 !important; }
+body.theme-verde .text-purple-500 { color: #10b981 !important; }
+body.theme-verde .ring-purple-400 { --tw-ring-color: rgb(52 211 153) !important; }
+body.theme-verde .focus\:ring-purple-400:focus { --tw-ring-color: rgb(52 211 153) !important; }
+body.theme-verde .border-purple-200 { border-color: rgb(167 243 208) !important; }
+body.theme-verde .bg-purple-100 { background-color: rgb(209 250 229) !important; }
+body.theme-verde .bg-purple-500 { background-color: rgb(16 185 129) !important; }
+body.theme-verde .hover\:bg-purple-600:hover { background-color: rgb(5 150 105) !important; }
+body.theme-verde .bg-rose-100 { background-color: rgb(209 250 229) !important; }
+body.theme-verde .text-rose-600 { color: #059669 !important; }
+
+/* ==================== Theme: Naranja (Orange) ==================== */
+body.theme-naranja {
+    --theme-primary: #f97316;
+    --theme-secondary: #eab308;
+    --theme-accent: #fb923c;
+    --theme-glow-1: rgba(249, 115, 22, 0.4);
+    --theme-glow-2: rgba(234, 179, 8, 0.3);
+    --theme-ring: rgba(251, 146, 60, 0.4);
+    --theme-bg-light: #fff7ed;
+    --theme-bg-light-2: #fef3c7;
+}
+
+body.theme-naranja .photo-border { border-color: #fdba74; }
+body.theme-naranja .theme-bar-light { background: linear-gradient(to top, #fcd34d, #fbbf24); }
+body.theme-naranja .text-purple-600 { color: #ea580c !important; }
+body.theme-naranja .text-purple-500 { color: #f97316 !important; }
+body.theme-naranja .ring-purple-400 { --tw-ring-color: rgb(251 146 60) !important; }
+body.theme-naranja .focus\:ring-purple-400:focus { --tw-ring-color: rgb(251 146 60) !important; }
+body.theme-naranja .border-purple-200 { border-color: rgb(254 215 170) !important; }
+body.theme-naranja .bg-purple-100 { background-color: rgb(255 237 213) !important; }
+body.theme-naranja .bg-purple-500 { background-color: rgb(249 115 22) !important; }
+body.theme-naranja .hover\:bg-purple-600:hover { background-color: rgb(234 88 12) !important; }
+body.theme-naranja .bg-rose-100 { background-color: rgb(255 237 213) !important; }
+body.theme-naranja .text-rose-600 { color: #ea580c !important; }
+
+/* ==================== Theme: Coral (Rose/Red) ==================== */
+body.theme-coral {
+    --theme-primary: #f43f5e;
+    --theme-secondary: #e11d48;
+    --theme-accent: #fb7185;
+    --theme-glow-1: rgba(244, 63, 94, 0.4);
+    --theme-glow-2: rgba(225, 29, 72, 0.3);
+    --theme-ring: rgba(251, 113, 133, 0.4);
+    --theme-bg-light: #fff1f2;
+    --theme-bg-light-2: #ffe4e6;
+}
+
+body.theme-coral .photo-border { border-color: #fda4af; }
+body.theme-coral .theme-bar-light { background: linear-gradient(to top, #fda4af, #fb7185); }
+body.theme-coral .text-purple-600 { color: #e11d48 !important; }
+body.theme-coral .text-purple-500 { color: #f43f5e !important; }
+body.theme-coral .ring-purple-400 { --tw-ring-color: rgb(251 113 133) !important; }
+body.theme-coral .focus\:ring-purple-400:focus { --tw-ring-color: rgb(251 113 133) !important; }
+body.theme-coral .border-purple-200 { border-color: rgb(254 205 211) !important; }
+body.theme-coral .bg-purple-100 { background-color: rgb(255 228 230) !important; }
+body.theme-coral .bg-purple-500 { background-color: rgb(244 63 94) !important; }
+body.theme-coral .hover\:bg-purple-600:hover { background-color: rgb(225 29 72) !important; }
+body.theme-coral .bg-rose-100 { background-color: rgb(255 228 230) !important; }
+body.theme-coral .text-rose-600 { color: #e11d48 !important; }
+
+/* ==================== Theme: Morado (Violet/Indigo) ==================== */
+body.theme-morado {
+    --theme-primary: #8b5cf6;
+    --theme-secondary: #6366f1;
+    --theme-accent: #a78bfa;
+    --theme-glow-1: rgba(139, 92, 246, 0.4);
+    --theme-glow-2: rgba(99, 102, 241, 0.3);
+    --theme-ring: rgba(167, 139, 250, 0.4);
+    --theme-bg-light: #f5f3ff;
+    --theme-bg-light-2: #ede9fe;
+}
+
+body.theme-morado .photo-border { border-color: #c4b5fd; }
+body.theme-morado .theme-bar-light { background: linear-gradient(to top, #c4b5fd, #a78bfa); }
+body.theme-morado .text-purple-600 { color: #7c3aed !important; }
+body.theme-morado .text-purple-500 { color: #8b5cf6 !important; }
+body.theme-morado .ring-purple-400 { --tw-ring-color: rgb(167 139 250) !important; }
+body.theme-morado .focus\:ring-purple-400:focus { --tw-ring-color: rgb(167 139 250) !important; }
+body.theme-morado .border-purple-200 { border-color: rgb(221 214 254) !important; }
+body.theme-morado .bg-purple-100 { background-color: rgb(237 233 254) !important; }
+body.theme-morado .bg-purple-500 { background-color: rgb(139 92 246) !important; }
+body.theme-morado .hover\:bg-purple-600:hover { background-color: rgb(124 58 237) !important; }
+body.theme-morado .bg-rose-100 { background-color: rgb(237 233 254) !important; }
+body.theme-morado .text-rose-600 { color: #7c3aed !important; }
+
+/* ==================== Default theme extras ==================== */
+.theme-share {
+    background: linear-gradient(to bottom right, var(--theme-primary), var(--theme-accent), #3b82f6);
+}
+
+.photo-border {
+    border-color: #c084fc;
+}
+
+.theme-bar-light {
+    background: linear-gradient(to top, #d8b4fe, #c084fc);
+}
+
+/* ==================== Dark Mode ==================== */
+.dark {
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #1a1a2e) !important;
+}
+
+.dark .bg-white { background: #1e293b !important; }
+.dark .bg-white\/90 { background: rgba(30, 41, 59, 0.95) !important; }
+.dark .bg-white\/80 { background: rgba(30, 41, 59, 0.9) !important; }
+.dark .bg-white\/60 { background: rgba(30, 41, 59, 0.8) !important; }
+.dark .bg-white\/40 { background: rgba(30, 41, 59, 0.6) !important; }
+.dark .bg-white\/50 { background: rgba(30, 41, 59, 0.7) !important; }
+
+.dark .text-gray-800 { color: #f1f5f9 !important; }
+.dark .text-gray-700 { color: #e2e8f0 !important; }
+.dark .text-gray-600 { color: #cbd5e1 !important; }
+.dark .text-gray-500 { color: #94a3b8 !important; }
+.dark .text-gray-400 { color: #64748b !important; }
+
+.dark .border-gray-200 { border-color: #334155 !important; }
+.dark .border-gray-100 { border-color: #1e293b !important; }
+.dark .border-b { border-color: #334155 !important; }
+
+.dark .hover\:bg-gray-50:hover { background: #334155 !important; }
+.dark .hover\:bg-gray-100:hover { background: #334155 !important; }
+.dark .bg-gray-50 { background: #0f172a !important; }
+.dark .bg-gray-100 { background: #1e293b !important; }
+
+.dark .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3) !important; }
+.dark .shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3) !important; }
+.dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3) !important; }
+
+/* Dark mode form elements */
+.dark input,
+.dark textarea,
+.dark select {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #f1f5f9 !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+    color: #64748b !important;
+}
+
+/* Dark mode cards */
+.dark .card-hover:hover {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-track {
+    background: #1e293b;
+}
+
+/* Dark mode modal */
+.dark .modal-backdrop {
+    background: rgba(0, 0, 0, 0.7);
+}

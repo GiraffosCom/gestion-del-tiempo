@@ -1,0 +1,10 @@
+/**
+ * Main CSS Entry Point
+ * @description Importa todos los estilos de la aplicación
+ */
+
+@import url('./base.css');
+@import url('./themes.css');
+@import url('./components.css');
+
+/* Module-specific styles can be added here or in separate files */
