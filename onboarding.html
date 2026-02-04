@@ -35,326 +35,205 @@
                     <span class="text-2xl">⏰</span>
                     <span class="font-bold gradient-text">Gestión del Tiempo</span>
                 </div>
-                <span id="stepIndicator" class="text-sm text-gray-500">Paso 1 de 6</span>
+                <span id="stepIndicator" class="text-sm text-gray-500">Paso 1 de 3</span>
             </div>
             <!-- Progress bar -->
             <div class="flex gap-2">
                 <div id="dot1" class="step-dot w-full h-2 rounded-full bg-gray-200 active"></div>
                 <div id="dot2" class="step-dot w-full h-2 rounded-full bg-gray-200"></div>
                 <div id="dot3" class="step-dot w-full h-2 rounded-full bg-gray-200"></div>
-                <div id="dot4" class="step-dot w-full h-2 rounded-full bg-gray-200"></div>
-                <div id="dot5" class="step-dot w-full h-2 rounded-full bg-gray-200"></div>
-                <div id="dot6" class="step-dot w-full h-2 rounded-full bg-gray-200"></div>
             </div>
         </div>
     </header>
 
     <main class="max-w-3xl mx-auto px-4 py-8">
-        <!-- Step 1: Objetivo Principal -->
+        <!-- Step 1: Objetivo + Color -->
         <div id="step1" class="step-content fade-in">
-            <div class="text-center mb-8">
-                <span class="text-6xl mb-4 block">🎯</span>
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">¿Cuál es tu objetivo principal?</h1>
-                <p class="text-gray-600">Selecciona el que mejor describa lo que quieres lograr</p>
+            <div class="text-center mb-6">
+                <span class="text-5xl mb-3 block">🎯</span>
+                <h1 class="text-2xl font-bold text-gray-900 mb-1">¿Cuál es tu objetivo?</h1>
+                <p class="text-gray-500 text-sm">Selecciona tu meta principal</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="selectOption('goal', 'fitness', this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-purple-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <span class="text-4xl mb-3 block">💪</span>
-                    <h3 class="font-bold text-gray-900">Transformación Física</h3>
-                    <p class="text-sm text-gray-500 mt-1">Perder peso, ganar músculo, definir cuerpo</p>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8">
+                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="selectOption('goal', 'fitness', this)">
+                    <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
+                    <span class="text-3xl mb-2 block">💪</span>
+                    <h3 class="font-bold text-gray-900 text-sm">Fitness</h3>
+                    <p class="text-xs text-gray-500">Transformación física</p>
                 </div>
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="selectOption('goal', 'learning', this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-purple-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <span class="text-4xl mb-3 block">📚</span>
-                    <h3 class="font-bold text-gray-900">Aprender algo nuevo</h3>
-                    <p class="text-sm text-gray-500 mt-1">Idiomas, habilidades, certificaciones</p>
+                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="selectOption('goal', 'learning', this)">
+                    <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
+                    <span class="text-3xl mb-2 block">📚</span>
+                    <h3 class="font-bold text-gray-900 text-sm">Aprender</h3>
+                    <p class="text-xs text-gray-500">Nuevas habilidades</p>
                 </div>
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="selectOption('goal', 'productivity', this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-purple-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <span class="text-4xl mb-3 block">📈</span>
-                    <h3 class="font-bold text-gray-900">Ser más productivo</h3>
-                    <p class="text-sm text-gray-500 mt-1">Organizar tiempo, lograr más cada día</p>
+                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="selectOption('goal', 'productivity', this)">
+                    <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
+                    <span class="text-3xl mb-2 block">📈</span>
+                    <h3 class="font-bold text-gray-900 text-sm">Productividad</h3>
+                    <p class="text-xs text-gray-500">Lograr más cada día</p>
                 </div>
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="selectOption('goal', 'business', this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-purple-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <span class="text-4xl mb-3 block">💼</span>
-                    <h3 class="font-bold text-gray-900">Emprender / Negocio</h3>
-                    <p class="text-sm text-gray-500 mt-1">Lanzar proyecto, hacer crecer negocio</p>
+                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="selectOption('goal', 'business', this)">
+                    <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
+                    <span class="text-3xl mb-2 block">💼</span>
+                    <h3 class="font-bold text-gray-900 text-sm">Negocio</h3>
+                    <p class="text-xs text-gray-500">Emprender / crecer</p>
                 </div>
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="selectOption('goal', 'competition', this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-purple-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <span class="text-4xl mb-3 block">👑</span>
-                    <h3 class="font-bold text-gray-900">Competencia / Concurso</h3>
-                    <p class="text-sm text-gray-500 mt-1">Miss, deportes, certámenes, oposiciones</p>
+                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="selectOption('goal', 'competition', this)">
+                    <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
+                    <span class="text-3xl mb-2 block">👑</span>
+                    <h3 class="font-bold text-gray-900 text-sm">Competencia</h3>
+                    <p class="text-xs text-gray-500">Miss, deportes, etc.</p>
                 </div>
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="selectOption('goal', 'wellness', this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-purple-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <span class="text-4xl mb-3 block">🧘</span>
-                    <h3 class="font-bold text-gray-900">Bienestar personal</h3>
-                    <p class="text-sm text-gray-500 mt-1">Reducir estrés, mejorar salud mental</p>
+                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="selectOption('goal', 'wellness', this)">
+                    <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
+                    <span class="text-3xl mb-2 block">🧘</span>
+                    <h3 class="font-bold text-gray-900 text-sm">Bienestar</h3>
+                    <p class="text-xs text-gray-500">Salud y equilibrio</p>
+                </div>
+            </div>
+
+            <!-- Color Selection -->
+            <div class="border-t border-gray-200 pt-6">
+                <h2 class="text-center font-bold text-gray-800 mb-4">🎨 Elige tu color</h2>
+                <div class="grid grid-cols-3 md:grid-cols-6 gap-3">
+                    <div class="option-card cursor-pointer p-3 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="selectOption('themeColor', 'rosa', this)">
+                        <div class="check-icon absolute top-1 right-1 w-4 h-4 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
+                        <div class="h-8 rounded-lg bg-gradient-to-r from-pink-500 to-purple-600 mb-2"></div>
+                        <span class="text-xs font-medium">Rosa</span>
+                    </div>
+                    <div class="option-card cursor-pointer p-3 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="selectOption('themeColor', 'azul', this)">
+                        <div class="check-icon absolute top-1 right-1 w-4 h-4 bg-blue-500 rounded-full items-center justify-center text-white text-xs">✓</div>
+                        <div class="h-8 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-600 mb-2"></div>
+                        <span class="text-xs font-medium">Azul</span>
+                    </div>
+                    <div class="option-card cursor-pointer p-3 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="selectOption('themeColor', 'verde', this)">
+                        <div class="check-icon absolute top-1 right-1 w-4 h-4 bg-emerald-500 rounded-full items-center justify-center text-white text-xs">✓</div>
+                        <div class="h-8 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 mb-2"></div>
+                        <span class="text-xs font-medium">Verde</span>
+                    </div>
+                    <div class="option-card cursor-pointer p-3 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="selectOption('themeColor', 'naranja', this)">
+                        <div class="check-icon absolute top-1 right-1 w-4 h-4 bg-orange-500 rounded-full items-center justify-center text-white text-xs">✓</div>
+                        <div class="h-8 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 mb-2"></div>
+                        <span class="text-xs font-medium">Naranja</span>
+                    </div>
+                    <div class="option-card cursor-pointer p-3 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="selectOption('themeColor', 'coral', this)">
+                        <div class="check-icon absolute top-1 right-1 w-4 h-4 bg-rose-500 rounded-full items-center justify-center text-white text-xs">✓</div>
+                        <div class="h-8 rounded-lg bg-gradient-to-r from-rose-500 to-red-600 mb-2"></div>
+                        <span class="text-xs font-medium">Coral</span>
+                    </div>
+                    <div class="option-card cursor-pointer p-3 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="selectOption('themeColor', 'morado', this)">
+                        <div class="check-icon absolute top-1 right-1 w-4 h-4 bg-violet-500 rounded-full items-center justify-center text-white text-xs">✓</div>
+                        <div class="h-8 rounded-lg bg-gradient-to-r from-violet-500 to-indigo-600 mb-2"></div>
+                        <span class="text-xs font-medium">Morado</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Step 2: Color de interfaz -->
+        <!-- Step 2: Horarios + Ejercicio -->
         <div id="step2" class="step-content hidden fade-in">
-            <div class="text-center mb-8">
-                <span class="text-6xl mb-4 block">🎨</span>
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">¿Qué color te gusta más?</h1>
-                <p class="text-gray-600">Elige el estilo visual de tu aplicación</p>
+            <div class="text-center mb-6">
+                <span class="text-5xl mb-3 block">⏰</span>
+                <h1 class="text-2xl font-bold text-gray-900 mb-1">Tu rutina diaria</h1>
+                <p class="text-gray-500 text-sm">Configura tus horarios y actividad física</p>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="selectOption('themeColor', 'rosa', this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-purple-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <div class="h-12 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 mb-3"></div>
-                    <span class="text-2xl mb-2 block">🌸</span>
-                    <h3 class="font-bold text-gray-900 text-sm">Rosa & Púrpura</h3>
-                    <p class="text-xs text-gray-500 mt-1">Elegante y femenino</p>
+            <div class="bg-white rounded-2xl p-5 border border-gray-200 mb-6">
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-2 text-sm">🌅 Despertar</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="time-btn px-3 py-2 border-2 border-gray-200 rounded-lg text-sm hover:border-purple-300 transition" onclick="selectTime('wakeUp', '05:00', this)">5:00</button>
+                            <button class="time-btn px-3 py-2 border-2 border-gray-200 rounded-lg text-sm hover:border-purple-300 transition" onclick="selectTime('wakeUp', '06:00', this)">6:00</button>
+                            <button class="time-btn px-3 py-2 border-2 border-gray-200 rounded-lg text-sm hover:border-purple-300 transition selected" onclick="selectTime('wakeUp', '07:00', this)">7:00</button>
+                            <button class="time-btn px-3 py-2 border-2 border-gray-200 rounded-lg text-sm hover:border-purple-300 transition" onclick="selectTime('wakeUp', '08:00', this)">8:00</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-2 text-sm">🌙 Dormir</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="time-btn px-3 py-2 border-2 border-gray-200 rounded-lg text-sm hover:border-purple-300 transition" onclick="selectTime('sleep', '21:00', this)">21:00</button>
+                            <button class="time-btn px-3 py-2 border-2 border-gray-200 rounded-lg text-sm hover:border-purple-300 transition selected" onclick="selectTime('sleep', '22:00', this)">22:00</button>
+                            <button class="time-btn px-3 py-2 border-2 border-gray-200 rounded-lg text-sm hover:border-purple-300 transition" onclick="selectTime('sleep', '23:00', this)">23:00</button>
+                            <button class="time-btn px-3 py-2 border-2 border-gray-200 rounded-lg text-sm hover:border-purple-300 transition" onclick="selectTime('sleep', '00:00', this)">00:00</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="selectOption('themeColor', 'azul', this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-blue-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <div class="h-12 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-600 mb-3"></div>
-                    <span class="text-2xl mb-2 block">🌊</span>
-                    <h3 class="font-bold text-gray-900 text-sm">Azul & Cyan</h3>
-                    <p class="text-xs text-gray-500 mt-1">Profesional y calmado</p>
+            </div>
+
+            <!-- Ejercicio simplificado -->
+            <h2 class="font-bold text-gray-800 mb-3">💪 Tipo de ejercicio</h2>
+            <div class="grid grid-cols-3 gap-3">
+                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="toggleMultiOption('exercise', 'gym', this)">
+                    <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
+                    <span class="text-2xl mb-1 block">🏋️</span>
+                    <h3 class="font-medium text-gray-900 text-sm">Gimnasio</h3>
                 </div>
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="selectOption('themeColor', 'verde', this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-emerald-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <div class="h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 mb-3"></div>
-                    <span class="text-2xl mb-2 block">🌿</span>
-                    <h3 class="font-bold text-gray-900 text-sm">Verde & Esmeralda</h3>
-                    <p class="text-xs text-gray-500 mt-1">Natural y fresco</p>
+                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="toggleMultiOption('exercise', 'cardio', this)">
+                    <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
+                    <span class="text-2xl mb-1 block">🏃</span>
+                    <h3 class="font-medium text-gray-900 text-sm">Cardio</h3>
                 </div>
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="selectOption('themeColor', 'naranja', this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-orange-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <div class="h-12 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 mb-3"></div>
-                    <span class="text-2xl mb-2 block">🔥</span>
-                    <h3 class="font-bold text-gray-900 text-sm">Naranja & Dorado</h3>
-                    <p class="text-xs text-gray-500 mt-1">Energético y cálido</p>
+                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="toggleMultiOption('exercise', 'yoga', this)">
+                    <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
+                    <span class="text-2xl mb-1 block">🧘</span>
+                    <h3 class="font-medium text-gray-900 text-sm">Yoga</h3>
                 </div>
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="selectOption('themeColor', 'coral', this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-rose-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <div class="h-12 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 mb-3"></div>
-                    <span class="text-2xl mb-2 block">❤️</span>
-                    <h3 class="font-bold text-gray-900 text-sm">Coral & Rojo</h3>
-                    <p class="text-xs text-gray-500 mt-1">Apasionado y audaz</p>
+                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="toggleMultiOption('exercise', 'dance', this)">
+                    <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
+                    <span class="text-2xl mb-1 block">💃</span>
+                    <h3 class="font-medium text-gray-900 text-sm">Baile</h3>
                 </div>
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="selectOption('themeColor', 'morado', this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-violet-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <div class="h-12 rounded-xl bg-gradient-to-r from-violet-500 to-indigo-600 mb-3"></div>
-                    <span class="text-2xl mb-2 block">💜</span>
-                    <h3 class="font-bold text-gray-900 text-sm">Morado & Índigo</h3>
-                    <p class="text-xs text-gray-500 mt-1">Creativo y místico</p>
+                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="toggleMultiOption('exercise', 'sports', this)">
+                    <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
+                    <span class="text-2xl mb-1 block">⚽</span>
+                    <h3 class="font-medium text-gray-900 text-sm">Deportes</h3>
+                </div>
+                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="toggleMultiOption('exercise', 'none', this)">
+                    <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
+                    <span class="text-2xl mb-1 block">🚶</span>
+                    <h3 class="font-medium text-gray-900 text-sm">Ninguno</h3>
                 </div>
             </div>
         </div>
 
-        <!-- Step 3: Horarios -->
+        <!-- Step 3: Duración + Resumen -->
         <div id="step3" class="step-content hidden fade-in">
-            <div class="text-center mb-8">
-                <span class="text-6xl mb-4 block">⏰</span>
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">¿Cuáles son tus horarios?</h1>
-                <p class="text-gray-600">Esto nos ayuda a crear un plan que se adapte a tu vida</p>
+            <div class="text-center mb-6">
+                <span class="text-5xl mb-3 block">📅</span>
+                <h1 class="text-2xl font-bold text-gray-900 mb-1">Duración del plan</h1>
+                <p class="text-gray-500 text-sm">¿Cuánto tiempo durará tu transformación?</p>
             </div>
 
-            <div class="space-y-6 bg-white rounded-2xl p-6 border border-gray-200">
-                <div>
-                    <label class="block font-medium text-gray-700 mb-3">🌅 ¿A qué hora despiertas normalmente?</label>
-                    <div class="flex flex-wrap gap-2">
-                        <button class="time-btn px-4 py-2 border-2 border-gray-200 rounded-xl hover:border-purple-300 transition" onclick="selectTime('wakeUp', '05:00', this)">5:00</button>
-                        <button class="time-btn px-4 py-2 border-2 border-gray-200 rounded-xl hover:border-purple-300 transition" onclick="selectTime('wakeUp', '06:00', this)">6:00</button>
-                        <button class="time-btn px-4 py-2 border-2 border-gray-200 rounded-xl hover:border-purple-300 transition selected" onclick="selectTime('wakeUp', '07:00', this)">7:00</button>
-                        <button class="time-btn px-4 py-2 border-2 border-gray-200 rounded-xl hover:border-purple-300 transition" onclick="selectTime('wakeUp', '08:00', this)">8:00</button>
-                        <button class="time-btn px-4 py-2 border-2 border-gray-200 rounded-xl hover:border-purple-300 transition" onclick="selectTime('wakeUp', '09:00', this)">9:00</button>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block font-medium text-gray-700 mb-3">🌙 ¿A qué hora te acuestas?</label>
-                    <div class="flex flex-wrap gap-2">
-                        <button class="time-btn px-4 py-2 border-2 border-gray-200 rounded-xl hover:border-purple-300 transition" onclick="selectTime('sleep', '21:00', this)">21:00</button>
-                        <button class="time-btn px-4 py-2 border-2 border-gray-200 rounded-xl hover:border-purple-300 transition selected" onclick="selectTime('sleep', '22:00', this)">22:00</button>
-                        <button class="time-btn px-4 py-2 border-2 border-gray-200 rounded-xl hover:border-purple-300 transition" onclick="selectTime('sleep', '23:00', this)">23:00</button>
-                        <button class="time-btn px-4 py-2 border-2 border-gray-200 rounded-xl hover:border-purple-300 transition" onclick="selectTime('sleep', '00:00', this)">00:00</button>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block font-medium text-gray-700 mb-3">💼 ¿Trabajas o estudias?</label>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
-                        <button class="time-btn px-4 py-2 border-2 border-gray-200 rounded-xl hover:border-purple-300 transition" onclick="selectTime('occupation', 'fulltime', this)">Tiempo completo</button>
-                        <button class="time-btn px-4 py-2 border-2 border-gray-200 rounded-xl hover:border-purple-300 transition" onclick="selectTime('occupation', 'parttime', this)">Medio tiempo</button>
-                        <button class="time-btn px-4 py-2 border-2 border-gray-200 rounded-xl hover:border-purple-300 transition" onclick="selectTime('occupation', 'student', this)">Estudiante</button>
-                        <button class="time-btn px-4 py-2 border-2 border-gray-200 rounded-xl hover:border-purple-300 transition" onclick="selectTime('occupation', 'flexible', this)">Horario flexible</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Step 4: Ejercicio -->
-        <div id="step4" class="step-content hidden fade-in">
-            <div class="text-center mb-8">
-                <span class="text-6xl mb-4 block">💪</span>
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">¿Qué tipo de ejercicio prefieres?</h1>
-                <p class="text-gray-600">Selecciona las opciones que te interesen</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="toggleMultiOption('exercise', 'gym', this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-purple-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <span class="text-4xl mb-3 block">🏋️</span>
-                    <h3 class="font-bold text-gray-900">Gimnasio</h3>
-                    <p class="text-sm text-gray-500 mt-1">Pesas, máquinas, entrenamiento de fuerza</p>
-                </div>
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="toggleMultiOption('exercise', 'cardio', this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-purple-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <span class="text-4xl mb-3 block">🏃</span>
-                    <h3 class="font-bold text-gray-900">Cardio</h3>
-                    <p class="text-sm text-gray-500 mt-1">Correr, bicicleta, HIIT</p>
-                </div>
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="toggleMultiOption('exercise', 'yoga', this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-purple-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <span class="text-4xl mb-3 block">🧘</span>
-                    <h3 class="font-bold text-gray-900">Yoga / Pilates</h3>
-                    <p class="text-sm text-gray-500 mt-1">Flexibilidad, equilibrio, relajación</p>
-                </div>
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="toggleMultiOption('exercise', 'dance', this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-purple-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <span class="text-4xl mb-3 block">💃</span>
-                    <h3 class="font-bold text-gray-900">Baile / Zumba</h3>
-                    <p class="text-sm text-gray-500 mt-1">Clases de baile, aeróbicos</p>
-                </div>
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="toggleMultiOption('exercise', 'sports', this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-purple-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <span class="text-4xl mb-3 block">⚽</span>
-                    <h3 class="font-bold text-gray-900">Deportes</h3>
-                    <p class="text-sm text-gray-500 mt-1">Fútbol, tenis, natación, etc.</p>
-                </div>
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="toggleMultiOption('exercise', 'none', this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-purple-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <span class="text-4xl mb-3 block">🚶</span>
-                    <h3 class="font-bold text-gray-900">No hago ejercicio</h3>
-                    <p class="text-sm text-gray-500 mt-1">Pero quiero empezar con algo suave</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Step 5: Hábitos -->
-        <div id="step5" class="step-content hidden fade-in">
-            <div class="text-center mb-8">
-                <span class="text-6xl mb-4 block">✨</span>
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">¿Qué hábitos quieres desarrollar?</h1>
-                <p class="text-gray-600">Selecciona todos los que te interesen</p>
-            </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="toggleMultiOption('habits', 'meditation', this)">
+            <div class="grid grid-cols-4 gap-3 mb-6">
+                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="selectOption('duration', 30, this)">
                     <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
-                    <span class="text-2xl">🧘</span>
-                    <p class="text-sm font-medium mt-1">Meditación</p>
+                    <span class="text-2xl font-bold text-gray-900">30</span>
+                    <p class="text-xs text-gray-500">días</p>
                 </div>
-                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="toggleMultiOption('habits', 'reading', this)">
+                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="selectOption('duration', 60, this)">
                     <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
-                    <span class="text-2xl">📖</span>
-                    <p class="text-sm font-medium mt-1">Lectura</p>
+                    <span class="text-2xl font-bold text-gray-900">60</span>
+                    <p class="text-xs text-gray-500">días</p>
                 </div>
-                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="toggleMultiOption('habits', 'journaling', this)">
+                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="selectOption('duration', 90, this)">
                     <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
-                    <span class="text-2xl">📝</span>
-                    <p class="text-sm font-medium mt-1">Journaling</p>
+                    <span class="text-2xl font-bold text-gray-900">90</span>
+                    <p class="text-xs text-gray-500">días</p>
                 </div>
-                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="toggleMultiOption('habits', 'languages', this)">
+                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="selectOption('duration', 180, this)">
                     <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
-                    <span class="text-2xl">🌍</span>
-                    <p class="text-sm font-medium mt-1">Idiomas</p>
-                </div>
-                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="toggleMultiOption('habits', 'water', this)">
-                    <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
-                    <span class="text-2xl">💧</span>
-                    <p class="text-sm font-medium mt-1">Beber agua</p>
-                </div>
-                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="toggleMultiOption('habits', 'skincare', this)">
-                    <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
-                    <span class="text-2xl">🧴</span>
-                    <p class="text-sm font-medium mt-1">Skincare</p>
-                </div>
-                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="toggleMultiOption('habits', 'gratitude', this)">
-                    <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
-                    <span class="text-2xl">🙏</span>
-                    <p class="text-sm font-medium mt-1">Gratitud</p>
-                </div>
-                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="toggleMultiOption('habits', 'nosugar', this)">
-                    <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
-                    <span class="text-2xl">🚫</span>
-                    <p class="text-sm font-medium mt-1">Sin azúcar</p>
-                </div>
-                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="toggleMultiOption('habits', 'sleep', this)">
-                    <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
-                    <span class="text-2xl">😴</span>
-                    <p class="text-sm font-medium mt-1">Dormir bien</p>
-                </div>
-                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="toggleMultiOption('habits', 'socialmedia', this)">
-                    <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
-                    <span class="text-2xl">📱</span>
-                    <p class="text-sm font-medium mt-1">Redes sociales</p>
-                </div>
-                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="toggleMultiOption('habits', 'networking', this)">
-                    <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
-                    <span class="text-2xl">🤝</span>
-                    <p class="text-sm font-medium mt-1">Networking</p>
-                </div>
-                <div class="option-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative text-center" onclick="toggleMultiOption('habits', 'finances', this)">
-                    <div class="check-icon absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full items-center justify-center text-white text-xs">✓</div>
-                    <span class="text-2xl">💰</span>
-                    <p class="text-sm font-medium mt-1">Finanzas</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Step 6: Duración y Confirmación -->
-        <div id="step6" class="step-content hidden fade-in">
-            <div class="text-center mb-8">
-                <span class="text-6xl mb-4 block">📅</span>
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">¿Cuánto tiempo durará tu plan?</h1>
-                <p class="text-gray-600">Elige la duración de tu transformación</p>
-            </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative text-center" onclick="selectOption('duration', 30, this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-purple-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <span class="text-3xl font-bold text-gray-900">30</span>
-                    <p class="text-sm text-gray-500">días</p>
-                    <p class="text-xs text-purple-600 mt-2">4 semanas</p>
-                </div>
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative text-center" onclick="selectOption('duration', 60, this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-purple-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <span class="text-3xl font-bold text-gray-900">60</span>
-                    <p class="text-sm text-gray-500">días</p>
-                    <p class="text-xs text-purple-600 mt-2">8 semanas</p>
-                </div>
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative text-center" onclick="selectOption('duration', 90, this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-purple-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <span class="text-3xl font-bold text-gray-900">90</span>
-                    <p class="text-sm text-gray-500">días</p>
-                    <p class="text-xs text-purple-600 mt-2">12 semanas</p>
-                </div>
-                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative text-center" onclick="selectOption('duration', 180, this)">
-                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-purple-500 rounded-full items-center justify-center text-white text-sm">✓</div>
-                    <span class="text-3xl font-bold text-gray-900">180</span>
-                    <p class="text-sm text-gray-500">días</p>
-                    <p class="text-xs text-purple-600 mt-2">6 meses</p>
+                    <span class="text-2xl font-bold text-gray-900">180</span>
+                    <p class="text-xs text-gray-500">días</p>
                 </div>
             </div>
 
             <!-- Summary -->
-            <div class="bg-white rounded-2xl p-6 border border-gray-200">
+            <div class="bg-white rounded-2xl p-5 border border-gray-200">
                 <h3 class="font-bold text-gray-900 mb-4">📋 Resumen de tu plan</h3>
-                <div id="planSummary" class="space-y-3 text-sm">
-                    <!-- Will be populated dynamically -->
-                </div>
+                <div id="planSummary" class="space-y-2 text-sm"></div>
             </div>
         </div>
 
@@ -367,25 +246,21 @@
                 Siguiente →
             </button>
             <button id="finishBtn" onclick="generatePlan()" class="px-8 py-3 gradient-bg text-white rounded-xl font-semibold hover:opacity-90 transition shadow-lg shadow-purple-200 ml-auto hidden">
-                ✨ Crear mi plan personalizado
+                ✨ Crear mi plan
             </button>
         </div>
     </main>
 
-    <!-- Load Supabase API for fetching templates -->
     <script src="src/js/services/supabase-api.js"></script>
 
     <script>
-        // Check if user is logged in
         const currentUser = JSON.parse(localStorage.getItem('gestion-currentUser'));
         if (!currentUser) {
             window.location.href = 'login.html';
         }
 
         let currentStep = 1;
-        const totalSteps = 6;
-
-        // Cloud templates from backoffice (will be loaded on init)
+        const totalSteps = 3;
         let cloudTemplates = null;
 
         const userPreferences = {
@@ -393,72 +268,62 @@
             themeColor: null,
             wakeUp: '07:00',
             sleep: '22:00',
-            occupation: null,
+            occupation: 'flexible',
             exercise: [],
             habits: [],
             duration: 60
         };
 
         function selectOption(key, value, element) {
-            // Save current scroll position
             const scrollPos = window.scrollY;
-
             userPreferences[key] = value;
-
-            // Remove selected from siblings
-            element.parentElement.querySelectorAll('.option-card').forEach(card => {
+            element.parentElement.querySelectorAll('.option-card').forEach(function(card) {
                 card.classList.remove('selected');
             });
             element.classList.add('selected');
-
-            // Restore scroll position to prevent auto-scroll
-            requestAnimationFrame(() => {
+            requestAnimationFrame(function() {
                 window.scrollTo(0, scrollPos);
             });
         }
 
         function selectTime(key, value, element) {
             userPreferences[key] = value;
-
-            // Remove selected from siblings in same group
-            element.parentElement.querySelectorAll('.time-btn').forEach(btn => {
+            element.parentElement.querySelectorAll('.time-btn').forEach(function(btn) {
                 btn.classList.remove('selected');
             });
             element.classList.add('selected');
         }
 
         function toggleMultiOption(key, value, element) {
-            // Save current scroll position
             const scrollPos = window.scrollY;
-
             const index = userPreferences[key].indexOf(value);
+
             if (index > -1) {
                 userPreferences[key].splice(index, 1);
                 element.classList.remove('selected');
             } else {
-                // If selecting "none" for exercise, clear others
                 if (key === 'exercise' && value === 'none') {
                     userPreferences[key] = ['none'];
-                    element.parentElement.querySelectorAll('.option-card').forEach(card => {
+                    element.parentElement.querySelectorAll('.option-card').forEach(function(card) {
                         card.classList.remove('selected');
                     });
                 } else if (key === 'exercise' && userPreferences[key].includes('none')) {
                     userPreferences[key] = [];
-                    element.parentElement.querySelector('.option-card.selected')?.classList.remove('selected');
+                    var selectedCard = element.parentElement.querySelector('.option-card.selected');
+                    if (selectedCard) selectedCard.classList.remove('selected');
                 }
                 userPreferences[key].push(value);
                 element.classList.add('selected');
             }
 
-            // Restore scroll position to prevent auto-scroll
-            requestAnimationFrame(() => {
+            requestAnimationFrame(function() {
                 window.scrollTo(0, scrollPos);
             });
         }
 
         function updateProgress() {
-            for (let i = 1; i <= totalSteps; i++) {
-                const dot = document.getElementById(`dot${i}`);
+            for (var i = 1; i <= totalSteps; i++) {
+                var dot = document.getElementById('dot' + i);
                 dot.classList.remove('active', 'completed');
                 if (i < currentStep) {
                     dot.classList.add('completed');
@@ -466,38 +331,35 @@
                     dot.classList.add('active');
                 }
             }
-            document.getElementById('stepIndicator').textContent = `Paso ${currentStep} de ${totalSteps}`;
+            document.getElementById('stepIndicator').textContent = 'Paso ' + currentStep + ' de ' + totalSteps;
         }
 
         function showStep(step) {
-            document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`step${step}`).classList.remove('hidden');
-            document.getElementById(`step${step}`).classList.add('fade-in');
+            document.querySelectorAll('.step-content').forEach(function(el) {
+                el.classList.add('hidden');
+            });
+            document.getElementById('step' + step).classList.remove('hidden');
+            document.getElementById('step' + step).classList.add('fade-in');
 
-            // Update buttons
             document.getElementById('prevBtn').classList.toggle('hidden', step === 1);
             document.getElementById('nextBtn').classList.toggle('hidden', step === totalSteps);
             document.getElementById('finishBtn').classList.toggle('hidden', step !== totalSteps);
 
-            // Update summary on last step
             if (step === totalSteps) {
                 updateSummary();
             }
 
             updateProgress();
-
-            // Scroll to top of page when changing steps
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function nextStep() {
-            // Validation
             if (currentStep === 1 && !userPreferences.goal) {
-                alert('Por favor selecciona tu objetivo principal');
+                alert('Por favor selecciona tu objetivo');
                 return;
             }
-            if (currentStep === 2 && !userPreferences.themeColor) {
-                alert('Por favor selecciona un color para tu interfaz');
+            if (currentStep === 1 && !userPreferences.themeColor) {
+                alert('Por favor selecciona un color');
                 return;
             }
 
@@ -515,75 +377,64 @@
         }
 
         function updateSummary() {
-            const goalLabels = {
-                fitness: '💪 Transformación física',
+            var goalLabels = {
+                fitness: '💪 Fitness',
                 learning: '📚 Aprendizaje',
                 productivity: '📈 Productividad',
-                business: '💼 Emprendimiento',
+                business: '💼 Negocio',
                 competition: '👑 Competencia',
                 wellness: '🧘 Bienestar'
             };
 
-            const themeLabels = {
-                rosa: '🌸 Rosa & Púrpura',
-                azul: '🌊 Azul & Cyan',
-                verde: '🌿 Verde & Esmeralda',
-                naranja: '🔥 Naranja & Dorado',
-                coral: '❤️ Coral & Rojo',
-                morado: '💜 Morado & Índigo'
+            var themeLabels = {
+                rosa: '🌸 Rosa',
+                azul: '🌊 Azul',
+                verde: '🌿 Verde',
+                naranja: '🔥 Naranja',
+                coral: '❤️ Coral',
+                morado: '💜 Morado'
             };
 
-            const exerciseLabels = {
+            var exerciseLabels = {
                 gym: '🏋️ Gimnasio',
                 cardio: '🏃 Cardio',
-                yoga: '🧘 Yoga/Pilates',
+                yoga: '🧘 Yoga',
                 dance: '💃 Baile',
                 sports: '⚽ Deportes',
-                none: '🚶 Empezar suave'
+                none: '🚶 Ninguno'
             };
 
-            const habitLabels = {
-                meditation: '🧘 Meditación',
-                reading: '📖 Lectura',
-                journaling: '📝 Journaling',
-                languages: '🌍 Idiomas',
-                water: '💧 Beber agua',
-                skincare: '🧴 Skincare',
-                gratitude: '🙏 Gratitud',
-                nosugar: '🚫 Sin azúcar',
-                sleep: '😴 Dormir bien',
-                socialmedia: '📱 Redes sociales',
-                networking: '🤝 Networking',
-                finances: '💰 Finanzas'
-            };
+            var exerciseText = userPreferences.exercise.length > 0
+                ? userPreferences.exercise.map(function(e) { return exerciseLabels[e]; }).join(', ')
+                : 'No seleccionado';
 
-            const summary = document.getElementById('planSummary');
-            summary.innerHTML = `
-                <div class="flex justify-between py-2 border-b border-gray-100">
-                    <span class="text-gray-500">Objetivo</span>
-                    <span class="font-medium">${goalLabels[userPreferences.goal] || 'No seleccionado'}</span>
-                </div>
-                <div class="flex justify-between py-2 border-b border-gray-100">
-                    <span class="text-gray-500">Color</span>
-                    <span class="font-medium">${themeLabels[userPreferences.themeColor] || 'No seleccionado'}</span>
-                </div>
-                <div class="flex justify-between py-2 border-b border-gray-100">
-                    <span class="text-gray-500">Horario</span>
-                    <span class="font-medium">${userPreferences.wakeUp} - ${userPreferences.sleep}</span>
-                </div>
-                <div class="flex justify-between py-2 border-b border-gray-100">
-                    <span class="text-gray-500">Ejercicio</span>
-                    <span class="font-medium">${userPreferences.exercise.map(e => exerciseLabels[e]).join(', ') || 'No seleccionado'}</span>
-                </div>
-                <div class="flex justify-between py-2 border-b border-gray-100">
-                    <span class="text-gray-500">Hábitos</span>
-                    <span class="font-medium text-right max-w-[200px]">${userPreferences.habits.map(h => habitLabels[h]).join(', ') || 'Ninguno'}</span>
-                </div>
-                <div class="flex justify-between py-2">
-                    <span class="text-gray-500">Duración</span>
-                    <span class="font-medium">${userPreferences.duration || 60} días</span>
-                </div>
-            `;
+            var summaryEl = document.getElementById('planSummary');
+            summaryEl.textContent = '';
+
+            var items = [
+                { label: 'Objetivo', value: goalLabels[userPreferences.goal] || '-' },
+                { label: 'Color', value: themeLabels[userPreferences.themeColor] || '-' },
+                { label: 'Horario', value: userPreferences.wakeUp + ' - ' + userPreferences.sleep },
+                { label: 'Ejercicio', value: exerciseText },
+                { label: 'Duración', value: (userPreferences.duration || 60) + ' días' }
+            ];
+
+            items.forEach(function(item, idx) {
+                var row = document.createElement('div');
+                row.className = 'flex justify-between py-2' + (idx < items.length - 1 ? ' border-b border-gray-100' : '');
+
+                var labelSpan = document.createElement('span');
+                labelSpan.className = 'text-gray-500';
+                labelSpan.textContent = item.label;
+
+                var valueSpan = document.createElement('span');
+                valueSpan.className = 'font-medium';
+                valueSpan.textContent = item.value;
+
+                row.appendChild(labelSpan);
+                row.appendChild(valueSpan);
+                summaryEl.appendChild(row);
+            });
         }
 
         function generatePlan() {
@@ -592,209 +443,106 @@
                 return;
             }
 
-            // Save preferences
-            const userKey = currentUser.email.replace(/[^a-z0-9]/gi, '_');
+            var userKey = currentUser.email.replace(/[^a-z0-9]/gi, '_');
 
-            // Update user data
-            const users = JSON.parse(localStorage.getItem('gestion-users') || '{}');
+            var users = JSON.parse(localStorage.getItem('gestion-users') || '{}');
             if (users[currentUser.email]) {
                 users[currentUser.email].goal = userPreferences.goal;
                 users[currentUser.email].duration = userPreferences.duration;
                 users[currentUser.email].preferences = userPreferences;
-                users[currentUser.email].needsActivitySetup = true; // Flag for activity setup wizard
+                users[currentUser.email].needsActivitySetup = true;
                 localStorage.setItem('gestion-users', JSON.stringify(users));
             }
 
-            // Update current user session
             currentUser.goal = userPreferences.goal;
             currentUser.duration = userPreferences.duration;
             currentUser.preferences = userPreferences;
             currentUser.onboardingCompleted = true;
-            currentUser.needsActivitySetup = true; // Flag for activity setup wizard
-            delete currentUser.needsOnboarding; // Remove flag after completing onboarding
+            currentUser.needsActivitySetup = true;
+            delete currentUser.needsOnboarding;
             localStorage.setItem('gestion-currentUser', JSON.stringify(currentUser));
 
-            // Generate custom habits based on preferences
-            const customHabits = generateHabits(userPreferences);
-            localStorage.setItem(`${userKey}-custom-habits`, JSON.stringify(customHabits));
+            var customHabits = generateHabits(userPreferences);
+            localStorage.setItem(userKey + '-custom-habits', JSON.stringify(customHabits));
 
-            // Generate custom gym routines if applicable
             if (userPreferences.exercise.length > 0 && !userPreferences.exercise.includes('none')) {
-                const customGym = generateGymRoutines(userPreferences);
-                localStorage.setItem(`${userKey}-custom-gym`, JSON.stringify(customGym));
+                var customGym = generateGymRoutines(userPreferences);
+                localStorage.setItem(userKey + '-custom-gym', JSON.stringify(customGym));
             }
 
-            // Generate weekly goals
-            const customGoals = generateWeeklyGoals(userPreferences);
-            localStorage.setItem(`${userKey}-custom-goals`, JSON.stringify(customGoals));
+            var customGoals = generateWeeklyGoals(userPreferences);
+            localStorage.setItem(userKey + '-custom-goals', JSON.stringify(customGoals));
 
-            // Save user profile for schedule customization and theming
-            const userProfile = {
+            var userProfile = {
                 wakeUp: userPreferences.wakeUp,
                 sleep: userPreferences.sleep,
                 goal: userPreferences.goal,
                 occupation: userPreferences.occupation,
                 themeColor: userPreferences.themeColor || 'rosa'
             };
-            localStorage.setItem(`${userKey}-user-profile`, JSON.stringify(userProfile));
+            localStorage.setItem(userKey + '-user-profile', JSON.stringify(userProfile));
 
-            // Redirect to activity setup wizard
-            window.location.href = 'activity-setup.html';
+            window.location.href = 'app.html';
         }
 
         function generateHabits(prefs) {
-            const habits = [
-                { id: 1, icon: '☀️', name: `Despertar ${prefs.wakeUp}` },
+            var habits = [
+                { id: 1, icon: '☀️', name: 'Despertar ' + prefs.wakeUp },
                 { id: 2, icon: '💧', name: 'Beber agua al despertar' }
             ];
-
-            let id = 3;
-
-            if (prefs.habits.includes('meditation')) {
-                habits.push({ id: id++, icon: '🧘', name: 'Meditación 15-30 min' });
-            }
-
-            if (prefs.habits.includes('gratitude')) {
-                habits.push({ id: id++, icon: '🙏', name: 'Escribir 3 gratitudes' });
-            }
+            var id = 3;
 
             if (prefs.exercise.length > 0 && !prefs.exercise.includes('none')) {
                 habits.push({ id: id++, icon: '💪', name: 'Ejercicio completado' });
             }
 
-            if (prefs.habits.includes('reading')) {
-                habits.push({ id: id++, icon: '📖', name: 'Leer 20-30 min' });
-            }
-
-            if (prefs.habits.includes('languages')) {
-                habits.push({ id: id++, icon: '🌍', name: 'Practicar idioma' });
-            }
-
-            if (prefs.habits.includes('journaling')) {
-                habits.push({ id: id++, icon: '📝', name: 'Escribir en diario' });
-            }
-
-            if (prefs.habits.includes('water')) {
-                habits.push({ id: id++, icon: '💦', name: 'Beber 2-3L de agua' });
-            }
-
-            if (prefs.habits.includes('skincare')) {
-                habits.push({ id: id++, icon: '🧴', name: 'Skincare AM/PM' });
-            }
-
-            if (prefs.habits.includes('nosugar')) {
-                habits.push({ id: id++, icon: '🥗', name: 'Alimentación sin azúcar' });
-            }
-
-            if (prefs.habits.includes('socialmedia')) {
-                habits.push({ id: id++, icon: '📱', name: 'Publicar en redes' });
-            }
-
-            if (prefs.habits.includes('networking')) {
-                habits.push({ id: id++, icon: '🤝', name: 'Hacer networking' });
-            }
-
-            if (prefs.habits.includes('finances')) {
-                habits.push({ id: id++, icon: '💰', name: 'Revisar finanzas' });
-            }
-
-            habits.push({ id: id++, icon: '😴', name: `Dormir antes de ${prefs.sleep}` });
+            habits.push({ id: id++, icon: '📖', name: 'Leer 15-20 min' });
+            habits.push({ id: id++, icon: '🙏', name: 'Momento de gratitud' });
+            habits.push({ id: id++, icon: '😴', name: 'Dormir antes de ' + prefs.sleep });
 
             return habits;
         }
 
         function generateGymRoutines(prefs) {
-            const routines = {};
+            var routines = {};
+            var exerciseType = prefs.exercise.includes('gym') ? 'gym' :
+                               prefs.exercise.includes('cardio') ? 'cardio' :
+                               prefs.exercise.includes('yoga') ? 'yoga' :
+                               prefs.exercise.includes('dance') ? 'dance' :
+                               prefs.exercise.includes('sports') ? 'sports' : null;
 
-            // Determine which exercise type to use
-            const exerciseType = prefs.exercise.includes('gym') ? 'gym' :
-                                 prefs.exercise.includes('cardio') ? 'cardio' :
-                                 prefs.exercise.includes('yoga') ? 'yoga' :
-                                 prefs.exercise.includes('dance') ? 'dance' :
-                                 prefs.exercise.includes('sports') ? 'sports' : null;
-
-            // Map user goal to exercise goal
-            // User goals: fitness, productivity, learning, business, competition, wellness
-            // Exercise goals: fitness, competition, wellness, weightloss, muscle, beginner
-            const goalMapping = {
-                fitness: 'fitness',
-                productivity: 'wellness',  // Productivity users get wellness routines
-                learning: 'beginner',      // Learning users might be new to exercise
-                business: 'fitness',       // Business users get general fitness
-                competition: 'competition',
-                wellness: 'wellness'
-            };
-            const exerciseGoal = goalMapping[prefs.goal] || 'fitness';
-
-            // Check if cloud templates have exercise routines for this type + goal combo
-            if (cloudTemplates && cloudTemplates.exercises &&
-                cloudTemplates.exercises[exerciseType] &&
-                cloudTemplates.exercises[exerciseType][exerciseGoal]) {
-                // Use cloud templates with goal-specific routines
-                const cloudRoutines = cloudTemplates.exercises[exerciseType][exerciseGoal];
-                for (let day = 0; day < 7; day++) {
-                    if (cloudRoutines[day]) {
-                        routines[day] = {
-                            name: cloudRoutines[day].name,
-                            icon: cloudRoutines[day].icon,
-                            exercises: cloudRoutines[day].exercises || []
-                        };
-                    }
-                }
-                return routines;
-            }
-
-            // Also check old format (without goals) for backwards compatibility
-            if (cloudTemplates && cloudTemplates.exercises && cloudTemplates.exercises[exerciseType]) {
-                const cloudRoutines = cloudTemplates.exercises[exerciseType];
-                // Check if it's the old format (has day indexes directly)
-                if (cloudRoutines[0] && !cloudRoutines.fitness) {
-                    for (let day = 0; day < 7; day++) {
-                        if (cloudRoutines[day]) {
-                            routines[day] = {
-                                name: cloudRoutines[day].name,
-                                icon: cloudRoutines[day].icon,
-                                exercises: cloudRoutines[day].exercises || []
-                            };
-                        }
-                    }
-                    return routines;
-                }
-            }
-
-            // Fallback to default routines
             if (prefs.exercise.includes('gym')) {
-                routines[0] = { name: 'Descanso Activo', icon: '🧘', exercises: ['Estiramientos 20min', 'Caminata ligera 30min', 'Foam roller 15min'] };
-                routines[1] = { name: 'Tren Inferior', icon: '🦵', exercises: ['Sentadillas 4x12', 'Peso muerto 4x10', 'Prensa 4x12', 'Zancadas 3x12', 'Extensión cuádriceps 3x15'] };
-                routines[2] = { name: 'Tren Superior', icon: '💪', exercises: ['Press banca 4x10', 'Remo 4x12', 'Press hombro 3x12', 'Curl bíceps 3x15', 'Tríceps 3x15'] };
-                routines[3] = { name: 'Full Body', icon: '🔥', exercises: ['Sentadilla 3x12', 'Press pecho 3x12', 'Peso muerto 3x10', 'Remo 3x12', 'Plancha 3x30seg'] };
-                routines[4] = { name: 'Piernas + Core', icon: '🍑', exercises: ['Hip thrust 4x12', 'Sentadilla búlgara 3x10', 'Curl femoral 3x12', 'Crunches 3x20', 'Plancha lateral 3x30seg'] };
-                routines[5] = { name: 'Cardio + Fuerza', icon: '❤️', exercises: ['HIIT 20min', 'Circuito funcional 3 rondas', 'Abdominales 3x20', 'Estiramientos 10min'] };
-                routines[6] = { name: 'Flexibilidad', icon: '🧘', exercises: ['Yoga 45min', 'Estiramientos profundos 20min', 'Meditación con movimiento 15min'] };
+                routines[0] = { name: 'Descanso Activo', icon: '🧘', exercises: ['Estiramientos 20min', 'Caminata ligera 30min'] };
+                routines[1] = { name: 'Tren Inferior', icon: '🦵', exercises: ['Sentadillas 4x12', 'Peso muerto 4x10', 'Prensa 4x12', 'Zancadas 3x12'] };
+                routines[2] = { name: 'Tren Superior', icon: '💪', exercises: ['Press banca 4x10', 'Remo 4x12', 'Press hombro 3x12', 'Curl bíceps 3x15'] };
+                routines[3] = { name: 'Full Body', icon: '🔥', exercises: ['Sentadilla 3x12', 'Press pecho 3x12', 'Peso muerto 3x10', 'Remo 3x12'] };
+                routines[4] = { name: 'Piernas + Core', icon: '🍑', exercises: ['Hip thrust 4x12', 'Sentadilla búlgara 3x10', 'Curl femoral 3x12', 'Plancha 3x30seg'] };
+                routines[5] = { name: 'Cardio + Fuerza', icon: '❤️', exercises: ['HIIT 20min', 'Circuito funcional 3 rondas', 'Abdominales 3x20'] };
+                routines[6] = { name: 'Flexibilidad', icon: '🧘', exercises: ['Yoga 45min', 'Estiramientos profundos 20min'] };
             } else if (prefs.exercise.includes('cardio')) {
-                routines[0] = { name: 'Descanso', icon: '😴', exercises: ['Caminata suave 20min', 'Estiramientos 15min'] };
-                routines[1] = { name: 'Cardio Moderado', icon: '🏃', exercises: ['Correr 30min', 'Estiramientos 10min'] };
-                routines[2] = { name: 'HIIT', icon: '🔥', exercises: ['Calentamiento 5min', 'HIIT 20min (30seg on/30seg off)', 'Enfriamiento 5min'] };
-                routines[3] = { name: 'Cardio Largo', icon: '🚴', exercises: ['Bicicleta/Correr 45min', 'Estiramientos 10min'] };
-                routines[4] = { name: 'Intervalos', icon: '⚡', exercises: ['Calentamiento 5min', 'Intervalos 25min', 'Enfriamiento 5min'] };
-                routines[5] = { name: 'Cardio + Core', icon: '💪', exercises: ['Cardio 20min', 'Abdominales 15min', 'Estiramientos 10min'] };
-                routines[6] = { name: 'Recuperación', icon: '🧘', exercises: ['Caminata 30min', 'Yoga suave 20min'] };
+                routines[0] = { name: 'Descanso', icon: '😴', exercises: ['Caminata suave 20min'] };
+                routines[1] = { name: 'Cardio Moderado', icon: '🏃', exercises: ['Correr 30min'] };
+                routines[2] = { name: 'HIIT', icon: '🔥', exercises: ['HIIT 20min'] };
+                routines[3] = { name: 'Cardio Largo', icon: '🚴', exercises: ['Bicicleta 45min'] };
+                routines[4] = { name: 'Intervalos', icon: '⚡', exercises: ['Intervalos 25min'] };
+                routines[5] = { name: 'Cardio + Core', icon: '💪', exercises: ['Cardio 20min', 'Abdominales 15min'] };
+                routines[6] = { name: 'Recuperación', icon: '🧘', exercises: ['Caminata 30min', 'Yoga 20min'] };
             } else if (prefs.exercise.includes('yoga')) {
-                routines[0] = { name: 'Descanso', icon: '😴', exercises: ['Meditación 20min', 'Respiración consciente 10min'] };
-                routines[1] = { name: 'Vinyasa Flow', icon: '🧘', exercises: ['Saludo al sol 10min', 'Vinyasa flow 30min', 'Savasana 10min'] };
-                routines[2] = { name: 'Fuerza Yoga', icon: '💪', exercises: ['Power yoga 40min', 'Estiramientos 10min'] };
-                routines[3] = { name: 'Flexibilidad', icon: '🤸', exercises: ['Yin yoga 45min', 'Meditación 15min'] };
-                routines[4] = { name: 'Core Yoga', icon: '🔥', exercises: ['Yoga para core 30min', 'Estiramientos 15min'] };
-                routines[5] = { name: 'Balance', icon: '⚖️', exercises: ['Posturas de equilibrio 30min', 'Meditación 15min'] };
-                routines[6] = { name: 'Restaurativo', icon: '🌙', exercises: ['Yoga restaurativo 40min', 'Yoga nidra 20min'] };
+                routines[0] = { name: 'Descanso', icon: '😴', exercises: ['Meditación 20min'] };
+                routines[1] = { name: 'Vinyasa Flow', icon: '🧘', exercises: ['Vinyasa 40min'] };
+                routines[2] = { name: 'Fuerza Yoga', icon: '💪', exercises: ['Power yoga 40min'] };
+                routines[3] = { name: 'Flexibilidad', icon: '🤸', exercises: ['Yin yoga 45min'] };
+                routines[4] = { name: 'Core Yoga', icon: '🔥', exercises: ['Yoga para core 30min'] };
+                routines[5] = { name: 'Balance', icon: '⚖️', exercises: ['Posturas de equilibrio 30min'] };
+                routines[6] = { name: 'Restaurativo', icon: '🌙', exercises: ['Yoga restaurativo 40min'] };
             } else if (prefs.exercise.includes('dance')) {
-                routines[0] = { name: 'Descanso', icon: '😴', exercises: ['Estiramientos suaves 20min', 'Caminata 20min'] };
-                routines[1] = { name: 'Zumba', icon: '💃', exercises: ['Calentamiento 10min', 'Zumba 45min', 'Estiramientos 10min'] };
-                routines[2] = { name: 'Baile Cardio', icon: '🎵', exercises: ['Cardio dance 40min', 'Core 10min', 'Estiramientos 10min'] };
-                routines[3] = { name: 'Técnica', icon: '👠', exercises: ['Técnica de baile 30min', 'Coreografía 20min', 'Estiramientos 10min'] };
-                routines[4] = { name: 'Ritmos Latinos', icon: '🌴', exercises: ['Salsa/Bachata 45min', 'Estiramientos 10min'] };
-                routines[5] = { name: 'Dance Fitness', icon: '🔥', exercises: ['Dance workout 40min', 'Abdominales 10min', 'Estiramientos 10min'] };
-                routines[6] = { name: 'Stretching', icon: '🧘', exercises: ['Stretching para bailarines 30min', 'Yoga 20min'] };
+                routines[0] = { name: 'Descanso', icon: '😴', exercises: ['Estiramientos 20min'] };
+                routines[1] = { name: 'Zumba', icon: '💃', exercises: ['Zumba 45min'] };
+                routines[2] = { name: 'Baile Cardio', icon: '🎵', exercises: ['Cardio dance 40min'] };
+                routines[3] = { name: 'Técnica', icon: '👠', exercises: ['Técnica de baile 30min'] };
+                routines[4] = { name: 'Ritmos Latinos', icon: '🌴', exercises: ['Salsa/Bachata 45min'] };
+                routines[5] = { name: 'Dance Fitness', icon: '🔥', exercises: ['Dance workout 40min'] };
+                routines[6] = { name: 'Stretching', icon: '🧘', exercises: ['Stretching 30min'] };
             } else if (prefs.exercise.includes('sports')) {
                 routines[0] = { name: 'Descanso', icon: '😴', exercises: ['Recuperación activa'] };
                 routines[1] = { name: 'Técnica', icon: '🎯', exercises: ['Práctica técnica 45min'] };
@@ -802,104 +550,84 @@
                 routines[3] = { name: 'Táctica', icon: '🧠', exercises: ['Entrenamiento táctico 45min'] };
                 routines[4] = { name: 'Resistencia', icon: '❤️', exercises: ['Cardio específico 40min'] };
                 routines[5] = { name: 'Partido', icon: '⚽', exercises: ['Práctica completa 90min'] };
-                routines[6] = { name: 'Recuperación', icon: '🧘', exercises: ['Yoga/Pilates 30min'] };
+                routines[6] = { name: 'Recuperación', icon: '🧘', exercises: ['Yoga 30min'] };
             }
 
             return routines;
         }
 
         function generateWeeklyGoals(prefs) {
-            const totalWeeks = Math.ceil(prefs.duration / 7);
-            const goals = [];
+            var totalWeeks = Math.ceil(prefs.duration / 7);
+            var goals = [];
 
-            // Default templates (fallback)
-            const defaultTemplates = {
+            var templates = {
                 fitness: {
-                    fisica: ['Establecer rutina de ejercicio', 'Aumentar intensidad', 'Mejorar resistencia', 'Definir músculos', 'Alcanzar peso ideal'],
-                    personal: ['Aprender sobre nutrición', 'Crear rutina de sueño', 'Gestionar el estrés', 'Mejorar autoestima', 'Mantener consistencia'],
-                    digital: ['Seguir cuentas fitness', 'Documentar progreso', 'Buscar recetas saludables', 'Unirse a comunidad', 'Compartir logros'],
-                    espiritual: ['Practicar gratitud', 'Meditación diaria', 'Visualizar metas', 'Autocompasión', 'Celebrar victorias']
+                    fisica: ['Establecer rutina', 'Aumentar intensidad', 'Mejorar resistencia', 'Definir músculos', 'Alcanzar meta'],
+                    personal: ['Aprender nutrición', 'Rutina de sueño', 'Gestionar estrés', 'Mejorar autoestima', 'Consistencia'],
+                    digital: ['Seguir cuentas fitness', 'Documentar progreso', 'Recetas saludables', 'Comunidad', 'Compartir logros'],
+                    espiritual: ['Practicar gratitud', 'Meditación', 'Visualizar metas', 'Autocompasión', 'Celebrar']
                 },
                 learning: {
-                    fisica: ['Establecer horario de estudio', 'Descansos activos', 'Cuidar postura', 'Ejercicio para energía', 'Balance estudio-descanso'],
-                    personal: ['Definir objetivos de aprendizaje', 'Técnicas de estudio', 'Práctica diaria', 'Medir progreso', 'Aplicar conocimientos'],
+                    fisica: ['Horario de estudio', 'Descansos activos', 'Cuidar postura', 'Ejercicio', 'Balance'],
+                    personal: ['Definir objetivos', 'Técnicas de estudio', 'Práctica diaria', 'Medir progreso', 'Aplicar'],
                     digital: ['Organizar recursos', 'Apps de aprendizaje', 'Comunidad online', 'Certificaciones', 'Portfolio'],
-                    espiritual: ['Paciencia con el proceso', 'Celebrar pequeños logros', 'Mentalidad de crecimiento', 'Gestionar frustración', 'Disfrutar aprender']
+                    espiritual: ['Paciencia', 'Celebrar logros', 'Mentalidad de crecimiento', 'Gestionar frustración', 'Disfrutar']
                 },
                 productivity: {
-                    fisica: ['Rutina de energía matutina', 'Pausas activas', 'Ejercicio regular', 'Sueño de calidad', 'Alimentación para energía'],
-                    personal: ['Sistema de productividad', 'Eliminar distracciones', 'Priorizar tareas', 'Delegar', 'Automatizar'],
-                    digital: ['Herramientas de productividad', 'Calendario optimizado', 'Inbox zero', 'Limitar redes sociales', 'Tracking de tiempo'],
-                    espiritual: ['Propósito claro', 'Mindfulness', 'Evitar burnout', 'Equilibrio vida-trabajo', 'Gratitud diaria']
+                    fisica: ['Rutina matutina', 'Pausas activas', 'Ejercicio regular', 'Sueño de calidad', 'Alimentación'],
+                    personal: ['Sistema productivo', 'Eliminar distracciones', 'Priorizar', 'Delegar', 'Automatizar'],
+                    digital: ['Herramientas', 'Calendario', 'Inbox zero', 'Limitar redes', 'Tracking tiempo'],
+                    espiritual: ['Propósito claro', 'Mindfulness', 'Evitar burnout', 'Equilibrio', 'Gratitud']
                 },
                 business: {
-                    fisica: ['Energía para emprender', 'Ejercicio regular', 'Gestión del estrés', 'Networking activo', 'Presencia profesional'],
-                    personal: ['Definir modelo de negocio', 'Validar idea', 'Primeros clientes', 'Escalar operaciones', 'Liderazgo'],
-                    digital: ['Presencia online', 'Marketing digital', 'Automatización', 'Métricas clave', 'Marca personal'],
-                    espiritual: ['Resiliencia', 'Manejar incertidumbre', 'Visión a largo plazo', 'Celebrar progreso', 'Aprender de errores']
+                    fisica: ['Energía', 'Ejercicio', 'Gestión estrés', 'Networking', 'Presencia profesional'],
+                    personal: ['Modelo de negocio', 'Validar idea', 'Primeros clientes', 'Escalar', 'Liderazgo'],
+                    digital: ['Presencia online', 'Marketing', 'Automatización', 'Métricas', 'Marca personal'],
+                    espiritual: ['Resiliencia', 'Manejar incertidumbre', 'Visión', 'Celebrar', 'Aprender de errores']
                 },
                 competition: {
-                    fisica: ['Preparación física inicial', 'Intensificar entrenamiento', 'Perfeccionar técnica', 'Peak performance', 'Día de competencia'],
-                    personal: ['Investigar competencia', 'Coach/Mentor', 'Práctica deliberada', 'Simulacros', 'Mentalidad ganadora'],
-                    digital: ['Estudiar ganadores', 'Documentar preparación', 'Comunidad de apoyo', 'Visibilidad', 'Marca personal'],
-                    espiritual: ['Visualización del éxito', 'Manejo de nervios', 'Confianza', 'Presencia escénica', 'Disfrutar el proceso']
+                    fisica: ['Preparación inicial', 'Intensificar', 'Perfeccionar técnica', 'Peak performance', 'Competencia'],
+                    personal: ['Investigar', 'Coach/Mentor', 'Práctica deliberada', 'Simulacros', 'Mentalidad ganadora'],
+                    digital: ['Estudiar ganadores', 'Documentar', 'Comunidad', 'Visibilidad', 'Marca personal'],
+                    espiritual: ['Visualización', 'Manejo nervios', 'Confianza', 'Presencia', 'Disfrutar']
                 },
                 wellness: {
-                    fisica: ['Movimiento diario', 'Alimentación consciente', 'Sueño reparador', 'Reducir tensión', 'Energía natural'],
-                    personal: ['Autoconocimiento', 'Límites saludables', 'Relaciones positivas', 'Hobbies', 'Tiempo para ti'],
-                    digital: ['Detox digital', 'Apps de bienestar', 'Contenido positivo', 'Comunidad de apoyo', 'Balance online'],
-                    espiritual: ['Meditación diaria', 'Conexión interior', 'Propósito de vida', 'Paz mental', 'Plenitud']
+                    fisica: ['Movimiento diario', 'Alimentación consciente', 'Sueño', 'Reducir tensión', 'Energía'],
+                    personal: ['Autoconocimiento', 'Límites', 'Relaciones', 'Hobbies', 'Tiempo para ti'],
+                    digital: ['Detox digital', 'Apps bienestar', 'Contenido positivo', 'Comunidad', 'Balance'],
+                    espiritual: ['Meditación', 'Conexión interior', 'Propósito', 'Paz mental', 'Plenitud']
                 }
             };
 
-            // Use cloud templates if available, otherwise use defaults
-            let template = defaultTemplates[prefs.goal] || defaultTemplates.wellness;
+            var template = templates[prefs.goal] || templates.wellness;
 
-            // Override with cloud templates if available
-            if (cloudTemplates && cloudTemplates.goals && cloudTemplates.goals[prefs.goal] && cloudTemplates.goals[prefs.goal].metas) {
-                const cloudMetas = cloudTemplates.goals[prefs.goal].metas;
-                // Cloud templates have single values, use them as the first phase
-                if (cloudMetas.fisica) template.fisica[0] = cloudMetas.fisica;
-                if (cloudMetas.personal) template.personal[0] = cloudMetas.personal;
-                if (cloudMetas.digital) template.digital[0] = cloudMetas.digital;
-                if (cloudMetas.espiritual) template.espiritual[0] = cloudMetas.espiritual;
-            }
-
-            for (let week = 1; week <= totalWeeks; week++) {
-                const progress = (week - 1) / (totalWeeks - 1);
-                const phaseIndex = Math.min(4, Math.floor(progress * 5));
-
-                const startDay = (week - 1) * 7 + 1;
-                const endDay = Math.min(week * 7, prefs.duration);
+            for (var week = 1; week <= totalWeeks; week++) {
+                var progress = (week - 1) / (totalWeeks - 1 || 1);
+                var phaseIndex = Math.min(4, Math.floor(progress * 5));
 
                 goals.push({
                     week: week,
-                    dates: `Día ${startDay}-${endDay}`,
-                    fisica: week === totalWeeks ? `🎯 ${template.fisica[phaseIndex]}` : template.fisica[phaseIndex],
-                    personal: week === totalWeeks ? `🎯 ${template.personal[phaseIndex]}` : template.personal[phaseIndex],
-                    digital: week === totalWeeks ? `🎯 ${template.digital[phaseIndex]}` : template.digital[phaseIndex],
-                    espiritual: week === totalWeeks ? `🎯 ${template.espiritual[phaseIndex]}` : template.espiritual[phaseIndex]
+                    dates: 'Semana ' + week,
+                    fisica: template.fisica[phaseIndex],
+                    personal: template.personal[phaseIndex],
+                    digital: template.digital[phaseIndex],
+                    espiritual: template.espiritual[phaseIndex]
                 });
             }
 
             return goals;
         }
 
-        // Load cloud templates from backoffice
         async function loadCloudTemplates() {
             try {
                 if (typeof supabaseAPI !== 'undefined') {
                     cloudTemplates = await supabaseAPI.getAppTemplates();
-                    if (cloudTemplates) {
-                        console.log('Cloud templates loaded successfully');
-                    }
                 }
             } catch (e) {
                 console.log('Using default templates');
             }
         }
 
-        // Initialize
         (async function init() {
             await loadCloudTemplates();
             showStep(1);
