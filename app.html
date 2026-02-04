@@ -5896,7 +5896,34 @@
         function getTodayWorkout() {
             const logs = getWorkoutLogs();
             const today = getTodayKey();
-            return logs.find(l => l.date === today) || { date: today, exercises: [] };
+            const existingWorkout = logs.find(l => l.date === today);
+
+            if (existingWorkout) {
+                return existingWorkout;
+            }
+
+            // If no workout exists for today, check if there's a training plan
+            const plan = getActiveTrainingPlan();
+            const dayIndex = new Date().getDay();
+
+            if (plan && plan.weeklyPlan && plan.weeklyPlan[dayIndex]) {
+                // Auto-populate from training plan
+                const planRoutine = plan.weeklyPlan[dayIndex];
+                const workout = {
+                    date: today,
+                    exercises: planRoutine.exercises.map(function(ex) {
+                        return {
+                            name: ex.name,
+                            sets: Array(ex.sets || 4).fill(null)
+                        };
+                    })
+                };
+                // Auto-save this workout
+                saveTodayWorkout(workout);
+                return workout;
+            }
+
+            return { date: today, exercises: [] };
         }
 
         function saveTodayWorkout(workout) {
