@@ -1895,6 +1895,52 @@
         </div>
     </div>
 
+    <!-- Modal Info de Ejercicio -->
+    <div id="exerciseInfoModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeExerciseInfoModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all" onclick="event.stopPropagation()">
+            <!-- Exercise Image -->
+            <div id="exerciseInfoImage" class="w-full h-48 bg-gradient-to-br from-purple-100 to-rose-100 flex items-center justify-center">
+                <span class="text-6xl">🏋️</span>
+            </div>
+
+            <!-- Content -->
+            <div class="p-5">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <h3 id="exerciseInfoName" class="text-xl font-bold text-gray-800">Nombre del Ejercicio</h3>
+                        <p id="exerciseInfoSpanish" class="text-sm text-purple-600 font-medium"></p>
+                    </div>
+                    <span id="exerciseInfoMuscle" class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">Músculo</span>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Description -->
+                    <div>
+                        <h4 class="text-sm font-bold text-gray-700 mb-1 flex items-center gap-2">
+                            <i data-lucide="book-open" class="w-4 h-4"></i> Cómo hacerlo
+                        </h4>
+                        <p id="exerciseInfoDescription" class="text-sm text-gray-600 leading-relaxed"></p>
+                    </div>
+
+                    <!-- Tips -->
+                    <div class="bg-amber-50 rounded-xl p-3">
+                        <h4 class="text-sm font-bold text-amber-700 mb-1 flex items-center gap-2">
+                            <i data-lucide="lightbulb" class="w-4 h-4"></i> Tips
+                        </h4>
+                        <p id="exerciseInfoTips" class="text-sm text-amber-800"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-5 pb-5">
+                <button onclick="closeExerciseInfoModal()" class="w-full py-3 bg-gradient-to-r from-rose-500 to-purple-500 text-white rounded-xl font-medium hover:opacity-90 transition">
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Guardar/Cargar Rutina -->
     <div id="routineTemplatesModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeRoutineTemplatesModal()">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[80vh] overflow-hidden transform transition-all" onclick="event.stopPropagation()">
@@ -3687,6 +3733,255 @@
                 ppl_2x: { name: 'PPL 2x/semana', routine: ['push', 'pull', 'legs', 'push', 'pull', 'legs'], icon: '🔥' }
             }
         };
+
+        // Exercise Info Database (descriptions and images)
+        const EXERCISE_INFO = {
+            'Bench Press': {
+                spanish: 'Press de Banca',
+                muscle: 'Pecho',
+                description: 'Acostado en un banco plano, baja la barra al pecho y empuja hacia arriba. Mantén los pies firmes en el suelo y la espalda ligeramente arqueada.',
+                tips: 'Agarra la barra un poco más ancho que los hombros. Baja controladamente y explota al subir.',
+                image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&h=300&fit=crop'
+            },
+            'Incline DB Press': {
+                spanish: 'Press Inclinado con Mancuernas',
+                muscle: 'Pecho superior',
+                description: 'En banco inclinado (30-45°), presiona las mancuernas hacia arriba desde los hombros.',
+                tips: 'No inclines demasiado el banco. Junta las mancuernas arriba sin chocarlas.',
+                image: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&h=300&fit=crop'
+            },
+            'Squat': {
+                spanish: 'Sentadilla',
+                muscle: 'Piernas completas',
+                description: 'Con la barra en la espalda alta, baja flexionando rodillas y caderas hasta que los muslos estén paralelos al suelo.',
+                tips: 'Rodillas en línea con los pies. Pecho arriba. Baja hasta romper el paralelo.',
+                image: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&h=300&fit=crop'
+            },
+            'Leg Press': {
+                spanish: 'Prensa de Piernas',
+                muscle: 'Cuádriceps, glúteos',
+                description: 'Sentado en la máquina, empuja la plataforma con los pies hasta extender las piernas (sin bloquear rodillas).',
+                tips: 'Pies a la anchura de hombros. No bajes demasiado para proteger la espalda baja.',
+                image: 'https://images.unsplash.com/photo-1434608519344-49d77a699e1d?w=400&h=300&fit=crop'
+            },
+            'Leg Extension': {
+                spanish: 'Extensión de Piernas',
+                muscle: 'Cuádriceps',
+                description: 'Sentado en la máquina, extiende las piernas hasta que estén rectas, apretando los cuádriceps.',
+                tips: 'Movimiento controlado. Aprieta arriba por 1 segundo.',
+                image: 'https://images.unsplash.com/photo-1534368786749-b63e05c90863?w=400&h=300&fit=crop'
+            },
+            'Leg Curl': {
+                spanish: 'Curl de Piernas',
+                muscle: 'Isquiotibiales',
+                description: 'Acostado boca abajo, flexiona las piernas llevando los talones hacia los glúteos.',
+                tips: 'No uses impulso. Contrae los isquios en cada repetición.',
+                image: 'https://images.unsplash.com/photo-1597347316205-36f6c451902a?w=400&h=300&fit=crop'
+            },
+            'Hip Thrust': {
+                spanish: 'Empuje de Cadera',
+                muscle: 'Glúteos',
+                description: 'Espalda apoyada en banco, barra sobre la cadera. Empuja la cadera hacia arriba apretando glúteos.',
+                tips: 'Aprieta fuerte los glúteos arriba. Barbilla al pecho. No hiperextiendas.',
+                image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop'
+            },
+            'Romanian Deadlift': {
+                spanish: 'Peso Muerto Rumano',
+                muscle: 'Isquiotibiales, glúteos',
+                description: 'De pie con barra, baja el torso manteniendo piernas casi rectas, sintiendo estiramiento en isquios.',
+                tips: 'Espalda recta siempre. La barra roza las piernas. Rodillas ligeramente flexionadas.',
+                image: 'https://images.unsplash.com/photo-1599058917765-a780eda07a3e?w=400&h=300&fit=crop'
+            },
+            'Lat Pulldown': {
+                spanish: 'Jalón al Pecho',
+                muscle: 'Espalda (dorsales)',
+                description: 'Sentado, jala la barra hacia el pecho superior, apretando los dorsales.',
+                tips: 'Inclínate ligeramente hacia atrás. Lleva los codos hacia abajo y atrás.',
+                image: 'https://images.unsplash.com/photo-1598575468023-85b93d856505?w=400&h=300&fit=crop'
+            },
+            'Barbell Row': {
+                spanish: 'Remo con Barra',
+                muscle: 'Espalda media',
+                description: 'Inclinado hacia adelante, jala la barra hacia el abdomen bajo apretando la espalda.',
+                tips: 'Espalda recta, core apretado. Jala con los codos, no con los brazos.',
+                image: 'https://images.unsplash.com/photo-1603287681836-b174ce5074c2?w=400&h=300&fit=crop'
+            },
+            'Seated Cable Row': {
+                spanish: 'Remo Sentado en Polea',
+                muscle: 'Espalda media',
+                description: 'Sentado, jala el agarre hacia el abdomen manteniendo el torso erguido.',
+                tips: 'No te inclines hacia atrás. Aprieta los omóplatos al final.',
+                image: 'https://images.unsplash.com/photo-1598575468023-85b93d856505?w=400&h=300&fit=crop'
+            },
+            'Overhead Press': {
+                spanish: 'Press Militar',
+                muscle: 'Hombros',
+                description: 'De pie o sentado, presiona la barra/mancuernas desde los hombros hacia arriba.',
+                tips: 'Core apretado. No arquees la espalda. Extiende completamente arriba.',
+                image: 'https://images.unsplash.com/photo-1532029837206-abbe2b7620e3?w=400&h=300&fit=crop'
+            },
+            'Lateral Raises': {
+                spanish: 'Elevaciones Laterales',
+                muscle: 'Hombros (deltoides lateral)',
+                description: 'De pie, eleva las mancuernas a los lados hasta la altura de los hombros.',
+                tips: 'Codos ligeramente flexionados. Controla la bajada. No uses impulso.',
+                image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c149a?w=400&h=300&fit=crop'
+            },
+            'Bicep Curls': {
+                spanish: 'Curl de Bíceps',
+                muscle: 'Bíceps',
+                description: 'De pie, flexiona los codos llevando las mancuernas hacia los hombros.',
+                tips: 'Codos pegados al cuerpo. No balancees. Aprieta arriba.',
+                image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c149a?w=400&h=300&fit=crop'
+            },
+            'Tricep Pushdown': {
+                spanish: 'Extensión de Tríceps en Polea',
+                muscle: 'Tríceps',
+                description: 'En polea alta, empuja la barra hacia abajo extendiendo los codos.',
+                tips: 'Codos pegados al cuerpo. Solo mueve el antebrazo.',
+                image: 'https://images.unsplash.com/photo-1598575468023-85b93d856505?w=400&h=300&fit=crop'
+            },
+            'Plank': {
+                spanish: 'Plancha',
+                muscle: 'Core completo',
+                description: 'Apoyado en antebrazos y puntas de pies, mantén el cuerpo recto como una tabla.',
+                tips: 'Glúteos apretados. No dejes caer la cadera. Respira normal.',
+                image: 'https://images.unsplash.com/photo-1566241142559-40e1dab266c6?w=400&h=300&fit=crop'
+            },
+            'Cable Flyes': {
+                spanish: 'Aperturas en Polea',
+                muscle: 'Pecho',
+                description: 'De pie entre poleas, junta las manos al frente en un movimiento de abrazo.',
+                tips: 'Codos ligeramente flexionados. Aprieta el pecho al juntar las manos.',
+                image: 'https://images.unsplash.com/photo-1598575468023-85b93d856505?w=400&h=300&fit=crop'
+            },
+            'Push Ups': {
+                spanish: 'Flexiones',
+                muscle: 'Pecho, tríceps',
+                description: 'Boca abajo, empuja el cuerpo hacia arriba manteniendo el cuerpo recto.',
+                tips: 'Manos a la anchura de hombros. Baja hasta que el pecho casi toque el suelo.',
+                image: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=400&h=300&fit=crop'
+            },
+            'Lunges': {
+                spanish: 'Zancadas',
+                muscle: 'Piernas, glúteos',
+                description: 'Da un paso adelante y baja hasta que ambas rodillas formen 90 grados.',
+                tips: 'Rodilla delantera no pasa la punta del pie. Torso erguido.',
+                image: 'https://images.unsplash.com/photo-1434608519344-49d77a699e1d?w=400&h=300&fit=crop'
+            },
+            'Calf Raises': {
+                spanish: 'Elevaciones de Pantorrilla',
+                muscle: 'Pantorrillas',
+                description: 'De pie, elévate sobre las puntas de los pies y baja controladamente.',
+                tips: 'Pausa arriba 1 segundo. Baja completamente para estirar.',
+                image: 'https://images.unsplash.com/photo-1434608519344-49d77a699e1d?w=400&h=300&fit=crop'
+            },
+            'Pull Ups': {
+                spanish: 'Dominadas',
+                muscle: 'Espalda, bíceps',
+                description: 'Colgado de una barra, jálate hacia arriba hasta que la barbilla pase la barra.',
+                tips: 'Agarre más ancho que hombros. Aprieta dorsales al subir.',
+                image: 'https://images.unsplash.com/photo-1598575468023-85b93d856505?w=400&h=300&fit=crop'
+            },
+            'Dumbbell Row': {
+                spanish: 'Remo con Mancuerna',
+                muscle: 'Espalda',
+                description: 'Apoyado en banco con una mano, jala la mancuerna hacia la cadera.',
+                tips: 'Codo cerca del cuerpo. Aprieta el dorsal arriba.',
+                image: 'https://images.unsplash.com/photo-1603287681836-b174ce5074c2?w=400&h=300&fit=crop'
+            },
+            'Face Pulls': {
+                spanish: 'Tirón a la Cara',
+                muscle: 'Deltoides posterior, trapecios',
+                description: 'En polea alta, jala la cuerda hacia la cara separando las manos.',
+                tips: 'Codos altos. Aprieta los omóplatos. Excelente para postura.',
+                image: 'https://images.unsplash.com/photo-1598575468023-85b93d856505?w=400&h=300&fit=crop'
+            },
+            'Bulgarian Split Squat': {
+                spanish: 'Sentadilla Búlgara',
+                muscle: 'Cuádriceps, glúteos',
+                description: 'Pie trasero elevado en banco, baja en sentadilla con la pierna delantera.',
+                tips: 'Torso erguido. Rodilla delantera en línea con el pie.',
+                image: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&h=300&fit=crop'
+            },
+            'Cable Kickback': {
+                spanish: 'Patada en Polea',
+                muscle: 'Glúteos',
+                description: 'Con tobillera en polea baja, extiende la pierna hacia atrás apretando glúteo.',
+                tips: 'No arquees la espalda. Movimiento controlado.',
+                image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop'
+            },
+            'Glute Bridge': {
+                spanish: 'Puente de Glúteos',
+                muscle: 'Glúteos',
+                description: 'Acostado boca arriba, eleva la cadera apretando los glúteos.',
+                tips: 'Aprieta fuerte arriba. Rodillas a 90 grados.',
+                image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop'
+            },
+            'Hammer Curls': {
+                spanish: 'Curl Martillo',
+                muscle: 'Bíceps, antebrazo',
+                description: 'Curl con mancuernas manteniendo las palmas mirándose entre sí.',
+                tips: 'Mismo movimiento que curl normal pero con agarre neutro.',
+                image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c149a?w=400&h=300&fit=crop'
+            },
+            'Skull Crushers': {
+                spanish: 'Rompecráneos',
+                muscle: 'Tríceps',
+                description: 'Acostado, baja la barra hacia la frente flexionando solo los codos.',
+                tips: 'Codos apuntando al techo. Movimiento solo en el codo.',
+                image: 'https://images.unsplash.com/photo-1598575468023-85b93d856505?w=400&h=300&fit=crop'
+            },
+            'Sumo Squat': {
+                spanish: 'Sentadilla Sumo',
+                muscle: 'Aductores, glúteos',
+                description: 'Sentadilla con pies muy separados y puntas hacia afuera.',
+                tips: 'Rodillas siguen la dirección de los pies. Baja profundo.',
+                image: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&h=300&fit=crop'
+            }
+        };
+
+        // Exercise Info Modal Functions
+        function openExerciseInfoModal(exerciseName) {
+            const info = EXERCISE_INFO[exerciseName];
+            const modal = document.getElementById('exerciseInfoModal');
+
+            // Set content
+            document.getElementById('exerciseInfoName').textContent = exerciseName;
+
+            if (info) {
+                document.getElementById('exerciseInfoSpanish').textContent = info.spanish || '';
+                document.getElementById('exerciseInfoMuscle').textContent = info.muscle || 'General';
+                document.getElementById('exerciseInfoDescription').textContent = info.description || 'Sin descripción disponible.';
+                document.getElementById('exerciseInfoTips').textContent = info.tips || 'Mantén buena forma y controla el movimiento.';
+
+                // Set image
+                const imageContainer = document.getElementById('exerciseInfoImage');
+                if (info.image) {
+                    imageContainer.innerHTML = `<img src="${info.image}" alt="${exerciseName}" class="w-full h-full object-cover">`;
+                } else {
+                    imageContainer.innerHTML = '<span class="text-6xl">🏋️</span>';
+                }
+            } else {
+                // Default info for unknown exercises
+                document.getElementById('exerciseInfoSpanish').textContent = '';
+                document.getElementById('exerciseInfoMuscle').textContent = 'General';
+                document.getElementById('exerciseInfoDescription').textContent = 'Información no disponible para este ejercicio. Consulta con un entrenador para la técnica correcta.';
+                document.getElementById('exerciseInfoTips').textContent = 'Mantén buena postura, controla el movimiento y no uses demasiado peso.';
+                document.getElementById('exerciseInfoImage').innerHTML = '<span class="text-6xl">🏋️</span>';
+            }
+
+            modal.classList.remove('hidden');
+
+            // Initialize Lucide icons in modal
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        function closeExerciseInfoModal() {
+            document.getElementById('exerciseInfoModal').classList.add('hidden');
+        }
 
         // Routine type definitions for exercise selection
         const ROUTINE_MUSCLES = {
@@ -7419,7 +7714,12 @@
                                             <div class="flex items-center gap-3">
                                                 <span class="w-10 h-10 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-bold">${exIdx + 1}</span>
                                                 <div>
-                                                    <h4 class="font-bold text-gray-800">${exercise.name}</h4>
+                                                    <div class="flex items-center gap-2">
+                                                        <h4 class="font-bold text-gray-800">${exercise.name}</h4>
+                                                        <button onclick="openExerciseInfoModal('${exercise.name.replace(/'/g, "\\'")}')" class="w-5 h-5 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center hover:bg-purple-200 transition" title="Ver información">
+                                                            <span class="text-xs font-bold">i</span>
+                                                        </button>
+                                                    </div>
                                                     <div class="flex gap-3 text-xs text-gray-500">
                                                         ${lastWeight ? `<span>Último: ${lastWeight}kg</span>` : ''}
                                                         ${pr.maxWeight ? `<span class="text-purple-600">🏆 PR: ${pr.maxWeight}kg</span>` : ''}
