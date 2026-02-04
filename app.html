@@ -3352,81 +3352,132 @@
             setStorage('custom-schedules', JSON.stringify(customSchedules));
         }
 
+        // Get user profile for schedule customization
+        function getUserSchedulePrefs() {
+            const profile = JSON.parse(getStorage('user-profile') || '{}');
+            return {
+                wakeUp: profile.wakeUp || '07:00',
+                sleep: profile.sleep || '22:00',
+                goal: profile.goal || 'fitness',
+                occupation: profile.occupation || 'working'
+            };
+        }
+
         function getWeekdaySchedule(dayIndex) {
             const gym = getGymFocus(dayIndex);
+            const prefs = getUserSchedulePrefs();
+            const wakeHour = parseInt(prefs.wakeUp.split(':')[0]);
+            const sleepHour = parseInt(prefs.sleep.split(':')[0]);
+
+            // Base schedule adapts to wake/sleep times
             const schedule = [
-                { time: "06:45", activity: "Despertar + Agua tibia con limón 🍋", duration: "15 min", category: "habitos" },
-                { time: "07:00", activity: "Suplementos: Creatina + Omega 3 + Vitamina C", duration: "15 min", category: "nutricion" },
-                { time: "07:15", activity: "Meditación guiada + Afirmaciones ✨", duration: "30 min", category: "espiritual" },
-                { time: "07:45", activity: "Desayuno proteico", duration: "45 min", category: "nutricion" },
-                { time: "08:30", activity: "Clase de Inglés Intensivo 🇬🇧", duration: "2 hrs", category: "personal" },
-                { time: "10:30", activity: "Snack saludable + Hidratación", duration: "30 min", category: "nutricion" },
-                { time: "11:00", activity: "Skincare facial + Cuidado capilar 💆‍♀️", duration: "1 hr", category: "fisico" },
-                { time: "12:00", activity: "Almuerzo balanceado", duration: "1 hr", category: "nutricion" },
-                { time: "13:00", activity: "Descanso / Lectura / Journaling 📖", duration: "1 hr", category: "espiritual" },
-                { time: "14:00", activity: `Gimnasio: ${gym.name} ${gym.icon}`, duration: "2 hrs", category: "fisico" },
-                { time: "16:00", activity: "Batido proteico post-entreno 🥤", duration: "30 min", category: "nutricion" }
+                { time: prefs.wakeUp, activity: "Despertar + Hidratación 💧", duration: "15 min", category: "habitos" },
+                { time: `${String(wakeHour).padStart(2,'0')}:15`, activity: "Rutina matutina ☀️", duration: "30 min", category: "habitos" },
+                { time: `${String(wakeHour).padStart(2,'0')}:45`, activity: "Desayuno saludable 🍳", duration: "30 min", category: "nutricion" },
             ];
 
-            if ([1, 3, 5].includes(dayIndex)) {
-                schedule.push({ time: "16:30", activity: "Clase de Pasarela (estilo Sheynnis Palacios) 👠", duration: "1.5 hrs", category: "personal" });
+            // Add goal-specific morning activity
+            const goalActivities = {
+                fitness: { time: `${String(wakeHour + 1).padStart(2,'0')}:15`, activity: `Ejercicio: ${gym.name} ${gym.icon}`, duration: "1.5 hrs", category: "fisico" },
+                productivity: { time: `${String(wakeHour + 1).padStart(2,'0')}:15`, activity: "Bloque de trabajo profundo 💻", duration: "2 hrs", category: "trabajo" },
+                learning: { time: `${String(wakeHour + 1).padStart(2,'0')}:15`, activity: "Sesión de estudio 📚", duration: "2 hrs", category: "estudio" },
+                business: { time: `${String(wakeHour + 1).padStart(2,'0')}:15`, activity: "Trabajo en proyecto/negocio 💼", duration: "2 hrs", category: "trabajo" },
+                competition: { time: `${String(wakeHour + 1).padStart(2,'0')}:15`, activity: `Entrenamiento: ${gym.name} ${gym.icon}`, duration: "2 hrs", category: "fisico" },
+                wellness: { time: `${String(wakeHour + 1).padStart(2,'0')}:15`, activity: "Yoga / Meditación 🧘", duration: "1 hr", category: "espiritual" }
+            };
+            schedule.push(goalActivities[prefs.goal] || goalActivities.fitness);
+
+            // Mid-day activities
+            schedule.push(
+                { time: "10:30", activity: "Snack + Pausa activa 🥤", duration: "30 min", category: "nutricion" },
+                { time: "11:00", activity: "Actividades productivas 📋", duration: "1 hr", category: "trabajo" },
+                { time: "12:00", activity: "Almuerzo 🍽️", duration: "1 hr", category: "nutricion" },
+                { time: "13:00", activity: "Descanso / Tiempo personal 📖", duration: "30 min", category: "descanso" }
+            );
+
+            // Afternoon based on goal
+            if (prefs.goal === 'fitness' || prefs.goal === 'competition') {
+                schedule.push(
+                    { time: "13:30", activity: "Actividades del día 📋", duration: "2.5 hrs", category: "personal" },
+                    { time: "16:00", activity: "Snack post-actividad 🥤", duration: "30 min", category: "nutricion" },
+                    { time: "16:30", activity: "Tiempo libre / Hobbies ✨", duration: "1.5 hrs", category: "personal" }
+                );
+            } else if (prefs.goal === 'productivity' || prefs.goal === 'business') {
+                schedule.push(
+                    { time: "13:30", activity: "Reuniones / Llamadas 📞", duration: "1.5 hrs", category: "trabajo" },
+                    { time: "15:00", activity: "Bloque de trabajo 💻", duration: "2 hrs", category: "trabajo" },
+                    { time: "17:00", activity: "Revisión del día + Planificación 📊", duration: "1 hr", category: "trabajo" }
+                );
+            } else if (prefs.goal === 'learning') {
+                schedule.push(
+                    { time: "13:30", activity: "Práctica / Ejercicios 📝", duration: "2 hrs", category: "estudio" },
+                    { time: "15:30", activity: "Revisión de material 📚", duration: "1.5 hrs", category: "estudio" },
+                    { time: "17:00", activity: "Descanso mental 🎮", duration: "1 hr", category: "personal" }
+                );
             } else {
-                schedule.push({ time: "16:30", activity: "Coaching Oratoria con Coni 🎤", duration: "1.5 hrs", category: "personal" });
+                schedule.push(
+                    { time: "13:30", activity: "Actividades del día 📋", duration: "2 hrs", category: "personal" },
+                    { time: "15:30", activity: "Ejercicio suave / Caminata 🚶", duration: "1 hr", category: "fisico" },
+                    { time: "16:30", activity: "Autocuidado / Hobbies ✨", duration: "1.5 hrs", category: "personal" }
+                );
             }
 
+            // Evening routine
             schedule.push(
-                { time: "18:00", activity: "Creación contenido RRSS 📸", duration: "1 hr", category: "digital" },
-                { time: "19:00", activity: "Publicar + Interactuar audiencia 📱", duration: "30 min", category: "digital" },
-                { time: "19:30", activity: "Revisar métricas + Planificar 📊", duration: "30 min", category: "digital" },
-                { time: "20:00", activity: "Cena saludable", duration: "1 hr", category: "nutricion" },
-                { time: "21:00", activity: "Skincare nocturno + Tratamiento celulitis 🌙", duration: "30 min", category: "fisico" },
-                { time: "21:30", activity: "Gratitud + Preparar mañana 🙏", duration: "30 min", category: "espiritual" },
-                { time: "22:00", activity: "DORMIR 😴 (9 horas)", duration: "9 hrs", category: "descanso" }
+                { time: "18:00", activity: "Tiempo libre 🎯", duration: "1 hr", category: "personal" },
+                { time: "19:00", activity: "Cena 🍽️", duration: "1 hr", category: "nutricion" },
+                { time: "20:00", activity: "Relax / Familia / Social 💕", duration: "1 hr", category: "personal" },
+                { time: `${String(sleepHour - 1).padStart(2,'0')}:00`, activity: "Rutina nocturna 🌙", duration: "30 min", category: "habitos" },
+                { time: `${String(sleepHour - 1).padStart(2,'0')}:30`, activity: "Preparar mañana + Gratitud 🙏", duration: "30 min", category: "espiritual" },
+                { time: prefs.sleep, activity: "Dormir 😴", duration: "8 hrs", category: "descanso" }
             );
 
             return schedule;
         }
 
         function getSaturdaySchedule() {
+            const gym = getGymFocus(6);
+            const prefs = getUserSchedulePrefs();
+            const wakeHour = parseInt(prefs.wakeUp.split(':')[0]) + 1; // Weekend: 1 hour later
+            const sleepHour = parseInt(prefs.sleep.split(':')[0]);
+
             return [
-                { time: "07:00", activity: "Despertar + Hidratación 💧", duration: "15 min", category: "habitos" },
-                { time: "07:15", activity: "Suplementos matutinos", duration: "15 min", category: "nutricion" },
-                { time: "07:30", activity: "Meditación + Afirmaciones ✨", duration: "30 min", category: "espiritual" },
-                { time: "08:00", activity: "Desayuno proteico", duration: "1 hr", category: "nutricion" },
-                { time: "09:00", activity: "Clase de Baile / Gimnasia 💃", duration: "1.5 hrs", category: "personal" },
-                { time: "10:30", activity: "Snack + Hidratación", duration: "30 min", category: "nutricion" },
-                { time: "11:00", activity: "Sesión fotos / Contenido semanal 📸", duration: "2 hrs", category: "digital" },
-                { time: "13:00", activity: "Almuerzo", duration: "1 hr", category: "nutricion" },
-                { time: "14:00", activity: "Descanso / Autocuidado 💆‍♀️", duration: "1 hr", category: "espiritual" },
-                { time: "15:00", activity: "Trabajo en Página Web / Portafolio 💻", duration: "2 hrs", category: "digital" },
-                { time: "17:00", activity: "Cardio suave + Stretching 🧘", duration: "1 hr", category: "fisico" },
-                { time: "18:00", activity: "Programar contenido semanal", duration: "1 hr", category: "digital" },
-                { time: "19:00", activity: "Tiempo libre / Social 👯‍♀️", duration: "1 hr", category: "personal" },
-                { time: "20:00", activity: "Cena", duration: "1 hr", category: "nutricion" },
-                { time: "21:00", activity: "Rutina nocturna + Planificación 🌙", duration: "1 hr", category: "espiritual" },
-                { time: "22:00", activity: "DORMIR 😴", duration: "9 hrs", category: "descanso" }
+                { time: `${String(wakeHour).padStart(2,'0')}:00`, activity: "Despertar tranquilo + Hidratación ☀️", duration: "30 min", category: "habitos" },
+                { time: `${String(wakeHour).padStart(2,'0')}:30`, activity: "Desayuno especial de fin de semana 🥞", duration: "1 hr", category: "nutricion" },
+                { time: `${String(wakeHour + 1).padStart(2,'0')}:30`, activity: `Ejercicio: ${gym.name} ${gym.icon}`, duration: "1.5 hrs", category: "fisico" },
+                { time: `${String(wakeHour + 3).padStart(2,'0')}:00`, activity: "Snack + Hidratación 🥤", duration: "30 min", category: "nutricion" },
+                { time: `${String(wakeHour + 3).padStart(2,'0')}:30`, activity: "Tiempo personal / Hobbies 🎨", duration: "1.5 hrs", category: "personal" },
+                { time: "13:00", activity: "Almuerzo 🍽️", duration: "1 hr", category: "nutricion" },
+                { time: "14:00", activity: "Descanso / Siesta 😴", duration: "1 hr", category: "descanso" },
+                { time: "15:00", activity: "Actividades libres ✨", duration: "2 hrs", category: "personal" },
+                { time: "17:00", activity: "Organizar semana / Planificar 📋", duration: "1 hr", category: "personal" },
+                { time: "18:00", activity: "Tiempo social / Familia 👨‍👩‍👧‍👦", duration: "2 hrs", category: "personal" },
+                { time: "20:00", activity: "Cena 🍽️", duration: "1 hr", category: "nutricion" },
+                { time: "21:00", activity: "Relax / Película / Lectura 🎬", duration: "1 hr", category: "personal" },
+                { time: prefs.sleep, activity: "Dormir 😴", duration: "8 hrs", category: "descanso" }
             ];
         }
 
         function getSundaySchedule() {
+            const prefs = getUserSchedulePrefs();
+            const wakeHour = parseInt(prefs.wakeUp.split(':')[0]) + 1; // Weekend: 1 hour later
+            const sleepHour = parseInt(prefs.sleep.split(':')[0]);
+
             return [
-                { time: "08:00", activity: "Despertar natural + Hidratación ☀️", duration: "15 min", category: "habitos" },
-                { time: "08:15", activity: "Omega 3 + Vitamina C (descanso creatina)", duration: "15 min", category: "nutricion" },
-                { time: "08:30", activity: "Meditación extendida + Visualización 🧘", duration: "1 hr", category: "espiritual" },
-                { time: "09:30", activity: "Brunch saludable 🥑", duration: "1 hr", category: "nutricion" },
-                { time: "10:30", activity: "Spa personal: mascarillas, tratamientos ✨", duration: "1.5 hrs", category: "fisico" },
-                { time: "12:00", activity: "Revisar metas + Ajustar plan 🎯", duration: "1 hr", category: "personal" },
-                { time: "13:00", activity: "Almuerzo liviano", duration: "1 hr", category: "nutricion" },
-                { time: "14:00", activity: "Siesta / Descanso profundo 😴", duration: "1 hr", category: "descanso" },
-                { time: "15:00", activity: "Yoga + Stretching profundo 🧘", duration: "1 hr", category: "fisico" },
-                { time: "16:00", activity: "Inglés: películas/series 🎬", duration: "1 hr", category: "personal" },
-                { time: "17:00", activity: "Preparar outfits de la semana 👗", duration: "1 hr", category: "personal" },
-                { time: "18:00", activity: "RRSS: Responder mensajes + Stories 📱", duration: "1 hr", category: "digital" },
-                { time: "19:00", activity: "Tiempo familiar / Social 💕", duration: "1 hr", category: "personal" },
-                { time: "20:00", activity: "Cena liviana", duration: "1 hr", category: "nutricion" },
-                { time: "21:00", activity: "Rutina nocturna 🌙", duration: "30 min", category: "fisico" },
-                { time: "21:30", activity: "Lectura + Gratitud + Intenciones ✨", duration: "30 min", category: "espiritual" },
-                { time: "22:00", activity: "DORMIR 😴", duration: "9 hrs", category: "descanso" }
+                { time: `${String(wakeHour).padStart(2,'0')}:00`, activity: "Despertar natural ☀️", duration: "30 min", category: "habitos" },
+                { time: `${String(wakeHour).padStart(2,'0')}:30`, activity: "Meditación / Reflexión 🧘", duration: "30 min", category: "espiritual" },
+                { time: `${String(wakeHour + 1).padStart(2,'0')}:00`, activity: "Brunch dominical 🥑", duration: "1 hr", category: "nutricion" },
+                { time: `${String(wakeHour + 2).padStart(2,'0')}:00`, activity: "Revisar metas de la semana 🎯", duration: "1 hr", category: "personal" },
+                { time: `${String(wakeHour + 3).padStart(2,'0')}:00`, activity: "Actividad al aire libre / Paseo 🌳", duration: "1.5 hrs", category: "fisico" },
+                { time: "13:00", activity: "Almuerzo 🍽️", duration: "1 hr", category: "nutricion" },
+                { time: "14:00", activity: "Descanso / Tiempo tranquilo 📖", duration: "1.5 hrs", category: "descanso" },
+                { time: "15:30", activity: "Preparar semana / Organizar 📋", duration: "1 hr", category: "personal" },
+                { time: "16:30", activity: "Hobby / Actividad recreativa 🎨", duration: "1.5 hrs", category: "personal" },
+                { time: "18:00", activity: "Tiempo familiar / Social 💕", duration: "2 hrs", category: "personal" },
+                { time: "20:00", activity: "Cena ligera 🍽️", duration: "1 hr", category: "nutricion" },
+                { time: "21:00", activity: "Rutina nocturna + Gratitud 🌙", duration: "30 min", category: "espiritual" },
+                { time: `${String(sleepHour - 1).padStart(2,'0')}:30`, activity: "Preparar lunes + Relajación 🙏", duration: "30 min", category: "habitos" },
+                { time: prefs.sleep, activity: "Dormir temprano 😴", duration: "8 hrs", category: "descanso" }
             ];
         }
 
