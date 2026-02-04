@@ -7566,6 +7566,15 @@
             `;
         }
 
+        // Gym view state
+        var gymViewMode = 'today'; // 'today' or 'week'
+
+        function setGymViewMode(mode) {
+            gymViewMode = mode;
+            if (mode === 'today') gymSubTab = 'workout';
+            render();
+        }
+
         function renderGym(gym, dayIndex, weekNum) {
             try {
                 const profile = getPhysicalProfile();
@@ -7573,10 +7582,14 @@
                 const weightHistory = getWeightHistory();
                 const todayWorkout = getTodayWorkout();
 
-                const gymTabsOrder = getGymTabsOrder();
+                let content = '';
 
-                return `
-                <div class="space-y-4">
+                if (gymViewMode === 'week') {
+                    content = renderGymWeeklyView(dayIndex);
+                } else {
+                    // Today view - show existing sub-tabs
+                    const gymTabsOrder = getGymTabsOrder();
+                    content = `
                     <!-- Sub-tabs -->
                     <div data-tabs-container="gym" class="flex gap-2 p-1.5 bg-gradient-to-r from-rose-100 to-purple-100 rounded-2xl relative overflow-x-auto no-scrollbar shadow-sm border border-rose-200/50">
                         ${gymTabsOrder.map((tabId, index) => {
@@ -7607,11 +7620,104 @@
                     ${gymSubTab === 'workout' ? renderGymWorkout(gym, dayIndex, todayWorkout) : ''}
                     ${gymSubTab === 'macros' ? renderGymMacros() : ''}
                     ${gymSubTab === 'history' ? renderGymHistory() : ''}
-                </div>
-            `;
+                    `;
+                }
+
+                // Bottom navigation
+                const bottomNav = `
+                <div class="fixed bottom-20 left-4 right-4 z-40">
+                    <div class="max-w-lg mx-auto bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200 p-1.5 flex gap-2">
+                        <button onclick="setGymViewMode('today')" class="flex-1 py-3 px-4 rounded-xl font-semibold transition flex items-center justify-center gap-2 ${gymViewMode === 'today' ? 'bg-gradient-to-r from-rose-500 to-purple-500 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}">
+                            🏋️ Hoy
+                        </button>
+                        <button onclick="setGymViewMode('week')" class="flex-1 py-3 px-4 rounded-xl font-semibold transition flex items-center justify-center gap-2 ${gymViewMode === 'week' ? 'bg-gradient-to-r from-rose-500 to-purple-500 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}">
+                            📅 Semana
+                        </button>
+                    </div>
+                </div>`;
+
+                return `<div class="space-y-4 pb-20">${content}${bottomNav}</div>`;
             } catch (error) {
                 console.error('Error in renderGym:', error);
                 return `<div class="bg-red-100 text-red-700 p-4 rounded-xl">Error: ${error.message}</div>`;
+            }
+        }
+
+        function renderGymWeeklyView(todayIdx) {
+            const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+            const logs = getWorkoutLogs();
+            const today = new Date();
+            const activePlan = getActiveTrainingPlan();
+
+            let html = '<div class="bg-white rounded-2xl p-4 shadow-sm">';
+            html += '<h3 class="font-bold text-gray-800 mb-4">📅 Mi Semana</h3>';
+
+            // Week dots
+            html += '<div class="flex justify-between mb-4">';
+            for (let i = 0; i < 7; i++) {
+                const isToday = i === today.getDay();
+                const gym = getGymFocus(i);
+                const dateCheck = new Date(today);
+                dateCheck.setDate(today.getDate() - today.getDay() + i);
+                const dateStr = dateCheck.toISOString().split('T')[0];
+                const hasWorkout = logs.some(l => l.date === dateStr && l.exercises && l.exercises.length > 0);
+
+                html += '<div class="flex flex-col items-center gap-1">';
+                html += '<span class="text-xs text-gray-500">' + days[i] + '</span>';
+                html += '<div onclick="jumpToGymDay(' + i + ')" class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer transition hover:scale-110 ';
+                if (isToday) html += 'ring-2 ring-purple-400 ring-offset-2 ';
+                html += (hasWorkout ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-400') + '">';
+                html += (hasWorkout ? '✓' : dateCheck.getDate()) + '</div></div>';
+            }
+            html += '</div></div>';
+
+            // Day cards
+            html += '<div class="space-y-3">';
+            for (let d = 0; d < 7; d++) {
+                const isToday = d === today.getDay();
+                const gym = getGymFocus(d);
+                const dateCheck = new Date(today);
+                dateCheck.setDate(today.getDate() - today.getDay() + d);
+                const dateStr = dateCheck.toISOString().split('T')[0];
+                const hasWorkout = logs.some(l => l.date === dateStr && l.exercises && l.exercises.length > 0);
+                const isRest = gym.name && gym.name.toLowerCase().indexOf('descanso') >= 0;
+
+                html += '<div onclick="jumpToGymDay(' + d + ')" class="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition cursor-pointer';
+                if (isToday) html += ' ring-2 ring-purple-400';
+                html += '">';
+                html += '<div class="flex items-center gap-4">';
+                html += '<div class="w-12 h-12 ' + (hasWorkout ? 'bg-green-100' : 'bg-gray-100') + ' rounded-xl flex items-center justify-center">';
+                html += '<span class="text-2xl">' + (gym.icon || (isRest ? '🧘' : '💪')) + '</span></div>';
+                html += '<div class="flex-1">';
+                html += '<div class="flex items-center gap-2">';
+                html += '<span class="font-bold text-gray-800">' + days[d] + '</span>';
+                if (isToday) html += '<span class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Hoy</span>';
+                if (hasWorkout) html += '<span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">✓</span>';
+                html += '</div>';
+                html += '<p class="text-gray-600 text-sm">' + (gym.name || 'Sin asignar') + '</p>';
+                html += '</div>';
+                html += '<span class="text-gray-400">→</span>';
+                html += '</div></div>';
+            }
+            html += '</div>';
+
+            // Create plan button
+            html += '<button onclick="openTrainingPlanWizard()" class="w-full mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-rose-500 to-purple-500 text-white rounded-xl font-medium hover:opacity-90 transition shadow-lg">';
+            html += '🎯 ' + (activePlan ? 'Cambiar Plan' : 'Crear Plan') + '</button>';
+
+            return html;
+        }
+
+        function jumpToGymDay(dayIdx) {
+            const today = new Date();
+            const diff = dayIdx - today.getDay();
+            const targetDate = new Date(today);
+            targetDate.setDate(today.getDate() + diff);
+            if (targetDate >= startDate && targetDate <= endDate) {
+                currentDate = targetDate;
+                gymViewMode = 'today';
+                gymSubTab = 'workout';
+                render();
             }
         }
 
