@@ -1487,11 +1487,23 @@
             syncService.initUser(currentUser.email, currentUser.name || '').then(async user => {
                 if (user) {
                     console.log('Sync service initialized for:', currentUser.email);
-                    // Sync data on load
+
+                    // Download all user data from Supabase first
+                    console.log('Downloading all user data from Supabase...');
+                    await syncService.downloadAllUserData();
+
+                    // Then sync any local-only data to Supabase
                     await syncService.syncAll();
-                    // Load expenses from server and refresh UI
+
+                    // Load expenses from server
                     if (typeof loadExpensesFromServer === 'function') {
                         await loadExpensesFromServer();
+                    }
+
+                    // Refresh UI with synced data
+                    console.log('Sync complete - refreshing UI');
+                    if (typeof render === 'function') {
+                        render();
                     }
                 }
             }).catch(err => {
@@ -1863,21 +1875,29 @@
         function setStorage(key, value) {
             localStorage.setItem(`${userKey}-${key}`, value);
 
-            // Auto-sync important data to Supabase
+            // Auto-sync ALL data to Supabase in real-time
             if (typeof syncService !== 'undefined' && syncService.userId) {
-                try {
-                    if (key === 'habits') {
-                        const habits = JSON.parse(value || '{}');
-                        Object.entries(habits).forEach(([habitKey, completed]) => {
-                            if (completed) {
-                                const [date, name] = habitKey.split('_');
-                                syncService.saveHabit({ name, date: date || syncService.getTodayDate(), completed: true });
-                            }
-                        });
+                // Debounce sync to avoid too many requests
+                if (!window._syncDebounce) window._syncDebounce = {};
+
+                clearTimeout(window._syncDebounce[key]);
+                window._syncDebounce[key] = setTimeout(async () => {
+                    try {
+                        // Parse value if it's JSON
+                        let parsedValue;
+                        try {
+                            parsedValue = JSON.parse(value);
+                        } catch (e) {
+                            parsedValue = value;
+                        }
+
+                        // Save to user_data table
+                        await syncService.saveUserData(key, key, parsedValue);
+                        console.log(`Synced ${key} to Supabase`);
+                    } catch (e) {
+                        console.log('Sync error for', key, ':', e.message);
                     }
-                } catch (e) {
-                    console.log('Sync error:', e);
-                }
+                }, 500); // 500ms debounce
             }
         }
 

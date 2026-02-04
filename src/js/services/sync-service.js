@@ -151,10 +151,6 @@ class SyncService {
      * Save user data (upsert)
      */
     async saveUserData(dataType, dataKey, dataValue) {
-        // Always save to localStorage first
-        const localKey = `${this.userEmail.replace(/[^a-z0-9]/gi, '_')}-${dataType}${dataKey ? '-' + dataKey : ''}`;
-        localStorage.setItem(localKey, JSON.stringify(dataValue));
-
         if (!this.userId || !this.isOnline) return { local: true };
 
         try {
@@ -214,8 +210,18 @@ class SyncService {
             const userKey = this.userEmail.replace(/[^a-z0-9]/gi, '_');
 
             for (const item of allData) {
-                const localKey = `${userKey}-${item.data_type}${item.data_key && item.data_key !== item.data_type ? '-' + item.data_key : ''}`;
-                localStorage.setItem(localKey, JSON.stringify(item.data_value));
+                // Use data_type as the key (which is what setStorage uses)
+                const localKey = `${userKey}-${item.data_type}`;
+
+                // Convert value to string for localStorage
+                let valueToStore;
+                if (typeof item.data_value === 'string') {
+                    valueToStore = item.data_value;
+                } else {
+                    valueToStore = JSON.stringify(item.data_value);
+                }
+
+                localStorage.setItem(localKey, valueToStore);
             }
 
             console.log(`Downloaded ${allData.length} data items from Supabase`);
@@ -704,26 +710,53 @@ class SyncService {
         if (!this.userId || !this.userEmail) return;
 
         const userKey = this.userEmail.replace(/[^a-z0-9]/gi, '_');
-        const dataTypes = [
-            'custom-habits', 'custom-gym', 'custom-goals', 'gym',
-            'meals', 'weights', 'workout-logs', 'protein-log',
-            'protein-favorites', 'notes', 'user-profile',
-            'reminder-settings', 'notifications'
+        const prefix = `${userKey}-`;
+
+        // Find all localStorage keys that belong to this user
+        const userKeys = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith(prefix)) {
+                userKeys.push(key);
+            }
+        }
+
+        console.log(`Found ${userKeys.length} local data items to sync`);
+
+        // Skip certain keys that shouldn't be synced (temporary data)
+        const skipPatterns = [
+            'lastNotificationDay', 'lastReminderDay', 'congrats-shown',
+            'pomodoro-count-' // Daily transient data
         ];
 
-        for (const dataType of dataTypes) {
-            const localKey = `${userKey}-${dataType}`;
-            const localData = localStorage.getItem(localKey);
+        for (const fullKey of userKeys) {
+            const dataType = fullKey.substring(prefix.length);
+
+            // Skip temporary/transient data
+            if (skipPatterns.some(pattern => dataType.includes(pattern))) {
+                continue;
+            }
+
+            const localData = localStorage.getItem(fullKey);
 
             if (localData) {
                 try {
-                    const value = JSON.parse(localData);
+                    // Try to parse as JSON, otherwise use raw value
+                    let value;
+                    try {
+                        value = JSON.parse(localData);
+                    } catch (e) {
+                        value = localData;
+                    }
+
                     await this.saveUserData(dataType, dataType, value);
                 } catch (e) {
-                    // Skip invalid JSON
+                    console.log(`Skip sync for ${dataType}:`, e.message);
                 }
             }
         }
+
+        console.log('Upload complete');
     }
 
     async syncLocalHabits() {
