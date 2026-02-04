@@ -887,7 +887,11 @@
             // Also save to template-schedules for wizard re-entry
             localStorage.setItem(userKey + '-template-schedules', JSON.stringify(templateSchedules));
 
+            // FORCE: Clear existing custom schedules so the new template takes effect
+            localStorage.removeItem(userKey + '-custom-schedules');
+
             console.log('Saved template schedules:', templateSchedules);
+            console.log('Cleared custom schedules to force template application');
 
             // Mark setup complete
             markSetupComplete();
