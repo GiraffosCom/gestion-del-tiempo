@@ -5034,7 +5034,29 @@
 
         // Specific getters for backwards compatibility
         function getMainTabsOrder() {
-            return getTabsOrder('main', ['agenda', 'habits', 'gym', 'meals', 'fasting', 'goals', 'notes', 'gastos', 'stats']);
+            const defaultOrder = ['agenda', 'habits', 'gym', 'meals', 'fasting', 'goals', 'notes', 'gastos', 'stats'];
+            const savedOrder = getTabsOrder('main', defaultOrder);
+
+            // Ensure new tabs are added if they exist in config but not in saved order
+            const config = getMainTabsConfig();
+            const configTabs = Object.keys(config);
+            const missingTabs = configTabs.filter(tab => !savedOrder.includes(tab));
+
+            if (missingTabs.length > 0) {
+                // Add missing tabs at their default position
+                missingTabs.forEach(tab => {
+                    const defaultIndex = defaultOrder.indexOf(tab);
+                    if (defaultIndex !== -1) {
+                        savedOrder.splice(defaultIndex, 0, tab);
+                    } else {
+                        savedOrder.push(tab);
+                    }
+                });
+                saveTabsOrder('main', savedOrder);
+            }
+
+            // Remove tabs that no longer exist in config
+            return savedOrder.filter(tab => configTabs.includes(tab));
         }
         function getGymTabsOrder() {
             return getTabsOrder('gym', ['profile', 'workout', 'macros', 'history']);
