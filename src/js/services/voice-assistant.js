@@ -226,7 +226,31 @@ class VoiceAssistant {
             this.recognition.start();
             return true;
         } catch (error) {
+            // Handle InvalidStateError - abort and retry
+            if (error.name === 'InvalidStateError') {
+                console.log('[VoiceAssistant] Resetting recognition state...');
+                try {
+                    this.recognition.abort();
+                } catch (e) {
+                    // Ignore abort errors
+                }
+                // Small delay then retry
+                setTimeout(() => {
+                    try {
+                        this.recognition.start();
+                    } catch (e) {
+                        console.error('[VoiceAssistant] Retry failed:', e);
+                        if (typeof this.onError === 'function') {
+                            this.onError('Error al iniciar el micrófono. Intenta de nuevo.', 'start-failed');
+                        }
+                    }
+                }, 100);
+                return true;
+            }
             console.error('[VoiceAssistant] Start error:', error);
+            if (typeof this.onError === 'function') {
+                this.onError('Error al iniciar el micrófono', 'start-error');
+            }
             return false;
         }
     }
@@ -235,8 +259,13 @@ class VoiceAssistant {
      * Stop listening
      */
     stop() {
-        if (this.recognition && this.isListening) {
-            this.recognition.stop();
+        if (this.recognition) {
+            try {
+                this.recognition.abort();
+            } catch (e) {
+                // Ignore
+            }
+            this.isListening = false;
         }
     }
 
