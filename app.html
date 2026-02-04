@@ -13537,6 +13537,7 @@
          * Handle voice action button click
          */
         function handleVoiceAction() {
+            console.log('[Voice] handleVoiceAction called, isListening:', voiceIsListening);
             if (voiceIsListening) {
                 stopVoiceListening();
             } else {
@@ -13547,9 +13548,42 @@
         /**
          * Start voice listening
          */
-        function startVoiceListening() {
+        async function startVoiceListening() {
+            console.log('[Voice] startVoiceListening called');
+
+            // Check if we're on HTTPS or localhost (required for microphone)
+            const isSecure = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+            if (!isSecure) {
+                showVoiceError('El micrófono requiere HTTPS. Usa localhost para pruebas.');
+                console.error('[Voice] Requires HTTPS or localhost');
+                return;
+            }
+
+            // Request microphone permission first
+            try {
+                console.log('[Voice] Requesting microphone permission...');
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                // Stop the stream immediately, we just needed to request permission
+                stream.getTracks().forEach(track => track.stop());
+                console.log('[Voice] Microphone permission granted');
+            } catch (err) {
+                console.error('[Voice] Microphone permission denied:', err);
+                showVoiceError('Permiso de micrófono denegado. Habilítalo en tu navegador.');
+                return;
+            }
+
+            // Show listening UI immediately
+            showVoiceListening();
+
             if (window.GestionApp && window.GestionApp.voiceAssistant) {
-                window.GestionApp.voiceAssistant.start();
+                const result = window.GestionApp.voiceAssistant.start();
+                console.log('[Voice] start() returned:', result);
+                if (!result) {
+                    showVoiceError('No se pudo iniciar el reconocimiento de voz.');
+                }
+            } else {
+                console.error('[Voice] voiceAssistant not available');
+                showVoiceError('Asistente de voz no disponible.');
             }
         }
 
