@@ -290,6 +290,21 @@
         .view-transition * {
             transition: all 0.3s ease !important;
         }
+
+        /* Lucide icons stability */
+        .lucide-processed {
+            display: inline-flex;
+            align-items: center;
+        }
+        [data-lucide] {
+            display: inline-block;
+            vertical-align: middle;
+            flex-shrink: 0;
+        }
+        /* Prevent layout shift during icon replacement */
+        #app {
+            transition: opacity 0.1s ease-out;
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-rose-50 via-purple-50 to-blue-50">
@@ -2642,11 +2657,23 @@
             if (!window.lucide) return;
 
             if (isLucideMode()) {
-                // Replace emojis with Lucide icons in the DOM
-                setTimeout(function() {
-                    replaceEmojisWithLucide();
-                    lucide.createIcons();
-                }, 50);
+                // Hide app briefly to prevent layout shift
+                var app = document.getElementById('app');
+                if (app) {
+                    app.style.opacity = '0';
+                    app.style.transition = 'opacity 0.1s';
+                }
+
+                // Replace emojis with Lucide icons immediately
+                replaceEmojisWithLucide();
+                lucide.createIcons();
+
+                // Show app after replacement
+                if (app) {
+                    requestAnimationFrame(function() {
+                        app.style.opacity = '1';
+                    });
+                }
             }
         }
 
