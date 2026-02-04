@@ -211,29 +211,74 @@
 
         /* ====== MODOS DE VISTA ====== */
 
-        /* Vista Minimalista - Limpia, espaciada, solo lo esencial */
-        body.view-minimal .card-hover { box-shadow: none; border: 1px solid rgba(0,0,0,0.05); }
-        body.view-minimal .card-hover:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        body.view-minimal .habit-item { padding: 1rem 1.25rem; }
-        body.view-minimal .schedule-item { padding: 0.75rem 1rem; }
-        body.view-minimal .progress-ring { display: none; }
-        body.view-minimal .streak-section { display: none; }
-        body.view-minimal .category-badge { display: none; }
-        body.view-minimal .duration-badge { font-size: 0.65rem; padding: 0.125rem 0.375rem; }
-        body.view-minimal .emoji-indicator { font-size: 1rem; }
-        body.view-minimal .section-header { font-size: 0.875rem; font-weight: 500; }
-        body.view-minimal .tab-label { font-size: 0.75rem; }
-        body.view-minimal .floating-buttons { transform: scale(0.85); }
-        body.view-minimal .goal-card { padding: 0.75rem; }
-        body.view-minimal .goal-card .text-2xl { font-size: 1.25rem; }
-        body.view-minimal .decorative-elements { display: none; }
-        body.view-minimal .glow { box-shadow: none; }
-        body.view-minimal .photo-glow { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        body.view-minimal header { padding-top: 0.5rem; padding-bottom: 0.5rem; }
-        body.view-minimal .header-greeting { font-size: 1rem; }
-        body.view-minimal .header-subtext { display: none; }
-        body.view-minimal .extra-stats { display: none; }
-        body.view-minimal .motivational-text { display: none; }
+        /* Vista Minimalista - Solo lo esencial, oculta todo lo decorativo */
+        body.view-minimal { background: #fafafa !important; }
+        body.view-minimal.dark { background: #0f0f0f !important; }
+
+        /* Ocultar dashboard de progreso completo */
+        body.view-minimal .progress-dashboard { display: none !important; }
+        body.view-minimal .progress-ring { display: none !important; }
+        body.view-minimal .streak-section { display: none !important; }
+        body.view-minimal .motivational-text { display: none !important; }
+        body.view-minimal .share-button { display: none !important; }
+
+        /* Ocultar footer motivacional */
+        body.view-minimal footer { display: none !important; }
+
+        /* Ocultar botones flotantes */
+        body.view-minimal .floating-buttons { display: none !important; }
+        body.view-minimal #pomodoroFloat { display: none !important; }
+        body.view-minimal #expensesFloat { display: none !important; }
+
+        /* Ocultar botones secundarios (limpiar, restaurar) */
+        body.view-minimal .secondary-actions { display: none !important; }
+        body.view-minimal .action-buttons-grid { display: none !important; }
+
+        /* Header ultra compacto */
+        body.view-minimal header { padding: 0.25rem 0 !important; }
+        body.view-minimal .header-greeting { font-size: 0.9rem !important; }
+        body.view-minimal .header-subtext { display: none !important; }
+        body.view-minimal .header-badges { display: none !important; }
+        body.view-minimal .photo-glow { box-shadow: none !important; width: 36px !important; height: 36px !important; }
+        body.view-minimal .header-photo-edit { display: none !important; }
+
+        /* Cards y elementos simplificados */
+        body.view-minimal .card-hover { box-shadow: none !important; border: 1px solid rgba(0,0,0,0.08) !important; border-radius: 8px !important; }
+        body.view-minimal .card-hover:hover { box-shadow: none !important; transform: none !important; }
+        body.view-minimal .habit-item { padding: 0.75rem 1rem !important; border-radius: 8px !important; }
+        body.view-minimal .schedule-item { padding: 0.5rem 0.75rem !important; border-radius: 6px !important; }
+        body.view-minimal .goal-card { padding: 0.75rem !important; border-radius: 8px !important; }
+
+        /* Ocultar elementos decorativos */
+        body.view-minimal .glow { box-shadow: none !important; }
+        body.view-minimal .theme-gradient { background: var(--theme-primary) !important; }
+        body.view-minimal .gradient-text { background: none !important; -webkit-text-fill-color: var(--theme-primary) !important; }
+        body.view-minimal .decorative-elements { display: none !important; }
+        body.view-minimal .category-badge { display: none !important; }
+        body.view-minimal .duration-badge { font-size: 0.6rem !important; padding: 0.1rem 0.3rem !important; opacity: 0.7; }
+        body.view-minimal .emoji-indicator { font-size: 1rem !important; }
+
+        /* Tabs compactos */
+        body.view-minimal .tab-label { font-size: 0.7rem !important; }
+        body.view-minimal [data-tabs-container] button { padding: 0.4rem 0.75rem !important; font-size: 0.75rem !important; }
+
+        /* Ocultar animaciones */
+        body.view-minimal .animate-pulse { animation: none !important; }
+        body.view-minimal .transition-all { transition: none !important; }
+
+        /* Progress bars más discretas */
+        body.view-minimal .progress-bar { height: 3px !important; }
+        body.view-minimal .section-header { font-size: 0.85rem !important; font-weight: 500 !important; }
+
+        /* Agenda hero card simplificada */
+        body.view-minimal .agenda-hero { padding: 0.75rem !important; border-radius: 8px !important; }
+        body.view-minimal .agenda-hero .text-5xl { font-size: 1.5rem !important; }
+        body.view-minimal .agenda-hero .text-4xl { font-size: 1.25rem !important; }
+        body.view-minimal .agenda-hero .text-xl { font-size: 0.9rem !important; }
+
+        /* Ocultar extras en metas */
+        body.view-minimal .goal-card .text-2xl { font-size: 1rem !important; }
+        body.view-minimal .extra-stats { display: none !important; }
 
         /* Vista Media - Equilibrada (por defecto) */
         body.view-medium .card-hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
@@ -5781,14 +5826,14 @@
                                 <div class="w-12 h-12 rounded-full theme-gradient flex items-center justify-center text-white text-lg font-bold border-2 photo-border photo-glow overflow-hidden group-hover:opacity-80 transition">
                                     ${getUserPhoto() ? `<img src="${getUserPhoto()}" class="w-full h-full object-cover">` : currentUser.name.charAt(0).toUpperCase()}
                                 </div>
-                                <span class="absolute -bottom-0.5 -right-0.5 text-sm group-hover:scale-110 transition">📷</span>
+                                <span class="header-photo-edit absolute -bottom-0.5 -right-0.5 text-sm group-hover:scale-110 transition">📷</span>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <h1 class="header-greeting text-base font-bold gradient-text">👋 ${currentUser.name}</h1>
                                 <p class="header-subtext text-xs text-gray-500">${getGoalText(currentUser.goal)}</p>
                             </div>
                             <div class="flex items-center gap-2">
-                                <div class="flex flex-col items-end gap-1 text-xs flex-shrink-0">
+                                <div class="header-badges flex flex-col items-end gap-1 text-xs flex-shrink-0">
                                     <span class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium">S${weekNum}/${totalWeeks}</span>
                                     <span class="px-2 py-0.5 bg-rose-100 text-rose-700 rounded-full font-medium">D${dayNum}/${userDuration}</span>
                                 </div>
@@ -5933,7 +5978,7 @@
                 </header>
 
                 <!-- Progress Dashboard -->
-                <div class="bg-white/80 backdrop-blur-sm border-b">
+                <div class="progress-dashboard bg-white/80 backdrop-blur-sm border-b">
                     <div class="max-w-4xl mx-auto px-4 py-1">
                         <!-- Toggle Button -->
                         <button onclick="toggleDashboard()" class="w-full flex items-center justify-center gap-2 py-1 text-gray-500 hover:text-purple-600 transition">
@@ -5975,7 +6020,7 @@
                                       totalProgress >= 50 ? '✨ ¡Más de la mitad! No te detengas' :
                                       '🌟 ¡Cada día cuenta! Tú puedes'}
                                 </p>
-                                <button onclick="openShareModal()" class="mt-2 px-4 py-2 theme-btn rounded-full text-sm font-medium hover:opacity-90 transition inline-flex items-center gap-2">
+                                <button onclick="openShareModal()" class="share-button mt-2 px-4 py-2 theme-btn rounded-full text-sm font-medium hover:opacity-90 transition inline-flex items-center gap-2">
                                     📤 Compartir mi progreso
                                 </button>
                             </div>
@@ -6054,10 +6099,10 @@
 
             return `
                 <div class="space-y-3">
-                    <div class="theme-gradient rounded-2xl p-5 text-white shadow-lg mb-4">
+                    <div class="agenda-hero theme-gradient rounded-2xl p-5 text-white shadow-lg mb-4">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-4">
-                                <span class="text-5xl">${gym.icon}</span>
+                                <span class="emoji-indicator text-5xl">${gym.icon}</span>
                                 <div>
                                     <p class="font-bold text-xl">${gym.name}</p>
                                     <p class="text-white/80 text-sm">${schedule.length} actividades hoy</p>
@@ -6073,7 +6118,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-4 gap-2 mb-4">
+                    <div class="action-buttons-grid grid grid-cols-4 gap-2 mb-4">
                         <button onclick="openAddModal()" class="flex flex-col items-center justify-center gap-1 px-2 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition text-purple-600 border border-purple-100" title="Agregar Actividad">
                             <span class="text-lg">➕</span>
                             <span class="text-xs">Agregar</span>
@@ -6193,7 +6238,7 @@
                         </p>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-2 mb-4">
+                    <div class="action-buttons-grid grid grid-cols-3 gap-2 mb-4">
                         <button onclick="openAddHabitModal()" class="flex flex-col items-center justify-center gap-1 px-2 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition text-purple-600 border border-purple-100" title="Agregar Hábito">
                             <span class="text-lg">➕</span>
                             <span class="text-xs">Agregar</span>
