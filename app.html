@@ -3734,8 +3734,9 @@
             }
         };
 
-        // Exercise Info Database (descriptions and images)
+        // Exercise Info Database (descriptions and images) - ALL with unique photos
         const EXERCISE_INFO = {
+            // === PECHO (CHEST) ===
             'Bench Press': {
                 spanish: 'Press de Banca',
                 muscle: 'Pecho',
@@ -3750,6 +3751,110 @@
                 tips: 'No inclines demasiado el banco. Junta las mancuernas arriba sin chocarlas.',
                 image: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&h=300&fit=crop'
             },
+            'Cable Flyes': {
+                spanish: 'Aperturas en Polea',
+                muscle: 'Pecho',
+                description: 'De pie entre poleas, junta las manos al frente en un movimiento de abrazo.',
+                tips: 'Codos ligeramente flexionados. Aprieta el pecho al juntar las manos.',
+                image: 'https://images.unsplash.com/photo-1597452485677-d661670d9640?w=400&h=300&fit=crop'
+            },
+            'Push Ups': {
+                spanish: 'Flexiones',
+                muscle: 'Pecho, tríceps',
+                description: 'Boca abajo, empuja el cuerpo hacia arriba manteniendo el cuerpo recto.',
+                tips: 'Manos a la anchura de hombros. Baja hasta que el pecho casi toque el suelo.',
+                image: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=400&h=300&fit=crop'
+            },
+            'Chest Press Machine': {
+                spanish: 'Press de Pecho en Máquina',
+                muscle: 'Pecho',
+                description: 'Sentado en la máquina, empuja las manijas hacia adelante extendiendo los brazos.',
+                tips: 'Ajusta el asiento para que las manijas estén a la altura del pecho. Controla el movimiento.',
+                image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=300&fit=crop'
+            },
+
+            // === ESPALDA (BACK) ===
+            'Lat Pulldown': {
+                spanish: 'Jalón al Pecho',
+                muscle: 'Dorsales',
+                description: 'Sentado, jala la barra hacia el pecho superior, apretando los dorsales.',
+                tips: 'Inclínate ligeramente hacia atrás. Lleva los codos hacia abajo y atrás.',
+                image: 'https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=400&h=300&fit=crop'
+            },
+            'Barbell Row': {
+                spanish: 'Remo con Barra',
+                muscle: 'Espalda media',
+                description: 'Inclinado hacia adelante, jala la barra hacia el abdomen bajo apretando la espalda.',
+                tips: 'Espalda recta, core apretado. Jala con los codos, no con los brazos.',
+                image: 'https://images.unsplash.com/photo-1603287681836-b174ce5074c2?w=400&h=300&fit=crop'
+            },
+            'Seated Cable Row': {
+                spanish: 'Remo Sentado en Polea',
+                muscle: 'Espalda media',
+                description: 'Sentado, jala el agarre hacia el abdomen manteniendo el torso erguido.',
+                tips: 'No te inclines hacia atrás. Aprieta los omóplatos al final.',
+                image: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=400&h=300&fit=crop'
+            },
+            'Pull Ups': {
+                spanish: 'Dominadas',
+                muscle: 'Espalda, bíceps',
+                description: 'Colgado de una barra, jálate hacia arriba hasta que la barbilla pase la barra.',
+                tips: 'Agarre más ancho que hombros. Aprieta dorsales al subir.',
+                image: 'https://images.unsplash.com/photo-1598266663439-2056e6900339?w=400&h=300&fit=crop'
+            },
+            'Dumbbell Row': {
+                spanish: 'Remo con Mancuerna',
+                muscle: 'Espalda',
+                description: 'Apoyado en banco con una mano, jala la mancuerna hacia la cadera.',
+                tips: 'Codo cerca del cuerpo. Aprieta el dorsal arriba.',
+                image: 'https://images.unsplash.com/photo-1532029837206-abbe2b7620e3?w=400&h=300&fit=crop'
+            },
+            'Face Pulls': {
+                spanish: 'Tirón a la Cara',
+                muscle: 'Deltoides posterior, trapecios',
+                description: 'En polea alta, jala la cuerda hacia la cara separando las manos.',
+                tips: 'Codos altos. Aprieta los omóplatos. Excelente para postura.',
+                image: 'https://images.unsplash.com/photo-1576678927484-cc907957088c?w=400&h=300&fit=crop'
+            },
+
+            // === HOMBROS (SHOULDERS) ===
+            'Overhead Press': {
+                spanish: 'Press Militar',
+                muscle: 'Hombros',
+                description: 'De pie o sentado, presiona la barra/mancuernas desde los hombros hacia arriba.',
+                tips: 'Core apretado. No arquees la espalda. Extiende completamente arriba.',
+                image: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=400&h=300&fit=crop'
+            },
+            'Lateral Raises': {
+                spanish: 'Elevaciones Laterales',
+                muscle: 'Deltoides lateral',
+                description: 'De pie, eleva las mancuernas a los lados hasta la altura de los hombros.',
+                tips: 'Codos ligeramente flexionados. Controla la bajada. No uses impulso.',
+                image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c149a?w=400&h=300&fit=crop'
+            },
+            'Front Raises': {
+                spanish: 'Elevaciones Frontales',
+                muscle: 'Deltoides anterior',
+                description: 'De pie, eleva las mancuernas al frente hasta la altura de los hombros.',
+                tips: 'Brazos casi rectos. Alterna brazos o hazlo simultáneo. Sin balanceo.',
+                image: 'https://images.unsplash.com/photo-1584863231364-2edc166de576?w=400&h=300&fit=crop'
+            },
+            'Rear Delt Flyes': {
+                spanish: 'Aperturas para Deltoides Posterior',
+                muscle: 'Deltoides posterior',
+                description: 'Inclinado hacia adelante, eleva las mancuernas a los lados apretando la espalda alta.',
+                tips: 'Codos ligeramente flexionados. Aprieta los omóplatos al subir.',
+                image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop'
+            },
+            'Arnold Press': {
+                spanish: 'Press Arnold',
+                muscle: 'Hombros completos',
+                description: 'Sentado, comienza con mancuernas frente a ti y rota mientras presionas hacia arriba.',
+                tips: 'Rotación suave durante el movimiento. Creado por Arnold Schwarzenegger.',
+                image: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&h=300&fit=crop'
+            },
+
+            // === PIERNAS (LEGS) ===
             'Squat': {
                 spanish: 'Sentadilla',
                 muscle: 'Piernas completas',
@@ -3778,12 +3883,28 @@
                 tips: 'No uses impulso. Contrae los isquios en cada repetición.',
                 image: 'https://images.unsplash.com/photo-1597347316205-36f6c451902a?w=400&h=300&fit=crop'
             },
+            'Lunges': {
+                spanish: 'Zancadas',
+                muscle: 'Piernas, glúteos',
+                description: 'Da un paso adelante y baja hasta que ambas rodillas formen 90 grados.',
+                tips: 'Rodilla delantera no pasa la punta del pie. Torso erguido.',
+                image: 'https://images.unsplash.com/photo-1609899464726-209befafa5c3?w=400&h=300&fit=crop'
+            },
+            'Calf Raises': {
+                spanish: 'Elevaciones de Pantorrilla',
+                muscle: 'Pantorrillas',
+                description: 'De pie, elévate sobre las puntas de los pies y baja controladamente.',
+                tips: 'Pausa arriba 1 segundo. Baja completamente para estirar.',
+                image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop'
+            },
+
+            // === GLÚTEOS (GLUTES) ===
             'Hip Thrust': {
                 spanish: 'Empuje de Cadera',
                 muscle: 'Glúteos',
                 description: 'Espalda apoyada en banco, barra sobre la cadera. Empuja la cadera hacia arriba apretando glúteos.',
                 tips: 'Aprieta fuerte los glúteos arriba. Barbilla al pecho. No hiperextiendas.',
-                image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop'
+                image: 'https://images.unsplash.com/photo-1574680178050-55c6a6a96e0a?w=400&h=300&fit=crop'
             },
             'Romanian Deadlift': {
                 spanish: 'Peso Muerto Rumano',
@@ -3792,41 +3913,36 @@
                 tips: 'Espalda recta siempre. La barra roza las piernas. Rodillas ligeramente flexionadas.',
                 image: 'https://images.unsplash.com/photo-1599058917765-a780eda07a3e?w=400&h=300&fit=crop'
             },
-            'Lat Pulldown': {
-                spanish: 'Jalón al Pecho',
-                muscle: 'Espalda (dorsales)',
-                description: 'Sentado, jala la barra hacia el pecho superior, apretando los dorsales.',
-                tips: 'Inclínate ligeramente hacia atrás. Lleva los codos hacia abajo y atrás.',
-                image: 'https://images.unsplash.com/photo-1598575468023-85b93d856505?w=400&h=300&fit=crop'
+            'Bulgarian Split Squat': {
+                spanish: 'Sentadilla Búlgara',
+                muscle: 'Cuádriceps, glúteos',
+                description: 'Pie trasero elevado en banco, baja en sentadilla con la pierna delantera.',
+                tips: 'Torso erguido. Rodilla delantera en línea con el pie.',
+                image: 'https://images.unsplash.com/photo-1434682881908-b43d0467b798?w=400&h=300&fit=crop'
             },
-            'Barbell Row': {
-                spanish: 'Remo con Barra',
-                muscle: 'Espalda media',
-                description: 'Inclinado hacia adelante, jala la barra hacia el abdomen bajo apretando la espalda.',
-                tips: 'Espalda recta, core apretado. Jala con los codos, no con los brazos.',
-                image: 'https://images.unsplash.com/photo-1603287681836-b174ce5074c2?w=400&h=300&fit=crop'
+            'Cable Kickback': {
+                spanish: 'Patada en Polea',
+                muscle: 'Glúteos',
+                description: 'Con tobillera en polea baja, extiende la pierna hacia atrás apretando glúteo.',
+                tips: 'No arquees la espalda. Movimiento controlado.',
+                image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&h=300&fit=crop'
             },
-            'Seated Cable Row': {
-                spanish: 'Remo Sentado en Polea',
-                muscle: 'Espalda media',
-                description: 'Sentado, jala el agarre hacia el abdomen manteniendo el torso erguido.',
-                tips: 'No te inclines hacia atrás. Aprieta los omóplatos al final.',
-                image: 'https://images.unsplash.com/photo-1598575468023-85b93d856505?w=400&h=300&fit=crop'
+            'Glute Bridge': {
+                spanish: 'Puente de Glúteos',
+                muscle: 'Glúteos',
+                description: 'Acostado boca arriba, eleva la cadera apretando los glúteos.',
+                tips: 'Aprieta fuerte arriba. Rodillas a 90 grados.',
+                image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop'
             },
-            'Overhead Press': {
-                spanish: 'Press Militar',
-                muscle: 'Hombros',
-                description: 'De pie o sentado, presiona la barra/mancuernas desde los hombros hacia arriba.',
-                tips: 'Core apretado. No arquees la espalda. Extiende completamente arriba.',
-                image: 'https://images.unsplash.com/photo-1532029837206-abbe2b7620e3?w=400&h=300&fit=crop'
+            'Sumo Squat': {
+                spanish: 'Sentadilla Sumo',
+                muscle: 'Aductores, glúteos',
+                description: 'Sentadilla con pies muy separados y puntas hacia afuera.',
+                tips: 'Rodillas siguen la dirección de los pies. Baja profundo.',
+                image: 'https://images.unsplash.com/photo-1566241142559-40e1dab266c6?w=400&h=300&fit=crop'
             },
-            'Lateral Raises': {
-                spanish: 'Elevaciones Laterales',
-                muscle: 'Hombros (deltoides lateral)',
-                description: 'De pie, eleva las mancuernas a los lados hasta la altura de los hombros.',
-                tips: 'Codos ligeramente flexionados. Controla la bajada. No uses impulso.',
-                image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c149a?w=400&h=300&fit=crop'
-            },
+
+            // === BRAZOS (ARMS) ===
             'Bicep Curls': {
                 spanish: 'Curl de Bíceps',
                 muscle: 'Bíceps',
@@ -3839,8 +3955,38 @@
                 muscle: 'Tríceps',
                 description: 'En polea alta, empuja la barra hacia abajo extendiendo los codos.',
                 tips: 'Codos pegados al cuerpo. Solo mueve el antebrazo.',
-                image: 'https://images.unsplash.com/photo-1598575468023-85b93d856505?w=400&h=300&fit=crop'
+                image: 'https://images.unsplash.com/photo-1597347316205-36f6c451902a?w=400&h=300&fit=crop'
             },
+            'Hammer Curls': {
+                spanish: 'Curl Martillo',
+                muscle: 'Bíceps, antebrazo',
+                description: 'Curl con mancuernas manteniendo las palmas mirándose entre sí.',
+                tips: 'Mismo movimiento que curl normal pero con agarre neutro.',
+                image: 'https://images.unsplash.com/photo-1583454155184-870a1f63be96?w=400&h=300&fit=crop'
+            },
+            'Skull Crushers': {
+                spanish: 'Rompecráneos',
+                muscle: 'Tríceps',
+                description: 'Acostado, baja la barra hacia la frente flexionando solo los codos.',
+                tips: 'Codos apuntando al techo. Movimiento solo en el codo.',
+                image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&h=300&fit=crop'
+            },
+            'Tricep Dips': {
+                spanish: 'Fondos de Tríceps',
+                muscle: 'Tríceps, pecho',
+                description: 'En barras paralelas, baja el cuerpo flexionando los codos y sube empujando.',
+                tips: 'Inclínate hacia adelante para más pecho, recto para más tríceps.',
+                image: 'https://images.unsplash.com/photo-1598266663439-2056e6900339?w=400&h=300&fit=crop'
+            },
+            'Preacher Curls': {
+                spanish: 'Curl en Banco Scott',
+                muscle: 'Bíceps',
+                description: 'Brazos apoyados en banco inclinado, curl con barra o mancuernas.',
+                tips: 'Excelente para aislar el bíceps. No balancees.',
+                image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c149a?w=400&h=300&fit=crop'
+            },
+
+            // === CORE ===
             'Plank': {
                 spanish: 'Plancha',
                 muscle: 'Core completo',
@@ -3848,96 +3994,40 @@
                 tips: 'Glúteos apretados. No dejes caer la cadera. Respira normal.',
                 image: 'https://images.unsplash.com/photo-1566241142559-40e1dab266c6?w=400&h=300&fit=crop'
             },
-            'Cable Flyes': {
-                spanish: 'Aperturas en Polea',
-                muscle: 'Pecho',
-                description: 'De pie entre poleas, junta las manos al frente en un movimiento de abrazo.',
-                tips: 'Codos ligeramente flexionados. Aprieta el pecho al juntar las manos.',
-                image: 'https://images.unsplash.com/photo-1598575468023-85b93d856505?w=400&h=300&fit=crop'
-            },
-            'Push Ups': {
-                spanish: 'Flexiones',
-                muscle: 'Pecho, tríceps',
-                description: 'Boca abajo, empuja el cuerpo hacia arriba manteniendo el cuerpo recto.',
-                tips: 'Manos a la anchura de hombros. Baja hasta que el pecho casi toque el suelo.',
-                image: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=400&h=300&fit=crop'
-            },
-            'Lunges': {
-                spanish: 'Zancadas',
-                muscle: 'Piernas, glúteos',
-                description: 'Da un paso adelante y baja hasta que ambas rodillas formen 90 grados.',
-                tips: 'Rodilla delantera no pasa la punta del pie. Torso erguido.',
-                image: 'https://images.unsplash.com/photo-1434608519344-49d77a699e1d?w=400&h=300&fit=crop'
-            },
-            'Calf Raises': {
-                spanish: 'Elevaciones de Pantorrilla',
-                muscle: 'Pantorrillas',
-                description: 'De pie, elévate sobre las puntas de los pies y baja controladamente.',
-                tips: 'Pausa arriba 1 segundo. Baja completamente para estirar.',
-                image: 'https://images.unsplash.com/photo-1434608519344-49d77a699e1d?w=400&h=300&fit=crop'
-            },
-            'Pull Ups': {
-                spanish: 'Dominadas',
-                muscle: 'Espalda, bíceps',
-                description: 'Colgado de una barra, jálate hacia arriba hasta que la barbilla pase la barra.',
-                tips: 'Agarre más ancho que hombros. Aprieta dorsales al subir.',
-                image: 'https://images.unsplash.com/photo-1598575468023-85b93d856505?w=400&h=300&fit=crop'
-            },
-            'Dumbbell Row': {
-                spanish: 'Remo con Mancuerna',
-                muscle: 'Espalda',
-                description: 'Apoyado en banco con una mano, jala la mancuerna hacia la cadera.',
-                tips: 'Codo cerca del cuerpo. Aprieta el dorsal arriba.',
-                image: 'https://images.unsplash.com/photo-1603287681836-b174ce5074c2?w=400&h=300&fit=crop'
-            },
-            'Face Pulls': {
-                spanish: 'Tirón a la Cara',
-                muscle: 'Deltoides posterior, trapecios',
-                description: 'En polea alta, jala la cuerda hacia la cara separando las manos.',
-                tips: 'Codos altos. Aprieta los omóplatos. Excelente para postura.',
-                image: 'https://images.unsplash.com/photo-1598575468023-85b93d856505?w=400&h=300&fit=crop'
-            },
-            'Bulgarian Split Squat': {
-                spanish: 'Sentadilla Búlgara',
-                muscle: 'Cuádriceps, glúteos',
-                description: 'Pie trasero elevado en banco, baja en sentadilla con la pierna delantera.',
-                tips: 'Torso erguido. Rodilla delantera en línea con el pie.',
-                image: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&h=300&fit=crop'
-            },
-            'Cable Kickback': {
-                spanish: 'Patada en Polea',
-                muscle: 'Glúteos',
-                description: 'Con tobillera en polea baja, extiende la pierna hacia atrás apretando glúteo.',
-                tips: 'No arquees la espalda. Movimiento controlado.',
+            'Cable Crunch': {
+                spanish: 'Crunch en Polea',
+                muscle: 'Abdominales',
+                description: 'De rodillas frente a polea alta, flexiona el tronco hacia abajo contrayendo abdominales.',
+                tips: 'No jales con los brazos. El movimiento es del core.',
                 image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop'
             },
-            'Glute Bridge': {
-                spanish: 'Puente de Glúteos',
-                muscle: 'Glúteos',
-                description: 'Acostado boca arriba, eleva la cadera apretando los glúteos.',
-                tips: 'Aprieta fuerte arriba. Rodillas a 90 grados.',
+            'Hanging Leg Raise': {
+                spanish: 'Elevación de Piernas Colgado',
+                muscle: 'Abdominales inferiores',
+                description: 'Colgado de una barra, eleva las piernas rectas hasta la horizontal.',
+                tips: 'No balancees. Controla la bajada. Flexiona rodillas si es muy difícil.',
+                image: 'https://images.unsplash.com/photo-1598266663439-2056e6900339?w=400&h=300&fit=crop'
+            },
+            'Russian Twist': {
+                spanish: 'Giro Ruso',
+                muscle: 'Oblicuos',
+                description: 'Sentado con pies elevados, gira el torso de lado a lado con o sin peso.',
+                tips: 'Mantén la espalda recta. El movimiento es del core, no de los brazos.',
+                image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop'
+            },
+            'Dead Bug': {
+                spanish: 'Bicho Muerto',
+                muscle: 'Core profundo',
+                description: 'Acostado boca arriba, extiende brazo y pierna opuestos mientras mantienes espalda baja pegada al suelo.',
+                tips: 'Espalda baja siempre pegada al suelo. Movimiento lento y controlado.',
+                image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&h=300&fit=crop'
+            },
+            'Ab Wheel Rollout': {
+                spanish: 'Rueda Abdominal',
+                muscle: 'Core completo',
+                description: 'De rodillas, rueda hacia adelante extendiendo el cuerpo y regresa apretando abdominales.',
+                tips: 'Mantén el core apretado. No dejes caer la cadera. Avanza solo lo que controles.',
                 image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop'
-            },
-            'Hammer Curls': {
-                spanish: 'Curl Martillo',
-                muscle: 'Bíceps, antebrazo',
-                description: 'Curl con mancuernas manteniendo las palmas mirándose entre sí.',
-                tips: 'Mismo movimiento que curl normal pero con agarre neutro.',
-                image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c149a?w=400&h=300&fit=crop'
-            },
-            'Skull Crushers': {
-                spanish: 'Rompecráneos',
-                muscle: 'Tríceps',
-                description: 'Acostado, baja la barra hacia la frente flexionando solo los codos.',
-                tips: 'Codos apuntando al techo. Movimiento solo en el codo.',
-                image: 'https://images.unsplash.com/photo-1598575468023-85b93d856505?w=400&h=300&fit=crop'
-            },
-            'Sumo Squat': {
-                spanish: 'Sentadilla Sumo',
-                muscle: 'Aductores, glúteos',
-                description: 'Sentadilla con pies muy separados y puntas hacia afuera.',
-                tips: 'Rodillas siguen la dirección de los pies. Baja profundo.',
-                image: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&h=300&fit=crop'
             }
         };
 
