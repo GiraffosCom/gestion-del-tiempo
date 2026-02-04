@@ -4161,32 +4161,40 @@
             }
 
             // 3. Crear horarios personalizados para los próximos 60 días
-            const today = new Date();
-            for (let i = 0; i < 60; i++) {
-                const date = new Date(today);
-                date.setDate(today.getDate() + i);
-                const dateKey = date.toISOString().split('T')[0];
+            try {
+                const today = new Date();
+                for (let i = 0; i < 60; i++) {
+                    const date = new Date(today);
+                    date.setDate(today.getDate() + i);
+                    const dateKey = date.toISOString().split('T')[0];
 
-                // Si ya existe, ya fue actualizado arriba
-                if (customSchedules[dateKey]) continue;
+                    // Si ya existe, ya fue actualizado arriba
+                    if (customSchedules[dateKey]) continue;
 
-                // Obtener el horario por defecto para este día
-                const defaultSchedule = getDefaultSchedule(date.getDay());
-                let hasMatch = false;
+                    // Obtener el horario por defecto para este día
+                    const defaultSchedule = getDefaultSchedule(date.getDay());
 
-                const updatedSchedule = defaultSchedule.map(item => {
-                    if (item.activity === originalName) {
-                        hasMatch = true;
-                        return { ...newItem };
+                    // Validar que existe y es un array
+                    if (!defaultSchedule || !Array.isArray(defaultSchedule)) continue;
+
+                    let hasMatch = false;
+
+                    const updatedSchedule = defaultSchedule.map(item => {
+                        if (item && item.activity === originalName) {
+                            hasMatch = true;
+                            return { ...newItem };
+                        }
+                        return item ? { ...item } : item;
+                    }).filter(Boolean);
+
+                    // Solo guardar si había coincidencia
+                    if (hasMatch && updatedSchedule.length > 0) {
+                        updatedSchedule.sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+                        saveCustomSchedule(dateKey, updatedSchedule);
                     }
-                    return { ...item };
-                });
-
-                // Solo guardar si había coincidencia
-                if (hasMatch) {
-                    updatedSchedule.sort((a, b) => a.time.localeCompare(b.time));
-                    saveCustomSchedule(dateKey, updatedSchedule);
                 }
+            } catch (error) {
+                console.error('Error al aplicar cambios a todos los días:', error);
             }
 
             render();
