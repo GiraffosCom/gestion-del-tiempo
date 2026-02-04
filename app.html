@@ -7753,13 +7753,14 @@
                                 <span>📋</span> Ejercicios sugeridos
                             </h4>
                             <div class="space-y-2">
-                                ${gym.exercises.map((ex, i) => `
-                                    <button onclick="addExerciseToWorkout('${ex.split(' ')[0].replace(/'/g, "\\'")}')" class="w-full flex items-center gap-3 p-3 bg-gray-50 hover:bg-purple-50 rounded-xl transition text-left group">
-                                        <span class="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-bold text-sm">${i + 1}</span>
-                                        <span class="flex-1 text-gray-700">${ex}</span>
-                                        <span class="text-purple-500 opacity-0 group-hover:opacity-100 transition">+ Agregar</span>
-                                    </button>
-                                `).join('')}
+                                ${gym.exercises.map(function(ex, i) {
+                                    var exName = ex.split(' ')[0].replace(/'/g, '');
+                                    return '<button onclick="addExerciseToWorkout(\'' + exName + '\')" class="w-full flex items-center gap-3 p-3 bg-gray-50 hover:bg-purple-50 rounded-xl transition text-left group">' +
+                                        '<span class="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-bold text-sm">' + (i + 1) + '</span>' +
+                                        '<span class="flex-1 text-gray-700">' + ex + '</span>' +
+                                        '<span class="text-purple-500 opacity-0 group-hover:opacity-100 transition">+ Agregar</span>' +
+                                    '</button>';
+                                }).join('')}
                             </div>
                         </div>
                     ` : ''}
@@ -7803,7 +7804,7 @@
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
-                                <button onclick="event.stopPropagation(); openExerciseInfoModal('${exercise.name.replace(/'/g, "\\'")}')" class="w-8 h-8 bg-gray-100 text-gray-500 rounded-full flex items-center justify-center hover:bg-gray-200 transition text-sm">
+                                <button onclick="event.stopPropagation(); openExerciseInfoModal(this.dataset.name)" data-name="${exercise.name}" class="w-8 h-8 bg-gray-100 text-gray-500 rounded-full flex items-center justify-center hover:bg-gray-200 transition text-sm">
                                     i
                                 </button>
                                 <button onclick="event.stopPropagation(); removeExerciseFromWorkout(${exIdx})" class="w-8 h-8 text-gray-400 hover:text-red-500 rounded-full flex items-center justify-center transition">
@@ -8467,7 +8468,7 @@
                                                 <div>
                                                     <div class="flex items-center gap-2">
                                                         <h4 class="font-bold text-gray-800">${exercise.name}</h4>
-                                                        <button onclick="openExerciseInfoModal('${exercise.name.replace(/'/g, "\\'")}')" class="w-5 h-5 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center hover:bg-purple-200 transition" title="Ver información">
+                                                        <button onclick="openExerciseInfoModal(this.dataset.name)" data-name="${exercise.name}" class="w-5 h-5 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center hover:bg-purple-200 transition" title="Ver información">
                                                             <span class="text-xs font-bold">i</span>
                                                         </button>
                                                     </div>
