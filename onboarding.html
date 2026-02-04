@@ -601,6 +601,7 @@
                 users[currentUser.email].goal = userPreferences.goal;
                 users[currentUser.email].duration = userPreferences.duration;
                 users[currentUser.email].preferences = userPreferences;
+                users[currentUser.email].needsActivitySetup = true; // Flag for activity setup wizard
                 localStorage.setItem('gestion-users', JSON.stringify(users));
             }
 
@@ -609,6 +610,7 @@
             currentUser.duration = userPreferences.duration;
             currentUser.preferences = userPreferences;
             currentUser.onboardingCompleted = true;
+            currentUser.needsActivitySetup = true; // Flag for activity setup wizard
             delete currentUser.needsOnboarding; // Remove flag after completing onboarding
             localStorage.setItem('gestion-currentUser', JSON.stringify(currentUser));
 
@@ -636,8 +638,8 @@
             };
             localStorage.setItem(`${userKey}-user-profile`, JSON.stringify(userProfile));
 
-            // Redirect to app
-            window.location.href = 'app.html';
+            // Redirect to activity setup wizard
+            window.location.href = 'activity-setup.html';
         }
 
         function generateHabits(prefs) {

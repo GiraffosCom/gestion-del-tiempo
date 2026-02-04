@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configura tus Actividades - Gestión del Tiempo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Poppins', sans-serif; }
+        .gradient-text { background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .gradient-bg { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+        .activity-card { transition: all 0.3s ease; }
+        .activity-card:hover { transform: translateY(-2px); }
+        .activity-card.selected { border-color: #8b5cf6; background: linear-gradient(135deg, #ede9fe, #fae8ff); }
+        .activity-card.selected .check-icon { display: flex; }
+        .check-icon { display: none; }
+        .step-dot.active { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+        .step-dot.completed { background: #22c55e; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .category-fisica { border-left: 4px solid #ef4444; }
+        .category-personal { border-left: 4px solid #3b82f6; }
+        .category-digital { border-left: 4px solid #8b5cf6; }
+        .category-espiritual { border-left: 4px solid #10b981; }
+        .category-habitos { border-left: 4px solid #f59e0b; }
+        .category-trabajo { border-left: 4px solid #6366f1; }
+        .category-ocio { border-left: 4px solid #ec4899; }
+        .category-badge-fisica { background: #fef2f2; color: #dc2626; }
+        .category-badge-personal { background: #eff6ff; color: #2563eb; }
+        .category-badge-digital { background: #f5f3ff; color: #7c3aed; }
+        .category-badge-espiritual { background: #ecfdf5; color: #059669; }
+        .category-badge-habitos { background: #fffbeb; color: #d97706; }
+        .category-badge-trabajo { background: #eef2ff; color: #4f46e5; }
+        .category-badge-ocio { background: #fdf2f8; color: #db2777; }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+
+    <!-- Progress Header -->
+    <header class="bg-white/80 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-3xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">📅</span>
+                    <span class="font-bold gradient-text">Configura tu Agenda</span>
+                </div>
+                <span id="stepIndicator" class="text-sm text-gray-500">Paso 1 de 3</span>
+            </div>
+            <!-- Progress bar -->
+            <div class="flex gap-2">
+                <div id="dot1" class="step-dot w-full h-2 rounded-full bg-gray-200 active"></div>
+                <div id="dot2" class="step-dot w-full h-2 rounded-full bg-gray-200"></div>
+                <div id="dot3" class="step-dot w-full h-2 rounded-full bg-gray-200"></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-4 py-8">
+        <!-- Step 1: Weekday Activities -->
+        <div id="step1" class="step-content fade-in">
+            <div class="text-center mb-6">
+                <span class="text-5xl mb-3 block">📋</span>
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">Actividades Entre Semana</h1>
+                <p class="text-gray-600">Selecciona las actividades que quieres incluir en tu rutina de lunes a viernes</p>
+            </div>
+
+            <div class="flex gap-2 mb-4">
+                <button onclick="selectAllActivities('weekday')" class="px-4 py-2 bg-purple-100 text-purple-600 rounded-xl text-sm font-medium hover:bg-purple-200 transition">
+                    Seleccionar todo
+                </button>
+                <button onclick="deselectAllActivities('weekday')" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-sm font-medium hover:bg-gray-200 transition">
+                    Deseleccionar todo
+                </button>
+            </div>
+
+            <div id="weekdayActivities" class="space-y-3">
+                <!-- Activities will be rendered here -->
+            </div>
+        </div>
+
+        <!-- Step 2: Weekend Activities -->
+        <div id="step2" class="step-content hidden fade-in">
+            <div class="text-center mb-6">
+                <span class="text-5xl mb-3 block">🌴</span>
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">Actividades Fin de Semana</h1>
+                <p class="text-gray-600">El fin de semana tiene horarios más relajados. Selecciona las actividades que quieres incluir</p>
+            </div>
+
+            <div class="flex gap-2 mb-4">
+                <button onclick="selectAllActivities('weekend')" class="px-4 py-2 bg-purple-100 text-purple-600 rounded-xl text-sm font-medium hover:bg-purple-200 transition">
+                    Seleccionar todo
+                </button>
+                <button onclick="deselectAllActivities('weekend')" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-sm font-medium hover:bg-gray-200 transition">
+                    Deseleccionar todo
+                </button>
+            </div>
+
+            <div id="weekendActivities" class="space-y-3">
+                <!-- Activities will be rendered here -->
+            </div>
+        </div>
+
+        <!-- Step 3: Confirmation -->
+        <div id="step3" class="step-content hidden fade-in">
+            <div class="text-center mb-6">
+                <span class="text-5xl mb-3 block">✅</span>
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">Confirma tu Plan</h1>
+                <p class="text-gray-600">Revisa las actividades seleccionadas antes de comenzar</p>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Weekday Summary -->
+                <div class="bg-white rounded-2xl p-5 border border-gray-200">
+                    <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        <span>📅</span> Entre Semana
+                        <span id="weekdayCount" class="text-sm font-normal text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full">0 actividades</span>
+                    </h3>
+                    <div id="weekdaySummary" class="space-y-2 max-h-60 overflow-y-auto">
+                        <!-- Summary will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Weekend Summary -->
+                <div class="bg-white rounded-2xl p-5 border border-gray-200">
+                    <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        <span>🌴</span> Fin de Semana
+                        <span id="weekendCount" class="text-sm font-normal text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full">0 actividades</span>
+                    </h3>
+                    <div id="weekendSummary" class="space-y-2 max-h-60 overflow-y-auto">
+                        <!-- Summary will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Add Manual Activity -->
+                <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-5 border border-purple-200">
+                    <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        <span>➕</span> Agregar Actividad Manual
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="time" id="manualTime" class="px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none" value="09:00">
+                        <input type="text" id="manualActivity" placeholder="Nombre de la actividad" class="px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none">
+                        <select id="manualDuration" class="px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none">
+                            <option value="15">15 min</option>
+                            <option value="30" selected>30 min</option>
+                            <option value="45">45 min</option>
+                            <option value="60">1 hora</option>
+                            <option value="90">1.5 horas</option>
+                            <option value="120">2 horas</option>
+                        </select>
+                        <select id="manualCategory" class="px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none">
+                            <option value="personal">Personal</option>
+                            <option value="trabajo">Trabajo</option>
+                            <option value="espiritual">Espiritual</option>
+                            <option value="fisica">Ejercicio</option>
+                            <option value="habitos">Hábitos</option>
+                            <option value="ocio">Ocio</option>
+                        </select>
+                    </div>
+                    <div class="flex gap-2 mt-3">
+                        <button onclick="addManualActivity('weekday')" class="flex-1 py-2 bg-blue-500 text-white rounded-xl font-medium hover:bg-blue-600 transition text-sm">
+                            + Entre semana
+                        </button>
+                        <button onclick="addManualActivity('weekend')" class="flex-1 py-2 bg-purple-500 text-white rounded-xl font-medium hover:bg-purple-600 transition text-sm">
+                            + Fin de semana
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between mt-8">
+            <button id="prevBtn" onclick="prevStep()" class="px-6 py-3 bg-gray-100 text-gray-600 rounded-xl font-medium hover:bg-gray-200 transition hidden">
+                ← Anterior
+            </button>
+            <button id="skipBtn" onclick="skipSetup()" class="px-6 py-3 bg-gray-100 text-gray-500 rounded-xl font-medium hover:bg-gray-200 transition">
+                Omitir
+            </button>
+            <button id="nextBtn" onclick="nextStep()" class="px-8 py-3 gradient-bg text-white rounded-xl font-semibold hover:opacity-90 transition shadow-lg shadow-purple-200 ml-auto">
+                Siguiente →
+            </button>
+            <button id="finishBtn" onclick="finishActivitySetup()" class="px-8 py-3 gradient-bg text-white rounded-xl font-semibold hover:opacity-90 transition shadow-lg shadow-purple-200 ml-auto hidden">
+                ✨ Comenzar mi plan
+            </button>
+        </div>
+    </main>
+
+    <script>
+        // Check if user is logged in
+        const currentUser = JSON.parse(localStorage.getItem('gestion-currentUser'));
+        if (!currentUser) {
+            window.location.href = 'login.html';
+        }
+
+        // Get user preferences from onboarding
+        const userKey = currentUser.email.replace(/[^a-z0-9]/gi, '_');
+        const userProfile = JSON.parse(localStorage.getItem(userKey + '-user-profile') || '{}');
+        const userPreferences = currentUser.preferences || {};
+
+        let currentStep = 1;
+        const totalSteps = 3;
+
+        // Activity data structure
+        let weekdayActivities = [];
+        let weekendActivities = [];
+
+        // Habit to activity mapping
+        const habitActivityMapping = {
+            meditation: { name: 'Meditación guiada', duration: 20, category: 'espiritual', icon: '🧘' },
+            reading: { name: 'Tiempo de lectura', duration: 30, category: 'personal', icon: '📖' },
+            journaling: { name: 'Journaling', duration: 15, category: 'espiritual', icon: '📝' },
+            languages: { name: 'Práctica de idiomas', duration: 30, category: 'personal', icon: '🌍' },
+            water: { name: 'Recordatorio hidratación', duration: 5, category: 'habitos', icon: '💧' },
+            skincare: { name: 'Rutina skincare', duration: 15, category: 'habitos', icon: '🧴' },
+            gratitude: { name: 'Momento de gratitud', duration: 10, category: 'espiritual', icon: '🙏' },
+            socialmedia: { name: 'Creación contenido RRSS', duration: 60, category: 'digital', icon: '📱' },
+            networking: { name: 'Networking', duration: 30, category: 'personal', icon: '🤝' },
+            finances: { name: 'Revisión finanzas', duration: 15, category: 'personal', icon: '💰' }
+        };
+
+        // Exercise to activity mapping
+        const exerciseActivityMapping = {
+            gym: { name: 'Entrenamiento gimnasio', duration: 90, category: 'fisica', icon: '🏋️' },
+            cardio: { name: 'Sesión de cardio', duration: 45, category: 'fisica', icon: '🏃' },
+            yoga: { name: 'Práctica de yoga', duration: 60, category: 'fisica', icon: '🧘' },
+            dance: { name: 'Clase de baile', duration: 60, category: 'fisica', icon: '💃' },
+            sports: { name: 'Práctica deportiva', duration: 90, category: 'fisica', icon: '⚽' }
+        };
+
+        // Generate suggested activities based on preferences
+        function generateSuggestedActivities() {
+            const wakeUp = userProfile.wakeUp || userPreferences.wakeUp || '07:00';
+            const sleepTime = userProfile.sleep || userPreferences.sleep || '22:00';
+            const habits = userPreferences.habits || [];
+            const exercises = userPreferences.exercise || [];
+
+            // Parse times
+            const wakeHour = parseInt(wakeUp.split(':')[0]);
+            const sleepHour = parseInt(sleepTime.split(':')[0]) || 22;
+
+            // Base activities for weekdays
+            const baseWeekdayActivities = [
+                { id: 'wake', time: wakeUp, name: 'Despertar y rutina matutina', duration: 30, category: 'habitos', icon: '☀️', selected: true },
+                { id: 'breakfast', time: formatTime(wakeHour, 30), name: 'Desayuno saludable', duration: 30, category: 'habitos', icon: '🍳', selected: true },
+                { id: 'work1', time: formatTime(wakeHour + 2, 0), name: 'Bloque de trabajo/estudio', duration: 180, category: 'trabajo', icon: '💼', selected: true },
+                { id: 'lunch', time: '13:00', name: 'Almuerzo', duration: 60, category: 'habitos', icon: '🍽️', selected: true },
+                { id: 'work2', time: '14:00', name: 'Bloque de trabajo/estudio', duration: 180, category: 'trabajo', icon: '💻', selected: true },
+                { id: 'dinner', time: formatTime(sleepHour - 3, 0), name: 'Cena', duration: 45, category: 'habitos', icon: '🍽️', selected: true },
+                { id: 'sleep', time: sleepTime, name: 'Prepararse para dormir', duration: 30, category: 'habitos', icon: '😴', selected: true }
+            ];
+
+            // Add habit-based activities
+            let activityId = 100;
+            habits.forEach(function(habit) {
+                if (habitActivityMapping[habit]) {
+                    const mapping = habitActivityMapping[habit];
+                    let time;
+
+                    // Schedule activities at appropriate times
+                    if (['meditation', 'gratitude', 'journaling'].indexOf(habit) !== -1) {
+                        time = formatTime(wakeHour + 1, 0);
+                    } else if (['reading', 'languages'].indexOf(habit) !== -1) {
+                        time = formatTime(sleepHour - 2, 0);
+                    } else if (habit === 'skincare') {
+                        time = formatTime(wakeHour, 45);
+                    } else if (['socialmedia', 'networking'].indexOf(habit) !== -1) {
+                        time = formatTime(wakeHour + 5, 0);
+                    } else if (habit === 'finances') {
+                        time = formatTime(sleepHour - 1, 30);
+                    } else {
+                        time = formatTime(wakeHour + 3, 0);
+                    }
+
+                    baseWeekdayActivities.push({
+                        id: 'habit_' + habit + '_' + activityId++,
+                        time: time,
+                        name: mapping.name,
+                        duration: mapping.duration,
+                        category: mapping.category,
+                        icon: mapping.icon,
+                        selected: true
+                    });
+                }
+            });
+
+            // Add exercise activities
+            exercises.forEach(function(exercise) {
+                if (exercise !== 'none' && exerciseActivityMapping[exercise]) {
+                    const mapping = exerciseActivityMapping[exercise];
+                    baseWeekdayActivities.push({
+                        id: 'exercise_' + exercise + '_' + activityId++,
+                        time: formatTime(wakeHour + 1, 30),
+                        name: mapping.name,
+                        duration: mapping.duration,
+                        category: mapping.category,
+                        icon: mapping.icon,
+                        selected: true
+                    });
+                }
+            });
+
+            // Sort by time
+            baseWeekdayActivities.sort(function(a, b) { return a.time.localeCompare(b.time); });
+            weekdayActivities = baseWeekdayActivities;
+
+            // Weekend activities (1 hour later wake up, more relaxed)
+            const weekendWakeHour = wakeHour + 1;
+            const baseWeekendActivities = [
+                { id: 'wake_w', time: formatTime(weekendWakeHour, 0), name: 'Despertar tranquilo', duration: 45, category: 'habitos', icon: '☀️', selected: true },
+                { id: 'breakfast_w', time: formatTime(weekendWakeHour, 45), name: 'Desayuno con calma', duration: 45, category: 'habitos', icon: '🥐', selected: true },
+                { id: 'family', time: formatTime(weekendWakeHour + 2, 0), name: 'Tiempo en familia/amigos', duration: 120, category: 'ocio', icon: '👨‍👩‍👧', selected: true },
+                { id: 'lunch_w', time: '14:00', name: 'Almuerzo', duration: 60, category: 'habitos', icon: '🍽️', selected: true },
+                { id: 'hobby', time: '16:00', name: 'Hobby o actividad de ocio', duration: 120, category: 'ocio', icon: '🎨', selected: true },
+                { id: 'dinner_w', time: formatTime(sleepHour - 2, 0), name: 'Cena', duration: 60, category: 'habitos', icon: '🍽️', selected: true },
+                { id: 'relax', time: formatTime(sleepHour - 1, 0), name: 'Tiempo de relax', duration: 60, category: 'ocio', icon: '📺', selected: true },
+                { id: 'sleep_w', time: formatTime(sleepHour + 1, 0), name: 'Prepararse para dormir', duration: 30, category: 'habitos', icon: '😴', selected: true }
+            ];
+
+            // Add some habit activities on weekends too (lighter schedule)
+            const weekendHabits = habits.filter(function(h) {
+                return ['meditation', 'reading', 'gratitude', 'skincare'].indexOf(h) !== -1;
+            });
+            weekendHabits.forEach(function(habit) {
+                if (habitActivityMapping[habit]) {
+                    const mapping = habitActivityMapping[habit];
+                    baseWeekendActivities.push({
+                        id: 'habit_w_' + habit + '_' + activityId++,
+                        time: formatTime(weekendWakeHour + 1, 30),
+                        name: mapping.name,
+                        duration: mapping.duration,
+                        category: mapping.category,
+                        icon: mapping.icon,
+                        selected: true
+                    });
+                }
+            });
+
+            // Add exercise on weekends (if any)
+            if (exercises.length > 0 && exercises.indexOf('none') === -1) {
+                const exercise = exercises[0];
+                if (exerciseActivityMapping[exercise]) {
+                    const mapping = exerciseActivityMapping[exercise];
+                    baseWeekendActivities.push({
+                        id: 'exercise_w_' + exercise + '_' + activityId++,
+                        time: formatTime(weekendWakeHour + 2, 0),
+                        name: mapping.name + ' (fin de semana)',
+                        duration: mapping.duration,
+                        category: mapping.category,
+                        icon: mapping.icon,
+                        selected: true
+                    });
+                }
+            }
+
+            // Sort by time
+            baseWeekendActivities.sort(function(a, b) { return a.time.localeCompare(b.time); });
+            weekendActivities = baseWeekendActivities;
+        }
+
+        function formatTime(hour, minutes) {
+            const h = Math.min(23, Math.max(0, hour));
+            const m = Math.min(59, Math.max(0, minutes));
+            return h.toString().padStart(2, '0') + ':' + m.toString().padStart(2, '0');
+        }
+
+        function formatDuration(minutes) {
+            if (minutes < 60) return minutes + ' min';
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return mins > 0 ? hours + 'h ' + mins + 'm' : hours + 'h';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function toggleActivity(type, id) {
+            const activities = type === 'weekday' ? weekdayActivities : weekendActivities;
+            const activity = activities.find(function(a) { return a.id === id; });
+            if (activity) {
+                activity.selected = !activity.selected;
+                renderActivities(type);
+            }
+        }
+
+        function selectAllActivities(type) {
+            const activities = type === 'weekday' ? weekdayActivities : weekendActivities;
+            activities.forEach(function(a) { a.selected = true; });
+            renderActivities(type);
+        }
+
+        function deselectAllActivities(type) {
+            const activities = type === 'weekday' ? weekdayActivities : weekendActivities;
+            activities.forEach(function(a) { a.selected = false; });
+            renderActivities(type);
+        }
+
+        function renderActivities(type) {
+            const activities = type === 'weekday' ? weekdayActivities : weekendActivities;
+            const container = document.getElementById(type === 'weekday' ? 'weekdayActivities' : 'weekendActivities');
+
+            // Clear container
+            while (container.firstChild) {
+                container.removeChild(container.firstChild);
+            }
+
+            activities.forEach(function(activity) {
+                const card = document.createElement('div');
+                card.className = 'activity-card cursor-pointer p-4 bg-white rounded-xl border-2 border-gray-200 relative category-' + escapeHtml(activity.category) + (activity.selected ? ' selected' : '');
+                card.setAttribute('data-id', activity.id);
+                card.setAttribute('data-type', type);
+
+                const checkIcon = document.createElement('div');
+                checkIcon.className = 'check-icon absolute top-3 right-3 w-6 h-6 bg-purple-500 rounded-full items-center justify-center text-white text-sm';
+                checkIcon.textContent = '✓';
+
+                const flexContainer = document.createElement('div');
+                flexContainer.className = 'flex items-center gap-3';
+
+                const iconSpan = document.createElement('span');
+                iconSpan.className = 'text-2xl';
+                iconSpan.textContent = activity.icon;
+
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'flex-1';
+
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'flex items-center gap-2';
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'font-medium text-gray-800';
+                nameSpan.textContent = activity.name;
+
+                const categoryBadge = document.createElement('span');
+                categoryBadge.className = 'text-xs px-2 py-0.5 rounded-full category-badge-' + escapeHtml(activity.category);
+                categoryBadge.textContent = activity.category;
+
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'flex items-center gap-3 text-sm text-gray-500 mt-1';
+
+                const timeSpan = document.createElement('span');
+                timeSpan.textContent = '🕐 ' + activity.time;
+
+                const durationSpan = document.createElement('span');
+                durationSpan.textContent = '⏱️ ' + formatDuration(activity.duration);
+
+                headerDiv.appendChild(nameSpan);
+                headerDiv.appendChild(categoryBadge);
+
+                timeDiv.appendChild(timeSpan);
+                timeDiv.appendChild(durationSpan);
+
+                contentDiv.appendChild(headerDiv);
+                contentDiv.appendChild(timeDiv);
+
+                flexContainer.appendChild(iconSpan);
+                flexContainer.appendChild(contentDiv);
+
+                card.appendChild(checkIcon);
+                card.appendChild(flexContainer);
+
+                card.addEventListener('click', function() {
+                    toggleActivity(type, activity.id);
+                });
+
+                container.appendChild(card);
+            });
+        }
+
+        function renderSummary() {
+            const selectedWeekday = weekdayActivities.filter(function(a) { return a.selected; });
+            const selectedWeekend = weekendActivities.filter(function(a) { return a.selected; });
+
+            document.getElementById('weekdayCount').textContent = selectedWeekday.length + ' actividades';
+            document.getElementById('weekendCount').textContent = selectedWeekend.length + ' actividades';
+
+            const weekdaySummaryContainer = document.getElementById('weekdaySummary');
+            const weekendSummaryContainer = document.getElementById('weekendSummary');
+
+            // Clear containers
+            while (weekdaySummaryContainer.firstChild) {
+                weekdaySummaryContainer.removeChild(weekdaySummaryContainer.firstChild);
+            }
+            while (weekendSummaryContainer.firstChild) {
+                weekendSummaryContainer.removeChild(weekendSummaryContainer.firstChild);
+            }
+
+            if (selectedWeekday.length > 0) {
+                selectedWeekday.forEach(function(a) {
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center gap-2 p-2 bg-gray-50 rounded-lg';
+
+                    const iconSpan = document.createElement('span');
+                    iconSpan.textContent = a.icon;
+
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'flex-1 text-sm text-gray-700';
+                    nameSpan.textContent = a.name;
+
+                    const timeSpan = document.createElement('span');
+                    timeSpan.className = 'text-xs text-gray-500';
+                    timeSpan.textContent = a.time;
+
+                    div.appendChild(iconSpan);
+                    div.appendChild(nameSpan);
+                    div.appendChild(timeSpan);
+
+                    weekdaySummaryContainer.appendChild(div);
+                });
+            } else {
+                const p = document.createElement('p');
+                p.className = 'text-gray-400 text-sm text-center py-4';
+                p.textContent = 'No hay actividades seleccionadas';
+                weekdaySummaryContainer.appendChild(p);
+            }
+
+            if (selectedWeekend.length > 0) {
+                selectedWeekend.forEach(function(a) {
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center gap-2 p-2 bg-gray-50 rounded-lg';
+
+                    const iconSpan = document.createElement('span');
+                    iconSpan.textContent = a.icon;
+
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'flex-1 text-sm text-gray-700';
+                    nameSpan.textContent = a.name;
+
+                    const timeSpan = document.createElement('span');
+                    timeSpan.className = 'text-xs text-gray-500';
+                    timeSpan.textContent = a.time;
+
+                    div.appendChild(iconSpan);
+                    div.appendChild(nameSpan);
+                    div.appendChild(timeSpan);
+
+                    weekendSummaryContainer.appendChild(div);
+                });
+            } else {
+                const p = document.createElement('p');
+                p.className = 'text-gray-400 text-sm text-center py-4';
+                p.textContent = 'No hay actividades seleccionadas';
+                weekendSummaryContainer.appendChild(p);
+            }
+        }
+
+        function addManualActivity(type) {
+            const time = document.getElementById('manualTime').value;
+            const name = document.getElementById('manualActivity').value.trim();
+            const duration = parseInt(document.getElementById('manualDuration').value);
+            const category = document.getElementById('manualCategory').value;
+
+            if (!name) {
+                alert('Por favor ingresa el nombre de la actividad');
+                return;
+            }
+
+            const categoryIcons = {
+                personal: '👤',
+                trabajo: '💼',
+                espiritual: '🙏',
+                fisica: '💪',
+                habitos: '✨',
+                ocio: '🎮'
+            };
+
+            const newActivity = {
+                id: 'manual_' + Date.now(),
+                time: time,
+                name: name,
+                duration: duration,
+                category: category,
+                icon: categoryIcons[category] || '📌',
+                selected: true
+            };
+
+            if (type === 'weekday') {
+                weekdayActivities.push(newActivity);
+                weekdayActivities.sort(function(a, b) { return a.time.localeCompare(b.time); });
+            } else {
+                weekendActivities.push(newActivity);
+                weekendActivities.sort(function(a, b) { return a.time.localeCompare(b.time); });
+            }
+
+            // Clear inputs
+            document.getElementById('manualActivity').value = '';
+
+            // Update UI
+            renderSummary();
+            alert('Actividad agregada a ' + (type === 'weekday' ? 'entre semana' : 'fin de semana'));
+        }
+
+        function updateProgress() {
+            for (let i = 1; i <= totalSteps; i++) {
+                const dot = document.getElementById('dot' + i);
+                dot.classList.remove('active', 'completed');
+                if (i < currentStep) {
+                    dot.classList.add('completed');
+                } else if (i === currentStep) {
+                    dot.classList.add('active');
+                }
+            }
+            document.getElementById('stepIndicator').textContent = 'Paso ' + currentStep + ' de ' + totalSteps;
+        }
+
+        function showStep(step) {
+            document.querySelectorAll('.step-content').forEach(function(el) { el.classList.add('hidden'); });
+            document.getElementById('step' + step).classList.remove('hidden');
+            document.getElementById('step' + step).classList.add('fade-in');
+
+            // Update buttons
+            document.getElementById('prevBtn').classList.toggle('hidden', step === 1);
+            document.getElementById('skipBtn').classList.toggle('hidden', step === totalSteps);
+            document.getElementById('nextBtn').classList.toggle('hidden', step === totalSteps);
+            document.getElementById('finishBtn').classList.toggle('hidden', step !== totalSteps);
+
+            // Render content
+            if (step === 1) {
+                renderActivities('weekday');
+            } else if (step === 2) {
+                renderActivities('weekend');
+            } else if (step === 3) {
+                renderSummary();
+            }
+
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                showStep(currentStep);
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        }
+
+        function skipSetup() {
+            if (confirm('¿Estás seguro de que quieres omitir la configuración? Podrás personalizarla más tarde desde Configuración.')) {
+                markSetupComplete();
+                window.location.href = 'app.html';
+            }
+        }
+
+        function finishActivitySetup() {
+            const selectedWeekday = weekdayActivities.filter(function(a) { return a.selected; });
+            const selectedWeekend = weekendActivities.filter(function(a) { return a.selected; });
+
+            // Save template schedules to localStorage
+            const templateSchedules = {
+                weekday: selectedWeekday.map(function(a) {
+                    return {
+                        time: a.time,
+                        activity: a.name,
+                        duration: a.duration,
+                        category: a.category,
+                        icon: a.icon
+                    };
+                }),
+                weekend: selectedWeekend.map(function(a) {
+                    return {
+                        time: a.time,
+                        activity: a.name,
+                        duration: a.duration,
+                        category: a.category,
+                        icon: a.icon
+                    };
+                }),
+                templateId: 'user-custom-wizard',
+                createdAt: new Date().toISOString()
+            };
+
+            localStorage.setItem(userKey + '-template-schedules', JSON.stringify(templateSchedules));
+
+            // Mark activity setup as complete
+            markSetupComplete();
+
+            // Redirect to app
+            window.location.href = 'app.html';
+        }
+
+        function markSetupComplete() {
+            // Update current user
+            currentUser.needsActivitySetup = false;
+            currentUser.activitySetupCompleted = true;
+            localStorage.setItem('gestion-currentUser', JSON.stringify(currentUser));
+
+            // Update users storage
+            const users = JSON.parse(localStorage.getItem('gestion-users') || '{}');
+            if (users[currentUser.email]) {
+                users[currentUser.email].needsActivitySetup = false;
+                users[currentUser.email].activitySetupCompleted = true;
+                localStorage.setItem('gestion-users', JSON.stringify(users));
+            }
+        }
+
+        // Initialize
+        generateSuggestedActivities();
+        showStep(1);
+    </script>
+</body>
+</html>

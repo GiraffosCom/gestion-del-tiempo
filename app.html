@@ -1576,6 +1576,11 @@
             window.location.href = 'onboarding.html';
         }
 
+        // Check if user needs activity setup wizard
+        if (currentUser && currentUser.needsActivitySetup && !currentUser.activitySetupCompleted) {
+            window.location.href = 'activity-setup.html';
+        }
+
         // User-specific storage key prefix
         const userKey = currentUser ? currentUser.email.replace(/[^a-z0-9]/gi, '_') : 'guest';
 
@@ -2125,6 +2130,11 @@
             if (menu) {
                 menu.classList.toggle('hidden');
             }
+        }
+
+        // Open activity setup wizard
+        function openActivitySetupWizard() {
+            window.location.href = 'activity-setup.html';
         }
 
         // Sync all data to cloud
@@ -5726,6 +5736,10 @@
                                         <button onclick="openCategoriesModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition text-left">
                                             <span class="text-xl">🏷️</span>
                                             <span class="text-gray-700">Categorías</span>
+                                        </button>
+                                        <button onclick="openActivitySetupWizard(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition text-left">
+                                            <span class="text-xl">📅</span>
+                                            <span class="text-gray-700">Personalizar actividades</span>
                                         </button>
                                         <button onclick="syncAllData(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-blue-50 transition text-left">
                                             <span class="text-xl">☁️</span>
@@ -9696,13 +9710,18 @@
             }
 
             // Try to find total - improved patterns for Chilean receipts
+            // Priority: TOTAL CON PROPINA (restaurant) > TOTAL A PAGAR > TOTAL
             const totalPatterns = [
-                /TOTAL\s*[:\s]*\$?\s*([\d]+[.,][\d]{3})/i,      // TOTAL : $ 6.190
-                /TOTAL\s*[:\s]*\$?\s*([\d.,]+)/i,               // TOTAL: $6190
-                /TOTAL\s+A\s+PAGAR\s*[:\s]*\$?\s*([\d.,]+)/i,   // TOTAL A PAGAR
-                /MONTO\s*TOTAL\s*[:\s]*\$?\s*([\d.,]+)/i,       // MONTO TOTAL
-                /MONTO\s*[:\s]*\$?\s*([\d.,]+)/i,               // MONTO
-                /\$\s*([\d]+[.,][\d]{3})\s*$/m                   // $ 6.190 at end of line
+                /TOTAL\s+CON\s+PROPINA\s*[:\s]*\$?\s*([\d]+[.,][\d]{3})/i,   // TOTAL CON PROPINA: $8.500
+                /TOTAL\s+CON\s+PROPINA\s*[:\s]*\$?\s*([\d.,]+)/i,            // TOTAL CON PROPINA: $8500
+                /TOTAL\s+A\s+PAGAR\s*[:\s]*\$?\s*([\d]+[.,][\d]{3})/i,       // TOTAL A PAGAR: $8.500
+                /TOTAL\s+A\s+PAGAR\s*[:\s]*\$?\s*([\d.,]+)/i,                // TOTAL A PAGAR: $8500
+                /MONTO\s*TOTAL\s*[:\s]*\$?\s*([\d]+[.,][\d]{3})/i,           // MONTO TOTAL: $8.500
+                /MONTO\s*TOTAL\s*[:\s]*\$?\s*([\d.,]+)/i,                    // MONTO TOTAL: $8500
+                /TOTAL\s*[:\s]*\$?\s*([\d]+[.,][\d]{3})/i,                   // TOTAL : $ 6.190
+                /TOTAL\s*[:\s]*\$?\s*([\d.,]+)/i,                            // TOTAL: $6190
+                /MONTO\s*[:\s]*\$?\s*([\d.,]+)/i,                            // MONTO
+                /\$\s*([\d]+[.,][\d]{3})\s*$/m                                // $ 6.190 at end of line
             ];
 
             for (const pattern of totalPatterns) {
@@ -9711,7 +9730,7 @@
                     // For Chilean pesos: dots are thousand separators, no decimals
                     // Convert "6.190" to "6190"
                     total = match[1].replace(/\./g, '').replace(/,/g, '');
-                    console.log('Found total:', match[1], '-> parsed as:', total);
+                    console.log('Found total:', match[0], '-> parsed as:', total);
                     break;
                 }
             }
