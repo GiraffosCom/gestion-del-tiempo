@@ -479,30 +479,88 @@ class SyncService {
             if (startDate) filters.push(['date', 'gte', startDate]);
             if (endDate) filters.push(['date', 'lte', endDate]);
 
-            const expenses = await this.request('expenses', {
+            const supabaseExpenses = await this.request('expenses', {
                 filters,
                 order: 'date.desc'
             });
 
-            this.saveLocalExpenses(expenses);
-            return expenses;
+            // Map Supabase format to app.html format
+            const mappedExpenses = supabaseExpenses.map(e => {
+                // Try to parse metadata from description
+                const metadata = this.parseExpenseMetadata(e.description);
+
+                if (metadata) {
+                    return {
+                        id: e.id,
+                        store: metadata.store || 'Sin nombre',
+                        total: e.amount,
+                        amount: e.amount,
+                        description: metadata.originalDesc || '',
+                        category: e.category || 'otro',
+                        date: e.date,
+                        hasReceipt: metadata.hasReceipt || false,
+                        createdAt: e.created_at,
+                        updatedAt: e.updated_at
+                    };
+                }
+
+                // Fallback for expenses without metadata
+                return {
+                    id: e.id,
+                    store: e.store || 'Sin nombre',
+                    total: e.amount,
+                    amount: e.amount,
+                    description: e.description || '',
+                    category: e.category || 'otro',
+                    date: e.date,
+                    hasReceipt: e.has_receipt || false,
+                    createdAt: e.created_at,
+                    updatedAt: e.updated_at
+                };
+            });
+
+            // Get local expenses that haven't been synced yet (local_ prefix)
+            const localExpenses = this.getLocalExpenses();
+            const localOnlyExpenses = localExpenses.filter(e => String(e.id).startsWith('local_'));
+
+            // Merge: Supabase expenses + local-only expenses
+            const mergedExpenses = [...mappedExpenses, ...localOnlyExpenses];
+
+            // Save merged to localStorage
+            this.saveLocalExpenses(mergedExpenses);
+            console.log('Expenses loaded from Supabase:', mappedExpenses.length, 'Local only:', localOnlyExpenses.length);
+            return mergedExpenses;
         } catch (error) {
-            console.error('Error getting expenses:', error);
+            console.error('Error getting expenses from Supabase:', error);
             return this.getLocalExpenses();
         }
     }
 
     async saveExpense(expense) {
-        this.saveExpenseLocal(expense);
+        // Save locally first (with local_ prefix if no ID)
+        const localExpense = { ...expense };
+        if (!localExpense.id) {
+            localExpense.id = 'local_' + Date.now();
+        }
+        this.saveExpenseLocal(localExpense);
 
-        if (!this.userId) return expense;
+        if (!this.userId) return localExpense;
 
         try {
+            // Encode store and hasReceipt in description as JSON metadata
+            const metadata = {
+                store: expense.store || 'Sin nombre',
+                hasReceipt: expense.hasReceipt || false,
+                originalDesc: expense.description || ''
+            };
+            const encodedDescription = `__META__${JSON.stringify(metadata)}`;
+
+            // Map app.html format to Supabase format
             const expenseData = {
                 customer_id: this.userId,
-                amount: expense.amount,
-                description: expense.description,
-                category: expense.category,
+                amount: expense.total || expense.amount,
+                description: encodedDescription,
+                category: expense.category || 'otro',
                 date: expense.date || new Date().toISOString().split('T')[0]
             };
 
@@ -510,9 +568,83 @@ class SyncService {
                 method: 'POST',
                 body: expenseData
             });
+
+            const savedExpense = Array.isArray(result) ? result[0] : result;
+
+            // Update local storage with the Supabase ID
+            if (savedExpense && savedExpense.id) {
+                this.updateExpenseLocalId(localExpense.id, savedExpense.id, savedExpense);
+            }
+
+            console.log('Expense saved to Supabase:', savedExpense?.id);
+            return savedExpense;
+        } catch (error) {
+            console.error('Error saving expense to Supabase:', error);
+            return localExpense;
+        }
+    }
+
+    // Helper to parse metadata from description
+    parseExpenseMetadata(description) {
+        if (description && description.startsWith('__META__')) {
+            try {
+                const jsonStr = description.substring(8);
+                return JSON.parse(jsonStr);
+            } catch (e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    async updateExpense(expense) {
+        // Update locally first
+        this.updateExpenseLocal(expense);
+
+        if (!this.userId) return expense;
+
+        // Don't try to update on Supabase if it's a local-only expense
+        if (expense.id && String(expense.id).startsWith('local_')) {
+            return expense;
+        }
+
+        try {
+            // Encode store and hasReceipt in description as JSON metadata
+            const metadata = {
+                store: expense.store || 'Sin nombre',
+                hasReceipt: expense.hasReceipt || false,
+                originalDesc: expense.description || ''
+            };
+            const encodedDescription = `__META__${JSON.stringify(metadata)}`;
+
+            const expenseData = {
+                amount: expense.total || expense.amount,
+                description: encodedDescription,
+                category: expense.category || 'otro',
+                date: expense.date
+            };
+
+            const url = `${this.supabaseUrl}/rest/v1/expenses?id=eq.${expense.id}`;
+            const response = await fetch(url, {
+                method: 'PATCH',
+                headers: {
+                    'apikey': this.supabaseKey,
+                    'Authorization': `Bearer ${this.supabaseKey}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                },
+                body: JSON.stringify(expenseData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('Expense updated in Supabase');
             return Array.isArray(result) ? result[0] : result;
         } catch (error) {
-            console.error('Error saving expense:', error);
+            console.error('Error updating expense in Supabase:', error);
             return expense;
         }
     }
@@ -520,7 +652,8 @@ class SyncService {
     async deleteExpense(expenseId) {
         this.deleteExpenseLocal(expenseId);
 
-        if (!this.userId || expenseId.startsWith('local_')) return;
+        // Don't try to delete on Supabase if it's a local-only expense or no user
+        if (!this.userId || String(expenseId).startsWith('local_')) return;
 
         try {
             const url = `${this.supabaseUrl}/rest/v1/expenses?id=eq.${expenseId}`;
@@ -531,6 +664,7 @@ class SyncService {
                     'Authorization': `Bearer ${this.supabaseKey}`
                 }
             });
+            console.log('Expense deleted from Supabase:', expenseId);
         } catch (error) {
             console.error('Error deleting expense:', error);
         }
@@ -623,7 +757,9 @@ class SyncService {
 
     async syncLocalExpenses() {
         const localExpenses = JSON.parse(localStorage.getItem('expenses') || '[]');
-        const unsyncedExpenses = localExpenses.filter(e => e.id && e.id.startsWith('local_'));
+        const unsyncedExpenses = localExpenses.filter(e => e.id && String(e.id).startsWith('local_'));
+
+        console.log('Syncing', unsyncedExpenses.length, 'local expenses to Supabase');
 
         for (const expense of unsyncedExpenses) {
             const newExpense = { ...expense, id: undefined };
@@ -739,12 +875,44 @@ class SyncService {
     saveExpenseLocal(expense) {
         const expenses = this.getLocalExpenses();
         expense.id = expense.id || 'local_' + Date.now();
-        expenses.push(expense);
+        // Avoid duplicates
+        const existingIndex = expenses.findIndex(e => String(e.id) === String(expense.id));
+        if (existingIndex >= 0) {
+            expenses[existingIndex] = expense;
+        } else {
+            expenses.push(expense);
+        }
         localStorage.setItem('expenses', JSON.stringify(expenses));
     }
 
+    updateExpenseLocal(expense) {
+        const expenses = this.getLocalExpenses();
+        const index = expenses.findIndex(e => String(e.id) === String(expense.id));
+        if (index >= 0) {
+            expenses[index] = { ...expenses[index], ...expense };
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+        }
+    }
+
+    updateExpenseLocalId(oldId, newId, newData = {}) {
+        const expenses = this.getLocalExpenses();
+        const index = expenses.findIndex(e => String(e.id) === String(oldId));
+        if (index >= 0) {
+            // Map Supabase format back to app format
+            expenses[index] = {
+                ...expenses[index],
+                ...newData,
+                id: newId,
+                total: newData.amount || expenses[index].total,
+                hasReceipt: newData.has_receipt || expenses[index].hasReceipt,
+                createdAt: newData.created_at || expenses[index].createdAt
+            };
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+        }
+    }
+
     deleteExpenseLocal(expenseId) {
-        const expenses = this.getLocalExpenses().filter(e => e.id !== expenseId);
+        const expenses = this.getLocalExpenses().filter(e => String(e.id) !== String(expenseId));
         localStorage.setItem('expenses', JSON.stringify(expenses));
     }
 

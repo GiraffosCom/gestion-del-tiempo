@@ -1484,11 +1484,15 @@
 
         // Initialize Supabase sync service
         if (currentUser && currentUser.email && typeof syncService !== 'undefined') {
-            syncService.initUser(currentUser.email, currentUser.name || '').then(user => {
+            syncService.initUser(currentUser.email, currentUser.name || '').then(async user => {
                 if (user) {
                     console.log('Sync service initialized for:', currentUser.email);
                     // Sync data on load
-                    syncService.syncAll();
+                    await syncService.syncAll();
+                    // Load expenses from server and refresh UI
+                    if (typeof loadExpensesFromServer === 'function') {
+                        await loadExpensesFromServer();
+                    }
                 }
             }).catch(err => {
                 console.log('Sync service offline, using localStorage');
@@ -8740,6 +8744,35 @@
             return expenses;
         }
 
+        // Async version that loads from Supabase first
+        async function getExpensesAsync() {
+            if (typeof syncService !== 'undefined' && syncService.userId) {
+                try {
+                    const expenses = await syncService.getExpenses();
+                    return expenses;
+                } catch (error) {
+                    console.error('Error loading expenses from Supabase:', error);
+                }
+            }
+            return getExpenses();
+        }
+
+        // Load expenses from Supabase on app init
+        async function loadExpensesFromServer() {
+            if (typeof syncService !== 'undefined' && syncService.userId) {
+                try {
+                    const expenses = await syncService.getExpenses();
+                    console.log('Expenses loaded from Supabase:', expenses.length);
+                    // Trigger re-render if we're on the expenses tab
+                    if (currentTab === 'gastos') {
+                        render();
+                    }
+                } catch (error) {
+                    console.error('Error loading expenses from server:', error);
+                }
+            }
+        }
+
         function saveExpenses(expenses) {
             setStorage('expenses', JSON.stringify(expenses));
         }
@@ -9364,7 +9397,7 @@
             return { store, total, date, items, description: items.length > 0 ? items.slice(0, 3).join(', ') : '' };
         }
 
-        function saveExpenseFromScan() {
+        async function saveExpenseFromScan() {
             const store = document.getElementById('expenseStore').value.trim();
             const date = document.getElementById('expenseDate').value;
             const total = document.getElementById('expenseTotal').value;
@@ -9377,7 +9410,6 @@
             }
 
             const expense = {
-                id: Date.now(),
                 store: store || 'Sin nombre',
                 date: date || getTodayKey(),
                 total: parseFloat(total),
@@ -9387,16 +9419,33 @@
                 createdAt: new Date().toISOString()
             };
 
-            const expenses = getExpenses();
-            expenses.push(expense);
-            saveExpenses(expenses);
+            // Sync with Supabase if available
+            if (typeof syncService !== 'undefined' && syncService.userId) {
+                try {
+                    const savedExpense = await syncService.saveExpense(expense);
+                    console.log('Expense synced to Supabase:', savedExpense);
+                } catch (error) {
+                    console.error('Error syncing expense:', error);
+                    // Fallback to local save
+                    expense.id = Date.now();
+                    const expenses = getExpenses();
+                    expenses.push(expense);
+                    saveExpenses(expenses);
+                }
+            } else {
+                // Local-only save
+                expense.id = Date.now();
+                const expenses = getExpenses();
+                expenses.push(expense);
+                saveExpenses(expenses);
+            }
 
             closeScanReceiptModal();
             addNotification(`Gasto de $${parseFloat(total).toLocaleString('es-CL')} registrado`, '💰');
             render();
         }
 
-        function saveManualExpense() {
+        async function saveManualExpense() {
             const store = document.getElementById('manualExpenseStore').value.trim();
             const date = document.getElementById('manualExpenseDate').value;
             const total = document.getElementById('manualExpenseTotal').value;
@@ -9409,7 +9458,6 @@
             }
 
             const expense = {
-                id: Date.now(),
                 store: store || 'Sin nombre',
                 date: date || getTodayKey(),
                 total: parseFloat(total),
@@ -9419,9 +9467,26 @@
                 createdAt: new Date().toISOString()
             };
 
-            const expenses = getExpenses();
-            expenses.push(expense);
-            saveExpenses(expenses);
+            // Sync with Supabase if available
+            if (typeof syncService !== 'undefined' && syncService.userId) {
+                try {
+                    const savedExpense = await syncService.saveExpense(expense);
+                    console.log('Expense synced to Supabase:', savedExpense);
+                } catch (error) {
+                    console.error('Error syncing expense:', error);
+                    // Fallback to local save
+                    expense.id = Date.now();
+                    const expenses = getExpenses();
+                    expenses.push(expense);
+                    saveExpenses(expenses);
+                }
+            } else {
+                // Local-only save
+                expense.id = Date.now();
+                const expenses = getExpenses();
+                expenses.push(expense);
+                saveExpenses(expenses);
+            }
 
             closeAddExpenseModal();
             addNotification(`Gasto de $${parseFloat(total).toLocaleString('es-CL')} agregado`, '💰');
@@ -9462,7 +9527,7 @@
             editingExpenseId = null;
         }
 
-        function saveEditedExpense() {
+        async function saveEditedExpense() {
             if (editingExpenseId === null) return;
 
             const store = document.getElementById('editExpenseStore').value.trim();
@@ -9485,20 +9550,35 @@
             }
 
             // Update expense fields
-            expenses[expenseIndex].store = store || 'Sin nombre';
-            expenses[expenseIndex].date = date || getTodayKey();
-            expenses[expenseIndex].total = parseFloat(total);
-            expenses[expenseIndex].category = category;
-            expenses[expenseIndex].description = description;
-            expenses[expenseIndex].updatedAt = new Date().toISOString();
+            const updatedExpense = {
+                ...expenses[expenseIndex],
+                store: store || 'Sin nombre',
+                date: date || getTodayKey(),
+                total: parseFloat(total),
+                category,
+                description,
+                updatedAt: new Date().toISOString()
+            };
 
+            expenses[expenseIndex] = updatedExpense;
             saveExpenses(expenses);
+
+            // Sync update with Supabase if available
+            if (typeof syncService !== 'undefined' && syncService.userId) {
+                try {
+                    await syncService.updateExpense(updatedExpense);
+                    console.log('Expense update synced to Supabase');
+                } catch (error) {
+                    console.error('Error syncing expense update:', error);
+                }
+            }
+
             closeEditExpenseModal();
             addNotification('Gasto actualizado', '✏️');
             render();
         }
 
-        function deleteExpense(recentIdx) {
+        async function deleteExpense(recentIdx) {
             if (!confirm('¿Eliminar este gasto?')) return;
 
             const recentExpenses = window.currentRecentExpenses || [];
@@ -9509,8 +9589,20 @@
             const expenses = getExpenses();
             const index = expenses.findIndex(e => String(e.id) === String(expenseToDelete.id));
             if (index !== -1) {
+                const deletedExpenseId = expenses[index].id;
                 expenses.splice(index, 1);
                 saveExpenses(expenses);
+
+                // Sync deletion with Supabase if available
+                if (typeof syncService !== 'undefined' && syncService.userId) {
+                    try {
+                        await syncService.deleteExpense(deletedExpenseId);
+                        console.log('Expense deletion synced to Supabase');
+                    } catch (error) {
+                        console.error('Error syncing expense deletion:', error);
+                    }
+                }
+
                 render();
             }
         }
