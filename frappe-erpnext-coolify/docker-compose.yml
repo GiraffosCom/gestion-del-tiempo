@@ -1,0 +1,139 @@
+version: "3.8"
+
+services:
+  mariadb:
+    image: mariadb:10.6
+    container_name: frappe-mariadb
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD:-admin123}
+      - MYSQL_DATABASE=frappe
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+      - --skip-innodb-read-only-compressed
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-cache:
+    image: redis:alpine
+    container_name: frappe-redis-cache
+    restart: unless-stopped
+    volumes:
+      - redis-cache-data:/data
+
+  redis-queue:
+    image: redis:alpine
+    container_name: frappe-redis-queue
+    restart: unless-stopped
+    volumes:
+      - redis-queue-data:/data
+
+  redis-socketio:
+    image: redis:alpine
+    container_name: frappe-redis-socketio
+    restart: unless-stopped
+    volumes:
+      - redis-socketio-data:/data
+
+  frappe:
+    image: frappe/erpnext:v15
+    container_name: frappe-backend
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis-cache:
+        condition: service_started
+      redis-queue:
+        condition: service_started
+      redis-socketio:
+        condition: service_started
+    environment:
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - REDIS_CACHE=redis://redis-cache:6379
+      - REDIS_QUEUE=redis://redis-queue:6379
+      - REDIS_SOCKETIO=redis://redis-socketio:6379
+      - SOCKETIO_PORT=9000
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - SITE_NAME=${SITE_NAME:-erp.localhost}
+    volumes:
+      - frappe-sites:/home/frappe/frappe-bench/sites
+      - frappe-logs:/home/frappe/frappe-bench/logs
+    ports:
+      - "${HTTP_PORT:-8080}:8080"
+    command: >
+      bash -c "
+        bench set-config -g db_host mariadb &&
+        bench set-config -g redis_cache redis://redis-cache:6379 &&
+        bench set-config -g redis_queue redis://redis-queue:6379 &&
+        bench set-config -g redis_socketio redis://redis-socketio:6379 &&
+        if [ ! -f sites/${SITE_NAME:-erp.localhost}/site_config.json ]; then
+          bench new-site ${SITE_NAME:-erp.localhost} \
+            --db-root-password ${DB_ROOT_PASSWORD:-admin123} \
+            --admin-password ${ADMIN_PASSWORD:-admin123} \
+            --install-app erpnext;
+        fi &&
+        bench --site ${SITE_NAME:-erp.localhost} set-config allow_cors '*' &&
+        bench --site ${SITE_NAME:-erp.localhost} set-config ignore_csrf 1 &&
+        bench start
+      "
+
+  frappe-worker-short:
+    image: frappe/erpnext:v15
+    container_name: frappe-worker-short
+    restart: unless-stopped
+    depends_on:
+      - frappe
+    volumes:
+      - frappe-sites:/home/frappe/frappe-bench/sites
+      - frappe-logs:/home/frappe/frappe-bench/logs
+    command: bench worker --queue short
+
+  frappe-worker-long:
+    image: frappe/erpnext:v15
+    container_name: frappe-worker-long
+    restart: unless-stopped
+    depends_on:
+      - frappe
+    volumes:
+      - frappe-sites:/home/frappe/frappe-bench/sites
+      - frappe-logs:/home/frappe/frappe-bench/logs
+    command: bench worker --queue long
+
+  frappe-worker-default:
+    image: frappe/erpnext:v15
+    container_name: frappe-worker-default
+    restart: unless-stopped
+    depends_on:
+      - frappe
+    volumes:
+      - frappe-sites:/home/frappe/frappe-bench/sites
+      - frappe-logs:/home/frappe/frappe-bench/logs
+    command: bench worker --queue default
+
+  frappe-scheduler:
+    image: frappe/erpnext:v15
+    container_name: frappe-scheduler
+    restart: unless-stopped
+    depends_on:
+      - frappe
+    volumes:
+      - frappe-sites:/home/frappe/frappe-bench/sites
+      - frappe-logs:/home/frappe/frappe-bench/logs
+    command: bench schedule
+
+volumes:
+  mariadb-data:
+  redis-cache-data:
+  redis-queue-data:
+  redis-socketio-data:
+  frappe-sites:
+  frappe-logs:

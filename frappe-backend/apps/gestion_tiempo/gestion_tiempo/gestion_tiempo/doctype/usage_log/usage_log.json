@@ -1,0 +1,98 @@
+{
+    "actions": [],
+    "allow_rename": 0,
+    "autoname": "naming_series:",
+    "creation": "2024-01-01 00:00:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "customer",
+        "feature",
+        "column_break_1",
+        "log_date",
+        "count",
+        "section_break_details",
+        "details",
+        "naming_series"
+    ],
+    "fields": [
+        {
+            "fieldname": "customer",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Customer",
+            "options": "Customer",
+            "reqd": 1
+        },
+        {
+            "fieldname": "feature",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Feature"
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "log_date",
+            "fieldtype": "Date",
+            "in_list_view": 1,
+            "label": "Date",
+            "reqd": 1
+        },
+        {
+            "default": "1",
+            "fieldname": "count",
+            "fieldtype": "Int",
+            "label": "Count"
+        },
+        {
+            "fieldname": "section_break_details",
+            "fieldtype": "Section Break"
+        },
+        {
+            "fieldname": "details",
+            "fieldtype": "Small Text",
+            "label": "Details"
+        },
+        {
+            "fieldname": "naming_series",
+            "fieldtype": "Select",
+            "hidden": 1,
+            "label": "Naming Series",
+            "options": "LOG-.YYYY.-.#####",
+            "default": "LOG-.YYYY.-.#####"
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [],
+    "modified": "2024-01-01 00:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Tiempo",
+    "name": "Usage Log",
+    "naming_rule": "By \"Naming Series\" field",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "quick_entry": 1,
+    "search_fields": "customer,feature",
+    "sort_field": "log_date",
+    "sort_order": "DESC",
+    "track_changes": 0
+}

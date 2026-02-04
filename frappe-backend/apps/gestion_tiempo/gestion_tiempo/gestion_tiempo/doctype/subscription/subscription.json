@@ -1,0 +1,134 @@
+{
+    "actions": [],
+    "allow_rename": 1,
+    "autoname": "naming_series:",
+    "creation": "2024-01-01 00:00:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "customer",
+        "plan",
+        "status",
+        "column_break_1",
+        "billing_cycle",
+        "start_date",
+        "end_date",
+        "next_billing_date",
+        "section_break_cancellation",
+        "cancellation_date",
+        "cancellation_reason",
+        "naming_series"
+    ],
+    "fields": [
+        {
+            "fieldname": "customer",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Customer",
+            "options": "Customer",
+            "reqd": 1
+        },
+        {
+            "fieldname": "plan",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Subscription Plan",
+            "options": "Subscription Plan",
+            "reqd": 1
+        },
+        {
+            "default": "Active",
+            "fieldname": "status",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Status",
+            "options": "Active\nPaused\nCancelled\nExpired"
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "default": "Monthly",
+            "fieldname": "billing_cycle",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Billing Cycle",
+            "options": "Monthly\nYearly"
+        },
+        {
+            "fieldname": "start_date",
+            "fieldtype": "Date",
+            "in_list_view": 1,
+            "label": "Start Date",
+            "reqd": 1
+        },
+        {
+            "fieldname": "end_date",
+            "fieldtype": "Date",
+            "in_list_view": 1,
+            "label": "End Date",
+            "reqd": 1
+        },
+        {
+            "fieldname": "next_billing_date",
+            "fieldtype": "Date",
+            "label": "Next Billing Date"
+        },
+        {
+            "collapsible": 1,
+            "fieldname": "section_break_cancellation",
+            "fieldtype": "Section Break",
+            "label": "Cancellation Details"
+        },
+        {
+            "fieldname": "cancellation_date",
+            "fieldtype": "Date",
+            "label": "Cancellation Date"
+        },
+        {
+            "fieldname": "cancellation_reason",
+            "fieldtype": "Small Text",
+            "label": "Cancellation Reason"
+        },
+        {
+            "fieldname": "naming_series",
+            "fieldtype": "Select",
+            "hidden": 1,
+            "label": "Naming Series",
+            "options": "SUB-.YYYY.-.#####",
+            "default": "SUB-.YYYY.-.#####"
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [],
+    "modified": "2024-01-01 00:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Tiempo",
+    "name": "Subscription",
+    "naming_rule": "By \"Naming Series\" field",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "quick_entry": 0,
+    "search_fields": "customer,plan,status",
+    "sort_field": "creation",
+    "sort_order": "DESC",
+    "track_changes": 1
+}

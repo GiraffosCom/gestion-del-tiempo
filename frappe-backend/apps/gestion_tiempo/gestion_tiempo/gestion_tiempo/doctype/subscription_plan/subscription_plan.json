@@ -1,0 +1,139 @@
+{
+    "actions": [],
+    "allow_rename": 1,
+    "autoname": "field:plan_name",
+    "creation": "2024-01-01 00:00:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "plan_name",
+        "is_active",
+        "column_break_1",
+        "price_monthly",
+        "price_yearly",
+        "section_break_features",
+        "features",
+        "section_break_limits",
+        "max_habits",
+        "max_goals",
+        "column_break_limits",
+        "has_statistics",
+        "has_export",
+        "has_priority_support"
+    ],
+    "fields": [
+        {
+            "fieldname": "plan_name",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Plan Name",
+            "reqd": 1,
+            "unique": 1
+        },
+        {
+            "default": "1",
+            "fieldname": "is_active",
+            "fieldtype": "Check",
+            "in_list_view": 1,
+            "label": "Is Active"
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "default": "0",
+            "fieldname": "price_monthly",
+            "fieldtype": "Currency",
+            "in_list_view": 1,
+            "label": "Price Monthly",
+            "precision": "2"
+        },
+        {
+            "default": "0",
+            "fieldname": "price_yearly",
+            "fieldtype": "Currency",
+            "in_list_view": 1,
+            "label": "Price Yearly",
+            "precision": "2"
+        },
+        {
+            "fieldname": "section_break_features",
+            "fieldtype": "Section Break",
+            "label": "Features"
+        },
+        {
+            "fieldname": "features",
+            "fieldtype": "Text",
+            "label": "Features Description"
+        },
+        {
+            "fieldname": "section_break_limits",
+            "fieldtype": "Section Break",
+            "label": "Limits & Permissions"
+        },
+        {
+            "default": "5",
+            "fieldname": "max_habits",
+            "fieldtype": "Int",
+            "label": "Max Habits"
+        },
+        {
+            "default": "3",
+            "fieldname": "max_goals",
+            "fieldtype": "Int",
+            "label": "Max Weekly Goals"
+        },
+        {
+            "fieldname": "column_break_limits",
+            "fieldtype": "Column Break"
+        },
+        {
+            "default": "0",
+            "fieldname": "has_statistics",
+            "fieldtype": "Check",
+            "label": "Has Advanced Statistics"
+        },
+        {
+            "default": "0",
+            "fieldname": "has_export",
+            "fieldtype": "Check",
+            "label": "Can Export Data"
+        },
+        {
+            "default": "0",
+            "fieldname": "has_priority_support",
+            "fieldtype": "Check",
+            "label": "Priority Support"
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [],
+    "modified": "2024-01-01 00:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Tiempo",
+    "name": "Subscription Plan",
+    "naming_rule": "By fieldname",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "quick_entry": 1,
+    "search_fields": "plan_name",
+    "sort_field": "price_monthly",
+    "sort_order": "ASC",
+    "title_field": "plan_name",
+    "track_changes": 1
+}

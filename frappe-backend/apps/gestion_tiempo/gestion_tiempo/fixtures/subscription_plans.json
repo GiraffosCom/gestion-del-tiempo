@@ -1,0 +1,41 @@
+[
+    {
+        "doctype": "Subscription Plan",
+        "plan_name": "Free",
+        "is_active": 1,
+        "price_monthly": 0,
+        "price_yearly": 0,
+        "features": "Plan gratuito con funciones basicas:\n- Hasta 5 habitos\n- 3 metas semanales\n- Agenda diaria",
+        "max_habits": 5,
+        "max_goals": 3,
+        "has_statistics": 0,
+        "has_export": 0,
+        "has_priority_support": 0
+    },
+    {
+        "doctype": "Subscription Plan",
+        "plan_name": "Pro",
+        "is_active": 1,
+        "price_monthly": 9900,
+        "price_yearly": 99000,
+        "features": "Plan Pro con todas las funciones:\n- Habitos ilimitados\n- Metas ilimitadas\n- Estadisticas avanzadas\n- Exportar datos\n- Temas personalizados",
+        "max_habits": 999,
+        "max_goals": 999,
+        "has_statistics": 1,
+        "has_export": 1,
+        "has_priority_support": 0
+    },
+    {
+        "doctype": "Subscription Plan",
+        "plan_name": "Teams",
+        "is_active": 1,
+        "price_monthly": 29900,
+        "price_yearly": 299000,
+        "features": "Plan Teams para equipos:\n- Todo lo de Pro\n- Hasta 10 usuarios\n- Dashboard de equipo\n- Soporte prioritario\n- Reportes personalizados",
+        "max_habits": 999,
+        "max_goals": 999,
+        "has_statistics": 1,
+        "has_export": 1,
+        "has_priority_support": 1
+    }
+]
