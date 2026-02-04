@@ -5828,53 +5828,41 @@
                                     <div id="settingsMenu" class="hidden absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 z-50 flex flex-col" style="max-height: 70vh;">
                                         <!-- Scrollable content -->
                                         <div class="overflow-y-auto flex-1 py-2">
-                                            <p class="px-4 py-1 text-xs text-gray-400 font-medium uppercase">Mi Cuenta</p>
-                                            <button onclick="openPhotoModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition text-left">
-                                                <span class="text-xl">👤</span>
-                                                <span class="text-gray-700">Mi Perfil</span>
-                                            </button>
-                                            <button onclick="openProfileModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition text-left">
-                                                <span class="text-xl">⚖️</span>
-                                                <span class="text-gray-700">Datos Físicos</span>
-                                            </button>
-                                            <hr class="my-2 border-gray-100">
-                                            <p class="px-4 py-1 text-xs text-gray-400 font-medium uppercase">Configuración</p>
+                                            <!-- APARIENCIA - Lo más usado -->
+                                            <p class="px-4 py-1 text-xs text-gray-400 font-medium uppercase">Apariencia</p>
                                             <button onclick="toggleDarkMode(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition text-left">
                                                 <span class="text-xl">${isDarkMode() ? '☀️' : '🌙'}</span>
                                                 <span class="text-gray-700">${isDarkMode() ? 'Modo claro' : 'Modo oscuro'}</span>
                                             </button>
-                                            <button onclick="openActivitySetupWizard(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition text-left">
-                                                <span class="text-xl">📅</span>
-                                                <span class="text-gray-700">Personalizar actividades</span>
-                                            </button>
-                                            <button onclick="openTemplateModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition text-left">
-                                                <span class="text-xl">📋</span>
-                                                <span class="text-gray-700">Plantillas</span>
-                                            </button>
-                                            <button onclick="openCategoriesModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition text-left">
-                                                <span class="text-xl">🏷️</span>
-                                                <span class="text-gray-700">Categorías</span>
+                                            <div class="px-4 py-2">
+                                                <p class="text-xs text-gray-400 mb-1">Vista</p>
+                                                <div class="flex gap-1 p-1 bg-gray-100 rounded-xl">
+                                                    <button onclick="setViewMode('minimal')" class="flex-1 flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition ${getViewMode() === 'minimal' ? 'bg-white shadow-sm' : 'hover:bg-gray-50'}">
+                                                        <span class="text-sm">${getViewModeIcon('minimal')}</span>
+                                                        <span class="text-xs ${getViewMode() === 'minimal' ? 'text-purple-600 font-medium' : 'text-gray-500'}">Min</span>
+                                                    </button>
+                                                    <button onclick="setViewMode('medium')" class="flex-1 flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition ${getViewMode() === 'medium' ? 'bg-white shadow-sm' : 'hover:bg-gray-50'}">
+                                                        <span class="text-sm">${getViewModeIcon('medium')}</span>
+                                                        <span class="text-xs ${getViewMode() === 'medium' ? 'text-purple-600 font-medium' : 'text-gray-500'}">Media</span>
+                                                    </button>
+                                                    <button onclick="setViewMode('maximal')" class="flex-1 flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition ${getViewMode() === 'maximal' ? 'bg-white shadow-sm' : 'hover:bg-gray-50'}">
+                                                        <span class="text-sm">${getViewModeIcon('maximal')}</span>
+                                                        <span class="text-xs ${getViewMode() === 'maximal' ? 'text-purple-600 font-medium' : 'text-gray-500'}">Max</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <hr class="my-2 border-gray-100">
+
+                                            <!-- CUENTA -->
+                                            <p class="px-4 py-1 text-xs text-gray-400 font-medium uppercase">Cuenta</p>
+                                            <button onclick="openPhotoModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition text-left">
+                                                <span class="text-xl">👤</span>
+                                                <span class="text-gray-700">Mi Perfil</span>
                                             </button>
                                             <hr class="my-2 border-gray-100">
-                                            <p class="px-4 py-1 text-xs text-gray-400 font-medium uppercase">Toggles</p>
-                                            <button onclick="toggleFloatingButton('pomodoro')" class="w-full flex items-center justify-between px-4 py-1.5 hover:bg-gray-50 transition">
-                                                <div class="flex items-center gap-2">
-                                                    <span class="text-lg">🍅</span>
-                                                    <span class="text-gray-700 text-sm">Pomodoro</span>
-                                                </div>
-                                                <div class="w-9 h-5 rounded-full transition ${isFloatingButtonEnabled('pomodoro') ? 'bg-purple-500' : 'bg-gray-300'} relative">
-                                                    <div class="absolute top-0.5 ${isFloatingButtonEnabled('pomodoro') ? 'right-0.5' : 'left-0.5'} w-4 h-4 bg-white rounded-full shadow transition-all"></div>
-                                                </div>
-                                            </button>
-                                            <button onclick="toggleFloatingButton('expenses')" class="w-full flex items-center justify-between px-4 py-1.5 hover:bg-gray-50 transition">
-                                                <div class="flex items-center gap-2">
-                                                    <span class="text-lg">💰</span>
-                                                    <span class="text-gray-700 text-sm">Gastos</span>
-                                                </div>
-                                                <div class="w-9 h-5 rounded-full transition ${isFloatingButtonEnabled('expenses') ? 'bg-purple-500' : 'bg-gray-300'} relative">
-                                                    <div class="absolute top-0.5 ${isFloatingButtonEnabled('expenses') ? 'right-0.5' : 'left-0.5'} w-4 h-4 bg-white rounded-full shadow transition-all"></div>
-                                                </div>
-                                            </button>
+
+                                            <!-- FUNCIONES - Toggles útiles -->
+                                            <p class="px-4 py-1 text-xs text-gray-400 font-medium uppercase">Funciones</p>
                                             <button onclick="toggleReminders()" class="w-full flex items-center justify-between px-4 py-1.5 hover:bg-gray-50 transition">
                                                 <div class="flex items-center gap-2">
                                                     <span class="text-lg">🔔</span>
@@ -5894,25 +5882,47 @@
                                                 </select>
                                             </div>
                                             ` : ''}
-                                            <hr class="my-2 border-gray-100">
-                                            <p class="px-4 py-1 text-xs text-gray-400 font-medium uppercase">Vista</p>
-                                            <div class="px-4 py-2">
-                                                <div class="flex gap-1 p-1 bg-gray-100 rounded-xl">
-                                                    <button onclick="setViewMode('minimal')" class="flex-1 flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition ${getViewMode() === 'minimal' ? 'bg-white shadow-sm' : 'hover:bg-gray-50'}">
-                                                        <span class="text-sm">${getViewModeIcon('minimal')}</span>
-                                                        <span class="text-xs ${getViewMode() === 'minimal' ? 'text-purple-600 font-medium' : 'text-gray-500'}">Min</span>
-                                                    </button>
-                                                    <button onclick="setViewMode('medium')" class="flex-1 flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition ${getViewMode() === 'medium' ? 'bg-white shadow-sm' : 'hover:bg-gray-50'}">
-                                                        <span class="text-sm">${getViewModeIcon('medium')}</span>
-                                                        <span class="text-xs ${getViewMode() === 'medium' ? 'text-purple-600 font-medium' : 'text-gray-500'}">Media</span>
-                                                    </button>
-                                                    <button onclick="setViewMode('maximal')" class="flex-1 flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition ${getViewMode() === 'maximal' ? 'bg-white shadow-sm' : 'hover:bg-gray-50'}">
-                                                        <span class="text-sm">${getViewModeIcon('maximal')}</span>
-                                                        <span class="text-xs ${getViewMode() === 'maximal' ? 'text-purple-600 font-medium' : 'text-gray-500'}">Max</span>
-                                                    </button>
+                                            <button onclick="toggleFloatingButton('pomodoro')" class="w-full flex items-center justify-between px-4 py-1.5 hover:bg-gray-50 transition">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-lg">🍅</span>
+                                                    <span class="text-gray-700 text-sm">Pomodoro</span>
                                                 </div>
-                                            </div>
+                                                <div class="w-9 h-5 rounded-full transition ${isFloatingButtonEnabled('pomodoro') ? 'bg-purple-500' : 'bg-gray-300'} relative">
+                                                    <div class="absolute top-0.5 ${isFloatingButtonEnabled('pomodoro') ? 'right-0.5' : 'left-0.5'} w-4 h-4 bg-white rounded-full shadow transition-all"></div>
+                                                </div>
+                                            </button>
+                                            <button onclick="toggleFloatingButton('expenses')" class="w-full flex items-center justify-between px-4 py-1.5 hover:bg-gray-50 transition">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-lg">💰</span>
+                                                    <span class="text-gray-700 text-sm">Gastos</span>
+                                                </div>
+                                                <div class="w-9 h-5 rounded-full transition ${isFloatingButtonEnabled('expenses') ? 'bg-purple-500' : 'bg-gray-300'} relative">
+                                                    <div class="absolute top-0.5 ${isFloatingButtonEnabled('expenses') ? 'right-0.5' : 'left-0.5'} w-4 h-4 bg-white rounded-full shadow transition-all"></div>
+                                                </div>
+                                            </button>
                                             <hr class="my-2 border-gray-100">
+
+                                            <!-- AVANZADO - Cosas menos usadas -->
+                                            <p class="px-4 py-1 text-xs text-gray-400 font-medium uppercase">Avanzado</p>
+                                            <button onclick="openActivitySetupWizard(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition text-left">
+                                                <span class="text-xl">📅</span>
+                                                <span class="text-gray-700">Personalizar actividades</span>
+                                            </button>
+                                            <button onclick="openTemplateModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition text-left">
+                                                <span class="text-xl">📋</span>
+                                                <span class="text-gray-700">Plantillas</span>
+                                            </button>
+                                            <button onclick="openCategoriesModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition text-left">
+                                                <span class="text-xl">🏷️</span>
+                                                <span class="text-gray-700">Categorías</span>
+                                            </button>
+                                            <button onclick="openProfileModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition text-left">
+                                                <span class="text-xl">⚖️</span>
+                                                <span class="text-gray-700">Datos Físicos</span>
+                                            </button>
+                                            <hr class="my-2 border-gray-100">
+
+                                            <!-- DATOS -->
                                             <p class="px-4 py-1 text-xs text-gray-400 font-medium uppercase">Datos</p>
                                             <button onclick="syncAllData(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-blue-50 transition text-left">
                                                 <span class="text-xl">☁️</span>
