@@ -3354,12 +3354,15 @@
 
         // Get user profile for schedule customization
         function getUserSchedulePrefs() {
+            // Try user-profile first, then fall back to currentUser.preferences (from onboarding)
             const profile = JSON.parse(getStorage('user-profile') || '{}');
+            const onboardingPrefs = currentUser?.preferences || {};
+
             return {
-                wakeUp: profile.wakeUp || '07:00',
-                sleep: profile.sleep || '22:00',
-                goal: profile.goal || 'fitness',
-                occupation: profile.occupation || 'working'
+                wakeUp: profile.wakeUp || onboardingPrefs.wakeUp || '07:00',
+                sleep: profile.sleep || onboardingPrefs.sleep || '22:00',
+                goal: profile.goal || onboardingPrefs.goal || currentUser?.goal || 'fitness',
+                occupation: profile.occupation || onboardingPrefs.occupation || 'working'
             };
         }
 

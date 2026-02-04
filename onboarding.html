@@ -534,6 +534,15 @@
             const customGoals = generateWeeklyGoals(userPreferences);
             localStorage.setItem(`${userKey}-custom-goals`, JSON.stringify(customGoals));
 
+            // Save user profile for schedule customization
+            const userProfile = {
+                wakeUp: userPreferences.wakeUp,
+                sleep: userPreferences.sleep,
+                goal: userPreferences.goal,
+                occupation: userPreferences.occupation
+            };
+            localStorage.setItem(`${userKey}-user-profile`, JSON.stringify(userProfile));
+
             // Redirect to app
             window.location.href = 'app.html';
         }
