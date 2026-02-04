@@ -35,7 +35,7 @@
                     <span class="text-2xl">⏰</span>
                     <span class="font-bold gradient-text">Gestión del Tiempo</span>
                 </div>
-                <span id="stepIndicator" class="text-sm text-gray-500">Paso 1 de 5</span>
+                <span id="stepIndicator" class="text-sm text-gray-500">Paso 1 de 6</span>
             </div>
             <!-- Progress bar -->
             <div class="flex gap-2">
@@ -44,6 +44,7 @@
                 <div id="dot3" class="step-dot w-full h-2 rounded-full bg-gray-200"></div>
                 <div id="dot4" class="step-dot w-full h-2 rounded-full bg-gray-200"></div>
                 <div id="dot5" class="step-dot w-full h-2 rounded-full bg-gray-200"></div>
+                <div id="dot6" class="step-dot w-full h-2 rounded-full bg-gray-200"></div>
             </div>
         </div>
     </header>
@@ -97,8 +98,62 @@
             </div>
         </div>
 
-        <!-- Step 2: Horarios -->
+        <!-- Step 2: Color de interfaz -->
         <div id="step2" class="step-content hidden fade-in">
+            <div class="text-center mb-8">
+                <span class="text-6xl mb-4 block">🎨</span>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">¿Qué color te gusta más?</h1>
+                <p class="text-gray-600">Elige el estilo visual de tu aplicación</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="selectOption('themeColor', 'rosa', this)">
+                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-purple-500 rounded-full items-center justify-center text-white text-sm">✓</div>
+                    <div class="h-12 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 mb-3"></div>
+                    <span class="text-2xl mb-2 block">🌸</span>
+                    <h3 class="font-bold text-gray-900 text-sm">Rosa & Púrpura</h3>
+                    <p class="text-xs text-gray-500 mt-1">Elegante y femenino</p>
+                </div>
+                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="selectOption('themeColor', 'azul', this)">
+                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-blue-500 rounded-full items-center justify-center text-white text-sm">✓</div>
+                    <div class="h-12 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-600 mb-3"></div>
+                    <span class="text-2xl mb-2 block">🌊</span>
+                    <h3 class="font-bold text-gray-900 text-sm">Azul & Cyan</h3>
+                    <p class="text-xs text-gray-500 mt-1">Profesional y calmado</p>
+                </div>
+                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="selectOption('themeColor', 'verde', this)">
+                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-emerald-500 rounded-full items-center justify-center text-white text-sm">✓</div>
+                    <div class="h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 mb-3"></div>
+                    <span class="text-2xl mb-2 block">🌿</span>
+                    <h3 class="font-bold text-gray-900 text-sm">Verde & Esmeralda</h3>
+                    <p class="text-xs text-gray-500 mt-1">Natural y fresco</p>
+                </div>
+                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="selectOption('themeColor', 'naranja', this)">
+                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-orange-500 rounded-full items-center justify-center text-white text-sm">✓</div>
+                    <div class="h-12 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 mb-3"></div>
+                    <span class="text-2xl mb-2 block">🔥</span>
+                    <h3 class="font-bold text-gray-900 text-sm">Naranja & Dorado</h3>
+                    <p class="text-xs text-gray-500 mt-1">Energético y cálido</p>
+                </div>
+                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="selectOption('themeColor', 'coral', this)">
+                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-rose-500 rounded-full items-center justify-center text-white text-sm">✓</div>
+                    <div class="h-12 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 mb-3"></div>
+                    <span class="text-2xl mb-2 block">❤️</span>
+                    <h3 class="font-bold text-gray-900 text-sm">Coral & Rojo</h3>
+                    <p class="text-xs text-gray-500 mt-1">Apasionado y audaz</p>
+                </div>
+                <div class="option-card cursor-pointer p-5 bg-white rounded-2xl border-2 border-gray-200 relative" onclick="selectOption('themeColor', 'morado', this)">
+                    <div class="check-icon absolute top-3 right-3 w-6 h-6 bg-violet-500 rounded-full items-center justify-center text-white text-sm">✓</div>
+                    <div class="h-12 rounded-xl bg-gradient-to-r from-violet-500 to-indigo-600 mb-3"></div>
+                    <span class="text-2xl mb-2 block">💜</span>
+                    <h3 class="font-bold text-gray-900 text-sm">Morado & Índigo</h3>
+                    <p class="text-xs text-gray-500 mt-1">Creativo y místico</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Horarios -->
+        <div id="step3" class="step-content hidden fade-in">
             <div class="text-center mb-8">
                 <span class="text-6xl mb-4 block">⏰</span>
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">¿Cuáles son tus horarios?</h1>
@@ -139,8 +194,8 @@
             </div>
         </div>
 
-        <!-- Step 3: Ejercicio -->
-        <div id="step3" class="step-content hidden fade-in">
+        <!-- Step 4: Ejercicio -->
+        <div id="step4" class="step-content hidden fade-in">
             <div class="text-center mb-8">
                 <span class="text-6xl mb-4 block">💪</span>
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">¿Qué tipo de ejercicio prefieres?</h1>
@@ -187,8 +242,8 @@
             </div>
         </div>
 
-        <!-- Step 4: Hábitos -->
-        <div id="step4" class="step-content hidden fade-in">
+        <!-- Step 5: Hábitos -->
+        <div id="step5" class="step-content hidden fade-in">
             <div class="text-center mb-8">
                 <span class="text-6xl mb-4 block">✨</span>
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">¿Qué hábitos quieres desarrollar?</h1>
@@ -259,8 +314,8 @@
             </div>
         </div>
 
-        <!-- Step 5: Duración y Confirmación -->
-        <div id="step5" class="step-content hidden fade-in">
+        <!-- Step 6: Duración y Confirmación -->
+        <div id="step6" class="step-content hidden fade-in">
             <div class="text-center mb-8">
                 <span class="text-6xl mb-4 block">📅</span>
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">¿Cuánto tiempo durará tu plan?</h1>
@@ -328,13 +383,14 @@
         }
 
         let currentStep = 1;
-        const totalSteps = 5;
+        const totalSteps = 6;
 
         // Cloud templates from backoffice (will be loaded on init)
         let cloudTemplates = null;
 
         const userPreferences = {
             goal: null,
+            themeColor: null,
             wakeUp: '07:00',
             sleep: '22:00',
             occupation: null,
@@ -344,6 +400,9 @@
         };
 
         function selectOption(key, value, element) {
+            // Save current scroll position
+            const scrollPos = window.scrollY;
+
             userPreferences[key] = value;
 
             // Remove selected from siblings
@@ -351,6 +410,11 @@
                 card.classList.remove('selected');
             });
             element.classList.add('selected');
+
+            // Restore scroll position to prevent auto-scroll
+            requestAnimationFrame(() => {
+                window.scrollTo(0, scrollPos);
+            });
         }
 
         function selectTime(key, value, element) {
@@ -364,6 +428,9 @@
         }
 
         function toggleMultiOption(key, value, element) {
+            // Save current scroll position
+            const scrollPos = window.scrollY;
+
             const index = userPreferences[key].indexOf(value);
             if (index > -1) {
                 userPreferences[key].splice(index, 1);
@@ -382,6 +449,11 @@
                 userPreferences[key].push(value);
                 element.classList.add('selected');
             }
+
+            // Restore scroll position to prevent auto-scroll
+            requestAnimationFrame(() => {
+                window.scrollTo(0, scrollPos);
+            });
         }
 
         function updateProgress() {
@@ -413,12 +485,19 @@
             }
 
             updateProgress();
+
+            // Scroll to top of page when changing steps
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function nextStep() {
             // Validation
             if (currentStep === 1 && !userPreferences.goal) {
                 alert('Por favor selecciona tu objetivo principal');
+                return;
+            }
+            if (currentStep === 2 && !userPreferences.themeColor) {
+                alert('Por favor selecciona un color para tu interfaz');
                 return;
             }
 
@@ -443,6 +522,15 @@
                 business: '💼 Emprendimiento',
                 competition: '👑 Competencia',
                 wellness: '🧘 Bienestar'
+            };
+
+            const themeLabels = {
+                rosa: '🌸 Rosa & Púrpura',
+                azul: '🌊 Azul & Cyan',
+                verde: '🌿 Verde & Esmeralda',
+                naranja: '🔥 Naranja & Dorado',
+                coral: '❤️ Coral & Rojo',
+                morado: '💜 Morado & Índigo'
             };
 
             const exerciseLabels = {
@@ -474,6 +562,10 @@
                 <div class="flex justify-between py-2 border-b border-gray-100">
                     <span class="text-gray-500">Objetivo</span>
                     <span class="font-medium">${goalLabels[userPreferences.goal] || 'No seleccionado'}</span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-100">
+                    <span class="text-gray-500">Color</span>
+                    <span class="font-medium">${themeLabels[userPreferences.themeColor] || 'No seleccionado'}</span>
                 </div>
                 <div class="flex justify-between py-2 border-b border-gray-100">
                     <span class="text-gray-500">Horario</span>
@@ -534,12 +626,13 @@
             const customGoals = generateWeeklyGoals(userPreferences);
             localStorage.setItem(`${userKey}-custom-goals`, JSON.stringify(customGoals));
 
-            // Save user profile for schedule customization
+            // Save user profile for schedule customization and theming
             const userProfile = {
                 wakeUp: userPreferences.wakeUp,
                 sleep: userPreferences.sleep,
                 goal: userPreferences.goal,
-                occupation: userPreferences.occupation
+                occupation: userPreferences.occupation,
+                themeColor: userPreferences.themeColor || 'rosa'
             };
             localStorage.setItem(`${userKey}-user-profile`, JSON.stringify(userProfile));
 
