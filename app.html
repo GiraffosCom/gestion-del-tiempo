@@ -1952,6 +1952,64 @@
             }
         }
 
+        // Sync all data to cloud
+        async function syncAllData() {
+            if (typeof syncService === 'undefined' || !syncService.userId) {
+                alert('No hay conexión con el servidor. Intenta de nuevo más tarde.');
+                return;
+            }
+
+            // Show loading notification
+            addNotification('Sincronizando datos...', '☁️');
+
+            try {
+                // Upload all local data to Supabase
+                console.log('Starting full sync...');
+                await syncService.uploadLocalUserData();
+
+                // Also sync expenses specifically
+                const expenses = getExpenses();
+                if (expenses.length > 0) {
+                    console.log('Syncing', expenses.length, 'expenses...');
+                    // Save all expenses to user_data
+                    await syncService.saveUserData('expenses', 'expenses', expenses);
+
+                    // Also try to save each to expenses table
+                    for (const expense of expenses) {
+                        try {
+                            await syncService.saveExpense(expense);
+                        } catch (e) {
+                            console.log('Error syncing expense:', e);
+                        }
+                    }
+                }
+
+                // Sync habits
+                const habits = JSON.parse(getStorage('habits') || '{}');
+                if (Object.keys(habits).length > 0) {
+                    await syncService.saveUserData('habits', 'habits', habits);
+                }
+
+                // Sync activities
+                const activities = JSON.parse(getStorage('activities') || '{}');
+                if (Object.keys(activities).length > 0) {
+                    await syncService.saveUserData('activities', 'activities', activities);
+                }
+
+                // Sync custom schedules
+                const customSchedules = JSON.parse(getStorage('custom-schedules') || '{}');
+                if (Object.keys(customSchedules).length > 0) {
+                    await syncService.saveUserData('custom-schedules', 'custom-schedules', customSchedules);
+                }
+
+                addNotification('Sincronización completada', '✅');
+                console.log('Full sync completed!');
+            } catch (error) {
+                console.error('Sync error:', error);
+                addNotification('Error al sincronizar: ' + error.message, '❌');
+            }
+        }
+
         // Floating Buttons Settings
         function getFloatingButtonSettings() {
             return JSON.parse(getStorage('floating-buttons') || '{"pomodoro": true, "expenses": false}');
@@ -5381,6 +5439,10 @@
                                         <button onclick="openCategoriesModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition text-left">
                                             <span class="text-xl">🏷️</span>
                                             <span class="text-gray-700">Categorías</span>
+                                        </button>
+                                        <button onclick="syncAllData(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-blue-50 transition text-left">
+                                            <span class="text-xl">☁️</span>
+                                            <span class="text-blue-600">Sincronizar todo</span>
                                         </button>
                                         <hr class="my-2 border-gray-100">
                                         <p class="px-4 py-1 text-xs text-gray-400 font-medium uppercase">Botones Flotantes</p>
