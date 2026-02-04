@@ -5779,8 +5779,12 @@
 
         // State for gym subsection
         let gymSubTab = 'workout'; // 'profile', 'workout', 'history', 'macros'
+        let gymView = 'today'; // 'today' or 'week'
         let activeWorkoutExerciseIdx = null;
         let currentSetIdx = 0;
+        let restTimerActive = false;
+        let restTimerSeconds = 0;
+        let restTimerInterval = null;
 
         // State for meals/nutrition subsection
         let mealsSubTab = 'goal'; // Default to goal (META)
@@ -7572,47 +7576,396 @@
                 const latestWeight = getLatestWeight();
                 const weightHistory = getWeightHistory();
                 const todayWorkout = getTodayWorkout();
+                const activePlan = getActiveTrainingPlan();
 
-                const gymTabsOrder = getGymTabsOrder();
+                // Calculate workout streak
+                var streak = 0;
+                var logs = getWorkoutLogs();
+                if (logs.length > 0) {
+                    var today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    for (var i = 0; i < 30; i++) {
+                        var checkDate = new Date(today);
+                        checkDate.setDate(checkDate.getDate() - i);
+                        var dateStr = checkDate.toISOString().split('T')[0];
+                        var hasWorkout = logs.some(function(log) { return log.date === dateStr && log.exercises.length > 0; });
+                        if (hasWorkout) streak++;
+                        else if (i > 0) break;
+                    }
+                }
 
-                return `
-                <div class="space-y-4">
-                    <!-- Sub-tabs -->
-                    <div data-tabs-container="gym" class="flex gap-2 p-1.5 bg-gradient-to-r from-rose-100 to-purple-100 rounded-2xl relative overflow-x-auto no-scrollbar shadow-sm border border-rose-200/50">
-                        ${gymTabsOrder.map((tabId, index) => {
-                            const tabsConfig = getGymTabsConfig();
-                            const tab = tabsConfig[tabId];
-                            if (!tab) return '';
-                            const isActive = gymSubTab === tabId;
-                            return `
-                                <button
-                                    data-tab="${tabId}"
-                                    data-index="${index}"
-                                    onclick="if(!isDragging) { setGymSubTabValue('${tabId}'); render(); }"
-                                    ontouchstart="handleTabTouchStart(event, '${tabId}', 'gym')"
-                                    ontouchmove="handleTabTouchMove(event)"
-                                    ontouchend="handleTabTouchEnd(event)"
-                                    onmousedown="handleTabMouseDown(event, '${tabId}', 'gym')"
-                                    onmouseup="handleTabMouseUp(event)"
-                                    class="flex-1 py-2.5 px-3 rounded-xl text-sm font-semibold transition select-none whitespace-nowrap ${isActive ? 'bg-white shadow-md text-rose-600 border border-rose-200' : 'text-gray-600 hover:bg-white/50'}"
-                                    style="touch-action: pan-x;">
-                                    ${tab.emoji} ${tab.label}
-                                </button>
-                            `;
-                        }).join('')}
-                        <div class="drag-indicator hidden absolute top-0 bottom-0 w-0.5 bg-rose-500 rounded-full z-10"></div>
-                    </div>
+                var content = '';
 
-                    ${gymSubTab === 'profile' ? renderGymProfile(profile, latestWeight, weightHistory) : ''}
-                    ${gymSubTab === 'workout' ? renderGymWorkout(gym, dayIndex, todayWorkout) : ''}
-                    ${gymSubTab === 'macros' ? renderGymMacros() : ''}
-                    ${gymSubTab === 'history' ? renderGymHistory() : ''}
-                </div>
-            `;
+                if (gymView === 'today') {
+                    content = renderGymTodayView(gym, dayIndex, todayWorkout, activePlan, streak);
+                } else if (gymView === 'week') {
+                    content = renderGymWeekView(activePlan, dayIndex);
+                }
+
+                // Bottom navigation
+                var bottomNav = '<div class="fixed bottom-20 left-4 right-4 z-40">' +
+                    '<div class="max-w-lg mx-auto bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200 p-1.5 flex gap-2">' +
+                    '<button onclick="setGymViewTo(\'today\')" class="flex-1 py-3 px-4 rounded-xl font-semibold transition flex items-center justify-center gap-2 ' + (gymView === 'today' ? 'bg-gradient-to-r from-rose-500 to-purple-500 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100') + '">' +
+                    '<span class="text-lg">🏋️</span> Hoy</button>' +
+                    '<button onclick="setGymViewTo(\'week\')" class="flex-1 py-3 px-4 rounded-xl font-semibold transition flex items-center justify-center gap-2 ' + (gymView === 'week' ? 'bg-gradient-to-r from-rose-500 to-purple-500 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100') + '">' +
+                    '<span class="text-lg">📅</span> Semana</button>' +
+                    '<button onclick="openGymOptionsMenu()" class="py-3 px-4 rounded-xl text-gray-500 hover:bg-gray-100 transition">' +
+                    '<span class="text-lg">⚙️</span></button>' +
+                    '</div></div>';
+
+                return '<div class="space-y-4 pb-24">' + content + bottomNav + '</div>';
             } catch (error) {
                 console.error('Error in renderGym:', error);
-                return `<div class="bg-red-100 text-red-700 p-4 rounded-xl">Error: ${error.message}</div>`;
+                return '<div class="bg-red-100 text-red-700 p-4 rounded-xl">Error: ' + error.message + '</div>';
             }
+        }
+
+        function setGymViewTo(view) {
+            gymView = view;
+            render();
+        }
+
+        function renderGymTodayView(gym, dayIndex, todayWorkout, activePlan, streak) {
+            var completedEx = todayWorkout.exercises.filter(function(ex) { return ex.sets.some(function(s) { return s; }); }).length;
+            var totalEx = todayWorkout.exercises.length || (gym.exercises ? gym.exercises.length : 0);
+            var progress = totalEx > 0 ? Math.round((completedEx / totalEx) * 100) : 0;
+            var isRestDay = gym.name && gym.name.toLowerCase().indexOf('descanso') >= 0;
+
+            var html = '';
+
+            // Header card
+            html += '<div class="theme-card rounded-2xl p-5 text-white shadow-lg relative overflow-hidden">';
+            html += '<div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>';
+            html += '<div class="relative">';
+
+            // Day navigation + streak
+            html += '<div class="flex items-center justify-between mb-4">';
+            html += '<div class="flex items-center gap-2">';
+            html += '<button onclick="navigateGymDay(-1)" class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30">←</button>';
+            html += '<span class="font-medium">' + daysSpanish[dayIndex] + '</span>';
+            html += '<button onclick="navigateGymDay(1)" class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30">→</button>';
+            html += '</div>';
+            if (streak > 0) {
+                html += '<div class="flex items-center gap-1 bg-white/20 px-3 py-1 rounded-full"><span>🔥</span><span class="font-bold">' + streak + '</span></div>';
+            }
+            html += '</div>';
+
+            // Routine info
+            html += '<div class="flex items-center gap-4">';
+            html += '<span class="text-5xl">' + (gym.icon || '💪') + '</span>';
+            html += '<div class="flex-1">';
+            html += '<h2 class="text-2xl font-bold">' + (gym.name || 'Entreno') + '</h2>';
+            html += '<p class="opacity-80">' + totalEx + ' ejercicios' + (activePlan ? ' · ' + activePlan.splitName : '') + '</p>';
+            html += '</div></div>';
+
+            // Progress bar
+            if (totalEx > 0) {
+                html += '<div class="mt-4">';
+                html += '<div class="flex justify-between text-sm mb-2"><span class="opacity-80">' + completedEx + '/' + totalEx + ' completados</span><span class="font-bold">' + progress + '%</span></div>';
+                html += '<div class="h-2 bg-white/30 rounded-full overflow-hidden"><div class="h-full bg-white rounded-full transition-all" style="width:' + progress + '%"></div></div>';
+                html += '</div>';
+            }
+
+            html += '</div></div>';
+
+            // Rest day
+            if (isRestDay) {
+                html += '<div class="bg-gradient-to-br from-purple-50 to-rose-50 rounded-2xl p-8 text-center border border-purple-100">';
+                html += '<span class="text-5xl mb-4 block">🧘</span>';
+                html += '<h3 class="text-xl font-bold text-gray-800 mb-2">Día de Descanso</h3>';
+                html += '<p class="text-gray-600">Tu cuerpo necesita recuperarse</p></div>';
+                return html;
+            }
+
+            // Action buttons
+            html += '<div class="flex gap-2">';
+            html += '<button onclick="openAddWorkoutExerciseModal()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border border-purple-100"><span>➕</span> Ejercicio</button>';
+            html += '<button onclick="openRoutineTemplatesModal()" class="px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition text-amber-600 border border-amber-100" title="Plantillas">📋</button>';
+            html += '<button onclick="openTrainingPlanWizard()" class="px-4 py-3 bg-gradient-to-r from-rose-500 to-purple-500 text-white rounded-xl shadow-sm hover:opacity-90 transition" title="Plan">🎯</button>';
+            html += '</div>';
+
+            // Exercises list
+            if (todayWorkout.exercises.length === 0) {
+                html += '<div class="bg-white rounded-2xl p-8 shadow-sm text-center">';
+                html += '<span class="text-4xl mb-3 block">🏋️</span>';
+                html += '<p class="text-gray-500">No hay ejercicios registrados hoy</p>';
+                html += '<p class="text-sm text-gray-400 mt-1">Agrega ejercicios para empezar</p></div>';
+            } else {
+                html += '<div class="space-y-3">';
+                for (var i = 0; i < todayWorkout.exercises.length; i++) {
+                    html += renderGymExerciseCard(todayWorkout.exercises[i], i);
+                }
+                html += '</div>';
+            }
+
+            return html;
+        }
+
+        function renderGymExerciseCard(exercise, exIdx) {
+            var pr = getExercisePR(exercise.name);
+            var lastWeight = getLastWeight(exercise.name);
+            var completedSets = exercise.sets.filter(function(s) { return s; }).length;
+            var totalSets = Math.max(4, exercise.sets.length);
+            var isComplete = completedSets >= totalSets;
+
+            var html = '<div class="bg-white rounded-2xl shadow-sm overflow-hidden' + (isComplete ? ' ring-2 ring-green-400' : '') + '">';
+
+            // Header
+            html += '<div class="p-4' + (isComplete ? ' bg-green-50' : '') + '">';
+            html += '<div class="flex items-center gap-3">';
+            html += '<div class="w-12 h-12 ' + (isComplete ? 'bg-green-100 text-green-600' : 'bg-purple-100 text-purple-600') + ' rounded-xl flex items-center justify-center font-bold text-lg">' + (isComplete ? '✓' : (exIdx + 1)) + '</div>';
+            html += '<div class="flex-1 min-w-0">';
+            html += '<h4 class="font-bold text-gray-800 truncate">' + exercise.name + '</h4>';
+            html += '<div class="flex gap-3 text-sm text-gray-500">';
+            html += '<span>' + completedSets + '/' + totalSets + ' series</span>';
+            if (lastWeight) html += '<span>Último: ' + lastWeight + 'kg</span>';
+            if (pr.maxWeight) html += '<span class="text-amber-600">🏆 ' + pr.maxWeight + 'kg</span>';
+            html += '</div></div>';
+            html += '<button onclick="removeExerciseFromWorkout(' + exIdx + ')" class="text-gray-400 hover:text-red-500 p-2">🗑️</button>';
+            html += '</div></div>';
+
+            // Sets grid
+            html += '<div class="px-4 pb-4">';
+            html += '<div class="grid grid-cols-4 gap-2 mb-3">';
+            for (var s = 0; s < totalSets; s++) {
+                var set = exercise.sets[s];
+                var setDone = !!set;
+                html += '<button onclick="openLogSetModal(' + exIdx + ',' + s + ')" class="p-3 rounded-xl transition ' + (setDone ? 'bg-green-100 hover:bg-green-200' : 'bg-gray-100 hover:bg-purple-100') + '">';
+                html += '<span class="block text-xs text-gray-500 mb-1">Set ' + (s + 1) + '</span>';
+                if (setDone) {
+                    html += '<span class="block text-sm font-bold text-gray-800">' + set.weight + 'kg</span>';
+                    html += '<span class="block text-xs text-gray-600">×' + set.reps + '</span>';
+                } else {
+                    html += '<span class="block text-lg text-purple-500">+</span>';
+                }
+                html += '</button>';
+            }
+            html += '</div>';
+
+            // Quick log (if not complete)
+            if (!isComplete) {
+                var suggestedWeight = lastWeight || '';
+                html += '<div class="flex items-center gap-2 p-3 bg-purple-50 rounded-xl">';
+                html += '<input type="number" id="qw' + exIdx + '" value="' + suggestedWeight + '" placeholder="kg" class="w-20 px-3 py-2 bg-white border border-purple-200 rounded-lg text-center font-medium focus:ring-2 focus:ring-purple-400 focus:outline-none">';
+                html += '<span class="text-gray-400">×</span>';
+                html += '<input type="number" id="qr' + exIdx + '" value="12" placeholder="reps" class="w-16 px-3 py-2 bg-white border border-purple-200 rounded-lg text-center font-medium focus:ring-2 focus:ring-purple-400 focus:outline-none">';
+                html += '<button onclick="quickLogGymSet(' + exIdx + ')" class="flex-1 py-2 bg-gradient-to-r from-rose-500 to-purple-500 text-white rounded-lg font-medium hover:opacity-90 transition">✓ Log</button>';
+                html += '</div>';
+            } else {
+                html += '<div class="flex items-center justify-center gap-2 p-3 bg-green-50 rounded-xl text-green-700">';
+                html += '<span>✅</span><span class="font-medium">Completado</span></div>';
+            }
+
+            html += '</div></div>';
+            return html;
+        }
+
+        function quickLogGymSet(exIdx) {
+            var weightInput = document.getElementById('qw' + exIdx);
+            var repsInput = document.getElementById('qr' + exIdx);
+            var weight = parseFloat(weightInput ? weightInput.value : 0);
+            var reps = parseInt(repsInput ? repsInput.value : 0);
+
+            if (!weight || !reps) {
+                alert('Ingresa peso y repeticiones');
+                return;
+            }
+
+            var workout = getTodayWorkout();
+            var exercise = workout.exercises[exIdx];
+            var setIdx = -1;
+            for (var i = 0; i < exercise.sets.length; i++) {
+                if (!exercise.sets[i]) { setIdx = i; break; }
+            }
+            if (setIdx === -1) {
+                setIdx = exercise.sets.length;
+                exercise.sets.push(null);
+            }
+
+            exercise.sets[setIdx] = { weight: weight, reps: reps, completedAt: new Date().toISOString() };
+            saveTodayWorkout(workout);
+            checkAndNotifyPR(exercise.name, weight, reps);
+            startGymRestTimer(90);
+            render();
+        }
+
+        function navigateGymDay(delta) {
+            var newDate = new Date(currentDate);
+            newDate.setDate(newDate.getDate() + delta);
+            if (newDate >= startDate && newDate <= endDate) {
+                currentDate = newDate;
+                render();
+            }
+        }
+
+        function renderGymWeekView(activePlan, todayIdx) {
+            var days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+            var logs = getWorkoutLogs();
+            var today = new Date();
+            var startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - today.getDay());
+
+            var html = '<div class="bg-white rounded-2xl p-4 shadow-sm">';
+            html += '<h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><span>📅</span> Mi Semana';
+            if (activePlan) html += '<span class="text-sm font-normal text-purple-600 ml-auto">' + activePlan.splitName + '</span>';
+            html += '</h3>';
+
+            // Week dots
+            html += '<div class="flex justify-between mb-6">';
+            for (var i = 0; i < 7; i++) {
+                var date = new Date(startOfWeek);
+                date.setDate(startOfWeek.getDate() + i);
+                var dateStr = date.toISOString().split('T')[0];
+                var hasWorkout = logs.some(function(log) { return log.date === dateStr && log.exercises.length > 0; });
+                var isToday = i === today.getDay();
+
+                html += '<div class="flex flex-col items-center gap-1">';
+                html += '<span class="text-xs text-gray-500">' + days[i] + '</span>';
+                html += '<div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ';
+                if (isToday) html += 'ring-2 ring-purple-400 ring-offset-2 ';
+                html += (hasWorkout ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-400') + '">';
+                html += (hasWorkout ? '✓' : date.getDate()) + '</div></div>';
+            }
+            html += '</div></div>';
+
+            // Day cards
+            html += '<div class="space-y-3">';
+            for (var d = 0; d < 7; d++) {
+                var date = new Date(startOfWeek);
+                date.setDate(startOfWeek.getDate() + d);
+                var dateStr = date.toISOString().split('T')[0];
+                var hasWorkout = logs.some(function(log) { return log.date === dateStr && log.exercises.length > 0; });
+                var isToday = d === today.getDay();
+                var gym = getGymFocus(d);
+                var isRest = gym.name && gym.name.toLowerCase().indexOf('descanso') >= 0;
+
+                html += '<div onclick="goToGymDay(' + d + ')" class="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition cursor-pointer';
+                if (isToday) html += ' ring-2 ring-purple-400';
+                if (hasWorkout) html += ' bg-green-50';
+                html += '">';
+                html += '<div class="flex items-center gap-4">';
+                html += '<div class="w-14 h-14 ' + (hasWorkout ? 'bg-green-100' : 'bg-gray-100') + ' rounded-xl flex items-center justify-center">';
+                html += '<span class="text-2xl">' + (gym.icon || (isRest ? '🧘' : '💪')) + '</span></div>';
+                html += '<div class="flex-1">';
+                html += '<div class="flex items-center gap-2">';
+                html += '<span class="font-bold text-gray-800">' + days[d] + '</span>';
+                if (isToday) html += '<span class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Hoy</span>';
+                if (hasWorkout) html += '<span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">✓</span>';
+                html += '</div>';
+                html += '<p class="text-gray-600">' + (gym.name || 'Sin asignar') + '</p>';
+                html += '</div>';
+                html += '<span class="text-gray-400">→</span>';
+                html += '</div></div>';
+            }
+            html += '</div>';
+
+            // Edit plan button
+            html += '<button onclick="openTrainingPlanWizard()" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-rose-500 to-purple-500 text-white rounded-xl font-medium hover:opacity-90 transition shadow-lg mt-4">';
+            html += '<span>🎯</span> ' + (activePlan ? 'Cambiar Plan' : 'Crear Plan') + '</button>';
+
+            return html;
+        }
+
+        function goToGymDay(dayIdx) {
+            var today = new Date();
+            var diff = dayIdx - today.getDay();
+            var targetDate = new Date(today);
+            targetDate.setDate(today.getDate() + diff);
+            if (targetDate >= startDate && targetDate <= endDate) {
+                currentDate = targetDate;
+                gymView = 'today';
+                render();
+            }
+        }
+
+        function openGymOptionsMenu() {
+            var existing = document.getElementById('gymOptionsMenu');
+            if (existing) existing.remove();
+
+            var menu = document.createElement('div');
+            menu.id = 'gymOptionsMenu';
+            menu.className = 'fixed inset-0 z-50 flex items-end justify-center';
+            menu.innerHTML = '<div class="absolute inset-0 bg-black/50" onclick="closeGymOptionsMenu()"></div>' +
+                '<div class="relative bg-white rounded-t-3xl w-full max-w-lg p-6 pb-10 space-y-2">' +
+                '<div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>' +
+                '<h3 class="font-bold text-gray-800 text-lg mb-4">⚙️ Opciones</h3>' +
+                '<button onclick="closeGymOptionsMenu();setGymSubTabValue(\'profile\');gymView=\'today\';render();" class="w-full flex items-center gap-4 p-4 hover:bg-gray-50 rounded-xl transition"><span class="text-2xl">📊</span><div class="text-left"><span class="font-medium text-gray-800">Mi Perfil Físico</span><p class="text-sm text-gray-500">Peso, medidas, metas</p></div></button>' +
+                '<button onclick="closeGymOptionsMenu();setGymSubTabValue(\'macros\');gymView=\'today\';render();" class="w-full flex items-center gap-4 p-4 hover:bg-gray-50 rounded-xl transition"><span class="text-2xl">🥗</span><div class="text-left"><span class="font-medium text-gray-800">Calculadora de Macros</span><p class="text-sm text-gray-500">Calorías y nutrientes</p></div></button>' +
+                '<button onclick="closeGymOptionsMenu();setGymSubTabValue(\'history\');gymView=\'today\';render();" class="w-full flex items-center gap-4 p-4 hover:bg-gray-50 rounded-xl transition"><span class="text-2xl">📈</span><div class="text-left"><span class="font-medium text-gray-800">Historial y PRs</span><p class="text-sm text-gray-500">Entrenamientos anteriores</p></div></button>' +
+                '<button onclick="closeGymOptionsMenu();openWeightModal();" class="w-full flex items-center gap-4 p-4 hover:bg-gray-50 rounded-xl transition"><span class="text-2xl">⚖️</span><div class="text-left"><span class="font-medium text-gray-800">Registrar Peso</span><p class="text-sm text-gray-500">Actualizar medidas</p></div></button>' +
+                '<button onclick="closeGymOptionsMenu();" class="w-full p-4 mt-4 bg-gray-100 rounded-xl text-gray-600 font-medium hover:bg-gray-200 transition">Cerrar</button>' +
+                '</div>';
+            document.body.appendChild(menu);
+        }
+
+        function closeGymOptionsMenu() {
+            var menu = document.getElementById('gymOptionsMenu');
+            if (menu) menu.remove();
+        }
+
+        function startGymRestTimer(seconds) {
+            if (restTimerInterval) clearInterval(restTimerInterval);
+            restTimerSeconds = seconds;
+            restTimerActive = true;
+            showGymRestTimer();
+            restTimerInterval = setInterval(function() {
+                restTimerSeconds--;
+                updateGymRestTimer();
+                if (restTimerSeconds <= 0) {
+                    clearInterval(restTimerInterval);
+                    restTimerInterval = null;
+                    playGymTimerSound();
+                    if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
+                    setTimeout(hideGymRestTimer, 3000);
+                }
+            }, 1000);
+        }
+
+        function showGymRestTimer() {
+            var timer = document.getElementById('gymRestTimer');
+            if (!timer) {
+                timer = document.createElement('div');
+                timer.id = 'gymRestTimer';
+                timer.className = 'fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-gradient-to-r from-rose-500 to-purple-500 text-white px-6 py-3 rounded-2xl shadow-lg flex items-center gap-4';
+                document.body.appendChild(timer);
+            }
+            updateGymRestTimer();
+            timer.classList.remove('hidden');
+        }
+
+        function updateGymRestTimer() {
+            var timer = document.getElementById('gymRestTimer');
+            if (!timer) return;
+            var mins = Math.floor(restTimerSeconds / 60);
+            var secs = restTimerSeconds % 60;
+            var timeStr = mins > 0 ? mins + ':' + (secs < 10 ? '0' : '') + secs : secs + 's';
+            timer.innerHTML = '<span class="text-2xl font-bold">' + timeStr + '</span><span class="text-sm opacity-80">Descanso</span>' +
+                '<button onclick="adjustGymTimer(-15)" class="w-8 h-8 bg-white/20 rounded-full hover:bg-white/30">-</button>' +
+                '<button onclick="adjustGymTimer(15)" class="w-8 h-8 bg-white/20 rounded-full hover:bg-white/30">+</button>' +
+                '<button onclick="hideGymRestTimer()" class="w-8 h-8 bg-white/20 rounded-full hover:bg-white/30">✕</button>';
+        }
+
+        function hideGymRestTimer() {
+            var timer = document.getElementById('gymRestTimer');
+            if (timer) timer.classList.add('hidden');
+            if (restTimerInterval) { clearInterval(restTimerInterval); restTimerInterval = null; }
+            restTimerActive = false;
+        }
+
+        function adjustGymTimer(delta) {
+            restTimerSeconds = Math.max(0, restTimerSeconds + delta);
+            updateGymRestTimer();
+        }
+
+        function playGymTimerSound() {
+            try {
+                var ctx = new (window.AudioContext || window.webkitAudioContext)();
+                var osc = ctx.createOscillator();
+                var gain = ctx.createGain();
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.frequency.value = 800; osc.type = 'sine'; gain.gain.value = 0.3;
+                osc.start(); setTimeout(function() { osc.stop(); }, 200);
+            } catch (e) { console.log('Audio not supported'); }
         }
 
         function renderGymProfile(profile, latestWeight, weightHistory) {
