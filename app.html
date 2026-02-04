@@ -4129,8 +4129,9 @@
         }
 
         function replaceActivityInAllDays(originalName, newItem) {
-            // Reemplazar en horarios por defecto customizados
+            // 1. Reemplazar en horarios customizados existentes
             Object.keys(customSchedules).forEach(key => {
+                if (key === '__cleared__') return;
                 const schedule = customSchedules[key];
                 schedule.forEach((item, idx) => {
                     if (item.activity === originalName) {
@@ -4139,6 +4140,55 @@
                 });
                 setStorage(`schedule-${key}`, JSON.stringify(schedule));
             });
+
+            // 2. Reemplazar en plantillas activas (weekday/weekend)
+            const activeTemplateSchedules = JSON.parse(getStorage('active-template-schedules') || 'null');
+            if (activeTemplateSchedules) {
+                let updated = false;
+                ['weekday', 'weekend'].forEach(type => {
+                    if (activeTemplateSchedules[type]) {
+                        activeTemplateSchedules[type].forEach((item, idx) => {
+                            if (item.activity === originalName) {
+                                activeTemplateSchedules[type][idx] = { ...newItem };
+                                updated = true;
+                            }
+                        });
+                    }
+                });
+                if (updated) {
+                    setStorage('active-template-schedules', JSON.stringify(activeTemplateSchedules));
+                }
+            }
+
+            // 3. Crear horarios personalizados para los próximos 60 días
+            const today = new Date();
+            for (let i = 0; i < 60; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                const dateKey = date.toISOString().split('T')[0];
+
+                // Si ya existe, ya fue actualizado arriba
+                if (customSchedules[dateKey]) continue;
+
+                // Obtener el horario por defecto para este día
+                const defaultSchedule = getDefaultSchedule(date.getDay());
+                let hasMatch = false;
+
+                const updatedSchedule = defaultSchedule.map(item => {
+                    if (item.activity === originalName) {
+                        hasMatch = true;
+                        return { ...newItem };
+                    }
+                    return { ...item };
+                });
+
+                // Solo guardar si había coincidencia
+                if (hasMatch) {
+                    updatedSchedule.sort((a, b) => a.time.localeCompare(b.time));
+                    saveCustomSchedule(dateKey, updatedSchedule);
+                }
+            }
+
             render();
         }
 
