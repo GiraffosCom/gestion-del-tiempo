@@ -483,7 +483,6 @@
                 users[currentUser.email].goal = userPreferences.goal;
                 users[currentUser.email].duration = userPreferences.duration;
                 users[currentUser.email].preferences = userPreferences;
-                users[currentUser.email].needsActivitySetup = true;
                 localStorage.setItem('gestion-users', JSON.stringify(users));
             }
 
@@ -491,8 +490,9 @@
             currentUser.duration = userPreferences.duration;
             currentUser.preferences = userPreferences;
             currentUser.onboardingCompleted = true;
-            currentUser.needsActivitySetup = true;
+            currentUser.activitySetupCompleted = true;
             delete currentUser.needsOnboarding;
+            delete currentUser.needsActivitySetup;
             localStorage.setItem('gestion-currentUser', JSON.stringify(currentUser));
 
             var customHabits = generateHabits(userPreferences);

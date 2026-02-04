@@ -1988,11 +1988,6 @@
             window.location.href = 'onboarding.html';
         }
 
-        // Check if user needs activity setup wizard
-        if (currentUser && currentUser.needsActivitySetup && !currentUser.activitySetupCompleted) {
-            window.location.href = 'activity-setup.html';
-        }
-
         // User-specific storage key prefix
         const userKey = currentUser ? currentUser.email.replace(/[^a-z0-9]/gi, '_') : 'guest';
 
