@@ -411,28 +411,62 @@
                     <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6">
                         <div class="flex items-center justify-between mb-6">
                             <div>
-                                <h3 class="text-lg font-bold text-white">🏋️ Plantillas de Ejercicio</h3>
-                                <p class="text-slate-400 text-sm mt-1">Define las rutinas de gym según el tipo de ejercicio preferido</p>
+                                <h3 class="text-lg font-bold text-white">🏋️ Rutinas de Ejercicio por Objetivo</h3>
+                                <p class="text-slate-400 text-sm mt-1">Define rutinas personalizadas según el objetivo y tipo de ejercicio del usuario</p>
                             </div>
                         </div>
 
                         <!-- Exercise Type Tabs -->
-                        <div class="flex flex-wrap gap-2 mb-6 border-b border-slate-700 pb-4">
-                            <button onclick="selectExerciseTab('gym')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 text-white" data-exercise="gym">
-                                🏋️ Gimnasio
-                            </button>
-                            <button onclick="selectExerciseTab('cardio')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-exercise="cardio">
-                                🏃 Cardio
-                            </button>
-                            <button onclick="selectExerciseTab('yoga')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-exercise="yoga">
-                                🧘 Yoga
-                            </button>
-                            <button onclick="selectExerciseTab('dance')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-exercise="dance">
-                                💃 Baile
-                            </button>
-                            <button onclick="selectExerciseTab('sports')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-exercise="sports">
-                                ⚽ Deportes
-                            </button>
+                        <div class="mb-4">
+                            <label class="text-xs text-slate-400 mb-2 block">Tipo de Ejercicio</label>
+                            <div class="flex flex-wrap gap-2">
+                                <button onclick="selectExerciseTab('gym')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 text-white" data-exercise="gym">
+                                    🏋️ Gimnasio
+                                </button>
+                                <button onclick="selectExerciseTab('cardio')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-exercise="cardio">
+                                    🏃 Cardio
+                                </button>
+                                <button onclick="selectExerciseTab('yoga')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-exercise="yoga">
+                                    🧘 Yoga
+                                </button>
+                                <button onclick="selectExerciseTab('dance')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-exercise="dance">
+                                    💃 Baile
+                                </button>
+                                <button onclick="selectExerciseTab('sports')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-exercise="sports">
+                                    ⚽ Deportes
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Goal/Objective Tabs -->
+                        <div class="mb-6 border-b border-slate-700 pb-4">
+                            <label class="text-xs text-slate-400 mb-2 block">Objetivo del Usuario</label>
+                            <div class="flex flex-wrap gap-2">
+                                <button onclick="selectExerciseGoal('fitness')" class="exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-green-600 text-white" data-goal="fitness">
+                                    💪 Fitness
+                                </button>
+                                <button onclick="selectExerciseGoal('competition')" class="exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-600 text-slate-300 hover:bg-slate-500" data-goal="competition">
+                                    👑 Competencia
+                                </button>
+                                <button onclick="selectExerciseGoal('wellness')" class="exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-600 text-slate-300 hover:bg-slate-500" data-goal="wellness">
+                                    🧘 Bienestar
+                                </button>
+                                <button onclick="selectExerciseGoal('weightloss')" class="exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-600 text-slate-300 hover:bg-slate-500" data-goal="weightloss">
+                                    🔥 Bajar de Peso
+                                </button>
+                                <button onclick="selectExerciseGoal('muscle')" class="exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-600 text-slate-300 hover:bg-slate-500" data-goal="muscle">
+                                    💪 Ganar Músculo
+                                </button>
+                                <button onclick="selectExerciseGoal('beginner')" class="exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-600 text-slate-300 hover:bg-slate-500" data-goal="beginner">
+                                    🌱 Principiante
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Current Selection Label -->
+                        <div id="exerciseSelectionLabel" class="mb-4 p-3 bg-slate-700/50 rounded-lg">
+                            <span class="text-sm text-slate-300">Editando: </span>
+                            <span class="text-sm font-medium text-white">🏋️ Gimnasio + 💪 Fitness</span>
                         </div>
 
                         <!-- Weekly Routine Grid -->
@@ -1868,6 +1902,7 @@
 
         let currentGoalType = 'fitness';
         let currentExerciseType = 'gym';
+        let currentExerciseGoal = 'fitness';
 
         // Default templates data
         let templates = {
@@ -1971,49 +2006,284 @@
             },
             exercises: {
                 gym: {
-                    0: { name: 'Descanso Activo', icon: '🧘', exercises: ['Estiramientos 20min', 'Caminata ligera 30min'] },
-                    1: { name: 'Tren Inferior', icon: '🦵', exercises: ['Sentadillas 4x12', 'Peso muerto 4x10', 'Prensa 4x12'] },
-                    2: { name: 'Tren Superior', icon: '💪', exercises: ['Press banca 4x10', 'Remo 4x12', 'Press hombro 3x12'] },
-                    3: { name: 'Full Body', icon: '🔥', exercises: ['Sentadilla 3x12', 'Press pecho 3x12', 'Peso muerto 3x10'] },
-                    4: { name: 'Piernas + Core', icon: '🍑', exercises: ['Hip thrust 4x12', 'Sentadilla búlgara 3x10'] },
-                    5: { name: 'Cardio + Fuerza', icon: '❤️', exercises: ['HIIT 20min', 'Circuito funcional 3 rondas'] },
-                    6: { name: 'Flexibilidad', icon: '🧘', exercises: ['Yoga 45min', 'Estiramientos 20min'] }
+                    fitness: {
+                        0: { name: 'Descanso Activo', icon: '🧘', exercises: ['Estiramientos 20min', 'Caminata ligera 30min', 'Foam roller 15min'] },
+                        1: { name: 'Tren Inferior', icon: '🦵', exercises: ['Sentadillas 4x12', 'Peso muerto 4x10', 'Prensa 4x12', 'Zancadas 3x12'] },
+                        2: { name: 'Tren Superior', icon: '💪', exercises: ['Press banca 4x10', 'Remo 4x12', 'Press hombro 3x12', 'Curl bíceps 3x15'] },
+                        3: { name: 'Full Body', icon: '🔥', exercises: ['Sentadilla 3x12', 'Press pecho 3x12', 'Peso muerto 3x10', 'Plancha 3x30seg'] },
+                        4: { name: 'Piernas + Core', icon: '🍑', exercises: ['Hip thrust 4x12', 'Sentadilla búlgara 3x10', 'Curl femoral 3x12', 'Crunches 3x20'] },
+                        5: { name: 'Cardio + Fuerza', icon: '❤️', exercises: ['HIIT 20min', 'Circuito funcional 3 rondas', 'Abs 15min'] },
+                        6: { name: 'Flexibilidad', icon: '🧘', exercises: ['Yoga 45min', 'Estiramientos profundos 20min'] }
+                    },
+                    competition: {
+                        0: { name: 'Descanso Estratégico', icon: '😴', exercises: ['Recuperación activa 30min', 'Foam roller 20min', 'Hidratación'] },
+                        1: { name: 'Fuerza Máxima', icon: '🏋️', exercises: ['Sentadilla 5x5 (85%)', 'Peso muerto 5x5 (85%)', 'Press banca 5x5 (85%)'] },
+                        2: { name: 'Hipertrofia', icon: '💪', exercises: ['Press inclinado 4x10', 'Remo 4x10', 'Elevaciones laterales 4x12', 'Curl 4x12'] },
+                        3: { name: 'Potencia', icon: '⚡', exercises: ['Clean & Jerk 5x3', 'Snatch 5x3', 'Box jumps 4x8', 'Med ball throws 4x10'] },
+                        4: { name: 'Piernas Intenso', icon: '🔥', exercises: ['Front squat 4x8', 'Romanian DL 4x10', 'Leg press 4x12', 'Walking lunges 3x20'] },
+                        5: { name: 'Peak Week', icon: '👑', exercises: ['Deload - 50% volumen', 'Técnica y activación', 'Visualización 15min'] },
+                        6: { name: 'Movilidad', icon: '🧘', exercises: ['Yoga restaurativo 40min', 'Estiramientos dinámicos 20min', 'Meditación 15min'] }
+                    },
+                    wellness: {
+                        0: { name: 'Descanso Total', icon: '😴', exercises: ['Caminata suave 20min', 'Estiramientos suaves 15min'] },
+                        1: { name: 'Movilidad', icon: '🧘', exercises: ['Yoga suave 30min', 'Estiramientos 15min', 'Respiración 10min'] },
+                        2: { name: 'Fuerza Funcional', icon: '💪', exercises: ['Sentadillas 3x10', 'Plancha 3x20seg', 'Remo ligero 3x12'] },
+                        3: { name: 'Cardio Suave', icon: '🚶', exercises: ['Caminata 30min', 'Estiramientos 15min'] },
+                        4: { name: 'Core + Balance', icon: '⚖️', exercises: ['Pilates 30min', 'Equilibrio 15min', 'Respiración 10min'] },
+                        5: { name: 'Circuito Ligero', icon: '🌸', exercises: ['Circuito full body 20min', 'Yoga 20min'] },
+                        6: { name: 'Recuperación', icon: '🌙', exercises: ['Yoga restaurativo 30min', 'Meditación 20min'] }
+                    },
+                    weightloss: {
+                        0: { name: 'Descanso Activo', icon: '🚶', exercises: ['Caminata 45min', 'Estiramientos 15min'] },
+                        1: { name: 'HIIT + Fuerza', icon: '🔥', exercises: ['HIIT 25min', 'Sentadillas 3x15', 'Plancha 3x30seg'] },
+                        2: { name: 'Cardio Largo', icon: '🏃', exercises: ['Cardio moderado 45min', 'Abs 15min'] },
+                        3: { name: 'Full Body Circuit', icon: '⚡', exercises: ['Circuito 4 rondas: 10 burpees, 15 sentadillas, 20 mountain climbers'] },
+                        4: { name: 'HIIT Intenso', icon: '💦', exercises: ['Tabata 20min', 'Core 15min', 'Estiramientos 10min'] },
+                        5: { name: 'Fuerza + Cardio', icon: '💪', exercises: ['Pesas 30min', 'Cardio 20min', 'Abs 10min'] },
+                        6: { name: 'Cardio Largo', icon: '🚴', exercises: ['Bicicleta/Caminata 60min'] }
+                    },
+                    muscle: {
+                        0: { name: 'Descanso', icon: '😴', exercises: ['Estiramientos 20min', 'Foam roller 15min', 'Caminar 20min'] },
+                        1: { name: 'Pecho + Tríceps', icon: '💪', exercises: ['Press banca 4x8', 'Press inclinado 4x10', 'Fondos 3x12', 'Extensión tríceps 3x15'] },
+                        2: { name: 'Espalda + Bíceps', icon: '🦾', exercises: ['Dominadas 4x8', 'Remo 4x10', 'Jalón 3x12', 'Curl bíceps 3x12'] },
+                        3: { name: 'Piernas', icon: '🦵', exercises: ['Sentadilla 4x8', 'Prensa 4x12', 'Extensión 3x15', 'Curl femoral 3x15'] },
+                        4: { name: 'Hombros + Core', icon: '🎯', exercises: ['Press militar 4x10', 'Elevaciones 4x12', 'Face pulls 3x15', 'Plancha 3x45seg'] },
+                        5: { name: 'Full Body', icon: '🔥', exercises: ['Peso muerto 4x6', 'Press 4x8', 'Sentadilla 4x8', 'Remo 4x10'] },
+                        6: { name: 'Brazos + Core', icon: '💪', exercises: ['Superseries bíceps/tríceps 4x12', 'Core circuit 20min'] }
+                    },
+                    beginner: {
+                        0: { name: 'Descanso', icon: '😴', exercises: ['Caminata suave 20min', 'Estiramientos básicos 15min'] },
+                        1: { name: 'Introducción', icon: '🌱', exercises: ['Sentadillas sin peso 3x10', 'Flexiones de rodillas 3x8', 'Plancha 3x15seg'] },
+                        2: { name: 'Cardio Básico', icon: '🚶', exercises: ['Caminata 30min', 'Estiramientos 15min'] },
+                        3: { name: 'Full Body Ligero', icon: '✨', exercises: ['Circuito básico 2 rondas', 'Estiramientos 15min'] },
+                        4: { name: 'Movilidad', icon: '🧘', exercises: ['Yoga para principiantes 30min'] },
+                        5: { name: 'Progresión', icon: '📈', exercises: ['Sentadillas 3x12', 'Flexiones 3x10', 'Remo con banda 3x12'] },
+                        6: { name: 'Recuperación', icon: '🌸', exercises: ['Estiramientos completos 30min', 'Caminata 20min'] }
+                    }
                 },
                 cardio: {
-                    0: { name: 'Descanso', icon: '😴', exercises: ['Caminata suave 20min'] },
-                    1: { name: 'Cardio Moderado', icon: '🏃', exercises: ['Correr 30min'] },
-                    2: { name: 'HIIT', icon: '🔥', exercises: ['HIIT 20min'] },
-                    3: { name: 'Cardio Largo', icon: '🚴', exercises: ['Bicicleta 45min'] },
-                    4: { name: 'Intervalos', icon: '⚡', exercises: ['Intervalos 25min'] },
-                    5: { name: 'Cardio + Core', icon: '💪', exercises: ['Cardio 20min', 'Abs 15min'] },
-                    6: { name: 'Recuperación', icon: '🧘', exercises: ['Yoga 30min'] }
+                    fitness: {
+                        0: { name: 'Descanso', icon: '😴', exercises: ['Caminata suave 20min'] },
+                        1: { name: 'Cardio Moderado', icon: '🏃', exercises: ['Correr 30min zona 2'] },
+                        2: { name: 'HIIT', icon: '🔥', exercises: ['HIIT 25min'] },
+                        3: { name: 'Cardio Largo', icon: '🚴', exercises: ['Bicicleta 45min'] },
+                        4: { name: 'Intervalos', icon: '⚡', exercises: ['Intervalos 30min'] },
+                        5: { name: 'Cardio + Core', icon: '💪', exercises: ['Cardio 25min', 'Abs 15min'] },
+                        6: { name: 'Recuperación', icon: '🧘', exercises: ['Yoga 30min'] }
+                    },
+                    competition: {
+                        0: { name: 'Recuperación', icon: '😴', exercises: ['Cardio zona 1 - 20min', 'Estiramientos'] },
+                        1: { name: 'Tempo Run', icon: '🏃', exercises: ['Tempo run 40min zona 3-4'] },
+                        2: { name: 'Intervalos VO2', icon: '⚡', exercises: ['5x1000m con descanso 2min'] },
+                        3: { name: 'Carrera Larga', icon: '🏔️', exercises: ['Long run 60-90min zona 2'] },
+                        4: { name: 'Fartlek', icon: '🔥', exercises: ['Fartlek 45min'] },
+                        5: { name: 'Race Pace', icon: '👑', exercises: ['Práctica ritmo competencia 30min'] },
+                        6: { name: 'Recuperación Activa', icon: '🧘', exercises: ['Trote suave 20min', 'Estiramientos 20min'] }
+                    },
+                    wellness: {
+                        0: { name: 'Descanso', icon: '😴', exercises: ['Descanso total o caminata muy suave'] },
+                        1: { name: 'Caminata', icon: '🚶', exercises: ['Caminata consciente 30min'] },
+                        2: { name: 'Cardio Suave', icon: '🌸', exercises: ['Bicicleta estática 25min suave'] },
+                        3: { name: 'Natación', icon: '🏊', exercises: ['Natación suave 30min'] },
+                        4: { name: 'Elíptica', icon: '🎯', exercises: ['Elíptica 25min baja intensidad'] },
+                        5: { name: 'Cardio + Yoga', icon: '🧘', exercises: ['Cardio suave 20min', 'Yoga 20min'] },
+                        6: { name: 'Naturaleza', icon: '🌲', exercises: ['Caminata en naturaleza 45min'] }
+                    },
+                    weightloss: {
+                        0: { name: 'Descanso Activo', icon: '🚶', exercises: ['Caminata 30min'] },
+                        1: { name: 'HIIT Quema', icon: '🔥', exercises: ['HIIT 30min alta intensidad'] },
+                        2: { name: 'Cardio Zona Quema', icon: '💦', exercises: ['Cardio zona 2-3 por 45min'] },
+                        3: { name: 'Intervalos', icon: '⚡', exercises: ['30seg sprint / 1min caminar x20'] },
+                        4: { name: 'Cardio Largo', icon: '🏃', exercises: ['Correr/Caminar 50min'] },
+                        5: { name: 'HIIT + Abs', icon: '🎯', exercises: ['Tabata 20min', 'Core 20min'] },
+                        6: { name: 'Cardio Moderado', icon: '🚴', exercises: ['Bicicleta 45min'] }
+                    },
+                    muscle: {
+                        0: { name: 'Descanso', icon: '😴', exercises: ['Descanso completo'] },
+                        1: { name: 'LISS', icon: '🚶', exercises: ['Caminata inclinada 30min'] },
+                        2: { name: 'Cardio Corto', icon: '🏃', exercises: ['Cardio 20min post-pesas'] },
+                        3: { name: 'LISS', icon: '🚴', exercises: ['Bicicleta suave 25min'] },
+                        4: { name: 'Cardio Ligero', icon: '🎯', exercises: ['Elíptica 20min'] },
+                        5: { name: 'HIIT Corto', icon: '⚡', exercises: ['HIIT 15min (preservar músculo)'] },
+                        6: { name: 'Recuperación', icon: '🧘', exercises: ['Caminata 20min', 'Estiramientos'] }
+                    },
+                    beginner: {
+                        0: { name: 'Descanso', icon: '😴', exercises: ['Descanso'] },
+                        1: { name: 'Caminata', icon: '🚶', exercises: ['Caminata 20min'] },
+                        2: { name: 'Cardio Intro', icon: '🌱', exercises: ['Bicicleta suave 15min', 'Caminata 10min'] },
+                        3: { name: 'Caminata+', icon: '📈', exercises: ['Caminata 25min'] },
+                        4: { name: 'Intervalos Suaves', icon: '⚡', exercises: ['2min caminar rápido / 3min normal x5'] },
+                        5: { name: 'Cardio Moderado', icon: '🎯', exercises: ['Cardio elección 25min'] },
+                        6: { name: 'Recuperación', icon: '🧘', exercises: ['Caminata suave 15min', 'Estiramientos'] }
+                    }
                 },
                 yoga: {
-                    0: { name: 'Descanso', icon: '😴', exercises: ['Meditación 20min'] },
-                    1: { name: 'Vinyasa Flow', icon: '🧘', exercises: ['Vinyasa 40min'] },
-                    2: { name: 'Fuerza Yoga', icon: '💪', exercises: ['Power yoga 40min'] },
-                    3: { name: 'Flexibilidad', icon: '🤸', exercises: ['Yin yoga 45min'] },
-                    4: { name: 'Core Yoga', icon: '🔥', exercises: ['Yoga core 30min'] },
-                    5: { name: 'Balance', icon: '⚖️', exercises: ['Equilibrio 30min'] },
-                    6: { name: 'Restaurativo', icon: '🌙', exercises: ['Yoga restaurativo 40min'] }
+                    fitness: {
+                        0: { name: 'Descanso', icon: '😴', exercises: ['Meditación 20min'] },
+                        1: { name: 'Vinyasa Flow', icon: '🧘', exercises: ['Vinyasa 45min'] },
+                        2: { name: 'Power Yoga', icon: '💪', exercises: ['Power yoga 45min'] },
+                        3: { name: 'Flexibilidad', icon: '🤸', exercises: ['Yin yoga 45min'] },
+                        4: { name: 'Core Yoga', icon: '🔥', exercises: ['Yoga core 35min'] },
+                        5: { name: 'Balance', icon: '⚖️', exercises: ['Equilibrio y fuerza 40min'] },
+                        6: { name: 'Restaurativo', icon: '🌙', exercises: ['Yoga restaurativo 40min'] }
+                    },
+                    competition: {
+                        0: { name: 'Recuperación', icon: '😴', exercises: ['Yoga Nidra 30min'] },
+                        1: { name: 'Ashtanga', icon: '🔥', exercises: ['Ashtanga Primary Series 90min'] },
+                        2: { name: 'Power Flow', icon: '💪', exercises: ['Power Vinyasa 60min'] },
+                        3: { name: 'Técnica', icon: '🎯', exercises: ['Práctica de inversiones 45min'] },
+                        4: { name: 'Flexibilidad Profunda', icon: '🤸', exercises: ['Yin avanzado 60min'] },
+                        5: { name: 'Flow Intenso', icon: '⚡', exercises: ['Vinyasa avanzado 75min'] },
+                        6: { name: 'Meditación', icon: '🧘', exercises: ['Meditación profunda 45min', 'Pranayama 20min'] }
+                    },
+                    wellness: {
+                        0: { name: 'Descanso', icon: '😴', exercises: ['Descanso o meditación suave'] },
+                        1: { name: 'Yoga Suave', icon: '🌸', exercises: ['Hatha yoga suave 30min'] },
+                        2: { name: 'Yin Yoga', icon: '🧘', exercises: ['Yin yoga 40min'] },
+                        3: { name: 'Yoga + Meditación', icon: '🙏', exercises: ['Yoga 25min', 'Meditación 20min'] },
+                        4: { name: 'Restorative', icon: '🌙', exercises: ['Yoga restaurativo 35min'] },
+                        5: { name: 'Gentle Flow', icon: '🌊', exercises: ['Flow suave 30min'] },
+                        6: { name: 'Yoga Nidra', icon: '💤', exercises: ['Yoga Nidra 45min'] }
+                    },
+                    weightloss: {
+                        0: { name: 'Descanso', icon: '😴', exercises: ['Meditación 15min'] },
+                        1: { name: 'Power Yoga', icon: '🔥', exercises: ['Power yoga 45min'] },
+                        2: { name: 'Vinyasa Cardio', icon: '💦', exercises: ['Vinyasa dinámico 50min'] },
+                        3: { name: 'Core Focus', icon: '🎯', exercises: ['Yoga core intensive 40min'] },
+                        4: { name: 'Hot Yoga Style', icon: '🔥', exercises: ['Yoga caliente/intenso 45min'] },
+                        5: { name: 'Flow Activo', icon: '⚡', exercises: ['Flow continuo 50min'] },
+                        6: { name: 'Recuperación', icon: '🧘', exercises: ['Yin yoga 40min'] }
+                    },
+                    muscle: {
+                        0: { name: 'Descanso', icon: '😴', exercises: ['Meditación 20min'] },
+                        1: { name: 'Yoga Fuerza', icon: '💪', exercises: ['Yoga para fuerza 40min'] },
+                        2: { name: 'Flexibilidad', icon: '🤸', exercises: ['Estiramientos profundos 35min'] },
+                        3: { name: 'Core + Balance', icon: '⚖️', exercises: ['Core y equilibrio 35min'] },
+                        4: { name: 'Recuperación Muscular', icon: '🧘', exercises: ['Yoga recovery 40min'] },
+                        5: { name: 'Movilidad', icon: '🔄', exercises: ['Movilidad articular 35min'] },
+                        6: { name: 'Yin Recovery', icon: '🌙', exercises: ['Yin yoga recovery 45min'] }
+                    },
+                    beginner: {
+                        0: { name: 'Descanso', icon: '😴', exercises: ['Descanso'] },
+                        1: { name: 'Introducción', icon: '🌱', exercises: ['Yoga básico 20min'] },
+                        2: { name: 'Posturas Básicas', icon: '🧘', exercises: ['Posturas fundamentales 25min'] },
+                        3: { name: 'Respiración', icon: '🌬️', exercises: ['Pranayama básico 15min', 'Yoga 15min'] },
+                        4: { name: 'Flexibilidad', icon: '🤸', exercises: ['Estiramientos suaves 25min'] },
+                        5: { name: 'Flow Suave', icon: '🌊', exercises: ['Flow para principiantes 25min'] },
+                        6: { name: 'Relajación', icon: '🌸', exercises: ['Yoga restaurativo 20min'] }
+                    }
                 },
                 dance: {
-                    0: { name: 'Descanso', icon: '😴', exercises: ['Estiramientos 20min'] },
-                    1: { name: 'Zumba', icon: '💃', exercises: ['Zumba 45min'] },
-                    2: { name: 'Baile Cardio', icon: '🎵', exercises: ['Cardio dance 40min'] },
-                    3: { name: 'Técnica', icon: '👠', exercises: ['Técnica 30min'] },
-                    4: { name: 'Ritmos Latinos', icon: '🌴', exercises: ['Salsa/Bachata 45min'] },
-                    5: { name: 'Dance Fitness', icon: '🔥', exercises: ['Dance workout 40min'] },
-                    6: { name: 'Stretching', icon: '🧘', exercises: ['Stretching 30min'] }
+                    fitness: {
+                        0: { name: 'Descanso', icon: '😴', exercises: ['Estiramientos 20min'] },
+                        1: { name: 'Zumba', icon: '💃', exercises: ['Zumba 45min'] },
+                        2: { name: 'Baile Cardio', icon: '🎵', exercises: ['Cardio dance 45min'] },
+                        3: { name: 'Técnica', icon: '👠', exercises: ['Técnica 30min', 'Coreografía 15min'] },
+                        4: { name: 'Ritmos Latinos', icon: '🌴', exercises: ['Salsa/Bachata 45min'] },
+                        5: { name: 'Dance Fitness', icon: '🔥', exercises: ['Dance workout 50min'] },
+                        6: { name: 'Stretching', icon: '🧘', exercises: ['Stretching bailarines 30min'] }
+                    },
+                    competition: {
+                        0: { name: 'Recuperación', icon: '😴', exercises: ['Estiramientos 30min', 'Visualización'] },
+                        1: { name: 'Técnica Intensiva', icon: '🎯', exercises: ['Técnica avanzada 60min'] },
+                        2: { name: 'Coreografía', icon: '💃', exercises: ['Práctica coreografía 90min'] },
+                        3: { name: 'Condición Física', icon: '💪', exercises: ['Fuerza para bailarines 45min'] },
+                        4: { name: 'Ensayo General', icon: '🎭', exercises: ['Run-through completo 60min'] },
+                        5: { name: 'Performance', icon: '👑', exercises: ['Práctica con vestuario 45min'] },
+                        6: { name: 'Flexibilidad', icon: '🤸', exercises: ['Stretching profundo 45min'] }
+                    },
+                    wellness: {
+                        0: { name: 'Descanso', icon: '😴', exercises: ['Descanso'] },
+                        1: { name: 'Baile Libre', icon: '🎵', exercises: ['Baile libre 25min'] },
+                        2: { name: 'Movimiento', icon: '🌸', exercises: ['Movimiento consciente 30min'] },
+                        3: { name: 'Dance Meditation', icon: '🧘', exercises: ['Ecstatic dance 30min'] },
+                        4: { name: 'Ritmos Suaves', icon: '🌊', exercises: ['Ritmos suaves 25min'] },
+                        5: { name: 'Expresión', icon: '✨', exercises: ['Danza expresiva 30min'] },
+                        6: { name: 'Stretching', icon: '🌙', exercises: ['Stretching relajante 25min'] }
+                    },
+                    weightloss: {
+                        0: { name: 'Descanso Activo', icon: '🚶', exercises: ['Caminata 30min'] },
+                        1: { name: 'Zumba Intenso', icon: '🔥', exercises: ['Zumba alta intensidad 50min'] },
+                        2: { name: 'Dance HIIT', icon: '💦', exercises: ['Dance HIIT 45min'] },
+                        3: { name: 'Cardio Latino', icon: '🌴', exercises: ['Ritmos latinos 50min'] },
+                        4: { name: 'Dance Workout', icon: '⚡', exercises: ['Dance workout intenso 45min'] },
+                        5: { name: 'Baile + Core', icon: '🎯', exercises: ['Baile 35min', 'Core 15min'] },
+                        6: { name: 'Stretching', icon: '🧘', exercises: ['Stretching 30min'] }
+                    },
+                    muscle: {
+                        0: { name: 'Descanso', icon: '😴', exercises: ['Estiramientos suaves 20min'] },
+                        1: { name: 'Dance + Fuerza', icon: '💪', exercises: ['Baile 30min', 'Fuerza tren inferior 20min'] },
+                        2: { name: 'Técnica', icon: '🎯', exercises: ['Técnica y control 40min'] },
+                        3: { name: 'Core Dance', icon: '🔥', exercises: ['Core para bailarines 35min'] },
+                        4: { name: 'Fuerza + Baile', icon: '💃', exercises: ['Fuerza 25min', 'Baile 25min'] },
+                        5: { name: 'Acondicionamiento', icon: '⚡', exercises: ['Acondicionamiento bailarín 45min'] },
+                        6: { name: 'Recuperación', icon: '🧘', exercises: ['Yoga para bailarines 35min'] }
+                    },
+                    beginner: {
+                        0: { name: 'Descanso', icon: '😴', exercises: ['Descanso'] },
+                        1: { name: 'Ritmos Básicos', icon: '🌱', exercises: ['Pasos básicos 25min'] },
+                        2: { name: 'Coordinación', icon: '🎵', exercises: ['Ejercicios coordinación 20min'] },
+                        3: { name: 'Baile Fácil', icon: '💃', exercises: ['Coreografía fácil 25min'] },
+                        4: { name: 'Movimiento', icon: '🌊', exercises: ['Movimiento libre 20min'] },
+                        5: { name: 'Práctica', icon: '📈', exercises: ['Repaso pasos 25min'] },
+                        6: { name: 'Stretching', icon: '🧘', exercises: ['Estiramientos básicos 20min'] }
+                    }
                 },
                 sports: {
-                    0: { name: 'Descanso', icon: '😴', exercises: ['Recuperación activa'] },
-                    1: { name: 'Técnica', icon: '🎯', exercises: ['Práctica técnica 45min'] },
-                    2: { name: 'Fuerza', icon: '💪', exercises: ['Fuerza 40min'] },
-                    3: { name: 'Táctica', icon: '🧠', exercises: ['Entrenamiento táctico 45min'] },
-                    4: { name: 'Resistencia', icon: '❤️', exercises: ['Cardio específico 40min'] },
-                    5: { name: 'Partido', icon: '⚽', exercises: ['Práctica completa 90min'] },
-                    6: { name: 'Recuperación', icon: '🧘', exercises: ['Yoga/Pilates 30min'] }
+                    fitness: {
+                        0: { name: 'Descanso', icon: '😴', exercises: ['Recuperación activa'] },
+                        1: { name: 'Técnica', icon: '🎯', exercises: ['Práctica técnica 45min'] },
+                        2: { name: 'Fuerza', icon: '💪', exercises: ['Fuerza deportiva 40min'] },
+                        3: { name: 'Táctica', icon: '🧠', exercises: ['Entrenamiento táctico 45min'] },
+                        4: { name: 'Resistencia', icon: '❤️', exercises: ['Cardio específico 40min'] },
+                        5: { name: 'Partido', icon: '⚽', exercises: ['Práctica/Partido 90min'] },
+                        6: { name: 'Recuperación', icon: '🧘', exercises: ['Yoga/Pilates 30min'] }
+                    },
+                    competition: {
+                        0: { name: 'Recuperación', icon: '😴', exercises: ['Recuperación completa', 'Visualización 20min'] },
+                        1: { name: 'Táctica Avanzada', icon: '🧠', exercises: ['Análisis video 30min', 'Práctica táctica 60min'] },
+                        2: { name: 'Fuerza Específica', icon: '💪', exercises: ['Fuerza específica deporte 50min'] },
+                        3: { name: 'Simulación', icon: '🎯', exercises: ['Simulación competencia 75min'] },
+                        4: { name: 'Velocidad', icon: '⚡', exercises: ['Entrenamiento velocidad/agilidad 45min'] },
+                        5: { name: 'Pre-Competencia', icon: '👑', exercises: ['Activación 30min', 'Mental prep 20min'] },
+                        6: { name: 'Recuperación Activa', icon: '🧘', exercises: ['Yoga recovery 35min', 'Massage/Foam roller'] }
+                    },
+                    wellness: {
+                        0: { name: 'Descanso', icon: '😴', exercises: ['Descanso'] },
+                        1: { name: 'Juego Recreativo', icon: '⚽', exercises: ['Deporte recreativo 30min'] },
+                        2: { name: 'Movilidad', icon: '🧘', exercises: ['Movilidad deportiva 25min'] },
+                        3: { name: 'Técnica Suave', icon: '🎯', exercises: ['Práctica técnica suave 30min'] },
+                        4: { name: 'Cardio Suave', icon: '🚶', exercises: ['Cardio suave 25min'] },
+                        5: { name: 'Juego Libre', icon: '🎮', exercises: ['Juego libre/recreativo 45min'] },
+                        6: { name: 'Recuperación', icon: '🌸', exercises: ['Estiramientos 25min'] }
+                    },
+                    weightloss: {
+                        0: { name: 'Descanso Activo', icon: '🚶', exercises: ['Caminata 30min'] },
+                        1: { name: 'Deporte Cardio', icon: '⚽', exercises: ['Práctica intensa 60min'] },
+                        2: { name: 'HIIT Deportivo', icon: '🔥', exercises: ['Circuitos deportivos 45min'] },
+                        3: { name: 'Técnica + Cardio', icon: '🎯', exercises: ['Técnica 30min', 'Cardio 20min'] },
+                        4: { name: 'Partido/Práctica', icon: '⚡', exercises: ['Partido intenso 60min'] },
+                        5: { name: 'Acondicionamiento', icon: '💦', exercises: ['Acondicionamiento físico 50min'] },
+                        6: { name: 'Recuperación', icon: '🧘', exercises: ['Yoga 30min'] }
+                    },
+                    muscle: {
+                        0: { name: 'Descanso', icon: '😴', exercises: ['Descanso completo'] },
+                        1: { name: 'Fuerza Deportiva', icon: '💪', exercises: ['Fuerza específica 50min'] },
+                        2: { name: 'Técnica', icon: '🎯', exercises: ['Práctica técnica 45min'] },
+                        3: { name: 'Potencia', icon: '⚡', exercises: ['Entrenamiento potencia 45min'] },
+                        4: { name: 'Fuerza + Deporte', icon: '🏋️', exercises: ['Pesas 35min', 'Práctica 30min'] },
+                        5: { name: 'Partido', icon: '⚽', exercises: ['Práctica/Partido 60min'] },
+                        6: { name: 'Recuperación', icon: '🧘', exercises: ['Recovery yoga 35min'] }
+                    },
+                    beginner: {
+                        0: { name: 'Descanso', icon: '😴', exercises: ['Descanso'] },
+                        1: { name: 'Introducción', icon: '🌱', exercises: ['Reglas y técnica básica 30min'] },
+                        2: { name: 'Fundamentos', icon: '📚', exercises: ['Fundamentos 25min'] },
+                        3: { name: 'Práctica Suave', icon: '⚽', exercises: ['Práctica suave 30min'] },
+                        4: { name: 'Coordinación', icon: '🎯', exercises: ['Ejercicios coordinación 25min'] },
+                        5: { name: 'Mini Juego', icon: '🎮', exercises: ['Juego simplificado 30min'] },
+                        6: { name: 'Estiramientos', icon: '🧘', exercises: ['Estiramientos 20min'] }
+                    }
                 }
             },
             habitCatalog: [
@@ -2083,14 +2353,24 @@
         }
 
         function saveCurrentExerciseData() {
+            // Ensure the nested structure exists
+            if (!templates.exercises[currentExerciseType]) {
+                templates.exercises[currentExerciseType] = {};
+            }
+            if (!templates.exercises[currentExerciseType][currentExerciseGoal]) {
+                templates.exercises[currentExerciseType][currentExerciseGoal] = {};
+            }
+
             for (var i = 0; i < 7; i++) {
                 var nameInput = document.getElementById('exercise-' + i + '-name');
                 var iconInput = document.getElementById('exercise-' + i + '-icon');
                 var exercisesInput = document.getElementById('exercise-' + i + '-exercises');
-                if (nameInput && templates.exercises[currentExerciseType][i]) {
-                    templates.exercises[currentExerciseType][i].name = nameInput.value;
-                    templates.exercises[currentExerciseType][i].icon = iconInput.value;
-                    templates.exercises[currentExerciseType][i].exercises = exercisesInput.value.split('\n').filter(function(e) { return e.trim(); });
+                if (nameInput) {
+                    templates.exercises[currentExerciseType][currentExerciseGoal][i] = {
+                        name: nameInput.value,
+                        icon: iconInput.value || '💪',
+                        exercises: exercisesInput.value.split('\n').filter(function(e) { return e.trim(); })
+                    };
                 }
             }
         }
@@ -2109,7 +2389,7 @@
         }
 
         function selectExerciseTab(exerciseType) {
-            if (currentExerciseType) saveCurrentExerciseData();
+            if (currentExerciseType && currentExerciseGoal) saveCurrentExerciseData();
             currentExerciseType = exerciseType;
             document.querySelectorAll('.exercise-tab').forEach(function(tab) {
                 if (tab.dataset.exercise === exerciseType) {
@@ -2118,7 +2398,46 @@
                     tab.className = 'exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600';
                 }
             });
+            updateExerciseSelectionLabel();
             renderExerciseTemplate();
+        }
+
+        function selectExerciseGoal(goal) {
+            if (currentExerciseType && currentExerciseGoal) saveCurrentExerciseData();
+            currentExerciseGoal = goal;
+            document.querySelectorAll('.exercise-goal-tab').forEach(function(tab) {
+                if (tab.dataset.goal === goal) {
+                    tab.className = 'exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-green-600 text-white';
+                } else {
+                    tab.className = 'exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-600 text-slate-300 hover:bg-slate-500';
+                }
+            });
+            updateExerciseSelectionLabel();
+            renderExerciseTemplate();
+        }
+
+        function updateExerciseSelectionLabel() {
+            var typeLabels = {
+                gym: '🏋️ Gimnasio',
+                cardio: '🏃 Cardio',
+                yoga: '🧘 Yoga',
+                dance: '💃 Baile',
+                sports: '⚽ Deportes'
+            };
+            var goalLabels = {
+                fitness: '💪 Fitness',
+                competition: '👑 Competencia',
+                wellness: '🧘 Bienestar',
+                weightloss: '🔥 Bajar de Peso',
+                muscle: '💪 Ganar Músculo',
+                beginner: '🌱 Principiante'
+            };
+            var label = document.getElementById('exerciseSelectionLabel');
+            if (label) {
+                label.innerHTML = '<span class="text-sm text-slate-300">Editando: </span><span class="text-sm font-medium text-white">' +
+                    (typeLabels[currentExerciseType] || currentExerciseType) + ' + ' +
+                    (goalLabels[currentExerciseGoal] || currentExerciseGoal) + '</span>';
+            }
         }
 
         function renderGoalTemplate() {
@@ -2162,15 +2481,23 @@
         }
 
         function renderExerciseTemplate() {
-            var exercise = templates.exercises[currentExerciseType];
-            if (!exercise) return;
+            var exerciseType = templates.exercises[currentExerciseType];
+            if (!exerciseType) return;
+
+            var exercise = exerciseType[currentExerciseGoal];
+            if (!exercise) {
+                // If goal doesn't exist for this type, show message
+                var container = document.getElementById('exerciseTemplateContent');
+                container.innerHTML = '<div class="col-span-4 text-center py-8 text-slate-400">No hay rutina configurada para esta combinación. Los datos se crearán al guardar.</div>';
+                return;
+            }
 
             var days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
             var container = document.getElementById('exerciseTemplateContent');
             container.textContent = '';
 
-            Object.keys(exercise).forEach(function(dayIdx) {
-                var day = exercise[dayIdx];
+            for (var dayIdx = 0; dayIdx < 7; dayIdx++) {
+                var day = exercise[dayIdx] || { name: '', icon: '💪', exercises: [] };
                 var card = document.createElement('div');
                 card.className = 'bg-slate-700/50 rounded-xl p-4';
 
@@ -2187,13 +2514,13 @@
                 var iconInput = document.createElement('input');
                 iconInput.type = 'text';
                 iconInput.id = 'exercise-' + dayIdx + '-icon';
-                iconInput.value = day.icon;
+                iconInput.value = day.icon || '💪';
                 iconInput.className = 'w-12 text-center bg-slate-600 rounded px-1 py-1 text-white text-lg';
 
                 var nameInput = document.createElement('input');
                 nameInput.type = 'text';
                 nameInput.id = 'exercise-' + dayIdx + '-name';
-                nameInput.value = day.name;
+                nameInput.value = day.name || '';
                 nameInput.className = 'flex-1 bg-slate-600 rounded px-2 py-1 text-white text-sm font-medium';
 
                 row.appendChild(iconInput);
@@ -2203,14 +2530,14 @@
                 textarea.id = 'exercise-' + dayIdx + '-exercises';
                 textarea.className = 'w-full bg-slate-600 rounded px-2 py-1 text-white text-xs h-20 resize-none';
                 textarea.placeholder = 'Ejercicios (uno por línea)';
-                textarea.value = day.exercises.join('\n');
+                textarea.value = (day.exercises || []).join('\n');
 
                 inputsDiv.appendChild(row);
                 inputsDiv.appendChild(textarea);
                 card.appendChild(dayLabel);
                 card.appendChild(inputsDiv);
                 container.appendChild(card);
-            });
+            }
         }
 
         function renderHabitCatalog() {

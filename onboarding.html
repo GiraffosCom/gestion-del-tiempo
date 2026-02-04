@@ -609,10 +609,25 @@
                                  prefs.exercise.includes('dance') ? 'dance' :
                                  prefs.exercise.includes('sports') ? 'sports' : null;
 
-            // Check if cloud templates have exercise routines
-            if (cloudTemplates && cloudTemplates.exercises && cloudTemplates.exercises[exerciseType]) {
-                // Use cloud templates
-                const cloudRoutines = cloudTemplates.exercises[exerciseType];
+            // Map user goal to exercise goal
+            // User goals: fitness, productivity, learning, business, competition, wellness
+            // Exercise goals: fitness, competition, wellness, weightloss, muscle, beginner
+            const goalMapping = {
+                fitness: 'fitness',
+                productivity: 'wellness',  // Productivity users get wellness routines
+                learning: 'beginner',      // Learning users might be new to exercise
+                business: 'fitness',       // Business users get general fitness
+                competition: 'competition',
+                wellness: 'wellness'
+            };
+            const exerciseGoal = goalMapping[prefs.goal] || 'fitness';
+
+            // Check if cloud templates have exercise routines for this type + goal combo
+            if (cloudTemplates && cloudTemplates.exercises &&
+                cloudTemplates.exercises[exerciseType] &&
+                cloudTemplates.exercises[exerciseType][exerciseGoal]) {
+                // Use cloud templates with goal-specific routines
+                const cloudRoutines = cloudTemplates.exercises[exerciseType][exerciseGoal];
                 for (let day = 0; day < 7; day++) {
                     if (cloudRoutines[day]) {
                         routines[day] = {
@@ -623,6 +638,24 @@
                     }
                 }
                 return routines;
+            }
+
+            // Also check old format (without goals) for backwards compatibility
+            if (cloudTemplates && cloudTemplates.exercises && cloudTemplates.exercises[exerciseType]) {
+                const cloudRoutines = cloudTemplates.exercises[exerciseType];
+                // Check if it's the old format (has day indexes directly)
+                if (cloudRoutines[0] && !cloudRoutines.fitness) {
+                    for (let day = 0; day < 7; day++) {
+                        if (cloudRoutines[day]) {
+                            routines[day] = {
+                                name: cloudRoutines[day].name,
+                                icon: cloudRoutines[day].icon,
+                                exercises: cloudRoutines[day].exercises || []
+                            };
+                        }
+                    }
+                    return routines;
+                }
             }
 
             // Fallback to default routines
