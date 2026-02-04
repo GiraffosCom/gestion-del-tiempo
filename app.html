@@ -13469,35 +13469,77 @@
          * Add activity from voice command
          */
         function executeVoiceActivity(text) {
-            // Extract time
-            let time = null;
-            const timeMatch = text.match(/a\s*las?\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm|de la mañana|de la tarde|de la noche)?/i)
-                || text.match(/(\d{1,2})(?::(\d{2}))?\s*(pm|am)/i);
+            // Spanish hour numbers map
+            const hourWords = {
+                'una': 1, 'dos': 2, 'tres': 3, 'cuatro': 4, 'cinco': 5, 'seis': 6,
+                'siete': 7, 'ocho': 8, 'nueve': 9, 'diez': 10, 'once': 11, 'doce': 12
+            };
 
-            if (timeMatch) {
-                let hours = parseInt(timeMatch[1]);
-                const minutes = timeMatch[2] ? parseInt(timeMatch[2]) : 0;
-                const period = (timeMatch[3] || '').toLowerCase();
-
-                if (period.includes('pm') || period.includes('tarde') || period.includes('noche')) {
-                    if (hours < 12) hours += 12;
-                } else if (period.includes('am') || period.includes('mañana')) {
-                    if (hours === 12) hours = 0;
-                } else if (hours >= 1 && hours <= 6) {
-                    hours += 12; // Assume PM for 1-6
-                }
-                time = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+            // Detect target date: "mañana", "pasado mañana", "hoy"
+            let targetDate = new Date();
+            let dateLabel = 'hoy';
+            let dateExpression = null;
+            const hasDeLaMañana = /de la mañana/i.test(text);
+            if (text.match(/pasado\s+mañana/i)) {
+                targetDate.setDate(targetDate.getDate() + 2);
+                dateLabel = 'pasado mañana';
+                dateExpression = /pasado\s+mañana/i;
+            } else if (!hasDeLaMañana && text.match(/\bmañana\b/i)) {
+                // "mañana" as tomorrow, but NOT when it's "de la mañana" (AM)
+                targetDate.setDate(targetDate.getDate() + 1);
+                dateLabel = 'mañana';
+                dateExpression = /\bmañana\b/i;
             }
 
-            // Extract activity name - remove keywords
+            // Extract time - support both digits AND Spanish words
+            let time = null;
+            let timeExpression = null;
+
+            // Pattern 1: "a las tres pm", "a las 3 pm", "a las cuatro de la tarde"
+            const timeRegex1 = /a\s*las?\s+(\w+)(?::(\d{2}))?\s*(am|pm|de la mañana|de la tarde|de la noche)?/i;
+            // Pattern 2: "3 pm", "tres pm"
+            const timeRegex2 = /(\w+)\s*(pm|am|de la tarde|de la mañana|de la noche)/i;
+
+            let timeMatch = text.match(timeRegex1) || text.match(timeRegex2);
+
+            if (timeMatch) {
+                let hourStr = timeMatch[1];
+                let hours = parseInt(hourStr);
+                // If not a digit, try Spanish word
+                if (isNaN(hours)) {
+                    hours = hourWords[hourStr.toLowerCase()] || null;
+                }
+
+                if (hours !== null) {
+                    const minutes = timeMatch[2] ? parseInt(timeMatch[2]) : 0;
+                    const period = (timeMatch[3] || '').toLowerCase();
+
+                    if (period.includes('pm') || period.includes('tarde') || period.includes('noche')) {
+                        if (hours < 12) hours += 12;
+                    } else if (period.includes('am') || period.includes('mañana')) {
+                        if (hours === 12) hours = 0;
+                    } else if (hours >= 1 && hours <= 6) {
+                        hours += 12; // Assume PM for 1-6
+                    }
+                    time = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+                    timeExpression = timeMatch[0];
+                }
+            }
+
+            // Extract activity name - remove keywords and time/date expressions
             let name = text;
+            // Remove time expression FIRST (before date, since time may contain "mañana")
+            if (timeExpression) name = name.replace(timeExpression, '');
+            // Remove date expression
+            if (dateExpression) name = name.replace(dateExpression, '');
+            // Remove action keywords
             const removeWords = ['agregar', 'añadir', 'crear', 'programar', 'agendar', 'poner',
-                'actividad', 'tarea', 'cita', 'evento', 'una', 'un', 'el', 'la', 'de', 'del', 'para', 'por'];
+                'actividad', 'tarea', 'cita', 'evento', 'que tengo que', 'tengo que', 'necesito', 'debo'];
             removeWords.forEach(w => {
-                name = name.replace(new RegExp(`\\b${w}\\b`, 'gi'), '');
+                name = name.replace(new RegExp(w, 'gi'), '');
             });
-            // Remove time expressions
-            if (timeMatch) name = name.replace(timeMatch[0], '');
+            // Clean up articles and prepositions at start
+            name = name.replace(/^\s*(una?|el|la|los|las|de|del|para|por)\s+/gi, '');
             name = name.replace(/\s+/g, ' ').trim();
 
             if (name.length < 2) {
@@ -13509,9 +13551,9 @@
 
             if (!time) time = '12:00';
 
-            // Add to schedule using the app's inline format
-            const dateKey = getDateKey();
-            let schedule = getSchedule(currentDate.getDay(), dateKey);
+            // Use target date
+            const dateKey = targetDate.toISOString().split('T')[0];
+            let schedule = getSchedule(targetDate.getDay(), dateKey);
 
             if (!customSchedules[dateKey]) {
                 schedule = JSON.parse(JSON.stringify(schedule));
@@ -13522,7 +13564,8 @@
             schedule.sort((a, b) => a.time.localeCompare(b.time));
             saveCustomSchedule(dateKey, schedule);
 
-            return { success: true, message: `✅ "${name}" agregado a las ${time}` };
+            const dateMsg = dateLabel !== 'hoy' ? ` (${dateLabel} ${dateKey})` : '';
+            return { success: true, message: `✅ "${name}" agregado a las ${time}${dateMsg}` };
         }
 
         /**
