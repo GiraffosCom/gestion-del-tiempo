@@ -2098,16 +2098,15 @@
         }
 
         function applyTheme() {
-            const gender = getUserGender();
-            if (gender === 'male' || gender === 'Male' || gender === 'masculino' || gender === 'Masculino') {
-                document.body.classList.add('theme-male');
-            } else {
-                document.body.classList.remove('theme-male');
-            }
-            // Apply new theme class
             const themeColor = getUserThemeColor();
-            document.body.classList.remove('theme-rosa', 'theme-azul', 'theme-verde', 'theme-naranja', 'theme-coral', 'theme-morado');
+            // Remove all theme classes
+            document.body.classList.remove('theme-male', 'theme-rosa', 'theme-azul', 'theme-verde', 'theme-naranja', 'theme-coral', 'theme-morado');
+            // Apply new theme class
             document.body.classList.add('theme-' + themeColor);
+            // Keep theme-male for backwards compatibility with azul
+            if (themeColor === 'azul') {
+                document.body.classList.add('theme-male');
+            }
         }
 
         // Apply dark mode and theme on page load
