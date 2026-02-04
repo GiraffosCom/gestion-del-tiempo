@@ -8781,8 +8781,30 @@
         async function loadExpensesFromServer() {
             if (typeof syncService !== 'undefined' && syncService.userId) {
                 try {
-                    const expenses = await syncService.getExpenses();
-                    console.log('Expenses loaded from Supabase:', expenses.length);
+                    // First try to get expenses from expenses table
+                    const expensesFromTable = await syncService.getExpenses();
+                    console.log('Expenses from expenses table:', expensesFromTable.length);
+
+                    // Also check user_data for expenses (backup source)
+                    const userData = await syncService.getUserData('expenses', 'expenses');
+                    if (userData && userData.length > 0 && userData[0].data_value) {
+                        const expensesFromUserData = userData[0].data_value;
+                        if (Array.isArray(expensesFromUserData) && expensesFromUserData.length > 0) {
+                            console.log('Expenses from user_data:', expensesFromUserData.length);
+
+                            // Merge: combine both sources, avoid duplicates by ID
+                            const existingIds = new Set(expensesFromTable.map(e => String(e.id)));
+                            const newFromUserData = expensesFromUserData.filter(e => !existingIds.has(String(e.id)));
+
+                            if (newFromUserData.length > 0) {
+                                const merged = [...expensesFromTable, ...newFromUserData];
+                                // Save merged to localStorage
+                                setStorage('expenses', JSON.stringify(merged));
+                                console.log('Merged expenses total:', merged.length);
+                            }
+                        }
+                    }
+
                     // Trigger re-render if we're on the expenses tab
                     if (currentTab === 'gastos') {
                         render();
@@ -9430,6 +9452,7 @@
             }
 
             const expense = {
+                id: Date.now(),
                 store: store || 'Sin nombre',
                 date: date || getTodayKey(),
                 total: parseFloat(total),
@@ -9439,25 +9462,19 @@
                 createdAt: new Date().toISOString()
             };
 
-            // Sync with Supabase if available
+            // ALWAYS save to localStorage via setStorage (which syncs to user_data)
+            const expenses = getExpenses();
+            expenses.push(expense);
+            saveExpenses(expenses); // This uses setStorage which syncs to Supabase user_data
+
+            // ALSO try to save to expenses table directly
             if (typeof syncService !== 'undefined' && syncService.userId) {
                 try {
-                    const savedExpense = await syncService.saveExpense(expense);
-                    console.log('Expense synced to Supabase:', savedExpense);
+                    await syncService.saveExpense(expense);
+                    console.log('Expense also synced to expenses table');
                 } catch (error) {
-                    console.error('Error syncing expense:', error);
-                    // Fallback to local save
-                    expense.id = Date.now();
-                    const expenses = getExpenses();
-                    expenses.push(expense);
-                    saveExpenses(expenses);
+                    console.error('Error syncing to expenses table:', error);
                 }
-            } else {
-                // Local-only save
-                expense.id = Date.now();
-                const expenses = getExpenses();
-                expenses.push(expense);
-                saveExpenses(expenses);
             }
 
             closeScanReceiptModal();
@@ -9478,6 +9495,7 @@
             }
 
             const expense = {
+                id: Date.now(),
                 store: store || 'Sin nombre',
                 date: date || getTodayKey(),
                 total: parseFloat(total),
@@ -9487,25 +9505,19 @@
                 createdAt: new Date().toISOString()
             };
 
-            // Sync with Supabase if available
+            // ALWAYS save to localStorage via setStorage (which syncs to user_data)
+            const expenses = getExpenses();
+            expenses.push(expense);
+            saveExpenses(expenses); // This uses setStorage which syncs to Supabase user_data
+
+            // ALSO try to save to expenses table directly
             if (typeof syncService !== 'undefined' && syncService.userId) {
                 try {
-                    const savedExpense = await syncService.saveExpense(expense);
-                    console.log('Expense synced to Supabase:', savedExpense);
+                    await syncService.saveExpense(expense);
+                    console.log('Expense also synced to expenses table');
                 } catch (error) {
-                    console.error('Error syncing expense:', error);
-                    // Fallback to local save
-                    expense.id = Date.now();
-                    const expenses = getExpenses();
-                    expenses.push(expense);
-                    saveExpenses(expenses);
+                    console.error('Error syncing to expenses table:', error);
                 }
-            } else {
-                // Local-only save
-                expense.id = Date.now();
-                const expenses = getExpenses();
-                expenses.push(expense);
-                saveExpenses(expenses);
             }
 
             closeAddExpenseModal();
