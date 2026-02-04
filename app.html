@@ -1844,6 +1844,41 @@
         </div>
     </div>
 
+    <!-- Modal Wizard Plan de Entrenamiento -->
+    <div id="trainingPlanWizardModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeTrainingPlanWizard()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto transform transition-all" onclick="event.stopPropagation()">
+            <!-- Header with Progress -->
+            <div class="sticky top-0 bg-white p-4 border-b border-gray-100 z-10">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-bold text-gray-800">🏋️ Crear Plan de Entrenamiento</h3>
+                    <button onclick="closeTrainingPlanWizard()" class="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+                </div>
+                <!-- Progress Bar -->
+                <div class="flex items-center gap-2">
+                    <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div id="trainingPlanProgress" class="h-full bg-gradient-to-r from-rose-500 to-purple-500 transition-all duration-300" style="width: 20%"></div>
+                    </div>
+                    <span id="trainingPlanStepLabel" class="text-xs font-medium text-gray-500">1/5</span>
+                </div>
+            </div>
+
+            <!-- Step Content Container -->
+            <div id="trainingPlanStepContent" class="p-5">
+                <!-- Steps will be rendered here dynamically -->
+            </div>
+
+            <!-- Footer with Navigation -->
+            <div class="sticky bottom-0 bg-white p-4 border-t border-gray-100 flex gap-3">
+                <button id="trainingPlanBackBtn" onclick="prevTrainingPlanStep()" class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition hidden">
+                    ← Atrás
+                </button>
+                <button id="trainingPlanNextBtn" onclick="nextTrainingPlanStep()" class="flex-1 px-4 py-3 bg-gradient-to-r from-rose-500 to-purple-500 text-white rounded-xl font-medium hover:opacity-90 transition">
+                    Siguiente →
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Check login
         const currentUser = JSON.parse(localStorage.getItem('gestion-currentUser'));
@@ -3287,6 +3322,107 @@
 
         // Dashboard visibility state - hidden by default
         let dashboardVisible = getStorage('dashboard-visible') === 'true';
+
+        // Training Plan Wizard State
+        let trainingPlanStep = 1;
+        let trainingPlanData = {
+            profile: { age: null, sex: null, height: null, weight: null, level: 'beginner', injuries: [] },
+            goal: { primary: null, secondary: null },
+            availability: { daysPerWeek: 3, preferredTime: 'morning', sessionDuration: 45, selectedDays: [] },
+            preferences: { location: 'gym', equipment: ['dumbbells', 'machines'], priorityZones: [], avoidZones: [] }
+        };
+
+        // Training Plan Exercise Database
+        const TRAINING_EXERCISE_DB = {
+            glutes: [
+                { name: 'Hip Thrust', equipment: ['barbell', 'machines'], level: 'all', sets: 4, reps: '10-12' },
+                { name: 'Romanian Deadlift', equipment: ['barbell', 'dumbbells'], level: 'all', sets: 4, reps: '10-12' },
+                { name: 'Bulgarian Split Squat', equipment: ['dumbbells', 'bodyweight'], level: 'intermediate', sets: 3, reps: '10-12' },
+                { name: 'Cable Kickback', equipment: ['cables'], level: 'all', sets: 3, reps: '12-15' },
+                { name: 'Glute Bridge', equipment: ['bodyweight'], level: 'beginner', sets: 3, reps: '15-20' },
+                { name: 'Sumo Squat', equipment: ['dumbbells', 'barbell'], level: 'all', sets: 3, reps: '12-15' }
+            ],
+            legs: [
+                { name: 'Squat', equipment: ['barbell', 'machines'], level: 'all', sets: 4, reps: '8-10' },
+                { name: 'Leg Press', equipment: ['machines'], level: 'all', sets: 4, reps: '10-12' },
+                { name: 'Leg Extension', equipment: ['machines'], level: 'all', sets: 3, reps: '12-15' },
+                { name: 'Leg Curl', equipment: ['machines'], level: 'all', sets: 3, reps: '12-15' },
+                { name: 'Lunges', equipment: ['dumbbells', 'bodyweight'], level: 'all', sets: 3, reps: '10-12' },
+                { name: 'Calf Raises', equipment: ['machines', 'bodyweight'], level: 'all', sets: 4, reps: '15-20' }
+            ],
+            chest: [
+                { name: 'Bench Press', equipment: ['barbell'], level: 'all', sets: 4, reps: '8-10' },
+                { name: 'Incline DB Press', equipment: ['dumbbells'], level: 'all', sets: 3, reps: '10-12' },
+                { name: 'Cable Flyes', equipment: ['cables'], level: 'all', sets: 3, reps: '12-15' },
+                { name: 'Push Ups', equipment: ['bodyweight'], level: 'all', sets: 3, reps: '12-15' },
+                { name: 'Chest Press Machine', equipment: ['machines'], level: 'beginner', sets: 3, reps: '10-12' }
+            ],
+            back: [
+                { name: 'Lat Pulldown', equipment: ['cables', 'machines'], level: 'all', sets: 4, reps: '10-12' },
+                { name: 'Barbell Row', equipment: ['barbell'], level: 'intermediate', sets: 4, reps: '8-10' },
+                { name: 'Seated Cable Row', equipment: ['cables'], level: 'all', sets: 3, reps: '10-12' },
+                { name: 'Pull Ups', equipment: ['bodyweight'], level: 'intermediate', sets: 3, reps: '8-12' },
+                { name: 'Dumbbell Row', equipment: ['dumbbells'], level: 'all', sets: 3, reps: '10-12' },
+                { name: 'Face Pulls', equipment: ['cables'], level: 'all', sets: 3, reps: '15-20' }
+            ],
+            shoulders: [
+                { name: 'Overhead Press', equipment: ['barbell', 'dumbbells'], level: 'all', sets: 4, reps: '8-10' },
+                { name: 'Lateral Raises', equipment: ['dumbbells', 'cables'], level: 'all', sets: 3, reps: '12-15' },
+                { name: 'Front Raises', equipment: ['dumbbells'], level: 'all', sets: 3, reps: '12-15' },
+                { name: 'Rear Delt Flyes', equipment: ['dumbbells', 'cables'], level: 'all', sets: 3, reps: '12-15' },
+                { name: 'Arnold Press', equipment: ['dumbbells'], level: 'intermediate', sets: 3, reps: '10-12' }
+            ],
+            arms: [
+                { name: 'Bicep Curls', equipment: ['dumbbells', 'barbell', 'cables'], level: 'all', sets: 3, reps: '10-12' },
+                { name: 'Tricep Pushdown', equipment: ['cables'], level: 'all', sets: 3, reps: '12-15' },
+                { name: 'Hammer Curls', equipment: ['dumbbells'], level: 'all', sets: 3, reps: '10-12' },
+                { name: 'Skull Crushers', equipment: ['barbell', 'dumbbells'], level: 'intermediate', sets: 3, reps: '10-12' },
+                { name: 'Tricep Dips', equipment: ['bodyweight'], level: 'intermediate', sets: 3, reps: '10-15' },
+                { name: 'Preacher Curls', equipment: ['barbell', 'dumbbells'], level: 'all', sets: 3, reps: '10-12' }
+            ],
+            core: [
+                { name: 'Plank', equipment: ['bodyweight'], level: 'all', sets: 3, reps: '30-60s' },
+                { name: 'Cable Crunch', equipment: ['cables'], level: 'all', sets: 3, reps: '15-20' },
+                { name: 'Hanging Leg Raise', equipment: ['bodyweight'], level: 'intermediate', sets: 3, reps: '10-15' },
+                { name: 'Russian Twist', equipment: ['bodyweight', 'dumbbells'], level: 'all', sets: 3, reps: '20-30' },
+                { name: 'Dead Bug', equipment: ['bodyweight'], level: 'beginner', sets: 3, reps: '10-12' },
+                { name: 'Ab Wheel Rollout', equipment: ['bodyweight'], level: 'advanced', sets: 3, reps: '8-12' }
+            ]
+        };
+
+        // Training Split Types
+        const TRAINING_SPLIT_TYPES = {
+            3: {
+                full_body: { name: 'Full Body', routine: ['full', 'full', 'full'], icon: '🔄' },
+                push_pull_legs: { name: 'Push/Pull/Legs', routine: ['push', 'pull', 'legs'], icon: '💪' }
+            },
+            4: {
+                upper_lower: { name: 'Upper/Lower', routine: ['upper', 'lower', 'upper', 'lower'], icon: '⬆️⬇️' },
+                push_pull: { name: 'Push/Pull 2x', routine: ['push', 'pull', 'push', 'pull'], icon: '🔁' }
+            },
+            5: {
+                ppl_upper_lower: { name: 'PPL + Upper/Lower', routine: ['push', 'pull', 'legs', 'upper', 'lower'], icon: '📅' },
+                bro_split: { name: 'Bro Split', routine: ['chest', 'back', 'shoulders', 'legs', 'arms'], icon: '💥' }
+            },
+            6: {
+                ppl_2x: { name: 'PPL 2x/semana', routine: ['push', 'pull', 'legs', 'push', 'pull', 'legs'], icon: '🔥' }
+            }
+        };
+
+        // Routine type definitions for exercise selection
+        const ROUTINE_MUSCLES = {
+            push: ['chest', 'shoulders', 'arms'],
+            pull: ['back', 'arms'],
+            legs: ['legs', 'glutes'],
+            upper: ['chest', 'back', 'shoulders', 'arms'],
+            lower: ['legs', 'glutes', 'core'],
+            full: ['chest', 'back', 'shoulders', 'legs', 'glutes', 'core'],
+            chest: ['chest'],
+            back: ['back'],
+            shoulders: ['shoulders'],
+            arms: ['arms'],
+            core: ['core']
+        };
 
         const daysSpanish = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
         const monthsSpanish = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -6645,7 +6781,32 @@
         function renderGymWorkout(gym, dayIndex, todayWorkout) {
             try {
                 const completedSets = todayWorkout.exercises.reduce((sum, ex) => sum + ex.sets.filter(s => s).length, 0);
-            const totalSets = todayWorkout.exercises.length * 4; // Assume 4 sets per exercise
+                const totalSets = todayWorkout.exercises.length * 4;
+                const activePlan = getActiveTrainingPlan();
+                const hasNoPlan = !activePlan;
+                const isEmptyRoutine = !gym.name || gym.name === '' || gym.name === 'Descanso';
+                const noExercisesToday = todayWorkout.exercises.length === 0;
+
+                // Show "Create Plan" empty state if no plan and empty routine
+                if (hasNoPlan && isEmptyRoutine && noExercisesToday) {
+                    return `
+                        <div class="text-center py-12">
+                            <div class="w-20 h-20 mx-auto bg-gradient-to-br from-rose-100 to-purple-100 rounded-full flex items-center justify-center mb-4">
+                                <span class="text-4xl">🏋️</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Sin plan de entrenamiento</h3>
+                            <p class="text-gray-500 mb-6">Crea un plan personalizado basado en tus objetivos</p>
+                            <button onclick="openTrainingPlanWizard()" class="px-6 py-3 bg-gradient-to-r from-rose-500 to-purple-500 text-white rounded-xl font-medium hover:opacity-90 transition shadow-lg">
+                                ➕ Agregar Plan
+                            </button>
+                            <div class="mt-4">
+                                <button onclick="openAddWorkoutExerciseModal()" class="text-purple-600 text-sm hover:underline">
+                                    o agregar ejercicios manualmente
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
 
             return `
                 <!-- Today's Routine Header -->
@@ -6655,6 +6816,7 @@
                         <div class="flex-1">
                             <h3 class="text-xl font-bold">${gym.name}</h3>
                             <p class="opacity-90 text-sm">${daysSpanish[dayIndex]}</p>
+                            ${activePlan ? '<span class="text-xs bg-white/20 px-2 py-0.5 rounded-full">' + activePlan.splitName + '</span>' : ''}
                         </div>
                         ${todayWorkout.exercises.length > 0 ? `
                             <div class="text-right">
@@ -6665,17 +6827,28 @@
                     </div>
                 </div>
 
-                <!-- Add Exercise Button -->
-                <button onclick="openAddWorkoutExerciseModal()" class="w-full flex items-center justify-center gap-2 px-4 py-4 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-dashed border-purple-200">
-                    <span class="text-xl">➕</span> Agregar Ejercicio
-                </button>
+                <!-- Plan Actions -->
+                ${activePlan ? `
+                    <div class="flex gap-2">
+                        <button onclick="openAddWorkoutExerciseModal()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-dashed border-purple-200">
+                            <span class="text-lg">➕</span> Agregar Ejercicio
+                        </button>
+                        <button onclick="deleteTrainingPlan()" class="px-4 py-3 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 transition" title="Eliminar plan">
+                            🗑️
+                        </button>
+                    </div>
+                ` : `
+                    <button onclick="openAddWorkoutExerciseModal()" class="w-full flex items-center justify-center gap-2 px-4 py-4 bg-white rounded-xl shadow-sm hover:shadow-md transition font-medium text-purple-600 border-2 border-dashed border-purple-200">
+                        <span class="text-xl">➕</span> Agregar Ejercicio
+                    </button>
+                `}
 
                 <!-- Exercises -->
                 ${todayWorkout.exercises.length === 0 ? `
                     <div class="bg-white rounded-2xl p-8 shadow-sm text-center">
                         <span class="text-5xl mb-3 block">🏋️</span>
-                        <p class="text-gray-500 mb-2">No hay ejercicios en tu rutina de hoy</p>
-                        <p class="text-sm text-gray-400">Agrega ejercicios para comenzar a trackear</p>
+                        <p class="text-gray-500 mb-2">No hay ejercicios registrados hoy</p>
+                        <p class="text-sm text-gray-400">Los ejercicios de tu plan aparecerán cuando los agregues</p>
                     </div>
                 ` : `
                     <div class="space-y-4">
@@ -8550,6 +8723,669 @@
 
         function closeFastingCompletionModal() {
             document.getElementById('fastingCompletionModal').classList.add('hidden');
+        }
+
+        // ==========================================
+        // TRAINING PLAN WIZARD FUNCTIONS
+        // ==========================================
+
+        function getActiveTrainingPlan() {
+            const plan = JSON.parse(getStorage('training-plan') || 'null');
+            if (plan && plan.status === 'active') {
+                return plan;
+            }
+            return null;
+        }
+
+        function saveTrainingPlan(plan) {
+            setStorage('training-plan', JSON.stringify(plan));
+        }
+
+        function hasActiveTrainingPlan() {
+            return getActiveTrainingPlan() !== null;
+        }
+
+        function openTrainingPlanWizard() {
+            trainingPlanStep = 1;
+            trainingPlanData = {
+                profile: { age: null, sex: null, height: null, weight: null, level: 'beginner', injuries: [] },
+                goal: { primary: null, secondary: null },
+                availability: { daysPerWeek: 3, preferredTime: 'morning', sessionDuration: 45, selectedDays: [] },
+                preferences: { location: 'gym', equipment: ['dumbbells', 'machines'], priorityZones: [], avoidZones: [] }
+            };
+            document.getElementById('trainingPlanWizardModal').classList.remove('hidden');
+            renderTrainingPlanStep();
+        }
+
+        function closeTrainingPlanWizard() {
+            document.getElementById('trainingPlanWizardModal').classList.add('hidden');
+        }
+
+        function nextTrainingPlanStep() {
+            if (!validateTrainingPlanStep(trainingPlanStep)) return;
+
+            if (trainingPlanStep === 5) {
+                const plan = generateTrainingPlan(trainingPlanData);
+                saveTrainingPlan(plan);
+                applyTrainingPlanToGym(plan);
+                closeTrainingPlanWizard();
+                render();
+                return;
+            }
+
+            trainingPlanStep++;
+            renderTrainingPlanStep();
+        }
+
+        function prevTrainingPlanStep() {
+            if (trainingPlanStep > 1) {
+                trainingPlanStep--;
+                renderTrainingPlanStep();
+            }
+        }
+
+        function validateTrainingPlanStep(step) {
+            switch (step) {
+                case 1:
+                    if (!trainingPlanData.profile.age || trainingPlanData.profile.age < 14 || trainingPlanData.profile.age > 99) {
+                        alert('Por favor ingresa tu edad (14-99 años)');
+                        return false;
+                    }
+                    if (!trainingPlanData.profile.sex) {
+                        alert('Por favor selecciona tu sexo');
+                        return false;
+                    }
+                    return true;
+                case 2:
+                    if (!trainingPlanData.goal.primary) {
+                        alert('Por favor selecciona tu objetivo principal');
+                        return false;
+                    }
+                    return true;
+                case 3:
+                    if (trainingPlanData.availability.selectedDays.length !== trainingPlanData.availability.daysPerWeek) {
+                        alert('Por favor selecciona exactamente ' + trainingPlanData.availability.daysPerWeek + ' días');
+                        return false;
+                    }
+                    return true;
+                case 4:
+                    if (trainingPlanData.preferences.equipment.length === 0) {
+                        alert('Por favor selecciona al menos un tipo de equipamiento');
+                        return false;
+                    }
+                    return true;
+                case 5:
+                    return true;
+                default:
+                    return true;
+            }
+        }
+
+        function renderTrainingPlanStep() {
+            const container = document.getElementById('trainingPlanStepContent');
+            const progress = document.getElementById('trainingPlanProgress');
+            const stepLabel = document.getElementById('trainingPlanStepLabel');
+            const backBtn = document.getElementById('trainingPlanBackBtn');
+            const nextBtn = document.getElementById('trainingPlanNextBtn');
+
+            progress.style.width = ((trainingPlanStep / 5) * 100) + '%';
+            stepLabel.textContent = trainingPlanStep + '/5';
+
+            backBtn.classList.toggle('hidden', trainingPlanStep === 1);
+            nextBtn.textContent = trainingPlanStep === 5 ? '🚀 Generar mi Plan' : 'Siguiente →';
+
+            switch (trainingPlanStep) {
+                case 1: container.innerHTML = renderTrainingPlanStep1(); break;
+                case 2: container.innerHTML = renderTrainingPlanStep2(); break;
+                case 3: container.innerHTML = renderTrainingPlanStep3(); break;
+                case 4: container.innerHTML = renderTrainingPlanStep4(); break;
+                case 5: container.innerHTML = renderTrainingPlanStep5(); break;
+            }
+        }
+
+        function renderTrainingPlanStep1() {
+            const profile = trainingPlanData.profile;
+            const injuries = ['rodilla', 'espalda', 'hombro', 'muñeca', 'cadera'];
+            const levelLabels = { beginner: '🌱 Principiante', intermediate: '💪 Intermedio', advanced: '🔥 Avanzado' };
+            const levelDescs = { beginner: '0-1 año', intermediate: '1-3 años', advanced: '3+ años' };
+
+            let html = '<div class="space-y-5">';
+            html += '<div class="text-center mb-6"><span class="text-4xl">📊</span>';
+            html += '<h4 class="text-xl font-bold text-gray-800 mt-2">Tu Perfil Físico</h4>';
+            html += '<p class="text-gray-500 text-sm">Personaliza tu plan según tu cuerpo</p></div>';
+
+            html += '<div class="grid grid-cols-2 gap-4">';
+            html += '<div><label class="block text-sm font-medium text-gray-700 mb-1">Edad</label>';
+            html += '<input type="number" id="tpAge" value="' + (profile.age || '') + '" min="14" max="99" ';
+            html += 'onchange="trainingPlanData.profile.age = parseInt(this.value)" ';
+            html += 'class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent" placeholder="Años"></div>';
+
+            html += '<div><label class="block text-sm font-medium text-gray-700 mb-1">Sexo</label>';
+            html += '<div class="flex gap-2">';
+            html += '<button onclick="setTrainingPlanSex(\'male\')" class="flex-1 py-3 rounded-xl font-medium transition ' + (profile.sex === 'male' ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-400' : 'bg-gray-100 text-gray-600 hover:bg-gray-200') + '">♂️ M</button>';
+            html += '<button onclick="setTrainingPlanSex(\'female\')" class="flex-1 py-3 rounded-xl font-medium transition ' + (profile.sex === 'female' ? 'bg-pink-100 text-pink-700 ring-2 ring-pink-400' : 'bg-gray-100 text-gray-600 hover:bg-gray-200') + '">♀️ F</button>';
+            html += '</div></div></div>';
+
+            html += '<div class="grid grid-cols-2 gap-4">';
+            html += '<div><label class="block text-sm font-medium text-gray-700 mb-1">Altura (cm)</label>';
+            html += '<input type="number" id="tpHeight" value="' + (profile.height || '') + '" min="100" max="250" ';
+            html += 'onchange="trainingPlanData.profile.height = parseInt(this.value)" ';
+            html += 'class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent" placeholder="cm"></div>';
+            html += '<div><label class="block text-sm font-medium text-gray-700 mb-1">Peso (kg)</label>';
+            html += '<input type="number" id="tpWeight" value="' + (profile.weight || '') + '" min="30" max="300" ';
+            html += 'onchange="trainingPlanData.profile.weight = parseInt(this.value)" ';
+            html += 'class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-transparent" placeholder="kg"></div></div>';
+
+            html += '<div><label class="block text-sm font-medium text-gray-700 mb-2">Nivel de experiencia</label>';
+            html += '<div class="grid grid-cols-3 gap-2">';
+            ['beginner', 'intermediate', 'advanced'].forEach(function(level) {
+                html += '<button onclick="setTrainingPlanLevel(\'' + level + '\')" class="py-3 px-2 rounded-xl text-center transition ' + (profile.level === level ? 'bg-purple-100 text-purple-700 ring-2 ring-purple-400' : 'bg-gray-100 text-gray-600 hover:bg-gray-200') + '">';
+                html += '<span class="block text-sm font-medium">' + levelLabels[level] + '</span>';
+                html += '<span class="block text-xs text-gray-500">' + levelDescs[level] + '</span></button>';
+            });
+            html += '</div></div>';
+
+            html += '<div><label class="block text-sm font-medium text-gray-700 mb-2">¿Tienes lesiones? (opcional)</label>';
+            html += '<div class="flex flex-wrap gap-2">';
+            injuries.forEach(function(injury) {
+                html += '<button onclick="toggleTrainingPlanInjury(\'' + injury + '\')" class="px-3 py-2 rounded-lg text-sm font-medium transition ' + (profile.injuries.indexOf(injury) >= 0 ? 'bg-red-100 text-red-700 ring-2 ring-red-400' : 'bg-gray-100 text-gray-600 hover:bg-gray-200') + '">';
+                html += injury.charAt(0).toUpperCase() + injury.slice(1) + '</button>';
+            });
+            html += '<button onclick="setNoInjuries()" class="px-3 py-2 rounded-lg text-sm font-medium transition ' + (profile.injuries.length === 0 ? 'bg-green-100 text-green-700 ring-2 ring-green-400' : 'bg-gray-100 text-gray-600 hover:bg-gray-200') + '">✓ Ninguna</button>';
+            html += '</div></div></div>';
+
+            return html;
+        }
+
+        function renderTrainingPlanStep2() {
+            const goal = trainingPlanData.goal;
+            const goals = [
+                { id: 'fat_loss', icon: '🔥', name: 'Bajar grasa', desc: 'Quemar grasa y definir' },
+                { id: 'muscle_gain', icon: '💪', name: 'Ganar músculo', desc: 'Aumentar masa muscular' },
+                { id: 'tone', icon: '✨', name: 'Tonificar', desc: 'Definición sin volumen' },
+                { id: 'strength', icon: '🏋️', name: 'Fuerza', desc: 'Más peso, más potencia' },
+                { id: 'endurance', icon: '🏃', name: 'Resistencia', desc: 'Aguante y cardio' },
+                { id: 'health', icon: '❤️', name: 'Salud', desc: 'Bienestar general' }
+            ];
+
+            let html = '<div class="space-y-5">';
+            html += '<div class="text-center mb-6"><span class="text-4xl">🎯</span>';
+            html += '<h4 class="text-xl font-bold text-gray-800 mt-2">Tu Objetivo</h4>';
+            html += '<p class="text-gray-500 text-sm">¿Qué quieres lograr?</p></div>';
+
+            html += '<div class="grid grid-cols-2 gap-3">';
+            goals.forEach(function(g) {
+                html += '<button onclick="setTrainingPlanGoal(\'' + g.id + '\')" class="p-4 rounded-xl text-center transition border-2 ' + (goal.primary === g.id ? 'bg-purple-50 border-purple-400 ring-2 ring-purple-200' : 'bg-white border-gray-200 hover:border-purple-200') + '">';
+                html += '<span class="text-3xl block mb-2">' + g.icon + '</span>';
+                html += '<span class="block font-bold text-gray-800">' + g.name + '</span>';
+                html += '<span class="block text-xs text-gray-500">' + g.desc + '</span></button>';
+            });
+            html += '</div></div>';
+
+            return html;
+        }
+
+        function renderTrainingPlanStep3() {
+            const availability = trainingPlanData.availability;
+            const days = ['D', 'L', 'M', 'Mi', 'J', 'V', 'S'];
+            const daysFull = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+            let html = '<div class="space-y-5">';
+            html += '<div class="text-center mb-6"><span class="text-4xl">📅</span>';
+            html += '<h4 class="text-xl font-bold text-gray-800 mt-2">Tu Disponibilidad</h4>';
+            html += '<p class="text-gray-500 text-sm">¿Cuándo puedes entrenar?</p></div>';
+
+            html += '<div><label class="block text-sm font-medium text-gray-700 mb-2">Días por semana</label>';
+            html += '<div class="flex gap-2">';
+            [3, 4, 5, 6].forEach(function(d) {
+                html += '<button onclick="setTrainingPlanDaysPerWeek(' + d + ')" class="flex-1 py-3 rounded-xl font-bold transition ' + (availability.daysPerWeek === d ? 'bg-purple-100 text-purple-700 ring-2 ring-purple-400' : 'bg-gray-100 text-gray-600 hover:bg-gray-200') + '">' + d + '</button>';
+            });
+            html += '</div></div>';
+
+            html += '<div><label class="block text-sm font-medium text-gray-700 mb-2">Selecciona los días <span class="text-purple-600">(' + availability.selectedDays.length + '/' + availability.daysPerWeek + ')</span></label>';
+            html += '<div class="grid grid-cols-7 gap-1">';
+            for (var i = 0; i < 7; i++) {
+                var isSelected = availability.selectedDays.indexOf(i) >= 0;
+                var isDisabled = availability.selectedDays.length >= availability.daysPerWeek && !isSelected;
+                html += '<button onclick="toggleTrainingPlanDay(' + i + ')" class="py-3 rounded-xl font-medium text-sm transition ' + (isSelected ? 'bg-purple-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200') + (isDisabled ? ' opacity-50' : '') + '">' + days[i] + '</button>';
+            }
+            html += '</div>';
+            var selectedDayNames = availability.selectedDays.map(function(d) { return daysFull[d]; }).join(', ');
+            html += '<p class="text-xs text-gray-500 mt-1">' + (selectedDayNames || 'Ningún día seleccionado') + '</p></div>';
+
+            html += '<div><label class="block text-sm font-medium text-gray-700 mb-2">Horario preferido</label>';
+            html += '<div class="grid grid-cols-3 gap-2">';
+            var times = [
+                { id: 'morning', icon: '🌅', name: 'Mañana', time: '6-12h' },
+                { id: 'afternoon', icon: '☀️', name: 'Tarde', time: '12-18h' },
+                { id: 'evening', icon: '🌙', name: 'Noche', time: '18-22h' }
+            ];
+            times.forEach(function(t) {
+                html += '<button onclick="setTrainingPlanTime(\'' + t.id + '\')" class="py-3 px-2 rounded-xl text-center transition ' + (availability.preferredTime === t.id ? 'bg-purple-100 text-purple-700 ring-2 ring-purple-400' : 'bg-gray-100 text-gray-600 hover:bg-gray-200') + '">';
+                html += '<span class="block text-xl">' + t.icon + '</span>';
+                html += '<span class="block text-sm font-medium">' + t.name + '</span>';
+                html += '<span class="block text-xs text-gray-500">' + t.time + '</span></button>';
+            });
+            html += '</div></div>';
+
+            html += '<div><label class="block text-sm font-medium text-gray-700 mb-2">Duración por sesión</label>';
+            html += '<div class="flex gap-2">';
+            [30, 45, 60, 75].forEach(function(d) {
+                html += '<button onclick="setTrainingPlanDuration(' + d + ')" class="flex-1 py-3 rounded-xl font-medium transition ' + (availability.sessionDuration === d ? 'bg-purple-100 text-purple-700 ring-2 ring-purple-400' : 'bg-gray-100 text-gray-600 hover:bg-gray-200') + '">' + d + '\'</button>';
+            });
+            html += '</div></div></div>';
+
+            return html;
+        }
+
+        function renderTrainingPlanStep4() {
+            const preferences = trainingPlanData.preferences;
+            const equipment = [
+                { id: 'barbell', name: 'Barra' },
+                { id: 'dumbbells', name: 'Mancuernas' },
+                { id: 'machines', name: 'Máquinas' },
+                { id: 'cables', name: 'Poleas' },
+                { id: 'bodyweight', name: 'Peso corporal' }
+            ];
+            const zones = [
+                { id: 'glutes', name: 'Glúteos', icon: '🍑' },
+                { id: 'legs', name: 'Piernas', icon: '🦵' },
+                { id: 'back', name: 'Espalda', icon: '🔙' },
+                { id: 'chest', name: 'Pecho', icon: '💪' },
+                { id: 'arms', name: 'Brazos', icon: '💪' },
+                { id: 'core', name: 'Core', icon: '🎯' }
+            ];
+            const locations = [
+                { id: 'gym', icon: '🏋️', name: 'Gimnasio' },
+                { id: 'home', icon: '🏠', name: 'Casa' },
+                { id: 'mixed', icon: '🔄', name: 'Mixto' }
+            ];
+
+            let html = '<div class="space-y-5">';
+            html += '<div class="text-center mb-6"><span class="text-4xl">⚙️</span>';
+            html += '<h4 class="text-xl font-bold text-gray-800 mt-2">Preferencias</h4>';
+            html += '<p class="text-gray-500 text-sm">Personaliza tu entrenamiento</p></div>';
+
+            html += '<div><label class="block text-sm font-medium text-gray-700 mb-2">¿Dónde entrenas?</label>';
+            html += '<div class="grid grid-cols-3 gap-2">';
+            locations.forEach(function(l) {
+                html += '<button onclick="setTrainingPlanLocation(\'' + l.id + '\')" class="py-3 rounded-xl text-center transition ' + (preferences.location === l.id ? 'bg-purple-100 text-purple-700 ring-2 ring-purple-400' : 'bg-gray-100 text-gray-600 hover:bg-gray-200') + '">';
+                html += '<span class="block text-2xl">' + l.icon + '</span>';
+                html += '<span class="block text-sm font-medium">' + l.name + '</span></button>';
+            });
+            html += '</div></div>';
+
+            html += '<div><label class="block text-sm font-medium text-gray-700 mb-2">Equipamiento disponible</label>';
+            html += '<div class="flex flex-wrap gap-2">';
+            equipment.forEach(function(e) {
+                html += '<button onclick="toggleTrainingPlanEquipment(\'' + e.id + '\')" class="px-3 py-2 rounded-lg text-sm font-medium transition ' + (preferences.equipment.indexOf(e.id) >= 0 ? 'bg-purple-100 text-purple-700 ring-2 ring-purple-400' : 'bg-gray-100 text-gray-600 hover:bg-gray-200') + '">' + e.name + '</button>';
+            });
+            html += '</div></div>';
+
+            html += '<div><label class="block text-sm font-medium text-gray-700 mb-2">Zonas a priorizar <span class="text-gray-500">(máx. 3)</span></label>';
+            html += '<div class="grid grid-cols-3 gap-2">';
+            zones.forEach(function(z) {
+                var isSelected = preferences.priorityZones.indexOf(z.id) >= 0;
+                var isDisabled = preferences.priorityZones.length >= 3 && !isSelected;
+                html += '<button onclick="toggleTrainingPlanZone(\'' + z.id + '\', \'priority\')" class="py-2 px-3 rounded-lg text-sm font-medium transition ' + (isSelected ? 'bg-green-100 text-green-700 ring-2 ring-green-400' : 'bg-gray-100 text-gray-600 hover:bg-gray-200') + (isDisabled ? ' opacity-50' : '') + '">' + z.icon + ' ' + z.name + '</button>';
+            });
+            html += '</div></div></div>';
+
+            return html;
+        }
+
+        function renderTrainingPlanStep5() {
+            const profile = trainingPlanData.profile;
+            const goal = trainingPlanData.goal;
+            const availability = trainingPlanData.availability;
+            const preferences = trainingPlanData.preferences;
+
+            const goalLabels = {
+                fat_loss: '🔥 Bajar grasa',
+                muscle_gain: '💪 Ganar músculo',
+                tone: '✨ Tonificar',
+                strength: '🏋️ Fuerza',
+                endurance: '🏃 Resistencia',
+                health: '❤️ Salud'
+            };
+            const levelLabels = { beginner: 'Principiante', intermediate: 'Intermedio', advanced: 'Avanzado' };
+            const timeLabels = { morning: '🌅 Mañana', afternoon: '☀️ Tarde', evening: '🌙 Noche' };
+            const daysFull = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+            const splits = TRAINING_SPLIT_TYPES[availability.daysPerWeek];
+            const splitKey = Object.keys(splits)[0];
+            const split = splits[splitKey];
+
+            const routineNames = {
+                push: { name: 'Push (Empuje)', icon: '💪' },
+                pull: { name: 'Pull (Tirón)', icon: '🔙' },
+                legs: { name: 'Piernas + Glúteos', icon: '🦵' },
+                upper: { name: 'Tren Superior', icon: '💪' },
+                lower: { name: 'Tren Inferior', icon: '🦵' },
+                full: { name: 'Full Body', icon: '🔥' },
+                chest: { name: 'Pecho', icon: '💪' },
+                back: { name: 'Espalda', icon: '🔙' },
+                shoulders: { name: 'Hombros', icon: '🎯' },
+                arms: { name: 'Brazos', icon: '💪' },
+                core: { name: 'Core', icon: '🎯' }
+            };
+
+            let html = '<div class="space-y-5">';
+            html += '<div class="text-center mb-6"><span class="text-4xl">✅</span>';
+            html += '<h4 class="text-xl font-bold text-gray-800 mt-2">Tu Plan Personalizado</h4>';
+            html += '<p class="text-gray-500 text-sm">Revisa y confirma</p></div>';
+
+            html += '<div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 space-y-2">';
+            html += '<h5 class="font-bold text-gray-800 mb-3">📋 Resumen</h5>';
+            html += '<div class="grid grid-cols-2 gap-2 text-sm">';
+            html += '<div class="text-gray-600">Objetivo:</div><div class="font-medium text-gray-800">' + goalLabels[goal.primary] + '</div>';
+            html += '<div class="text-gray-600">Nivel:</div><div class="font-medium text-gray-800">' + levelLabels[profile.level] + '</div>';
+            html += '<div class="text-gray-600">Días:</div><div class="font-medium text-gray-800">' + availability.daysPerWeek + ' días/semana</div>';
+            html += '<div class="text-gray-600">Duración:</div><div class="font-medium text-gray-800">' + availability.sessionDuration + ' min/sesión</div>';
+            html += '<div class="text-gray-600">Horario:</div><div class="font-medium text-gray-800">' + timeLabels[availability.preferredTime] + '</div>';
+            html += '<div class="text-gray-600">Split:</div><div class="font-medium text-gray-800">' + split.icon + ' ' + split.name + '</div>';
+            html += '</div></div>';
+
+            html += '<div class="bg-white rounded-xl border border-gray-200 p-4">';
+            html += '<h5 class="font-bold text-gray-800 mb-3">📅 Tu Semana</h5>';
+            html += '<div class="space-y-2">';
+            availability.selectedDays.forEach(function(dayIndex, i) {
+                var routineType = split.routine[i % split.routine.length];
+                var routine = routineNames[routineType] || { name: 'Entrenamiento', icon: '💪' };
+                html += '<div class="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">';
+                html += '<span class="w-10 text-center font-bold text-purple-600">' + daysFull[dayIndex] + '</span>';
+                html += '<span class="text-xl">' + routine.icon + '</span>';
+                html += '<span class="flex-1 font-medium text-gray-700">' + routine.name + '</span></div>';
+            });
+            html += '</div></div>';
+
+            html += '<div class="bg-amber-50 border border-amber-200 rounded-xl p-3">';
+            html += '<p class="text-amber-800 text-sm">💡 <strong>Nota:</strong> Se agregará automáticamente a tu sección de Entreno y podrás modificarlo cuando quieras.</p>';
+            html += '</div></div>';
+
+            return html;
+        }
+
+        function setTrainingPlanSex(sex) {
+            trainingPlanData.profile.sex = sex;
+            renderTrainingPlanStep();
+        }
+
+        function setTrainingPlanLevel(level) {
+            trainingPlanData.profile.level = level;
+            renderTrainingPlanStep();
+        }
+
+        function toggleTrainingPlanInjury(injury) {
+            var idx = trainingPlanData.profile.injuries.indexOf(injury);
+            if (idx >= 0) {
+                trainingPlanData.profile.injuries.splice(idx, 1);
+            } else {
+                trainingPlanData.profile.injuries.push(injury);
+            }
+            renderTrainingPlanStep();
+        }
+
+        function setNoInjuries() {
+            trainingPlanData.profile.injuries = [];
+            renderTrainingPlanStep();
+        }
+
+        function setTrainingPlanGoal(goal) {
+            trainingPlanData.goal.primary = goal;
+            renderTrainingPlanStep();
+        }
+
+        function setTrainingPlanDaysPerWeek(days) {
+            trainingPlanData.availability.daysPerWeek = days;
+            if (trainingPlanData.availability.selectedDays.length > days) {
+                trainingPlanData.availability.selectedDays = trainingPlanData.availability.selectedDays.slice(0, days);
+            }
+            renderTrainingPlanStep();
+        }
+
+        function toggleTrainingPlanDay(dayIndex) {
+            var selected = trainingPlanData.availability.selectedDays;
+            var idx = selected.indexOf(dayIndex);
+            if (idx >= 0) {
+                selected.splice(idx, 1);
+            } else if (selected.length < trainingPlanData.availability.daysPerWeek) {
+                selected.push(dayIndex);
+                selected.sort(function(a, b) { return a - b; });
+            }
+            renderTrainingPlanStep();
+        }
+
+        function setTrainingPlanTime(time) {
+            trainingPlanData.availability.preferredTime = time;
+            renderTrainingPlanStep();
+        }
+
+        function setTrainingPlanDuration(duration) {
+            trainingPlanData.availability.sessionDuration = duration;
+            renderTrainingPlanStep();
+        }
+
+        function setTrainingPlanLocation(location) {
+            trainingPlanData.preferences.location = location;
+            if (location === 'home') {
+                trainingPlanData.preferences.equipment = ['dumbbells', 'bodyweight'];
+            } else if (location === 'gym') {
+                trainingPlanData.preferences.equipment = ['dumbbells', 'machines', 'cables', 'barbell'];
+            }
+            renderTrainingPlanStep();
+        }
+
+        function toggleTrainingPlanEquipment(equipment) {
+            var equip = trainingPlanData.preferences.equipment;
+            var idx = equip.indexOf(equipment);
+            if (idx >= 0) {
+                equip.splice(idx, 1);
+            } else {
+                equip.push(equipment);
+            }
+            renderTrainingPlanStep();
+        }
+
+        function toggleTrainingPlanZone(zone, type) {
+            var zones = type === 'priority' ? trainingPlanData.preferences.priorityZones : trainingPlanData.preferences.avoidZones;
+            var idx = zones.indexOf(zone);
+            if (idx >= 0) {
+                zones.splice(idx, 1);
+            } else if (zones.length < 3) {
+                zones.push(zone);
+            }
+            renderTrainingPlanStep();
+        }
+
+        function generateTrainingPlan(data) {
+            var profile = data.profile;
+            var goal = data.goal;
+            var availability = data.availability;
+            var preferences = data.preferences;
+            var splits = TRAINING_SPLIT_TYPES[availability.daysPerWeek];
+            var splitKey = Object.keys(splits)[0];
+            var split = splits[splitKey];
+
+            var weeklyPlan = {};
+            var routineNames = {
+                push: { name: 'Push (Empuje)', icon: '💪' },
+                pull: { name: 'Pull (Tirón)', icon: '🔙' },
+                legs: { name: 'Piernas + Glúteos', icon: '🦵' },
+                upper: { name: 'Tren Superior', icon: '💪' },
+                lower: { name: 'Tren Inferior', icon: '🦵' },
+                full: { name: 'Full Body', icon: '🔥' },
+                chest: { name: 'Pecho', icon: '💪' },
+                back: { name: 'Espalda', icon: '🔙' },
+                shoulders: { name: 'Hombros', icon: '🎯' },
+                arms: { name: 'Brazos', icon: '💪' },
+                core: { name: 'Core', icon: '🎯' }
+            };
+
+            availability.selectedDays.forEach(function(dayIndex, i) {
+                var routineType = split.routine[i % split.routine.length];
+                var routineInfo = routineNames[routineType] || { name: 'Entrenamiento', icon: '💪' };
+                var exercises = generateDayExercises(routineType, {
+                    level: profile.level,
+                    goal: goal.primary,
+                    equipment: preferences.equipment,
+                    priority: preferences.priorityZones,
+                    injuries: profile.injuries,
+                    duration: availability.sessionDuration
+                });
+
+                weeklyPlan[dayIndex] = {
+                    name: routineInfo.name,
+                    icon: routineInfo.icon,
+                    type: routineType,
+                    exercises: exercises
+                };
+            });
+
+            return {
+                id: Date.now(),
+                createdAt: new Date().toISOString(),
+                status: 'active',
+                profile: profile,
+                goal: goal,
+                availability: availability,
+                preferences: preferences,
+                weeklyPlan: weeklyPlan,
+                splitName: split.name
+            };
+        }
+
+        function generateDayExercises(routineType, options) {
+            var level = options.level;
+            var goal = options.goal;
+            var equipment = options.equipment;
+            var priority = options.priority;
+            var injuries = options.injuries;
+            var duration = options.duration;
+            var muscles = ROUTINE_MUSCLES[routineType] || [];
+            var exercises = [];
+
+            var exerciseCount = duration <= 30 ? 4 : duration <= 45 ? 5 : duration <= 60 ? 6 : 7;
+
+            muscles.forEach(function(muscle) {
+                var muscleExercises = TRAINING_EXERCISE_DB[muscle] || [];
+
+                var filtered = muscleExercises.filter(function(ex) {
+                    var hasEquipment = ex.equipment.some(function(eq) { return equipment.indexOf(eq) >= 0; });
+                    var levelOk = ex.level === 'all' || ex.level === level || (level === 'advanced');
+                    return hasEquipment && levelOk;
+                });
+
+                if (injuries.indexOf('rodilla') >= 0) {
+                    filtered = filtered.filter(function(ex) {
+                        return ['Squat', 'Lunges', 'Bulgarian Split Squat'].indexOf(ex.name) < 0;
+                    });
+                }
+                if (injuries.indexOf('espalda') >= 0) {
+                    filtered = filtered.filter(function(ex) {
+                        return ['Barbell Row', 'Romanian Deadlift'].indexOf(ex.name) < 0;
+                    });
+                }
+                if (injuries.indexOf('hombro') >= 0) {
+                    filtered = filtered.filter(function(ex) {
+                        return ['Overhead Press', 'Bench Press', 'Incline DB Press'].indexOf(ex.name) < 0;
+                    });
+                }
+
+                if (priority.indexOf(muscle) >= 0) {
+                    var toAdd = filtered.slice(0, 2);
+                    toAdd.forEach(function(ex) {
+                        if (exercises.length < exerciseCount) {
+                            exercises.push({
+                                id: muscle + '-' + ex.name.replace(/\s+/g, '-').toLowerCase(),
+                                name: ex.name,
+                                muscle: muscle,
+                                sets: adjustSetsForGoal(ex.sets, goal),
+                                reps: adjustRepsForGoal(ex.reps, goal),
+                                rest: getRestTime(goal),
+                                order: exercises.length + 1
+                            });
+                        }
+                    });
+                } else if (filtered.length > 0 && exercises.length < exerciseCount) {
+                    var ex = filtered[0];
+                    exercises.push({
+                        id: muscle + '-' + ex.name.replace(/\s+/g, '-').toLowerCase(),
+                        name: ex.name,
+                        muscle: muscle,
+                        sets: adjustSetsForGoal(ex.sets, goal),
+                        reps: adjustRepsForGoal(ex.reps, goal),
+                        rest: getRestTime(goal),
+                        order: exercises.length + 1
+                    });
+                }
+            });
+
+            return exercises.slice(0, exerciseCount);
+        }
+
+        function adjustSetsForGoal(baseSets, goal) {
+            switch (goal) {
+                case 'strength': return Math.max(baseSets, 4);
+                case 'endurance': return 3;
+                case 'fat_loss': return 3;
+                default: return baseSets;
+            }
+        }
+
+        function adjustRepsForGoal(baseReps, goal) {
+            switch (goal) {
+                case 'strength': return '5-6';
+                case 'endurance': return '15-20';
+                case 'fat_loss': return '12-15';
+                case 'muscle_gain': return '8-12';
+                default: return baseReps;
+            }
+        }
+
+        function getRestTime(goal) {
+            switch (goal) {
+                case 'strength': return 180;
+                case 'endurance': return 30;
+                case 'fat_loss': return 45;
+                default: return 90;
+            }
+        }
+
+        function applyTrainingPlanToGym(plan) {
+            Object.keys(plan.weeklyPlan).forEach(function(dayIndex) {
+                var routine = plan.weeklyPlan[dayIndex];
+                customGym[dayIndex] = {
+                    name: routine.name,
+                    icon: routine.icon,
+                    exercises: routine.exercises.map(function(ex) { return ex.name + ' ' + ex.sets + 'x' + ex.reps; })
+                };
+            });
+
+            for (var i = 0; i < 7; i++) {
+                if (!plan.weeklyPlan[i]) {
+                    customGym[i] = {
+                        name: "Descanso",
+                        icon: "🧘",
+                        exercises: ["Recuperación activa", "Estiramientos", "Descanso"]
+                    };
+                }
+            }
+
+            setStorage('custom-gym', JSON.stringify(customGym));
+        }
+
+        function deleteTrainingPlan() {
+            if (confirm('¿Estás seguro de que quieres eliminar tu plan de entrenamiento?')) {
+                var plan = getActiveTrainingPlan();
+                if (plan) {
+                    plan.status = 'deleted';
+                    saveTrainingPlan(plan);
+                }
+                customGym = {};
+                setStorage('custom-gym', JSON.stringify(customGym));
+                render();
+            }
         }
 
         // Render Fasting Section
