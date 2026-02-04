@@ -2983,7 +2983,7 @@
 
         // Floating Buttons Settings
         function getFloatingButtonSettings() {
-            return JSON.parse(getStorage('floating-buttons') || '{"pomodoro": true, "expenses": false}');
+            return JSON.parse(getStorage('floating-buttons') || '{"pomodoro": true, "expenses": false, "voice": true}');
         }
 
         function isFloatingButtonEnabled(button) {
@@ -3004,6 +3004,7 @@
 
             const pomodoroBtn = document.getElementById('pomodoroFloatBtn');
             const expensesBtn = document.getElementById('expensesFloatBtn');
+            const voiceBtn = document.getElementById('voiceFab');
 
             if (pomodoroBtn) {
                 pomodoroBtn.classList.toggle('hidden', !settings.pomodoro);
@@ -3018,6 +3019,9 @@
                     expensesBtn.classList.remove('right-24');
                     expensesBtn.classList.add('right-6');
                 }
+            }
+            if (voiceBtn) {
+                voiceBtn.classList.toggle('hidden', settings.voice === false);
             }
         }
 
@@ -7305,6 +7309,15 @@
                                                 </div>
                                                 <div class="w-9 h-5 rounded-full transition ${isFloatingButtonEnabled('expenses') ? 'bg-purple-500' : 'bg-gray-300'} relative">
                                                     <div class="absolute top-0.5 ${isFloatingButtonEnabled('expenses') ? 'right-0.5' : 'left-0.5'} w-4 h-4 bg-white rounded-full shadow transition-all"></div>
+                                                </div>
+                                            </button>
+                                            <button onclick="toggleFloatingButton('voice')" class="w-full flex items-center justify-between px-4 py-1.5 hover:bg-gray-50 transition">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-lg">🎤</span>
+                                                    <span class="text-gray-700 text-sm">Asistente de voz</span>
+                                                </div>
+                                                <div class="w-9 h-5 rounded-full transition ${isFloatingButtonEnabled('voice') ? 'bg-purple-500' : 'bg-gray-300'} relative">
+                                                    <div class="absolute top-0.5 ${isFloatingButtonEnabled('voice') ? 'right-0.5' : 'left-0.5'} w-4 h-4 bg-white rounded-full shadow transition-all"></div>
                                                 </div>
                                             </button>
                                             <hr class="my-2 border-gray-100">
