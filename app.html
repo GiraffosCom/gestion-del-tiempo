@@ -10,6 +10,7 @@
     <title>Mi Plan - Gestión del Tiempo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="src/js/services/sync-service.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Módulos refactorizados -->
@@ -2507,6 +2508,147 @@
                 'maximal': '●'
             };
             return icons[mode] || '◐';
+        }
+
+        // ====== FUNCIONES DE ESTILO DE ICONOS ======
+        // Opciones: 'emoji', 'lucide'
+        function getIconStyle() {
+            return getStorage('icon-style') || 'emoji';
+        }
+
+        function setIconStyle(style) {
+            if (['emoji', 'lucide'].includes(style)) {
+                setStorage('icon-style', style);
+                render();
+                // Re-initialize lucide icons after render
+                setTimeout(function() {
+                    if (style === 'lucide' && window.lucide) {
+                        lucide.createIcons();
+                    }
+                }, 100);
+            }
+        }
+
+        function isLucideMode() {
+            return getIconStyle() === 'lucide';
+        }
+
+        // Icon mapping: emoji -> lucide icon name
+        const ICON_MAP = {
+            // Navigation & UI
+            '⚙️': 'settings',
+            '🔔': 'bell',
+            '📅': 'calendar',
+            '✏️': 'pencil',
+            '🗑️': 'trash-2',
+            '➕': 'plus',
+            '✓': 'check',
+            '×': 'x',
+            '←': 'arrow-left',
+            '→': 'arrow-right',
+            '🔍': 'search',
+            '📋': 'clipboard-list',
+            '💾': 'save',
+            '📥': 'download',
+            '📤': 'upload',
+            '🔄': 'refresh-cw',
+
+            // Fitness & Health
+            '💪': 'dumbbell',
+            '🏋️': 'dumbbell',
+            '🦵': 'footprints',
+            '🍑': 'heart',
+            '🔥': 'flame',
+            '⏱️': 'timer',
+            '🧘': 'flower-2',
+            '🏃': 'person-standing',
+            '❤️': 'heart',
+            '⚖️': 'scale',
+            '📊': 'bar-chart-3',
+            '🎯': 'target',
+
+            // Time & Schedule
+            '☀️': 'sun',
+            '🌙': 'moon',
+            '🌅': 'sunrise',
+            '⏰': 'alarm-clock',
+            '🍅': 'clock',
+
+            // Food & Nutrition
+            '🥗': 'salad',
+            '🍎': 'apple',
+            '💧': 'droplet',
+            '💦': 'droplets',
+            '🥤': 'cup-soda',
+            '☕': 'coffee',
+
+            // Goals & Progress
+            '✨': 'sparkles',
+            '🏆': 'trophy',
+            '⭐': 'star',
+            '🎉': 'party-popper',
+            '✅': 'check-circle',
+            '📈': 'trending-up',
+
+            // Categories
+            '💼': 'briefcase',
+            '📚': 'book-open',
+            '🏠': 'home',
+            '👤': 'user',
+            '👥': 'users',
+            '💰': 'wallet',
+            '🛒': 'shopping-cart',
+            '🎮': 'gamepad-2',
+            '📱': 'smartphone',
+            '💻': 'laptop',
+
+            // Misc
+            '🔙': 'undo-2',
+            '📸': 'camera',
+            '💬': 'message-circle',
+            '🏷️': 'tag',
+            '📝': 'file-text',
+            '🧹': 'eraser',
+            '😴': 'moon',
+            '🙏': 'hand',
+            '💊': 'pill',
+            '🧴': 'droplet',
+            '🇬🇧': 'languages'
+        };
+
+        // Get icon based on current style
+        function getIcon(emoji, size) {
+            size = size || 'md';
+            if (!isLucideMode()) {
+                return emoji;
+            }
+
+            var iconName = ICON_MAP[emoji];
+            if (!iconName) {
+                return emoji; // Fallback to emoji if no mapping
+            }
+
+            var sizeClass = '';
+            switch(size) {
+                case 'xs': sizeClass = 'w-3 h-3'; break;
+                case 'sm': sizeClass = 'w-4 h-4'; break;
+                case 'md': sizeClass = 'w-5 h-5'; break;
+                case 'lg': sizeClass = 'w-6 h-6'; break;
+                case 'xl': sizeClass = 'w-8 h-8'; break;
+                case '2xl': sizeClass = 'w-10 h-10'; break;
+                default: sizeClass = 'w-5 h-5';
+            }
+
+            return '<i data-lucide="' + iconName + '" class="' + sizeClass + ' inline-block"></i>';
+        }
+
+        // Initialize lucide icons after DOM updates
+        function initLucideIcons() {
+            if (isLucideMode() && window.lucide) {
+                setTimeout(function() {
+                    lucide.createIcons();
+                }, 50);
+            }
         }
 
         // Apply dark mode, theme, and view mode on page load
@@ -6489,6 +6631,19 @@
                                                     </button>
                                                 </div>
                                             </div>
+                                            <div class="px-4 py-2">
+                                                <p class="text-xs text-gray-400 mb-1">Iconos</p>
+                                                <div class="flex gap-1 p-1 bg-gray-100 rounded-xl">
+                                                    <button onclick="setIconStyle('emoji')" class="flex-1 flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition ${getIconStyle() === 'emoji' ? 'bg-white shadow-sm' : 'hover:bg-gray-50'}">
+                                                        <span class="text-sm">😀</span>
+                                                        <span class="text-xs ${getIconStyle() === 'emoji' ? 'text-purple-600 font-medium' : 'text-gray-500'}">Emoji</span>
+                                                    </button>
+                                                    <button onclick="setIconStyle('lucide')" class="flex-1 flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition ${getIconStyle() === 'lucide' ? 'bg-white shadow-sm' : 'hover:bg-gray-50'}">
+                                                        <span class="text-sm"><i data-lucide="hexagon" class="w-4 h-4 inline-block"></i></span>
+                                                        <span class="text-xs ${getIconStyle() === 'lucide' ? 'text-purple-600 font-medium' : 'text-gray-500'}">Lucide</span>
+                                                    </button>
+                                                </div>
+                                            </div>
                                             <hr class="my-2 border-gray-100">
 
                                             <!-- CUENTA -->
@@ -6710,6 +6865,9 @@
             requestAnimationFrame(() => {
                 window.scrollTo(0, scrollY);
             });
+
+            // Initialize Lucide icons if in lucide mode
+            initLucideIcons();
         }
 
         function renderAgenda(schedule, gym, dateKey, dailyProgress, isCustomized) {
@@ -12465,6 +12623,13 @@
         if (hasActiveFast()) {
             startFastingTimer();
         }
+
+        // Initialize Lucide icons on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        });
     </script>
 </body>
 </html>
