@@ -13518,8 +13518,8 @@
                         if (hours < 12) hours += 12;
                     } else if (period.includes('am') || period.includes('mañana')) {
                         if (hours === 12) hours = 0;
-                    } else if (hours >= 1 && hours <= 6) {
-                        hours += 12; // Assume PM for 1-6
+                    } else if (hours >= 1 && hours <= 8) {
+                        hours += 12; // Assume PM for 1-8 (most common in planning)
                     }
                     time = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
                     timeExpression = timeMatch[0];
@@ -13618,21 +13618,46 @@
         }
 
         function executeVoiceExpense(text) {
-            // Extract amount - try digits first, then Spanish words
-            let amount = null;
-            let amountMatch = text.match(/(\d+(?:[.,]\d+)?)\s*(pesos?|dólares?|dolares?)?/i)
-                || text.match(/\$\s*(\d+(?:[.,]\d+)?)/);
+            console.log('[Voice] Parsing expense from:', text);
 
+            // Extract amount - try multiple strategies
+            let amount = null;
+
+            // Strategy 1: Match digits with currency words "150 pesos", "50.5 dolares"
+            let amountMatch = text.match(/(\d[\d.,]*)\s*(pesos?|dólares?|dolares?|varos?|baro?s?)/i);
             if (amountMatch) {
-                amount = parseFloat(amountMatch[1].replace(',', '.'));
+                amount = Number(amountMatch[1].replace(/,/g, ''));
+                console.log('[Voice] Amount from digits+currency:', amount, 'raw:', amountMatch[1]);
             }
 
-            // If no digit amount found, try Spanish number words
+            // Strategy 2: Match $ sign "$150", "$ 200"
+            if (!amount || isNaN(amount)) {
+                amountMatch = text.match(/\$\s*(\d[\d.,]*)/);
+                if (amountMatch) {
+                    amount = Number(amountMatch[1].replace(/,/g, ''));
+                    console.log('[Voice] Amount from $:', amount);
+                }
+            }
+
+            // Strategy 3: Match standalone digits in text
+            if (!amount || isNaN(amount)) {
+                amountMatch = text.match(/\b(\d+(?:\.\d+)?)\b/);
+                if (amountMatch) {
+                    amount = Number(amountMatch[1]);
+                    console.log('[Voice] Amount from standalone digits:', amount);
+                }
+            }
+
+            // Strategy 4: Spanish number words "cien pesos", "doscientos"
             if (!amount || isNaN(amount)) {
                 amount = spanishNumberToDigit(text);
+                console.log('[Voice] Amount from Spanish words:', amount);
             }
 
+            // Final validation - ensure it's a real number
+            amount = Number(amount);
             if (!amount || isNaN(amount) || amount <= 0) {
+                console.log('[Voice] Amount parsing failed. Final value:', amount);
                 return { success: false, message: 'No entendí el monto. Intenta: "Gasto 100 pesos en comida"' };
             }
 
@@ -13668,6 +13693,12 @@
                 const catNames = { food: 'Comida', transport: 'Transporte', entertainment: 'Entretenimiento',
                     shopping: 'Compras', health: 'Salud', bills: 'Servicios', other: 'Gasto general' };
                 desc = catNames[category] || 'Gasto por voz';
+            }
+
+            // Final safety check - never save NaN
+            amount = Number(amount);
+            if (isNaN(amount) || amount <= 0) {
+                return { success: false, message: 'Error con el monto. Intenta: "Gasto 100 pesos en comida"' };
             }
 
             // Save expense
