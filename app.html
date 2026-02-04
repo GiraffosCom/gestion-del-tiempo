@@ -13661,18 +13661,19 @@
                 return { success: false, message: 'No entendí el monto. Intenta: "Gasto 100 pesos en comida"' };
             }
 
-            // Detect category
+            // Detect category - use app's native category IDs
             const categories = {
-                food: ['comida', 'comer', 'almuerzo', 'cena', 'desayuno', 'restaurante', 'cafe', 'café'],
-                transport: ['uber', 'taxi', 'gasolina', 'transporte', 'metro', 'estacionamiento'],
-                entertainment: ['cine', 'netflix', 'spotify', 'juego', 'diversión', 'bar', 'fiesta'],
-                shopping: ['compra', 'ropa', 'zapatos', 'tienda', 'amazon'],
-                health: ['medicina', 'doctor', 'farmacia', 'gym', 'gimnasio'],
-                bills: ['luz', 'agua', 'internet', 'teléfono', 'renta']
+                alimentacion: ['comida', 'comer', 'almuerzo', 'cena', 'desayuno', 'restaurante', 'cafe', 'café', 'sushi', 'pizza', 'hamburguesa', 'taco', 'pollo', 'carne', 'pan', 'fruta', 'verdura', 'super', 'supermercado', 'mercado'],
+                transporte: ['uber', 'taxi', 'gasolina', 'transporte', 'metro', 'estacionamiento', 'bus', 'didi', 'pasaje'],
+                entretenimiento: ['cine', 'netflix', 'spotify', 'juego', 'diversión', 'bar', 'fiesta', 'concierto', 'teatro'],
+                ropa: ['ropa', 'zapatos', 'zapatillas', 'camisa', 'pantalón', 'vestido', 'tienda'],
+                salud: ['medicina', 'doctor', 'farmacia', 'gym', 'gimnasio', 'dentista', 'hospital', 'consulta'],
+                servicios: ['luz', 'agua', 'internet', 'teléfono', 'renta', 'celular', 'cable', 'gas'],
+                hogar: ['casa', 'hogar', 'mueble', 'electrodoméstico', 'limpieza'],
+                educacion: ['libro', 'curso', 'escuela', 'universidad', 'clase', 'estudio']
             };
 
-            let category = 'other';
-            let categoryName = 'Otros';
+            let category = 'otro';
             for (const [cat, keywords] of Object.entries(categories)) {
                 if (keywords.some(k => text.includes(k))) {
                     category = cat;
@@ -13701,19 +13702,26 @@
                 return { success: false, message: 'Error con el monto. Intenta: "Gasto 100 pesos en comida"' };
             }
 
-            // Save expense
-            const expenses = JSON.parse(getStorage('expenses') || '[]');
-            expenses.push({
-                id: Date.now().toString(),
-                amount,
+            // Save expense using the app's native format (store, total, date as YYYY-MM-DD)
+            const expense = {
+                id: Date.now(),
+                store: desc,
+                date: getTodayKey(),
+                total: amount,
                 category,
                 description: desc,
-                date: new Date().toISOString()
-            });
-            setStorage('expenses', JSON.stringify(expenses));
+                hasReceipt: false,
+                createdAt: new Date().toISOString()
+            };
+
+            const expenses = getExpenses();
+            expenses.push(expense);
+            saveExpenses(expenses);
 
             const catNames = { food: 'Comida', transport: 'Transporte', entertainment: 'Entretenimiento',
-                shopping: 'Compras', health: 'Salud', bills: 'Servicios', other: 'Otros' };
+                shopping: 'Compras', health: 'Salud', bills: 'Servicios', other: 'Otros',
+                alimentacion: 'Alimentación', transporte: 'Transporte', salud: 'Salud',
+                entretenimiento: 'Entretenimiento', ropa: 'Ropa' };
 
             return { success: true, message: `💰 Gasto de $${amount} en ${catNames[category] || 'Otros'}: ${desc}` };
         }
