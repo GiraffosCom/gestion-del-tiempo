@@ -13528,16 +13528,70 @@
         /**
          * Add expense from voice command
          */
-        function executeVoiceExpense(text) {
-            // Extract amount
-            const amountMatch = text.match(/(\d+(?:\.\d+)?)\s*(pesos?|dólares?|dolares?)?/i)
-                || text.match(/\$\s*(\d+(?:\.\d+)?)/);
+        /**
+         * Convert Spanish number words to digits
+         */
+        function spanishNumberToDigit(text) {
+            const numbers = {
+                'cero': 0, 'uno': 1, 'una': 1, 'dos': 2, 'tres': 3, 'cuatro': 4,
+                'cinco': 5, 'seis': 6, 'siete': 7, 'ocho': 8, 'nueve': 9,
+                'diez': 10, 'once': 11, 'doce': 12, 'trece': 13, 'catorce': 14,
+                'quince': 15, 'dieciséis': 16, 'dieciseis': 16, 'diecisiete': 17,
+                'dieciocho': 18, 'diecinueve': 19, 'veinte': 20,
+                'veintiuno': 21, 'veintidós': 22, 'veintidos': 22, 'veintitrés': 23, 'veintitres': 23,
+                'veinticuatro': 24, 'veinticinco': 25, 'veintiséis': 26, 'veintiseis': 26,
+                'veintisiete': 27, 'veintiocho': 28, 'veintinueve': 29,
+                'treinta': 30, 'cuarenta': 40, 'cincuenta': 50,
+                'sesenta': 60, 'setenta': 70, 'ochenta': 80, 'noventa': 90,
+                'cien': 100, 'ciento': 100, 'doscientos': 200, 'trescientos': 300,
+                'cuatrocientos': 400, 'quinientos': 500, 'seiscientos': 600,
+                'setecientos': 700, 'ochocientos': 800, 'novecientos': 900,
+                'mil': 1000
+            };
 
-            if (!amountMatch) {
-                return { success: false, message: 'No entendí el monto. Intenta: "Gasto 100 pesos en comida"' };
+            // Try direct match first
+            for (const [word, num] of Object.entries(numbers)) {
+                if (text.includes(word)) {
+                    // Handle "mil quinientos" = 1500, "doscientos cincuenta" = 250
+                    let total = 0;
+                    const words = text.split(/\s+/);
+                    let foundNumber = false;
+                    for (const w of words) {
+                        if (numbers[w] !== undefined) {
+                            if (numbers[w] === 1000) {
+                                total = total === 0 ? 1000 : total * 1000;
+                            } else if (numbers[w] >= 100 && total > 0 && total < 100) {
+                                total = total + numbers[w];
+                            } else {
+                                total += numbers[w];
+                            }
+                            foundNumber = true;
+                        }
+                    }
+                    if (foundNumber && total > 0) return total;
+                }
+            }
+            return null;
+        }
+
+        function executeVoiceExpense(text) {
+            // Extract amount - try digits first, then Spanish words
+            let amount = null;
+            let amountMatch = text.match(/(\d+(?:[.,]\d+)?)\s*(pesos?|dólares?|dolares?)?/i)
+                || text.match(/\$\s*(\d+(?:[.,]\d+)?)/);
+
+            if (amountMatch) {
+                amount = parseFloat(amountMatch[1].replace(',', '.'));
             }
 
-            const amount = parseFloat(amountMatch[1]);
+            // If no digit amount found, try Spanish number words
+            if (!amount || isNaN(amount)) {
+                amount = spanishNumberToDigit(text);
+            }
+
+            if (!amount || isNaN(amount) || amount <= 0) {
+                return { success: false, message: 'No entendí el monto. Intenta: "Gasto 100 pesos en comida"' };
+            }
 
             // Detect category
             const categories = {
@@ -13550,6 +13604,7 @@
             };
 
             let category = 'other';
+            let categoryName = 'Otros';
             for (const [cat, keywords] of Object.entries(categories)) {
                 if (keywords.some(k => text.includes(k))) {
                     category = cat;
@@ -13557,14 +13612,20 @@
                 }
             }
 
-            // Extract description
-            let desc = text;
-            ['gasto', 'gasté', 'gaste', 'pagué', 'pague', 'compré', 'compre', 'en', 'de', 'por'].forEach(w => {
-                desc = desc.replace(new RegExp(`\\b${w}\\b`, 'gi'), '');
-            });
-            if (amountMatch) desc = desc.replace(amountMatch[0], '');
-            desc = desc.replace(/pesos?/gi, '').replace(/\s+/g, ' ').trim();
-            if (desc.length > 0) desc = desc.charAt(0).toUpperCase() + desc.slice(1);
+            // Extract description - get what comes after "en" or "de"
+            let desc = '';
+            const enMatch = text.match(/(?:en|de)\s+(.+?)(?:\s*$)/i);
+            if (enMatch) {
+                desc = enMatch[1].replace(/\d+/g, '').replace(/pesos?/gi, '').replace(/\s+/g, ' ').trim();
+                if (desc.length > 0) desc = desc.charAt(0).toUpperCase() + desc.slice(1);
+            }
+
+            if (!desc) {
+                // Use category as description
+                const catNames = { food: 'Comida', transport: 'Transporte', entertainment: 'Entretenimiento',
+                    shopping: 'Compras', health: 'Salud', bills: 'Servicios', other: 'Gasto general' };
+                desc = catNames[category] || 'Gasto por voz';
+            }
 
             // Save expense
             const expenses = JSON.parse(getStorage('expenses') || '[]');
@@ -13572,7 +13633,7 @@
                 id: Date.now().toString(),
                 amount,
                 category,
-                description: desc || 'Gasto por voz',
+                description: desc,
                 date: new Date().toISOString()
             });
             setStorage('expenses', JSON.stringify(expenses));
@@ -13580,7 +13641,7 @@
             const catNames = { food: 'Comida', transport: 'Transporte', entertainment: 'Entretenimiento',
                 shopping: 'Compras', health: 'Salud', bills: 'Servicios', other: 'Otros' };
 
-            return { success: true, message: `💰 Gasto de $${amount} en ${catNames[category] || 'Otros'} registrado` };
+            return { success: true, message: `💰 Gasto de $${amount} en ${catNames[category] || 'Otros'}: ${desc}` };
         }
 
         /**
