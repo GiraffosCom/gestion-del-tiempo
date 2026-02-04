@@ -50,6 +50,9 @@
             <button onclick="showSection('reports')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white" data-section="reports">
                 <span>📈</span> Reportes
             </button>
+            <button onclick="showSection('templates')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white" data-section="templates">
+                <span>🎯</span> Plantillas
+            </button>
             <button onclick="showSection('settings')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white" data-section="settings">
                 <span>⚙️</span> Configuracion
             </button>
@@ -327,6 +330,136 @@
                 </div>
             </section>
 
+            <!-- Templates Section -->
+            <section id="section-templates" class="section hidden">
+                <div class="space-y-6">
+                    <!-- Goal Templates -->
+                    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 class="text-lg font-bold text-white">🎯 Plantillas por Objetivo</h3>
+                                <p class="text-slate-400 text-sm mt-1">Define qué hábitos y metas se asignan según el objetivo del usuario</p>
+                            </div>
+                            <button onclick="saveAllTemplates()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2">
+                                <span>💾</span> Guardar Todo
+                            </button>
+                        </div>
+
+                        <!-- Goal Type Tabs -->
+                        <div class="flex flex-wrap gap-2 mb-6 border-b border-slate-700 pb-4">
+                            <button onclick="selectGoalTab('fitness')" class="goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white" data-goal="fitness">
+                                💪 Fitness
+                            </button>
+                            <button onclick="selectGoalTab('productivity')" class="goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-goal="productivity">
+                                📈 Productividad
+                            </button>
+                            <button onclick="selectGoalTab('learning')" class="goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-goal="learning">
+                                📚 Aprendizaje
+                            </button>
+                            <button onclick="selectGoalTab('business')" class="goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-goal="business">
+                                💼 Negocio
+                            </button>
+                            <button onclick="selectGoalTab('competition')" class="goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-goal="competition">
+                                👑 Competencia
+                            </button>
+                            <button onclick="selectGoalTab('wellness')" class="goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-goal="wellness">
+                                🧘 Bienestar
+                            </button>
+                        </div>
+
+                        <!-- Goal Content -->
+                        <div id="goalTemplateContent" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Habits for this goal -->
+                            <div class="bg-slate-700/50 rounded-xl p-4">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="font-medium text-white">✨ Hábitos Sugeridos</h4>
+                                    <button onclick="addHabitToGoal()" class="text-blue-400 hover:text-blue-300 text-sm">+ Agregar</button>
+                                </div>
+                                <div id="goalHabitsList" class="space-y-2">
+                                    <!-- Dynamic content -->
+                                </div>
+                            </div>
+
+                            <!-- Weekly goals for this goal -->
+                            <div class="bg-slate-700/50 rounded-xl p-4">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="font-medium text-white">📋 Metas Semanales</h4>
+                                </div>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="text-xs text-slate-400">Meta Física</label>
+                                        <input type="text" id="goalMetaFisica" class="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white text-sm mt-1" placeholder="Ej: Establecer rutina de ejercicio">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs text-slate-400">Meta Personal</label>
+                                        <input type="text" id="goalMetaPersonal" class="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white text-sm mt-1" placeholder="Ej: Mejorar autoestima">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs text-slate-400">Meta Digital</label>
+                                        <input type="text" id="goalMetaDigital" class="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white text-sm mt-1" placeholder="Ej: Documentar progreso">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs text-slate-400">Meta Espiritual</label>
+                                        <input type="text" id="goalMetaEspiritual" class="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white text-sm mt-1" placeholder="Ej: Practicar gratitud">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Exercise Templates -->
+                    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 class="text-lg font-bold text-white">🏋️ Plantillas de Ejercicio</h3>
+                                <p class="text-slate-400 text-sm mt-1">Define las rutinas de gym según el tipo de ejercicio preferido</p>
+                            </div>
+                        </div>
+
+                        <!-- Exercise Type Tabs -->
+                        <div class="flex flex-wrap gap-2 mb-6 border-b border-slate-700 pb-4">
+                            <button onclick="selectExerciseTab('gym')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 text-white" data-exercise="gym">
+                                🏋️ Gimnasio
+                            </button>
+                            <button onclick="selectExerciseTab('cardio')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-exercise="cardio">
+                                🏃 Cardio
+                            </button>
+                            <button onclick="selectExerciseTab('yoga')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-exercise="yoga">
+                                🧘 Yoga
+                            </button>
+                            <button onclick="selectExerciseTab('dance')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-exercise="dance">
+                                💃 Baile
+                            </button>
+                            <button onclick="selectExerciseTab('sports')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-exercise="sports">
+                                ⚽ Deportes
+                            </button>
+                        </div>
+
+                        <!-- Weekly Routine Grid -->
+                        <div id="exerciseTemplateContent" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+
+                    <!-- Habit Options -->
+                    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 class="text-lg font-bold text-white">✨ Catálogo de Hábitos</h3>
+                                <p class="text-slate-400 text-sm mt-1">Hábitos disponibles que los usuarios pueden seleccionar</p>
+                            </div>
+                            <button onclick="addNewHabit()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                                + Nuevo Hábito
+                            </button>
+                        </div>
+
+                        <div id="habitCatalog" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Settings Section -->
             <section id="section-settings" class="section hidden">
                 <div class="max-w-2xl space-y-6">
@@ -489,6 +622,7 @@
                 subscriptions: 'Suscripciones',
                 payments: 'Pagos',
                 reports: 'Reportes',
+                templates: 'Plantillas',
                 settings: 'Configuracion'
             };
             document.getElementById('pageTitle').textContent = titles[section];
@@ -497,6 +631,7 @@
             if (section === 'customers') loadCustomers();
             if (section === 'subscriptions') loadSubscriptions();
             if (section === 'payments') loadPayments();
+            if (section === 'templates') initTemplatesSection();
             if (section === 'settings') loadPlans();
 
             // Close mobile sidebar
@@ -1727,6 +1862,414 @@
         function logout() {
             localStorage.removeItem('gestion-admin-session');
             window.location.href = 'admin-login.html';
+        }
+
+        // ==================== Templates Management ====================
+
+        let currentGoalType = 'fitness';
+        let currentExerciseType = 'gym';
+
+        // Default templates data
+        let templates = {
+            goals: {
+                fitness: {
+                    habits: [
+                        { icon: '☀️', name: 'Despertar temprano' },
+                        { icon: '💧', name: 'Beber agua al despertar' },
+                        { icon: '💪', name: 'Ejercicio completado' },
+                        { icon: '🥗', name: 'Alimentación saludable' },
+                        { icon: '💦', name: 'Beber 2-3L de agua' },
+                        { icon: '😴', name: 'Dormir 7-8 horas' }
+                    ],
+                    metas: {
+                        fisica: 'Establecer rutina de ejercicio',
+                        personal: 'Mejorar autoestima y confianza',
+                        digital: 'Documentar progreso en fotos',
+                        espiritual: 'Practicar gratitud diaria'
+                    }
+                },
+                productivity: {
+                    habits: [
+                        { icon: '☀️', name: 'Despertar 6:00 AM' },
+                        { icon: '📝', name: 'Planificar el día' },
+                        { icon: '🎯', name: 'Completar 3 tareas importantes' },
+                        { icon: '📵', name: 'Bloques sin distracciones' },
+                        { icon: '📊', name: 'Revisar progreso diario' },
+                        { icon: '😴', name: 'Descanso adecuado' }
+                    ],
+                    metas: {
+                        fisica: 'Rutina de energía matutina',
+                        personal: 'Sistema de productividad personal',
+                        digital: 'Herramientas de productividad',
+                        espiritual: 'Propósito claro y enfocado'
+                    }
+                },
+                learning: {
+                    habits: [
+                        { icon: '📖', name: 'Leer 30 minutos' },
+                        { icon: '📝', name: 'Tomar notas' },
+                        { icon: '🎯', name: 'Práctica deliberada' },
+                        { icon: '🌍', name: 'Practicar idioma' },
+                        { icon: '💡', name: 'Aplicar lo aprendido' },
+                        { icon: '🔄', name: 'Revisar material anterior' }
+                    ],
+                    metas: {
+                        fisica: 'Establecer horario de estudio',
+                        personal: 'Definir objetivos de aprendizaje',
+                        digital: 'Organizar recursos digitales',
+                        espiritual: 'Paciencia con el proceso'
+                    }
+                },
+                business: {
+                    habits: [
+                        { icon: '📈', name: 'Revisar métricas' },
+                        { icon: '🤝', name: 'Hacer networking' },
+                        { icon: '💰', name: 'Revisar finanzas' },
+                        { icon: '📱', name: 'Crear contenido' },
+                        { icon: '📞', name: 'Contactar clientes' },
+                        { icon: '📚', name: 'Aprender sobre negocio' }
+                    ],
+                    metas: {
+                        fisica: 'Energía para emprender',
+                        personal: 'Definir modelo de negocio',
+                        digital: 'Presencia online sólida',
+                        espiritual: 'Resiliencia ante obstáculos'
+                    }
+                },
+                competition: {
+                    habits: [
+                        { icon: '💪', name: 'Entrenamiento intenso' },
+                        { icon: '🥗', name: 'Dieta estricta' },
+                        { icon: '📸', name: 'Documentar progreso' },
+                        { icon: '🧘', name: 'Visualización' },
+                        { icon: '😴', name: 'Descanso óptimo' },
+                        { icon: '📋', name: 'Seguir plan al pie' }
+                    ],
+                    metas: {
+                        fisica: 'Preparación física inicial',
+                        personal: 'Mentalidad ganadora',
+                        digital: 'Estudiar a la competencia',
+                        espiritual: 'Visualización del éxito'
+                    }
+                },
+                wellness: {
+                    habits: [
+                        { icon: '🧘', name: 'Meditación 15 min' },
+                        { icon: '🙏', name: 'Escribir gratitudes' },
+                        { icon: '🚶', name: 'Caminata consciente' },
+                        { icon: '📵', name: 'Detox digital' },
+                        { icon: '🛁', name: 'Autocuidado' },
+                        { icon: '😴', name: 'Sueño reparador' }
+                    ],
+                    metas: {
+                        fisica: 'Movimiento diario suave',
+                        personal: 'Autoconocimiento profundo',
+                        digital: 'Detox digital semanal',
+                        espiritual: 'Paz mental y equilibrio'
+                    }
+                }
+            },
+            exercises: {
+                gym: {
+                    0: { name: 'Descanso Activo', icon: '🧘', exercises: ['Estiramientos 20min', 'Caminata ligera 30min'] },
+                    1: { name: 'Tren Inferior', icon: '🦵', exercises: ['Sentadillas 4x12', 'Peso muerto 4x10', 'Prensa 4x12'] },
+                    2: { name: 'Tren Superior', icon: '💪', exercises: ['Press banca 4x10', 'Remo 4x12', 'Press hombro 3x12'] },
+                    3: { name: 'Full Body', icon: '🔥', exercises: ['Sentadilla 3x12', 'Press pecho 3x12', 'Peso muerto 3x10'] },
+                    4: { name: 'Piernas + Core', icon: '🍑', exercises: ['Hip thrust 4x12', 'Sentadilla búlgara 3x10'] },
+                    5: { name: 'Cardio + Fuerza', icon: '❤️', exercises: ['HIIT 20min', 'Circuito funcional 3 rondas'] },
+                    6: { name: 'Flexibilidad', icon: '🧘', exercises: ['Yoga 45min', 'Estiramientos 20min'] }
+                },
+                cardio: {
+                    0: { name: 'Descanso', icon: '😴', exercises: ['Caminata suave 20min'] },
+                    1: { name: 'Cardio Moderado', icon: '🏃', exercises: ['Correr 30min'] },
+                    2: { name: 'HIIT', icon: '🔥', exercises: ['HIIT 20min'] },
+                    3: { name: 'Cardio Largo', icon: '🚴', exercises: ['Bicicleta 45min'] },
+                    4: { name: 'Intervalos', icon: '⚡', exercises: ['Intervalos 25min'] },
+                    5: { name: 'Cardio + Core', icon: '💪', exercises: ['Cardio 20min', 'Abs 15min'] },
+                    6: { name: 'Recuperación', icon: '🧘', exercises: ['Yoga 30min'] }
+                },
+                yoga: {
+                    0: { name: 'Descanso', icon: '😴', exercises: ['Meditación 20min'] },
+                    1: { name: 'Vinyasa Flow', icon: '🧘', exercises: ['Vinyasa 40min'] },
+                    2: { name: 'Fuerza Yoga', icon: '💪', exercises: ['Power yoga 40min'] },
+                    3: { name: 'Flexibilidad', icon: '🤸', exercises: ['Yin yoga 45min'] },
+                    4: { name: 'Core Yoga', icon: '🔥', exercises: ['Yoga core 30min'] },
+                    5: { name: 'Balance', icon: '⚖️', exercises: ['Equilibrio 30min'] },
+                    6: { name: 'Restaurativo', icon: '🌙', exercises: ['Yoga restaurativo 40min'] }
+                },
+                dance: {
+                    0: { name: 'Descanso', icon: '😴', exercises: ['Estiramientos 20min'] },
+                    1: { name: 'Zumba', icon: '💃', exercises: ['Zumba 45min'] },
+                    2: { name: 'Baile Cardio', icon: '🎵', exercises: ['Cardio dance 40min'] },
+                    3: { name: 'Técnica', icon: '👠', exercises: ['Técnica 30min'] },
+                    4: { name: 'Ritmos Latinos', icon: '🌴', exercises: ['Salsa/Bachata 45min'] },
+                    5: { name: 'Dance Fitness', icon: '🔥', exercises: ['Dance workout 40min'] },
+                    6: { name: 'Stretching', icon: '🧘', exercises: ['Stretching 30min'] }
+                },
+                sports: {
+                    0: { name: 'Descanso', icon: '😴', exercises: ['Recuperación activa'] },
+                    1: { name: 'Técnica', icon: '🎯', exercises: ['Práctica técnica 45min'] },
+                    2: { name: 'Fuerza', icon: '💪', exercises: ['Fuerza 40min'] },
+                    3: { name: 'Táctica', icon: '🧠', exercises: ['Entrenamiento táctico 45min'] },
+                    4: { name: 'Resistencia', icon: '❤️', exercises: ['Cardio específico 40min'] },
+                    5: { name: 'Partido', icon: '⚽', exercises: ['Práctica completa 90min'] },
+                    6: { name: 'Recuperación', icon: '🧘', exercises: ['Yoga/Pilates 30min'] }
+                }
+            },
+            habitCatalog: [
+                { id: 'meditation', icon: '🧘', name: 'Meditación' },
+                { id: 'reading', icon: '📖', name: 'Lectura' },
+                { id: 'journaling', icon: '📝', name: 'Journaling' },
+                { id: 'languages', icon: '🌍', name: 'Idiomas' },
+                { id: 'water', icon: '💧', name: 'Beber agua' },
+                { id: 'skincare', icon: '🧴', name: 'Skincare' },
+                { id: 'gratitude', icon: '🙏', name: 'Gratitud' },
+                { id: 'nosugar', icon: '🚫', name: 'Sin azúcar' },
+                { id: 'sleep', icon: '😴', name: 'Dormir bien' },
+                { id: 'socialmedia', icon: '📱', name: 'Redes sociales' },
+                { id: 'networking', icon: '🤝', name: 'Networking' },
+                { id: 'finances', icon: '💰', name: 'Finanzas' }
+            ]
+        };
+
+        function loadTemplates() {
+            var saved = localStorage.getItem('backoffice-templates');
+            if (saved) {
+                try {
+                    templates = JSON.parse(saved);
+                } catch (e) {
+                    console.log('Using default templates');
+                }
+            }
+        }
+
+        function saveAllTemplates() {
+            saveCurrentGoalData();
+            saveCurrentExerciseData();
+            localStorage.setItem('backoffice-templates', JSON.stringify(templates));
+            showToast('Plantillas guardadas correctamente', '✅');
+        }
+
+        function saveCurrentGoalData() {
+            var goal = templates.goals[currentGoalType];
+            if (!goal) return;
+            goal.metas.fisica = document.getElementById('goalMetaFisica').value;
+            goal.metas.personal = document.getElementById('goalMetaPersonal').value;
+            goal.metas.digital = document.getElementById('goalMetaDigital').value;
+            goal.metas.espiritual = document.getElementById('goalMetaEspiritual').value;
+        }
+
+        function saveCurrentExerciseData() {
+            for (var i = 0; i < 7; i++) {
+                var nameInput = document.getElementById('exercise-' + i + '-name');
+                var iconInput = document.getElementById('exercise-' + i + '-icon');
+                var exercisesInput = document.getElementById('exercise-' + i + '-exercises');
+                if (nameInput && templates.exercises[currentExerciseType][i]) {
+                    templates.exercises[currentExerciseType][i].name = nameInput.value;
+                    templates.exercises[currentExerciseType][i].icon = iconInput.value;
+                    templates.exercises[currentExerciseType][i].exercises = exercisesInput.value.split('\n').filter(function(e) { return e.trim(); });
+                }
+            }
+        }
+
+        function selectGoalTab(goalType) {
+            if (currentGoalType) saveCurrentGoalData();
+            currentGoalType = goalType;
+            document.querySelectorAll('.goal-tab').forEach(function(tab) {
+                if (tab.dataset.goal === goalType) {
+                    tab.className = 'goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white';
+                } else {
+                    tab.className = 'goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600';
+                }
+            });
+            renderGoalTemplate();
+        }
+
+        function selectExerciseTab(exerciseType) {
+            if (currentExerciseType) saveCurrentExerciseData();
+            currentExerciseType = exerciseType;
+            document.querySelectorAll('.exercise-tab').forEach(function(tab) {
+                if (tab.dataset.exercise === exerciseType) {
+                    tab.className = 'exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 text-white';
+                } else {
+                    tab.className = 'exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600';
+                }
+            });
+            renderExerciseTemplate();
+        }
+
+        function renderGoalTemplate() {
+            var goal = templates.goals[currentGoalType];
+            if (!goal) return;
+
+            var habitsList = document.getElementById('goalHabitsList');
+            habitsList.textContent = '';
+
+            goal.habits.forEach(function(h, idx) {
+                var div = document.createElement('div');
+                div.className = 'flex items-center gap-2 bg-slate-600 rounded-lg p-2';
+
+                var iconInput = document.createElement('input');
+                iconInput.type = 'text';
+                iconInput.value = h.icon;
+                iconInput.className = 'w-10 text-center bg-slate-500 rounded px-1 py-1 text-white';
+                iconInput.onchange = function() { updateGoalHabit(idx, 'icon', this.value); };
+
+                var nameInput = document.createElement('input');
+                nameInput.type = 'text';
+                nameInput.value = h.name;
+                nameInput.className = 'flex-1 bg-slate-500 rounded px-2 py-1 text-white text-sm';
+                nameInput.onchange = function() { updateGoalHabit(idx, 'name', this.value); };
+
+                var removeBtn = document.createElement('button');
+                removeBtn.textContent = '×';
+                removeBtn.className = 'text-red-400 hover:text-red-300 px-2';
+                removeBtn.onclick = function() { removeGoalHabit(idx); };
+
+                div.appendChild(iconInput);
+                div.appendChild(nameInput);
+                div.appendChild(removeBtn);
+                habitsList.appendChild(div);
+            });
+
+            document.getElementById('goalMetaFisica').value = goal.metas.fisica || '';
+            document.getElementById('goalMetaPersonal').value = goal.metas.personal || '';
+            document.getElementById('goalMetaDigital').value = goal.metas.digital || '';
+            document.getElementById('goalMetaEspiritual').value = goal.metas.espiritual || '';
+        }
+
+        function renderExerciseTemplate() {
+            var exercise = templates.exercises[currentExerciseType];
+            if (!exercise) return;
+
+            var days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+            var container = document.getElementById('exerciseTemplateContent');
+            container.textContent = '';
+
+            Object.keys(exercise).forEach(function(dayIdx) {
+                var day = exercise[dayIdx];
+                var card = document.createElement('div');
+                card.className = 'bg-slate-700/50 rounded-xl p-4';
+
+                var dayLabel = document.createElement('div');
+                dayLabel.className = 'text-xs text-slate-400 mb-2';
+                dayLabel.textContent = days[dayIdx];
+
+                var inputsDiv = document.createElement('div');
+                inputsDiv.className = 'space-y-2';
+
+                var row = document.createElement('div');
+                row.className = 'flex gap-2';
+
+                var iconInput = document.createElement('input');
+                iconInput.type = 'text';
+                iconInput.id = 'exercise-' + dayIdx + '-icon';
+                iconInput.value = day.icon;
+                iconInput.className = 'w-12 text-center bg-slate-600 rounded px-1 py-1 text-white text-lg';
+
+                var nameInput = document.createElement('input');
+                nameInput.type = 'text';
+                nameInput.id = 'exercise-' + dayIdx + '-name';
+                nameInput.value = day.name;
+                nameInput.className = 'flex-1 bg-slate-600 rounded px-2 py-1 text-white text-sm font-medium';
+
+                row.appendChild(iconInput);
+                row.appendChild(nameInput);
+
+                var textarea = document.createElement('textarea');
+                textarea.id = 'exercise-' + dayIdx + '-exercises';
+                textarea.className = 'w-full bg-slate-600 rounded px-2 py-1 text-white text-xs h-20 resize-none';
+                textarea.placeholder = 'Ejercicios (uno por línea)';
+                textarea.value = day.exercises.join('\n');
+
+                inputsDiv.appendChild(row);
+                inputsDiv.appendChild(textarea);
+                card.appendChild(dayLabel);
+                card.appendChild(inputsDiv);
+                container.appendChild(card);
+            });
+        }
+
+        function renderHabitCatalog() {
+            var container = document.getElementById('habitCatalog');
+            container.textContent = '';
+
+            templates.habitCatalog.forEach(function(h, idx) {
+                var div = document.createElement('div');
+                div.className = 'bg-slate-700/50 rounded-lg p-3 flex items-center gap-2';
+
+                var icon = document.createElement('span');
+                icon.className = 'text-xl';
+                icon.textContent = h.icon;
+
+                var name = document.createElement('span');
+                name.className = 'text-white text-sm flex-1';
+                name.textContent = h.name;
+
+                var editBtn = document.createElement('button');
+                editBtn.className = 'text-blue-400 hover:text-blue-300 text-sm';
+                editBtn.textContent = '✏️';
+                editBtn.onclick = function() { editCatalogHabit(idx); };
+
+                var removeBtn = document.createElement('button');
+                removeBtn.className = 'text-red-400 hover:text-red-300 text-sm';
+                removeBtn.textContent = '×';
+                removeBtn.onclick = function() { removeCatalogHabit(idx); };
+
+                div.appendChild(icon);
+                div.appendChild(name);
+                div.appendChild(editBtn);
+                div.appendChild(removeBtn);
+                container.appendChild(div);
+            });
+        }
+
+        function updateGoalHabit(idx, field, value) {
+            templates.goals[currentGoalType].habits[idx][field] = value;
+        }
+
+        function removeGoalHabit(idx) {
+            templates.goals[currentGoalType].habits.splice(idx, 1);
+            renderGoalTemplate();
+        }
+
+        function addHabitToGoal() {
+            templates.goals[currentGoalType].habits.push({ icon: '✨', name: 'Nuevo hábito' });
+            renderGoalTemplate();
+        }
+
+        function addNewHabit() {
+            var name = prompt('Nombre del hábito:');
+            if (name) {
+                var icon = prompt('Emoji del hábito:', '✨');
+                templates.habitCatalog.push({ id: name.toLowerCase().replace(/\s+/g, '_'), icon: icon || '✨', name: name });
+                renderHabitCatalog();
+            }
+        }
+
+        function editCatalogHabit(idx) {
+            var habit = templates.habitCatalog[idx];
+            var name = prompt('Nombre del hábito:', habit.name);
+            if (name) {
+                var icon = prompt('Emoji del hábito:', habit.icon);
+                templates.habitCatalog[idx].name = name;
+                templates.habitCatalog[idx].icon = icon || habit.icon;
+                renderHabitCatalog();
+            }
+        }
+
+        function removeCatalogHabit(idx) {
+            if (confirm('¿Eliminar este hábito del catálogo?')) {
+                templates.habitCatalog.splice(idx, 1);
+                renderHabitCatalog();
+            }
+        }
+
+        function initTemplatesSection() {
+            loadTemplates();
+            renderGoalTemplate();
+            renderExerciseTemplate();
+            renderHabitCatalog();
         }
 
         // ==================== Initialize ====================
