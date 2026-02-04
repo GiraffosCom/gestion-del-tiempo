@@ -2032,7 +2032,20 @@
             ]
         };
 
-        function loadTemplates() {
+        async function loadTemplates() {
+            // Try to load from Supabase first
+            try {
+                var cloudTemplates = await supabaseAPI.getAppTemplates();
+                if (cloudTemplates) {
+                    templates = cloudTemplates;
+                    console.log('Templates loaded from Supabase');
+                    return;
+                }
+            } catch (e) {
+                console.log('Could not load templates from Supabase');
+            }
+
+            // Fallback to localStorage
             var saved = localStorage.getItem('backoffice-templates');
             if (saved) {
                 try {
@@ -2043,11 +2056,21 @@
             }
         }
 
-        function saveAllTemplates() {
+        async function saveAllTemplates() {
             saveCurrentGoalData();
             saveCurrentExerciseData();
+
+            // Save to localStorage as backup
             localStorage.setItem('backoffice-templates', JSON.stringify(templates));
-            showToast('Plantillas guardadas correctamente', '✅');
+
+            // Save to Supabase for cross-device access
+            try {
+                await supabaseAPI.saveAppTemplates(templates);
+                showToast('Plantillas guardadas y sincronizadas', '✅');
+            } catch (e) {
+                console.error('Error saving to Supabase:', e);
+                showToast('Plantillas guardadas localmente (error al sincronizar)', '⚠️');
+            }
         }
 
         function saveCurrentGoalData() {
@@ -2265,8 +2288,8 @@
             }
         }
 
-        function initTemplatesSection() {
-            loadTemplates();
+        async function initTemplatesSection() {
+            await loadTemplates();
             renderGoalTemplate();
             renderExerciseTemplate();
             renderHabitCatalog();

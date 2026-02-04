@@ -845,6 +845,32 @@ class SupabaseAPI {
         await this.updateCustomer(user.id, { password_hash: passwordHash });
     }
 
+    // ==================== App Configuration ====================
+
+    /**
+     * Save app-wide templates (goals, exercises, habits)
+     * These templates are used during onboarding to configure user defaults
+     */
+    async saveAppTemplates(templates) {
+        return this.saveUserData('__system__', 'templates', 'app_templates', templates);
+    }
+
+    /**
+     * Get app-wide templates
+     * Returns default templates if none are configured
+     */
+    async getAppTemplates() {
+        try {
+            const result = await this.getUserData('__system__', 'templates', 'app_templates');
+            if (result && result.length > 0 && result[0].data_value) {
+                return result[0].data_value;
+            }
+        } catch (e) {
+            console.log('Could not fetch app templates, using defaults');
+        }
+        return null;
+    }
+
     // ==================== Utility Methods ====================
 
     formatCurrency(amount) {

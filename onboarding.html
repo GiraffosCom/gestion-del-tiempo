@@ -317,6 +317,9 @@
         </div>
     </main>
 
+    <!-- Load Supabase API for fetching templates -->
+    <script src="src/js/services/supabase-api.js"></script>
+
     <script>
         // Check if user is logged in
         const currentUser = JSON.parse(localStorage.getItem('gestion-currentUser'));
@@ -326,6 +329,9 @@
 
         let currentStep = 1;
         const totalSteps = 5;
+
+        // Cloud templates from backoffice (will be loaded on init)
+        let cloudTemplates = null;
 
         const userPreferences = {
             goal: null,
@@ -596,6 +602,30 @@
         function generateGymRoutines(prefs) {
             const routines = {};
 
+            // Determine which exercise type to use
+            const exerciseType = prefs.exercise.includes('gym') ? 'gym' :
+                                 prefs.exercise.includes('cardio') ? 'cardio' :
+                                 prefs.exercise.includes('yoga') ? 'yoga' :
+                                 prefs.exercise.includes('dance') ? 'dance' :
+                                 prefs.exercise.includes('sports') ? 'sports' : null;
+
+            // Check if cloud templates have exercise routines
+            if (cloudTemplates && cloudTemplates.exercises && cloudTemplates.exercises[exerciseType]) {
+                // Use cloud templates
+                const cloudRoutines = cloudTemplates.exercises[exerciseType];
+                for (let day = 0; day < 7; day++) {
+                    if (cloudRoutines[day]) {
+                        routines[day] = {
+                            name: cloudRoutines[day].name,
+                            icon: cloudRoutines[day].icon,
+                            exercises: cloudRoutines[day].exercises || []
+                        };
+                    }
+                }
+                return routines;
+            }
+
+            // Fallback to default routines
             if (prefs.exercise.includes('gym')) {
                 routines[0] = { name: 'Descanso Activo', icon: '🧘', exercises: ['Estiramientos 20min', 'Caminata ligera 30min', 'Foam roller 15min'] };
                 routines[1] = { name: 'Tren Inferior', icon: '🦵', exercises: ['Sentadillas 4x12', 'Peso muerto 4x10', 'Prensa 4x12', 'Zancadas 3x12', 'Extensión cuádriceps 3x15'] };
@@ -628,6 +658,14 @@
                 routines[4] = { name: 'Ritmos Latinos', icon: '🌴', exercises: ['Salsa/Bachata 45min', 'Estiramientos 10min'] };
                 routines[5] = { name: 'Dance Fitness', icon: '🔥', exercises: ['Dance workout 40min', 'Abdominales 10min', 'Estiramientos 10min'] };
                 routines[6] = { name: 'Stretching', icon: '🧘', exercises: ['Stretching para bailarines 30min', 'Yoga 20min'] };
+            } else if (prefs.exercise.includes('sports')) {
+                routines[0] = { name: 'Descanso', icon: '😴', exercises: ['Recuperación activa'] };
+                routines[1] = { name: 'Técnica', icon: '🎯', exercises: ['Práctica técnica 45min'] };
+                routines[2] = { name: 'Fuerza', icon: '💪', exercises: ['Fuerza 40min'] };
+                routines[3] = { name: 'Táctica', icon: '🧠', exercises: ['Entrenamiento táctico 45min'] };
+                routines[4] = { name: 'Resistencia', icon: '❤️', exercises: ['Cardio específico 40min'] };
+                routines[5] = { name: 'Partido', icon: '⚽', exercises: ['Práctica completa 90min'] };
+                routines[6] = { name: 'Recuperación', icon: '🧘', exercises: ['Yoga/Pilates 30min'] };
             }
 
             return routines;
@@ -637,7 +675,8 @@
             const totalWeeks = Math.ceil(prefs.duration / 7);
             const goals = [];
 
-            const goalTemplates = {
+            // Default templates (fallback)
+            const defaultTemplates = {
                 fitness: {
                     fisica: ['Establecer rutina de ejercicio', 'Aumentar intensidad', 'Mejorar resistencia', 'Definir músculos', 'Alcanzar peso ideal'],
                     personal: ['Aprender sobre nutrición', 'Crear rutina de sueño', 'Gestionar el estrés', 'Mejorar autoestima', 'Mantener consistencia'],
@@ -676,7 +715,18 @@
                 }
             };
 
-            const template = goalTemplates[prefs.goal] || goalTemplates.wellness;
+            // Use cloud templates if available, otherwise use defaults
+            let template = defaultTemplates[prefs.goal] || defaultTemplates.wellness;
+
+            // Override with cloud templates if available
+            if (cloudTemplates && cloudTemplates.goals && cloudTemplates.goals[prefs.goal] && cloudTemplates.goals[prefs.goal].metas) {
+                const cloudMetas = cloudTemplates.goals[prefs.goal].metas;
+                // Cloud templates have single values, use them as the first phase
+                if (cloudMetas.fisica) template.fisica[0] = cloudMetas.fisica;
+                if (cloudMetas.personal) template.personal[0] = cloudMetas.personal;
+                if (cloudMetas.digital) template.digital[0] = cloudMetas.digital;
+                if (cloudMetas.espiritual) template.espiritual[0] = cloudMetas.espiritual;
+            }
 
             for (let week = 1; week <= totalWeeks; week++) {
                 const progress = (week - 1) / (totalWeeks - 1);
@@ -698,8 +748,25 @@
             return goals;
         }
 
+        // Load cloud templates from backoffice
+        async function loadCloudTemplates() {
+            try {
+                if (typeof supabaseAPI !== 'undefined') {
+                    cloudTemplates = await supabaseAPI.getAppTemplates();
+                    if (cloudTemplates) {
+                        console.log('Cloud templates loaded successfully');
+                    }
+                }
+            } catch (e) {
+                console.log('Using default templates');
+            }
+        }
+
         // Initialize
-        showStep(1);
+        (async function init() {
+            await loadCloudTemplates();
+            showStep(1);
+        })();
     </script>
 </body>
 </html>
