@@ -4,9 +4,6 @@
  * @module services/voice-assistant
  */
 
-import { storage } from './storage.js';
-import { generateId } from '../utils/helpers.js';
-
 /**
  * Intent types supported by the assistant
  */
@@ -191,13 +188,19 @@ class VoiceAssistant {
                         errorMessage = 'No se encontró micrófono.';
                         break;
                     case 'not-allowed':
-                        errorMessage = 'Permiso de micrófono denegado.';
+                        errorMessage = 'Permiso de micrófono denegado. Habilítalo en configuración.';
                         break;
                     case 'network':
-                        errorMessage = 'Error de red. Verifica tu conexión.';
+                        errorMessage = 'Error de red. Necesitas conexión a internet para el reconocimiento de voz.';
                         break;
                     case 'aborted':
                         errorMessage = 'Grabación cancelada.';
+                        break;
+                    case 'service-not-allowed':
+                        errorMessage = 'Servicio de voz no disponible. Intenta desde Chrome.';
+                        break;
+                    case 'language-not-supported':
+                        errorMessage = 'Idioma español no soportado en este dispositivo.';
                         break;
                 }
 

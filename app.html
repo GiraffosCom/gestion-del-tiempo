@@ -19,6 +19,22 @@
     <link rel="stylesheet" href="src/css/components.css">
     <!-- Módulos refactorizados -->
     <script type="module" src="src/js/legacy-bridge.js"></script>
+    <script type="module">
+        // Diagnóstico de carga de módulos
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (!window.GestionApp) {
+                    console.error('[DIAGNOSTICO] GestionApp NO se cargó');
+                    alert('Error: Los módulos no se cargaron. Revisa la consola (F12).');
+                } else if (!window.GestionApp.voiceAssistant) {
+                    console.error('[DIAGNOSTICO] voiceAssistant NO está disponible');
+                } else {
+                    console.log('[DIAGNOSTICO] Módulos cargados correctamente');
+                    console.log('[DIAGNOSTICO] voiceAssistant.isSupported:', window.GestionApp.voiceAssistant.isSupported);
+                }
+            }, 1000);
+        });
+    </script>
     <style>
         :root {
             --theme-primary: #ec4899;
@@ -12166,7 +12182,7 @@
                     }
 
                     // Trigger re-render if we're on the expenses tab
-                    if (currentTab === 'gastos') {
+                    if (activeTab === 'gastos') {
                         render();
                     }
                 } catch (error) {
@@ -13425,74 +13441,80 @@
             return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
         }
 
+        // ==================== Inline Voice Recognition ====================
+        let inlineRecognition = null;
+
+        function initInlineVoiceRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) return null;
+
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.lang = 'es-MX';
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = () => {
+                voiceIsListening = true;
+                updateVoiceFabState(true);
+                showVoiceListening();
+            };
+
+            recognition.onend = () => {
+                voiceIsListening = false;
+                updateVoiceFabState(false);
+            };
+
+            recognition.onresult = (event) => {
+                const lastResult = event.results[event.results.length - 1];
+                if (lastResult.isFinal) {
+                    const transcript = lastResult[0].transcript.trim();
+                    showVoiceTranscript(transcript);
+                    // Simple execution - just show what was said
+                    showVoiceResult({ success: true, message: `Escuché: "${transcript}"` });
+                    setTimeout(() => render(), 500);
+                } else {
+                    const interim = lastResult[0].transcript;
+                    const interimEl = document.getElementById('voiceInterimText');
+                    if (interimEl) interimEl.textContent = interim;
+                }
+            };
+
+            recognition.onerror = (event) => {
+                voiceIsListening = false;
+                updateVoiceFabState(false);
+                let msg = 'Error de reconocimiento';
+                switch(event.error) {
+                    case 'no-speech': msg = 'No se detectó voz. Intenta de nuevo.'; break;
+                    case 'audio-capture': msg = 'No se encontró micrófono.'; break;
+                    case 'not-allowed': msg = 'Permiso de micrófono denegado.'; break;
+                    case 'network': msg = 'Error de red. Necesitas conexión a internet.'; break;
+                }
+                showVoiceError(msg);
+            };
+
+            return recognition;
+        }
+
         /**
          * Initialize voice assistant
          */
         function initVoiceAssistant() {
+            const fab = document.getElementById('voiceFab');
+
+            // Check browser support
             if (!isVoiceSupported()) {
-                const fab = document.getElementById('voiceFab');
-                if (fab) {
-                    fab.style.display = 'none';
-                }
-                console.log('[Voice] Speech Recognition not supported');
+                if (fab) fab.style.display = 'none';
+                console.log('[Voice] Speech Recognition not supported by browser');
                 return;
             }
 
-            // Set up voice assistant callbacks via GestionApp
-            if (window.GestionApp && window.GestionApp.voiceAssistant) {
-                const va = window.GestionApp.voiceAssistant;
-
-                va.onStart = () => {
-                    voiceIsListening = true;
-                    updateVoiceFabState(true);
-                    showVoiceListening();
-                };
-
-                va.onEnd = () => {
-                    voiceIsListening = false;
-                    updateVoiceFabState(false);
-                };
-
-                va.onInterimResult = (interim) => {
-                    const interimEl = document.getElementById('voiceInterimText');
-                    if (interimEl) {
-                        interimEl.textContent = interim;
-                    }
-                };
-
-                va.onResult = async (result) => {
-                    voiceLastResult = result;
-                    showVoiceTranscript(result.transcript);
-
-                    // Execute the command
-                    if (window.GestionApp.voiceExecutor) {
-                        // Set managers for the executor
-                        window.GestionApp.voiceExecutor.setManagers({
-                            scheduleManager: window.GestionApp.scheduleManager,
-                            habitsManager: window.GestionApp.habitsManager,
-                            expensesManager: window.GestionApp.expensesManager,
-                            fastingManager: window.GestionApp.fastingManager,
-                            gymManager: window.GestionApp.gymManager
-                        });
-
-                        const execResult = await window.GestionApp.voiceExecutor.execute(result.parsed);
-                        showVoiceResult(execResult);
-
-                        // Refresh UI if needed
-                        if (execResult.refreshUI || execResult.success) {
-                            setTimeout(() => {
-                                render();
-                            }, 500);
-                        }
-                    }
-                };
-
-                va.onError = (message, code) => {
-                    showVoiceError(message);
-                };
-
-                console.log('[Voice] Assistant initialized');
+            // Initialize inline recognition
+            inlineRecognition = initInlineVoiceRecognition();
+            if (inlineRecognition) {
+                console.log('[Voice] Inline recognition initialized');
             }
+            console.log('[Voice] Assistant initialized');
         }
 
         /**
@@ -13575,15 +13597,32 @@
             // Show listening UI immediately
             showVoiceListening();
 
-            if (window.GestionApp && window.GestionApp.voiceAssistant) {
-                const result = window.GestionApp.voiceAssistant.start();
-                console.log('[Voice] start() returned:', result);
-                if (!result) {
-                    showVoiceError('No se pudo iniciar el reconocimiento de voz.');
+            // Use inline recognition
+            if (inlineRecognition) {
+                try {
+                    inlineRecognition.start();
+                    console.log('[Voice] Recognition started');
+                } catch (err) {
+                    console.error('[Voice] Start error:', err);
+                    if (err.name === 'InvalidStateError') {
+                        // Already running, try to restart
+                        try {
+                            inlineRecognition.abort();
+                            setTimeout(() => inlineRecognition.start(), 100);
+                        } catch (e) {
+                            showVoiceError('Error al iniciar. Intenta de nuevo.');
+                        }
+                    } else {
+                        showVoiceError('No se pudo iniciar el reconocimiento de voz.');
+                    }
                 }
             } else {
-                console.error('[Voice] voiceAssistant not available');
-                showVoiceError('Asistente de voz no disponible.');
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                if (isIOS) {
+                    showVoiceError('Safari en iOS no soporta reconocimiento de voz.');
+                } else {
+                    showVoiceError('Tu navegador no soporta reconocimiento de voz.');
+                }
             }
         }
 
@@ -13591,8 +13630,12 @@
          * Stop voice listening
          */
         function stopVoiceListening() {
-            if (window.GestionApp && window.GestionApp.voiceAssistant) {
-                window.GestionApp.voiceAssistant.stop();
+            if (inlineRecognition) {
+                try {
+                    inlineRecognition.abort();
+                } catch (e) {
+                    // Ignore
+                }
             }
             voiceIsListening = false;
             updateVoiceFabState(false);
