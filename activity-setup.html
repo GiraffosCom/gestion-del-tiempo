@@ -286,7 +286,9 @@
         // Pre-select from onboarding preferences or existing template
         function initFromPreferences() {
             // Try to load from existing template first (if user is re-running wizard)
-            const existingTemplate = localStorage.getItem(userKey + '-template-schedules');
+            // Check both keys (active-template-schedules and template-schedules)
+            const existingTemplate = localStorage.getItem(userKey + '-active-template-schedules') ||
+                                     localStorage.getItem(userKey + '-template-schedules');
             if (existingTemplate) {
                 try {
                     const template = JSON.parse(existingTemplate);
@@ -837,24 +839,30 @@
             return h.toString().padStart(2, '0') + ':' + m.toString().padStart(2, '0');
         }
 
+        function formatDurationString(minutes) {
+            if (minutes < 60) return minutes + ' min';
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            if (mins === 0) return hours + ' hr' + (hours > 1 ? 's' : '');
+            return hours + ' hr ' + mins + ' min';
+        }
+
         function finishActivitySetup() {
             const weekdayActivities = (window.finalWeekdayActivities || []).map(function(a) {
                 return {
                     time: getTimeForSlot(a.time, false),
-                    activity: a.name,
-                    duration: a.duration,
-                    category: a.category,
-                    icon: a.icon
+                    activity: a.icon + ' ' + a.name,
+                    duration: formatDurationString(a.duration),
+                    category: a.category
                 };
             });
 
             const weekendActivities = (window.finalWeekendActivities || []).map(function(a) {
                 return {
                     time: getTimeForSlot(a.time, true),
-                    activity: a.name,
-                    duration: a.duration,
-                    category: a.category,
-                    icon: a.icon
+                    activity: a.icon + ' ' + a.name,
+                    duration: formatDurationString(a.duration),
+                    category: a.category
                 };
             });
 
@@ -862,7 +870,7 @@
             weekdayActivities.sort(function(a, b) { return a.time.localeCompare(b.time); });
             weekendActivities.sort(function(a, b) { return a.time.localeCompare(b.time); });
 
-            // Save template schedules
+            // Save to active-template-schedules (this is what app.html reads)
             const templateSchedules = {
                 weekday: weekdayActivities,
                 weekend: weekendActivities,
@@ -873,7 +881,13 @@
                 selectedTasks: selectedTasks
             };
 
+            // Save to the key that app.html looks for
+            localStorage.setItem(userKey + '-active-template-schedules', JSON.stringify(templateSchedules));
+
+            // Also save to template-schedules for wizard re-entry
             localStorage.setItem(userKey + '-template-schedules', JSON.stringify(templateSchedules));
+
+            console.log('Saved template schedules:', templateSchedules);
 
             // Mark setup complete
             markSetupComplete();
