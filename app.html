@@ -211,74 +211,38 @@
 
         /* ====== MODOS DE VISTA ====== */
 
-        /* Vista Minimalista - Solo lo esencial, oculta todo lo decorativo */
-        body.view-minimal { background: #fafafa !important; }
-        body.view-minimal.dark { background: #0f0f0f !important; }
+        /* Vista Minimalista - Oculta elementos, mismas fuentes */
 
         /* Ocultar dashboard de progreso completo */
         body.view-minimal .progress-dashboard { display: none !important; }
-        body.view-minimal .progress-ring { display: none !important; }
-        body.view-minimal .streak-section { display: none !important; }
-        body.view-minimal .motivational-text { display: none !important; }
-        body.view-minimal .share-button { display: none !important; }
 
         /* Ocultar footer motivacional */
         body.view-minimal footer { display: none !important; }
 
         /* Ocultar botones flotantes */
-        body.view-minimal .floating-buttons { display: none !important; }
         body.view-minimal #pomodoroFloat { display: none !important; }
         body.view-minimal #expensesFloat { display: none !important; }
 
-        /* Ocultar botones secundarios (limpiar, restaurar) */
-        body.view-minimal .secondary-actions { display: none !important; }
+        /* Ocultar botones secundarios (limpiar, restaurar, buscar) */
         body.view-minimal .action-buttons-grid { display: none !important; }
 
-        /* Header ultra compacto */
-        body.view-minimal header { padding: 0.25rem 0 !important; }
-        body.view-minimal .header-greeting { font-size: 0.9rem !important; }
+        /* Ocultar elementos del header */
         body.view-minimal .header-subtext { display: none !important; }
         body.view-minimal .header-badges { display: none !important; }
-        body.view-minimal .photo-glow { box-shadow: none !important; width: 36px !important; height: 36px !important; }
         body.view-minimal .header-photo-edit { display: none !important; }
 
-        /* Cards y elementos simplificados */
-        body.view-minimal .card-hover { box-shadow: none !important; border: 1px solid rgba(0,0,0,0.08) !important; border-radius: 8px !important; }
-        body.view-minimal .card-hover:hover { box-shadow: none !important; transform: none !important; }
-        body.view-minimal .habit-item { padding: 0.75rem 1rem !important; border-radius: 8px !important; }
-        body.view-minimal .schedule-item { padding: 0.5rem 0.75rem !important; border-radius: 6px !important; }
-        body.view-minimal .goal-card { padding: 0.75rem !important; border-radius: 8px !important; }
+        /* Ocultar hero card de agenda */
+        body.view-minimal .agenda-hero { display: none !important; }
 
         /* Ocultar elementos decorativos */
         body.view-minimal .glow { box-shadow: none !important; }
-        body.view-minimal .theme-gradient { background: var(--theme-primary) !important; }
-        body.view-minimal .gradient-text { background: none !important; -webkit-text-fill-color: var(--theme-primary) !important; }
-        body.view-minimal .decorative-elements { display: none !important; }
-        body.view-minimal .category-badge { display: none !important; }
-        body.view-minimal .duration-badge { font-size: 0.6rem !important; padding: 0.1rem 0.3rem !important; opacity: 0.7; }
-        body.view-minimal .emoji-indicator { font-size: 1rem !important; }
-
-        /* Tabs compactos */
-        body.view-minimal .tab-label { font-size: 0.7rem !important; }
-        body.view-minimal [data-tabs-container] button { padding: 0.4rem 0.75rem !important; font-size: 0.75rem !important; }
-
-        /* Ocultar animaciones */
+        body.view-minimal .photo-glow { box-shadow: none !important; }
+        body.view-minimal .card-hover:hover { transform: none !important; }
         body.view-minimal .animate-pulse { animation: none !important; }
-        body.view-minimal .transition-all { transition: none !important; }
 
-        /* Progress bars más discretas */
-        body.view-minimal .progress-bar { height: 3px !important; }
-        body.view-minimal .section-header { font-size: 0.85rem !important; font-weight: 500 !important; }
-
-        /* Agenda hero card simplificada */
-        body.view-minimal .agenda-hero { padding: 0.75rem !important; border-radius: 8px !important; }
-        body.view-minimal .agenda-hero .text-5xl { font-size: 1.5rem !important; }
-        body.view-minimal .agenda-hero .text-4xl { font-size: 1.25rem !important; }
-        body.view-minimal .agenda-hero .text-xl { font-size: 0.9rem !important; }
-
-        /* Ocultar extras en metas */
-        body.view-minimal .goal-card .text-2xl { font-size: 1rem !important; }
+        /* Ocultar extras */
         body.view-minimal .extra-stats { display: none !important; }
+        body.view-minimal .decorative-elements { display: none !important; }
 
         /* Vista Media - Equilibrada (por defecto) */
         body.view-medium .card-hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
