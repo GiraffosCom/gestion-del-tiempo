@@ -101,16 +101,28 @@
             <div class="text-center mb-6">
                 <span class="text-5xl mb-3 block">✅</span>
                 <h1 class="text-2xl font-bold text-gray-900 mb-2">Confirma tu Plan</h1>
-                <p class="text-gray-600">Revisa las actividades que se agregarán a tu agenda</p>
+                <p class="text-gray-600">Revisa los hábitos y actividades que se crearán</p>
             </div>
 
             <div class="space-y-4">
+                <!-- Habits Summary (NEW) -->
+                <div class="bg-white rounded-2xl p-5 border border-purple-200 bg-gradient-to-r from-purple-50 to-white">
+                    <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        <span>✓</span> Hábitos para Trackear
+                        <span id="habitsCount" class="text-sm font-normal text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full">0</span>
+                    </h3>
+                    <p class="text-xs text-gray-500 mb-3">Aparecerán en tu pestaña de Hábitos para marcar diariamente</p>
+                    <div id="habitsSummary" class="flex flex-wrap gap-2">
+                    </div>
+                </div>
+
                 <!-- Weekday Summary -->
                 <div class="bg-white rounded-2xl p-5 border border-gray-200">
                     <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
-                        <span>📅</span> Entre Semana (Lun-Vie)
-                        <span id="weekdayCount" class="text-sm font-normal text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full">0</span>
+                        <span>📅</span> Actividades Entre Semana
+                        <span id="weekdayCount" class="text-sm font-normal text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">0</span>
                     </h3>
+                    <p class="text-xs text-gray-500 mb-3">Se agregarán a tu agenda de Lunes a Viernes</p>
                     <div id="weekdaySummary" class="space-y-2 max-h-48 overflow-y-auto">
                     </div>
                 </div>
@@ -118,14 +130,22 @@
                 <!-- Weekend Summary -->
                 <div class="bg-white rounded-2xl p-5 border border-gray-200">
                     <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
-                        <span>🌴</span> Fin de Semana (Sáb-Dom)
+                        <span>🌴</span> Actividades Fin de Semana
                         <span id="weekendCount" class="text-sm font-normal text-green-600 bg-green-100 px-2 py-0.5 rounded-full">0</span>
                     </h3>
+                    <p class="text-xs text-gray-500 mb-3">Se agregarán a tu agenda de Sábado y Domingo</p>
                     <div id="weekendSummary" class="space-y-2 max-h-48 overflow-y-auto">
                     </div>
                 </div>
 
                 <!-- Info box -->
+                <div class="bg-amber-50 rounded-xl p-4 border border-amber-200">
+                    <p class="text-sm text-amber-700">
+                        <span class="font-medium">🔗 Vinculación:</span> Tus hábitos están conectados con las actividades. Al completar una actividad en la agenda, podrás marcar el hábito como cumplido.
+                    </p>
+                </div>
+
+                <!-- Tip box -->
                 <div class="bg-blue-50 rounded-xl p-4 border border-blue-200">
                     <p class="text-sm text-blue-700">
                         <span class="font-medium">💡 Tip:</span> Puedes modificar los horarios y agregar más actividades desde la app después de completar este wizard.
@@ -667,7 +687,9 @@
                                 duration: task.duration,
                                 category: task.category,
                                 icon: parentData.icon,
-                                time: task.time
+                                time: task.time,
+                                parentId: parentId, // Link to parent habit/exercise
+                                isFromHabit: isHabit
                             };
 
                             if (task.weekday) {
@@ -682,8 +704,61 @@
             });
 
             // Update counts
+            const totalHabits = selectedHabits.length + selectedExercises.length;
+            document.getElementById('habitsCount').textContent = totalHabits + ' hábitos';
             document.getElementById('weekdayCount').textContent = weekdayActivities.length + ' actividades';
             document.getElementById('weekendCount').textContent = weekendActivities.length + ' actividades';
+
+            // Render habits summary
+            const habitsSummary = document.getElementById('habitsSummary');
+            while (habitsSummary.firstChild) {
+                habitsSummary.removeChild(habitsSummary.firstChild);
+            }
+
+            // Add selected habits
+            selectedHabits.forEach(function(habitId) {
+                const habit = habitsData[habitId];
+                if (habit) {
+                    const chip = document.createElement('div');
+                    chip.className = 'flex items-center gap-1.5 px-3 py-1.5 bg-purple-100 text-purple-700 rounded-full text-sm';
+
+                    const icon = document.createElement('span');
+                    icon.textContent = habit.icon;
+
+                    const name = document.createElement('span');
+                    name.textContent = habit.name;
+
+                    chip.appendChild(icon);
+                    chip.appendChild(name);
+                    habitsSummary.appendChild(chip);
+                }
+            });
+
+            // Add selected exercises
+            selectedExercises.forEach(function(exerciseId) {
+                const exercise = exercisesData[exerciseId];
+                if (exercise) {
+                    const chip = document.createElement('div');
+                    chip.className = 'flex items-center gap-1.5 px-3 py-1.5 bg-red-100 text-red-700 rounded-full text-sm';
+
+                    const icon = document.createElement('span');
+                    icon.textContent = exercise.icon;
+
+                    const name = document.createElement('span');
+                    name.textContent = exercise.name;
+
+                    chip.appendChild(icon);
+                    chip.appendChild(name);
+                    habitsSummary.appendChild(chip);
+                }
+            });
+
+            if (totalHabits === 0) {
+                const emptyChip = document.createElement('span');
+                emptyChip.className = 'text-gray-400 text-sm';
+                emptyChip.textContent = 'No hay hábitos seleccionados';
+                habitsSummary.appendChild(emptyChip);
+            }
 
             // Render weekday summary
             const weekdaySummary = document.getElementById('weekdaySummary');
@@ -853,7 +928,8 @@
                     time: getTimeForSlot(a.time, false),
                     activity: a.icon + ' ' + a.name,
                     duration: formatDurationString(a.duration),
-                    category: a.category
+                    category: a.category,
+                    linkedHabitId: a.linkedHabitId || null
                 };
             });
 
@@ -862,7 +938,8 @@
                     time: getTimeForSlot(a.time, true),
                     activity: a.icon + ' ' + a.name,
                     duration: formatDurationString(a.duration),
-                    category: a.category
+                    category: a.category,
+                    linkedHabitId: a.linkedHabitId || null
                 };
             });
 
@@ -870,7 +947,67 @@
             weekdayActivities.sort(function(a, b) { return a.time.localeCompare(b.time); });
             weekendActivities.sort(function(a, b) { return a.time.localeCompare(b.time); });
 
-            // Save to active-template-schedules (this is what app.html reads)
+            // ============ CREATE LINKED HABITS ============
+            // Generate habits from selected habits and exercises
+            const generatedHabits = [];
+            let habitId = 100; // Start from 100 to avoid conflicts with default habits
+
+            // Create a habit for each selected habit category
+            selectedHabits.forEach(function(habitKey) {
+                const habitData = habitsData[habitKey];
+                if (habitData) {
+                    generatedHabits.push({
+                        id: habitId,
+                        name: habitData.name,
+                        icon: habitData.icon,
+                        category: 'habit',
+                        sourceKey: habitKey
+                    });
+                    habitId++;
+                }
+            });
+
+            // Create a habit for each selected exercise category
+            selectedExercises.forEach(function(exerciseKey) {
+                const exerciseData = exercisesData[exerciseKey];
+                if (exerciseData) {
+                    generatedHabits.push({
+                        id: habitId,
+                        name: exerciseData.name,
+                        icon: exerciseData.icon,
+                        category: 'exercise',
+                        sourceKey: exerciseKey
+                    });
+                    habitId++;
+                }
+            });
+
+            // Save generated habits to custom-habits
+            if (generatedHabits.length > 0) {
+                localStorage.setItem(userKey + '-custom-habits', JSON.stringify(generatedHabits));
+                console.log('Created linked habits:', generatedHabits);
+            }
+
+            // Link activities to their corresponding habits
+            weekdayActivities.forEach(function(activity) {
+                const habit = generatedHabits.find(function(h) {
+                    return activity.activity.includes(h.icon);
+                });
+                if (habit) {
+                    activity.linkedHabitId = habit.id;
+                }
+            });
+
+            weekendActivities.forEach(function(activity) {
+                const habit = generatedHabits.find(function(h) {
+                    return activity.activity.includes(h.icon);
+                });
+                if (habit) {
+                    activity.linkedHabitId = habit.id;
+                }
+            });
+
+            // ============ SAVE SCHEDULE TEMPLATE ============
             const templateSchedules = {
                 weekday: weekdayActivities,
                 weekend: weekendActivities,
@@ -878,7 +1015,8 @@
                 createdAt: new Date().toISOString(),
                 selectedHabits: selectedHabits,
                 selectedExercises: selectedExercises,
-                selectedTasks: selectedTasks
+                selectedTasks: selectedTasks,
+                linkedHabits: generatedHabits
             };
 
             // Save to the key that app.html looks for
@@ -891,6 +1029,7 @@
             localStorage.removeItem(userKey + '-custom-schedules');
 
             console.log('Saved template schedules:', templateSchedules);
+            console.log('Created ' + generatedHabits.length + ' linked habits');
             console.log('Cleared custom schedules to force template application');
 
             // Mark setup complete
