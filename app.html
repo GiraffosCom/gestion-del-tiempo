@@ -1634,6 +1634,205 @@
         </div>
     </div>
 
+    <!-- Modal Iniciar Ayuno -->
+    <div id="startFastingModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeStartFastingModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-800">🕐 Iniciar Ayuno</h3>
+                <button onclick="closeStartFastingModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+            </div>
+
+            <p class="text-gray-500 text-sm mb-4">Selecciona el tipo de ayuno intermitente</p>
+
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <button onclick="selectFastingType('12:12')" class="fasting-type-btn flex flex-col items-center p-4 border-2 border-gray-200 rounded-xl hover:border-amber-300 transition">
+                    <span class="text-2xl mb-1">🌅</span>
+                    <span class="font-bold text-gray-800">12:12</span>
+                    <span class="text-xs text-gray-500">Principiante</span>
+                </button>
+                <button onclick="selectFastingType('14:10')" class="fasting-type-btn flex flex-col items-center p-4 border-2 border-gray-200 rounded-xl hover:border-amber-300 transition">
+                    <span class="text-2xl mb-1">🌤️</span>
+                    <span class="font-bold text-gray-800">14:10</span>
+                    <span class="text-xs text-gray-500">Intermedio</span>
+                </button>
+                <button onclick="selectFastingType('16:8')" class="fasting-type-btn flex flex-col items-center p-4 border-2 border-gray-200 rounded-xl hover:border-amber-300 transition">
+                    <span class="text-2xl mb-1">⭐</span>
+                    <span class="font-bold text-gray-800">16:8</span>
+                    <span class="text-xs text-amber-600 font-medium">Popular</span>
+                </button>
+                <button onclick="selectFastingType('18:6')" class="fasting-type-btn flex flex-col items-center p-4 border-2 border-gray-200 rounded-xl hover:border-amber-300 transition">
+                    <span class="text-2xl mb-1">🔥</span>
+                    <span class="font-bold text-gray-800">18:6</span>
+                    <span class="text-xs text-gray-500">Avanzado</span>
+                </button>
+                <button onclick="selectFastingType('20:4')" class="fasting-type-btn flex flex-col items-center p-4 border-2 border-gray-200 rounded-xl hover:border-amber-300 transition">
+                    <span class="text-2xl mb-1">⚔️</span>
+                    <span class="font-bold text-gray-800">20:4</span>
+                    <span class="text-xs text-gray-500">Guerrero</span>
+                </button>
+                <button onclick="selectFastingType('24:0')" class="fasting-type-btn flex flex-col items-center p-4 border-2 border-gray-200 rounded-xl hover:border-amber-300 transition">
+                    <span class="text-2xl mb-1">🏆</span>
+                    <span class="font-bold text-gray-800">24h</span>
+                    <span class="text-xs text-gray-500">OMAD</span>
+                </button>
+            </div>
+
+            <button onclick="selectFastingType('custom')" class="fasting-type-btn w-full flex items-center justify-center gap-2 p-3 border-2 border-dashed border-gray-300 rounded-xl hover:border-amber-300 transition mb-3">
+                <span>⚙️</span>
+                <span class="text-gray-600">Personalizado</span>
+            </button>
+
+            <div id="customFastingHoursGroup" class="hidden mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Duración (horas)</label>
+                <input type="number" id="customFastingHours" min="1" max="72" step="0.5" placeholder="Ej: 20" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeStartFastingModal()" class="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">
+                    Cancelar
+                </button>
+                <button onclick="confirmStartFasting()" class="flex-1 px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-medium hover:opacity-90 transition">
+                    🚀 Comenzar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar Ayuno (Historial) -->
+    <div id="editFastingModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeEditFastingModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all" onclick="event.stopPropagation()">
+            <input type="hidden" id="editFastingId">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-800">✏️ Editar Notas</h3>
+                <button onclick="closeEditFastingModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">⚡ Nivel de Energía</label>
+                    <div class="flex items-center gap-3">
+                        <input type="range" id="editFastingEnergy" min="1" max="5" value="3" class="flex-1 accent-amber-500" oninput="document.getElementById('editFastingEnergyValue').textContent = this.value">
+                        <span id="editFastingEnergyValue" class="w-8 text-center font-bold text-amber-600">3</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">🍽️ Nivel de Hambre</label>
+                    <div class="flex items-center gap-3">
+                        <input type="range" id="editFastingHunger" min="1" max="5" value="3" class="flex-1 accent-amber-500" oninput="document.getElementById('editFastingHungerValue').textContent = this.value">
+                        <span id="editFastingHungerValue" class="w-8 text-center font-bold text-amber-600">3</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">🧠 Nivel de Enfoque</label>
+                    <div class="flex items-center gap-3">
+                        <input type="range" id="editFastingFocus" min="1" max="5" value="3" class="flex-1 accent-amber-500" oninput="document.getElementById('editFastingFocusValue').textContent = this.value">
+                        <span id="editFastingFocusValue" class="w-8 text-center font-bold text-amber-600">3</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">📝 Comentarios</label>
+                    <textarea id="editFastingFeedback" rows="3" placeholder="¿Cómo te sentiste?" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"></textarea>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeEditFastingModal()" class="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">
+                    Cancelar
+                </button>
+                <button onclick="saveEditedFasting()" class="flex-1 px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-medium hover:opacity-90 transition">
+                    💾 Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Notas Ayuno Activo -->
+    <div id="fastingNotesModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeFastingNotesModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-800">📝 ¿Cómo te sientes?</h3>
+                <button onclick="closeFastingNotesModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+            </div>
+
+            <p class="text-gray-500 text-sm mb-4">Registra tus sensaciones durante el ayuno</p>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">⚡ Nivel de Energía</label>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs text-gray-400">Bajo</span>
+                        <input type="range" id="activeFastingEnergy" min="1" max="5" value="3" class="flex-1 accent-amber-500" oninput="document.getElementById('activeFastingEnergyValue').textContent = this.value">
+                        <span class="text-xs text-gray-400">Alto</span>
+                        <span id="activeFastingEnergyValue" class="w-8 text-center font-bold text-amber-600">3</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">🍽️ Nivel de Hambre</label>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs text-gray-400">Poco</span>
+                        <input type="range" id="activeFastingHunger" min="1" max="5" value="3" class="flex-1 accent-amber-500" oninput="document.getElementById('activeFastingHungerValue').textContent = this.value">
+                        <span class="text-xs text-gray-400">Mucho</span>
+                        <span id="activeFastingHungerValue" class="w-8 text-center font-bold text-amber-600">3</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">🧠 Nivel de Enfoque</label>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs text-gray-400">Disperso</span>
+                        <input type="range" id="activeFastingFocus" min="1" max="5" value="3" class="flex-1 accent-amber-500" oninput="document.getElementById('activeFastingFocusValue').textContent = this.value">
+                        <span class="text-xs text-gray-400">Enfocado</span>
+                        <span id="activeFastingFocusValue" class="w-8 text-center font-bold text-amber-600">3</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeFastingNotesModal()" class="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition">
+                    Cancelar
+                </button>
+                <button onclick="saveFastingNotes()" class="flex-1 px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-medium hover:opacity-90 transition">
+                    💾 Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ayuno Completado -->
+    <div id="fastingCompletionModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4" onclick="closeFastingCompletionModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all text-center" onclick="event.stopPropagation()">
+            <div class="w-20 h-20 mx-auto bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center mb-4">
+                <span id="completionIcon" class="text-4xl">🎉</span>
+            </div>
+
+            <h3 id="completionFeedback" class="text-2xl font-bold text-gray-800 mb-2">¡Excelente!</h3>
+            <p class="text-gray-500 mb-4">Has completado tu ayuno</p>
+
+            <div class="grid grid-cols-3 gap-3 mb-6">
+                <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-3">
+                    <p id="completionActualHours" class="text-xl font-bold text-amber-600">0h</p>
+                    <p class="text-xs text-gray-500">Duración</p>
+                </div>
+                <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-3">
+                    <p id="completionTargetHours" class="text-xl font-bold text-amber-600">0h</p>
+                    <p class="text-xs text-gray-500">Meta</p>
+                </div>
+                <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-3">
+                    <p id="completionPercentage" class="text-xl font-bold text-amber-600">0%</p>
+                    <p class="text-xs text-gray-500">Logro</p>
+                </div>
+            </div>
+
+            <button onclick="closeFastingCompletionModal()" class="w-full px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-medium hover:opacity-90 transition">
+                ¡Genial! 👏
+            </button>
+        </div>
+    </div>
+
     <script>
         // Check login
         const currentUser = JSON.parse(localStorage.getItem('gestion-currentUser'));
@@ -4788,6 +4987,7 @@
                 habits: { emoji: '✅', label: t('habits'), color: 'green' },
                 gym: { emoji: '💪', label: t('gym'), color: 'rose' },
                 meals: { emoji: '🥗', label: t('nutrition'), color: 'orange' },
+                fasting: { emoji: '🕐', label: getLang() === 'en' ? 'Fasting' : 'Ayuno', color: 'amber' },
                 goals: { emoji: '🎯', label: t('goals'), color: 'purple' },
                 notes: { emoji: '📝', label: getLang() === 'en' ? 'Notes' : 'Notas', color: 'yellow' },
                 gastos: { emoji: '💰', label: t('expenses'), color: 'emerald' },
@@ -4834,7 +5034,7 @@
 
         // Specific getters for backwards compatibility
         function getMainTabsOrder() {
-            return getTabsOrder('main', ['agenda', 'habits', 'gym', 'meals', 'goals', 'notes', 'gastos', 'stats']);
+            return getTabsOrder('main', ['agenda', 'habits', 'gym', 'meals', 'fasting', 'goals', 'notes', 'gastos', 'stats']);
         }
         function getGymTabsOrder() {
             return getTabsOrder('gym', ['profile', 'workout', 'macros', 'history']);
@@ -6052,6 +6252,7 @@
                     ${activeTab === 'habits' ? renderHabits(dateKey) : ''}
                     ${activeTab === 'gym' ? renderGym(gym, dayIndex, weekNum) : ''}
                     ${activeTab === 'meals' ? renderMeals() : ''}
+                    ${activeTab === 'fasting' ? renderFasting() : ''}
                     ${activeTab === 'goals' ? renderGoals(weekNum) : ''}
                     ${activeTab === 'notes' ? renderNotes(dateKey) : ''}
                     ${activeTab === 'gastos' ? renderGastos() : ''}
@@ -7921,6 +8122,558 @@
                 render();
             }
         }
+
+        // ==================== FASTING INTERMITTENT ====================
+        // Fasting types configuration
+        const FASTING_TYPES = {
+            '12:12': { hours: 12, label: '12:12', description: 'Principiante' },
+            '14:10': { hours: 14, label: '14:10', description: 'Intermedio' },
+            '16:8':  { hours: 16, label: '16:8',  description: 'Popular' },
+            '18:6':  { hours: 18, label: '18:6',  description: 'Avanzado' },
+            '20:4':  { hours: 20, label: '20:4',  description: 'Guerrero' },
+            '24:0':  { hours: 24, label: '24h',   description: 'OMAD' },
+            'custom': { hours: null, label: 'Personalizado', description: 'Define tu tiempo' }
+        };
+
+        // Fasting timer state
+        let fastingTimerInterval = null;
+
+        // Fasting Storage Functions
+        function getFastingData() {
+            const data = getStorage(`${userKey}-fasting`);
+            if (data) {
+                return JSON.parse(data);
+            }
+            return {
+                activeFast: null,
+                history: [],
+                settings: { defaultType: '16:8', reminderEnabled: false }
+            };
+        }
+
+        function saveFastingData(data) {
+            setStorage(`${userKey}-fasting`, JSON.stringify(data));
+        }
+
+        function hasActiveFast() {
+            const data = getFastingData();
+            return data.activeFast !== null;
+        }
+
+        // Fasting Timer Functions
+        function calculateFastingElapsed() {
+            const data = getFastingData();
+            if (!data.activeFast) return 0;
+            return Math.floor((Date.now() - new Date(data.activeFast.startedAt).getTime()) / 1000);
+        }
+
+        function formatFastingTime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function startFastingTimer() {
+            if (fastingTimerInterval) {
+                clearInterval(fastingTimerInterval);
+            }
+            fastingTimerInterval = setInterval(() => {
+                updateFastingDisplay();
+            }, 1000);
+        }
+
+        function stopFastingTimer() {
+            if (fastingTimerInterval) {
+                clearInterval(fastingTimerInterval);
+                fastingTimerInterval = null;
+            }
+        }
+
+        function updateFastingDisplay() {
+            const data = getFastingData();
+            if (!data.activeFast) return;
+
+            const elapsed = calculateFastingElapsed();
+            const targetSeconds = data.activeFast.targetHours * 3600;
+            const progress = Math.min((elapsed / targetSeconds) * 100, 100);
+            const remaining = Math.max(targetSeconds - elapsed, 0);
+
+            // Update timer display
+            const timerEl = document.getElementById('fastingTimer');
+            if (timerEl) {
+                timerEl.textContent = formatFastingTime(elapsed);
+            }
+
+            // Update progress circle
+            const progressEl = document.getElementById('fastingProgress');
+            if (progressEl) {
+                progressEl.style.setProperty('--progress', progress);
+                progressEl.setAttribute('data-progress', Math.round(progress));
+            }
+
+            // Update remaining time
+            const remainingEl = document.getElementById('fastingRemaining');
+            if (remainingEl) {
+                if (remaining > 0) {
+                    const remainingHours = (remaining / 3600).toFixed(1);
+                    remainingEl.textContent = `Faltan ${remainingHours}h`;
+                } else {
+                    remainingEl.textContent = '¡Meta alcanzada!';
+                    remainingEl.classList.add('text-green-500', 'font-bold');
+                }
+            }
+
+            // Check if goal reached
+            if (elapsed >= targetSeconds && !data.activeFast.goalReached) {
+                data.activeFast.goalReached = true;
+                saveFastingData(data);
+                showNotification('🎉 ¡Meta de ayuno alcanzada!');
+            }
+        }
+
+        function startFasting(type, customHours = null) {
+            if (hasActiveFast()) {
+                showNotification('⚠️ Ya tienes un ayuno activo');
+                return;
+            }
+
+            const targetHours = type === 'custom' ? customHours : FASTING_TYPES[type].hours;
+            if (!targetHours || targetHours <= 0) {
+                showNotification('⚠️ Duración inválida');
+                return;
+            }
+
+            const data = getFastingData();
+            data.activeFast = {
+                id: Date.now(),
+                type: type,
+                targetHours: targetHours,
+                startedAt: new Date().toISOString(),
+                notes: { energy: 3, hunger: 3, focus: 3 },
+                goalReached: false
+            };
+            saveFastingData(data);
+
+            startFastingTimer();
+            showNotification(`🕐 Ayuno ${FASTING_TYPES[type]?.label || targetHours + 'h'} iniciado`);
+            render();
+        }
+
+        function endFasting() {
+            const data = getFastingData();
+            if (!data.activeFast) return;
+
+            const elapsed = calculateFastingElapsed();
+            const actualHours = elapsed / 3600;
+            const completed = actualHours >= data.activeFast.targetHours;
+
+            // Save to history
+            const historyEntry = {
+                id: data.activeFast.id,
+                type: data.activeFast.type,
+                targetHours: data.activeFast.targetHours,
+                startedAt: data.activeFast.startedAt,
+                endedAt: new Date().toISOString(),
+                actualHours: parseFloat(actualHours.toFixed(2)),
+                completed: completed,
+                notes: data.activeFast.notes,
+                feedback: ''
+            };
+
+            data.history.unshift(historyEntry);
+            data.activeFast = null;
+            saveFastingData(data);
+
+            stopFastingTimer();
+            showFastingCompletionModal(completed ? '¡Excelente!' : 'Buen intento', actualHours, historyEntry.targetHours);
+            render();
+        }
+
+        function cancelFasting() {
+            if (!confirm('¿Cancelar el ayuno actual? No se guardará en el historial.')) return;
+
+            const data = getFastingData();
+            data.activeFast = null;
+            saveFastingData(data);
+
+            stopFastingTimer();
+            showNotification('❌ Ayuno cancelado');
+            render();
+        }
+
+        // Fasting History CRUD
+        function openEditFastingModal(id) {
+            const data = getFastingData();
+            const entry = data.history.find(h => h.id === id);
+            if (!entry) return;
+
+            document.getElementById('editFastingId').value = id;
+            document.getElementById('editFastingEnergy').value = entry.notes?.energy || 3;
+            document.getElementById('editFastingHunger').value = entry.notes?.hunger || 3;
+            document.getElementById('editFastingFocus').value = entry.notes?.focus || 3;
+            document.getElementById('editFastingFeedback').value = entry.feedback || '';
+
+            // Update slider displays
+            document.getElementById('editFastingEnergyValue').textContent = entry.notes?.energy || 3;
+            document.getElementById('editFastingHungerValue').textContent = entry.notes?.hunger || 3;
+            document.getElementById('editFastingFocusValue').textContent = entry.notes?.focus || 3;
+
+            document.getElementById('editFastingModal').classList.remove('hidden');
+        }
+
+        function closeEditFastingModal() {
+            document.getElementById('editFastingModal').classList.add('hidden');
+        }
+
+        function saveEditedFasting() {
+            const id = parseInt(document.getElementById('editFastingId').value);
+            const data = getFastingData();
+            const entryIndex = data.history.findIndex(h => h.id === id);
+            if (entryIndex === -1) return;
+
+            data.history[entryIndex].notes = {
+                energy: parseInt(document.getElementById('editFastingEnergy').value),
+                hunger: parseInt(document.getElementById('editFastingHunger').value),
+                focus: parseInt(document.getElementById('editFastingFocus').value)
+            };
+            data.history[entryIndex].feedback = document.getElementById('editFastingFeedback').value;
+
+            saveFastingData(data);
+            closeEditFastingModal();
+            showNotification('✅ Notas actualizadas');
+            render();
+        }
+
+        function deleteFasting(id) {
+            if (!confirm('¿Eliminar este registro de ayuno?')) return;
+
+            const data = getFastingData();
+            data.history = data.history.filter(h => h.id !== id);
+            saveFastingData(data);
+
+            showNotification('🗑️ Registro eliminado');
+            render();
+        }
+
+        // Fasting Metrics
+        function getFastingMetrics() {
+            const data = getFastingData();
+            const history = data.history;
+            const now = new Date();
+
+            // Last 7 days
+            const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            const last7Days = history.filter(h => new Date(h.endedAt) >= sevenDaysAgo);
+            const avg7Days = last7Days.length > 0
+                ? last7Days.reduce((sum, h) => sum + h.actualHours, 0) / last7Days.length
+                : 0;
+
+            // Last 30 days
+            const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            const last30Days = history.filter(h => new Date(h.endedAt) >= thirtyDaysAgo);
+            const avg30Days = last30Days.length > 0
+                ? last30Days.reduce((sum, h) => sum + h.actualHours, 0) / last30Days.length
+                : 0;
+
+            // Longest fast
+            const longestFast = history.length > 0
+                ? Math.max(...history.map(h => h.actualHours))
+                : 0;
+
+            // Total hours this month
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const thisMonth = history.filter(h => new Date(h.endedAt) >= startOfMonth);
+            const totalHoursMonth = thisMonth.reduce((sum, h) => sum + h.actualHours, 0);
+
+            return {
+                avg7Days: avg7Days.toFixed(1),
+                avg30Days: avg30Days.toFixed(1),
+                longestFast: longestFast.toFixed(1),
+                totalHoursMonth: Math.round(totalHoursMonth)
+            };
+        }
+
+        // Fasting Modal Functions
+        function openStartFastingModal() {
+            if (hasActiveFast()) {
+                showNotification('⚠️ Ya tienes un ayuno activo');
+                return;
+            }
+            document.getElementById('customFastingHours').value = '';
+            document.getElementById('customFastingHoursGroup').classList.add('hidden');
+            document.getElementById('startFastingModal').classList.remove('hidden');
+        }
+
+        function closeStartFastingModal() {
+            document.getElementById('startFastingModal').classList.add('hidden');
+        }
+
+        function selectFastingType(type) {
+            // Update visual selection
+            document.querySelectorAll('.fasting-type-btn').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-amber-500', 'bg-amber-50');
+            });
+            event.currentTarget.classList.add('ring-2', 'ring-amber-500', 'bg-amber-50');
+
+            // Show/hide custom hours input
+            const customGroup = document.getElementById('customFastingHoursGroup');
+            if (type === 'custom') {
+                customGroup.classList.remove('hidden');
+            } else {
+                customGroup.classList.add('hidden');
+            }
+
+            // Store selected type
+            document.getElementById('startFastingModal').dataset.selectedType = type;
+        }
+
+        function confirmStartFasting() {
+            const modal = document.getElementById('startFastingModal');
+            const type = modal.dataset.selectedType;
+
+            if (!type) {
+                showNotification('⚠️ Selecciona un tipo de ayuno');
+                return;
+            }
+
+            let customHours = null;
+            if (type === 'custom') {
+                customHours = parseFloat(document.getElementById('customFastingHours').value);
+                if (!customHours || customHours <= 0 || customHours > 72) {
+                    showNotification('⚠️ Ingresa una duración válida (1-72 horas)');
+                    return;
+                }
+            }
+
+            closeStartFastingModal();
+            startFasting(type, customHours);
+        }
+
+        function openFastingNotesModal() {
+            const data = getFastingData();
+            if (!data.activeFast) return;
+
+            document.getElementById('activeFastingEnergy').value = data.activeFast.notes?.energy || 3;
+            document.getElementById('activeFastingHunger').value = data.activeFast.notes?.hunger || 3;
+            document.getElementById('activeFastingFocus').value = data.activeFast.notes?.focus || 3;
+
+            // Update displays
+            document.getElementById('activeFastingEnergyValue').textContent = data.activeFast.notes?.energy || 3;
+            document.getElementById('activeFastingHungerValue').textContent = data.activeFast.notes?.hunger || 3;
+            document.getElementById('activeFastingFocusValue').textContent = data.activeFast.notes?.focus || 3;
+
+            document.getElementById('fastingNotesModal').classList.remove('hidden');
+        }
+
+        function closeFastingNotesModal() {
+            document.getElementById('fastingNotesModal').classList.add('hidden');
+        }
+
+        function saveFastingNotes() {
+            const data = getFastingData();
+            if (!data.activeFast) return;
+
+            data.activeFast.notes = {
+                energy: parseInt(document.getElementById('activeFastingEnergy').value),
+                hunger: parseInt(document.getElementById('activeFastingHunger').value),
+                focus: parseInt(document.getElementById('activeFastingFocus').value)
+            };
+
+            saveFastingData(data);
+            closeFastingNotesModal();
+            showNotification('✅ Notas guardadas');
+        }
+
+        function showFastingCompletionModal(feedback, actualHours, targetHours) {
+            const percentage = Math.round((actualHours / targetHours) * 100);
+            const isCompleted = actualHours >= targetHours;
+
+            document.getElementById('completionFeedback').textContent = feedback;
+            document.getElementById('completionActualHours').textContent = actualHours.toFixed(1) + 'h';
+            document.getElementById('completionTargetHours').textContent = targetHours + 'h';
+            document.getElementById('completionPercentage').textContent = percentage + '%';
+
+            const icon = document.getElementById('completionIcon');
+            if (isCompleted) {
+                icon.textContent = '🎉';
+                icon.parentElement.classList.remove('from-orange-500', 'to-red-500');
+                icon.parentElement.classList.add('from-green-500', 'to-emerald-500');
+            } else {
+                icon.textContent = '💪';
+                icon.parentElement.classList.remove('from-green-500', 'to-emerald-500');
+                icon.parentElement.classList.add('from-orange-500', 'to-red-500');
+            }
+
+            document.getElementById('fastingCompletionModal').classList.remove('hidden');
+        }
+
+        function closeFastingCompletionModal() {
+            document.getElementById('fastingCompletionModal').classList.add('hidden');
+        }
+
+        // Render Fasting Section
+        function renderFasting() {
+            const data = getFastingData();
+            const metrics = getFastingMetrics();
+            const hasActive = data.activeFast !== null;
+
+            // If there's an active fast, make sure timer is running
+            if (hasActive && !fastingTimerInterval) {
+                startFastingTimer();
+            }
+
+            let activeCardHtml = '';
+            if (hasActive) {
+                const elapsed = calculateFastingElapsed();
+                const targetSeconds = data.activeFast.targetHours * 3600;
+                const progress = Math.min((elapsed / targetSeconds) * 100, 100);
+                const remaining = Math.max(targetSeconds - elapsed, 0);
+                const remainingHours = (remaining / 3600).toFixed(1);
+                const typeInfo = FASTING_TYPES[data.activeFast.type] || { label: data.activeFast.targetHours + 'h' };
+
+                activeCardHtml = `
+                    <div class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl p-6 text-white shadow-lg">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <p class="text-amber-100 text-sm">Ayuno activo</p>
+                                <p class="text-2xl font-bold">${typeInfo.label}</p>
+                            </div>
+                            <div class="relative w-24 h-24">
+                                <svg class="w-24 h-24 transform -rotate-90">
+                                    <circle cx="48" cy="48" r="40" stroke="rgba(255,255,255,0.3)" stroke-width="8" fill="none"/>
+                                    <circle cx="48" cy="48" r="40" stroke="white" stroke-width="8" fill="none"
+                                        stroke-dasharray="${2 * Math.PI * 40}"
+                                        stroke-dashoffset="${2 * Math.PI * 40 * (1 - progress / 100)}"
+                                        stroke-linecap="round"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-lg font-bold">${Math.round(progress)}%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mb-4">
+                            <p id="fastingTimer" class="text-5xl font-mono font-bold tracking-wider">${formatFastingTime(elapsed)}</p>
+                            <p class="text-amber-100 mt-1">Meta: ${data.activeFast.targetHours}h</p>
+                            <p id="fastingRemaining" class="text-sm mt-1 ${remaining <= 0 ? 'text-green-200 font-bold' : 'text-amber-100'}">
+                                ${remaining > 0 ? `Faltan ${remainingHours}h` : '¡Meta alcanzada!'}
+                            </p>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button onclick="openFastingNotesModal()" class="flex-1 py-2 bg-white/20 hover:bg-white/30 rounded-xl font-medium transition text-sm">
+                                📝 Notas
+                            </button>
+                            <button onclick="endFasting()" class="flex-1 py-2 bg-white hover:bg-amber-50 text-amber-600 rounded-xl font-medium transition text-sm">
+                                ✅ Finalizar
+                            </button>
+                            <button onclick="cancelFasting()" class="py-2 px-3 bg-white/20 hover:bg-red-500/50 rounded-xl font-medium transition text-sm">
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                activeCardHtml = `
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                        <div class="text-center py-4">
+                            <div class="w-20 h-20 mx-auto bg-gradient-to-br from-amber-100 to-orange-100 rounded-full flex items-center justify-center mb-4">
+                                <span class="text-4xl">🕐</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-1">Ayuno Intermitente</h3>
+                            <p class="text-gray-500 text-sm mb-4">Mejora tu metabolismo y claridad mental</p>
+                            <button onclick="openStartFastingModal()" class="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-medium hover:opacity-90 transition shadow-lg">
+                                🚀 Iniciar Ayuno
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Metrics cards
+            const metricsHtml = `
+                <div class="bg-white rounded-2xl p-4 shadow-sm">
+                    <h4 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        📊 Estadísticas
+                    </h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-3 text-center">
+                            <p class="text-2xl font-bold text-amber-600">${metrics.avg7Days}h</p>
+                            <p class="text-xs text-gray-500">Promedio 7 días</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-3 text-center">
+                            <p class="text-2xl font-bold text-amber-600">${metrics.avg30Days}h</p>
+                            <p class="text-xs text-gray-500">Promedio 30 días</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-3 text-center">
+                            <p class="text-2xl font-bold text-amber-600">${metrics.longestFast}h</p>
+                            <p class="text-xs text-gray-500">Más largo</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-3 text-center">
+                            <p class="text-2xl font-bold text-amber-600">${metrics.totalHoursMonth}h</p>
+                            <p class="text-xs text-gray-500">Total este mes</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // History list (last 10)
+            const recentHistory = data.history.slice(0, 10);
+            const historyHtml = `
+                <div class="bg-white rounded-2xl p-4 shadow-sm">
+                    <h4 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        📋 Historial Reciente
+                    </h4>
+                    ${recentHistory.length > 0 ? `
+                        <div class="space-y-2">
+                            ${recentHistory.map(entry => {
+                                const date = new Date(entry.endedAt);
+                                const dateStr = date.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit' });
+                                const typeInfo = FASTING_TYPES[entry.type] || { label: entry.targetHours + 'h' };
+                                const icon = entry.completed ? '✅' : '⏸️';
+                                const bgClass = entry.completed ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100';
+
+                                return `
+                                    <div class="flex items-center justify-between p-3 rounded-xl border ${bgClass}">
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-xl">${icon}</span>
+                                            <div>
+                                                <p class="font-medium text-gray-800">${typeInfo.label} <span class="text-sm text-gray-500">(${entry.actualHours}h)</span></p>
+                                                <p class="text-xs text-gray-500">${dateStr}</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex gap-1">
+                                            <button onclick="openEditFastingModal(${entry.id})" class="p-2 hover:bg-white rounded-lg transition text-gray-400 hover:text-amber-500">
+                                                ✏️
+                                            </button>
+                                            <button onclick="deleteFasting(${entry.id})" class="p-2 hover:bg-white rounded-lg transition text-gray-400 hover:text-red-500">
+                                                🗑️
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    ` : `
+                        <div class="text-center py-6 text-gray-400">
+                            <p class="text-4xl mb-2">📭</p>
+                            <p class="text-sm">Sin registros aún</p>
+                            <p class="text-xs">Completa tu primer ayuno para ver el historial</p>
+                        </div>
+                    `}
+                </div>
+            `;
+
+            return `
+                <div class="space-y-4">
+                    ${activeCardHtml}
+                    ${metricsHtml}
+                    ${historyHtml}
+                </div>
+            `;
+        }
+        // ==================== END FASTING INTERMITTENT ====================
 
         // Pomodoro Timer Functions
         let pomodoroState = {
@@ -10560,6 +11313,11 @@
         // Initial render
         render();
         updateFloatingButtons();
+
+        // Initialize fasting timer if there's an active fast
+        if (hasActiveFast()) {
+            startFastingTimer();
+        }
     </script>
 </body>
 </html>
