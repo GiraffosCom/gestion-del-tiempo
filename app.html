@@ -13435,6 +13435,155 @@
         let voiceLastResult = null;
 
         /**
+         * Execute a voice command using inline app functions
+         */
+        function executeVoiceCommand(transcript) {
+            const text = transcript.toLowerCase().trim();
+            console.log('[Voice] Executing command:', text);
+
+            // Detect intent and execute
+            // 1. Add activity: "agregar ir al banco a las 3"
+            const addWords = ['agregar', 'añadir', 'crear', 'programar', 'agendar', 'poner'];
+            const isAdd = addWords.some(w => text.includes(w));
+
+            // 2. Detect expense: "gasto 100 pesos en comida"
+            const expenseWords = ['gasto', 'gasté', 'gaste', 'pagué', 'pague', 'compré', 'compre'];
+            const isExpense = expenseWords.some(w => text.includes(w));
+
+            // 3. Detect habit completion: "completar hábito"
+            const completeWords = ['completar', 'marcar', 'listo', 'hecho', 'check'];
+            const habitWords = ['hábito', 'habito'];
+            const isCompleteHabit = completeWords.some(w => text.includes(w)) && habitWords.some(w => text.includes(w));
+
+            if (isExpense) {
+                return executeVoiceExpense(text);
+            } else if (isCompleteHabit) {
+                return { success: false, message: 'Función de completar hábito por voz próximamente.' };
+            } else {
+                // Default: add activity
+                return executeVoiceActivity(text);
+            }
+        }
+
+        /**
+         * Add activity from voice command
+         */
+        function executeVoiceActivity(text) {
+            // Extract time
+            let time = null;
+            const timeMatch = text.match(/a\s*las?\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm|de la mañana|de la tarde|de la noche)?/i)
+                || text.match(/(\d{1,2})(?::(\d{2}))?\s*(pm|am)/i);
+
+            if (timeMatch) {
+                let hours = parseInt(timeMatch[1]);
+                const minutes = timeMatch[2] ? parseInt(timeMatch[2]) : 0;
+                const period = (timeMatch[3] || '').toLowerCase();
+
+                if (period.includes('pm') || period.includes('tarde') || period.includes('noche')) {
+                    if (hours < 12) hours += 12;
+                } else if (period.includes('am') || period.includes('mañana')) {
+                    if (hours === 12) hours = 0;
+                } else if (hours >= 1 && hours <= 6) {
+                    hours += 12; // Assume PM for 1-6
+                }
+                time = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+            }
+
+            // Extract activity name - remove keywords
+            let name = text;
+            const removeWords = ['agregar', 'añadir', 'crear', 'programar', 'agendar', 'poner',
+                'actividad', 'tarea', 'cita', 'evento', 'una', 'un', 'el', 'la', 'de', 'del', 'para', 'por'];
+            removeWords.forEach(w => {
+                name = name.replace(new RegExp(`\\b${w}\\b`, 'gi'), '');
+            });
+            // Remove time expressions
+            if (timeMatch) name = name.replace(timeMatch[0], '');
+            name = name.replace(/\s+/g, ' ').trim();
+
+            if (name.length < 2) {
+                return { success: false, message: 'No entendí la actividad. Intenta: "Agregar ir al banco a las 3 PM"' };
+            }
+
+            // Capitalize
+            name = name.charAt(0).toUpperCase() + name.slice(1);
+
+            if (!time) time = '12:00';
+
+            // Add to schedule using the app's inline format
+            const dateKey = getDateKey();
+            let schedule = getSchedule(currentDate.getDay(), dateKey);
+
+            if (!customSchedules[dateKey]) {
+                schedule = JSON.parse(JSON.stringify(schedule));
+            }
+
+            const newItem = { time, activity: name, duration: '30 min', category: 'personal' };
+            schedule.push(newItem);
+            schedule.sort((a, b) => a.time.localeCompare(b.time));
+            saveCustomSchedule(dateKey, schedule);
+
+            return { success: true, message: `✅ "${name}" agregado a las ${time}` };
+        }
+
+        /**
+         * Add expense from voice command
+         */
+        function executeVoiceExpense(text) {
+            // Extract amount
+            const amountMatch = text.match(/(\d+(?:\.\d+)?)\s*(pesos?|dólares?|dolares?)?/i)
+                || text.match(/\$\s*(\d+(?:\.\d+)?)/);
+
+            if (!amountMatch) {
+                return { success: false, message: 'No entendí el monto. Intenta: "Gasto 100 pesos en comida"' };
+            }
+
+            const amount = parseFloat(amountMatch[1]);
+
+            // Detect category
+            const categories = {
+                food: ['comida', 'comer', 'almuerzo', 'cena', 'desayuno', 'restaurante', 'cafe', 'café'],
+                transport: ['uber', 'taxi', 'gasolina', 'transporte', 'metro', 'estacionamiento'],
+                entertainment: ['cine', 'netflix', 'spotify', 'juego', 'diversión', 'bar', 'fiesta'],
+                shopping: ['compra', 'ropa', 'zapatos', 'tienda', 'amazon'],
+                health: ['medicina', 'doctor', 'farmacia', 'gym', 'gimnasio'],
+                bills: ['luz', 'agua', 'internet', 'teléfono', 'renta']
+            };
+
+            let category = 'other';
+            for (const [cat, keywords] of Object.entries(categories)) {
+                if (keywords.some(k => text.includes(k))) {
+                    category = cat;
+                    break;
+                }
+            }
+
+            // Extract description
+            let desc = text;
+            ['gasto', 'gasté', 'gaste', 'pagué', 'pague', 'compré', 'compre', 'en', 'de', 'por'].forEach(w => {
+                desc = desc.replace(new RegExp(`\\b${w}\\b`, 'gi'), '');
+            });
+            if (amountMatch) desc = desc.replace(amountMatch[0], '');
+            desc = desc.replace(/pesos?/gi, '').replace(/\s+/g, ' ').trim();
+            if (desc.length > 0) desc = desc.charAt(0).toUpperCase() + desc.slice(1);
+
+            // Save expense
+            const expenses = JSON.parse(getStorage('expenses') || '[]');
+            expenses.push({
+                id: Date.now().toString(),
+                amount,
+                category,
+                description: desc || 'Gasto por voz',
+                date: new Date().toISOString()
+            });
+            setStorage('expenses', JSON.stringify(expenses));
+
+            const catNames = { food: 'Comida', transport: 'Transporte', entertainment: 'Entretenimiento',
+                shopping: 'Compras', health: 'Salud', bills: 'Servicios', other: 'Otros' };
+
+            return { success: true, message: `💰 Gasto de $${amount} en ${catNames[category] || 'Otros'} registrado` };
+        }
+
+        /**
          * Check if voice assistant is supported
          */
         function isVoiceSupported() {
@@ -13471,27 +13620,11 @@
                     const transcript = lastResult[0].transcript.trim();
                     showVoiceTranscript(transcript);
 
-                    // Parse and execute the command
-                    if (window.GestionApp && window.GestionApp.voiceAssistant && window.GestionApp.voiceExecutor) {
-                        const parsed = window.GestionApp.voiceAssistant.parseCommand(transcript);
-                        console.log('[Voice] Parsed command:', parsed);
+                    // Parse and execute using inline app functions
+                    const execResult = executeVoiceCommand(transcript);
+                    showVoiceResult(execResult);
 
-                        window.GestionApp.voiceExecutor.setManagers({
-                            scheduleManager: window.GestionApp.scheduleManager,
-                            habitsManager: window.GestionApp.habitsManager,
-                            expensesManager: window.GestionApp.expensesManager,
-                            fastingManager: window.GestionApp.fastingManager,
-                            gymManager: window.GestionApp.gymManager
-                        });
-
-                        const execResult = await window.GestionApp.voiceExecutor.execute(parsed);
-                        showVoiceResult(execResult);
-
-                        if (execResult.refreshUI || execResult.success) {
-                            setTimeout(() => render(), 500);
-                        }
-                    } else {
-                        showVoiceResult({ success: true, message: `Escuché: "${transcript}"` });
+                    if (execResult.success) {
                         setTimeout(() => render(), 500);
                     }
                 } else {
