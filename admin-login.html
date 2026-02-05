@@ -8,43 +8,43 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Poppins', sans-serif; }
-        .gradient-bg { background: linear-gradient(135deg, #1e3a8a, #4338ca); }
+        .gradient-bg { background: linear-gradient(135deg, #2563eb, #4f46e5); }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center p-4">
+<body class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
 
     <div class="w-full max-w-md">
         <!-- Logo -->
         <div class="text-center mb-8">
             <span class="text-5xl">🔐</span>
-            <h1 class="text-2xl font-bold text-white mt-4">Panel de Administración</h1>
-            <p class="text-blue-300">Gestión del Tiempo</p>
+            <h1 class="text-2xl font-bold text-gray-900 mt-4">Panel de Administración</h1>
+            <p class="text-gray-500">Gestión del Tiempo</p>
         </div>
 
         <!-- Card -->
-        <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
+        <div class="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
             <form onsubmit="handleAdminLogin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-blue-200 mb-2">Usuario Admin</label>
+                    <label class="block text-sm font-medium text-gray-600 mb-2">Usuario Admin</label>
                     <input type="text" id="adminUser" required
-                        class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-blue-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition"
+                        class="w-full px-4 py-3 rounded-xl bg-gray-100 border border-gray-200 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition"
                         placeholder="admin">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-blue-200 mb-2">Contraseña</label>
+                    <label class="block text-sm font-medium text-gray-600 mb-2">Contraseña</label>
                     <input type="password" id="adminPassword" required
-                        class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-blue-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition"
+                        class="w-full px-4 py-3 rounded-xl bg-gray-100 border border-gray-200 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition"
                         placeholder="••••••••">
                 </div>
-                <div id="adminError" class="hidden text-red-400 text-sm text-center py-2 bg-red-900/30 rounded-lg"></div>
+                <div id="adminError" class="hidden text-red-600 text-sm text-center py-2 bg-red-50 rounded-lg"></div>
                 <button type="submit" class="w-full py-4 gradient-bg text-white rounded-xl font-semibold text-lg hover:opacity-90 transition shadow-lg">
                     Entrar al Backoffice →
                 </button>
             </form>
         </div>
 
-        <p class="text-center mt-6 text-blue-400">
-            <a href="landing.html" class="hover:text-white transition">← Volver al sitio</a>
+        <p class="text-center mt-6 text-gray-400">
+            <a href="landing.html" class="hover:text-gray-900 transition">← Volver al sitio</a>
         </p>
     </div>
 
