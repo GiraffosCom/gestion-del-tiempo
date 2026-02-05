@@ -1236,20 +1236,20 @@
                     if (localSub.plan !== 'pro') {
                         btnInline.className = 'px-3 py-1.5 bg-green-500/20 text-green-400 rounded-lg text-sm font-medium hover:bg-green-500/30 transition-all';
                         btnInline.textContent = 'Activar Pro';
-                        btnInline.addEventListener('click', function() {
+                        btnInline.addEventListener('click', async function() {
                             activateCustomerPro(customer.email);
                             showToast('Plan Pro activado', '✅');
-                            refreshCustomerList();
+                            await refreshCustomerList();
                             viewCustomer(customer.id, customer.email);
                         });
                     } else {
                         btnInline.className = 'px-3 py-1.5 bg-red-500/20 text-red-400 rounded-lg text-sm font-medium hover:bg-red-500/30 transition-all';
                         btnInline.textContent = 'Desactivar Pro';
-                        btnInline.addEventListener('click', function() {
+                        btnInline.addEventListener('click', async function() {
                             if (!confirm('Desactivar Pro?')) return;
                             deactivateCustomerPro(customer.email);
                             showToast('Plan cambiado a Free', '✅');
-                            refreshCustomerList();
+                            await refreshCustomerList();
                             viewCustomer(customer.id, customer.email);
                         });
                     }
@@ -1474,33 +1474,33 @@
             modal.classList.remove('hidden');
         }
 
-        function handleActivatePro(email) {
+        async function handleActivatePro(email) {
             activateCustomerPro(email);
             showToast('Plan Pro activado correctamente', '✅');
-            refreshCustomerList();
+            await refreshCustomerList();
             editCustomerSubscription(email);
         }
 
-        function handleDeactivatePro(email) {
+        async function handleDeactivatePro(email) {
             if (!confirm('Desactivar Pro para ' + email + '? Volvera al plan Free.')) return;
             deactivateCustomerPro(email);
             showToast('Plan cambiado a Free', '✅');
-            refreshCustomerList();
+            await refreshCustomerList();
             editCustomerSubscription(email);
         }
 
-        function handleExtendTrial(email) {
+        async function handleExtendTrial(email) {
             var input = document.getElementById('trialDaysInput');
             var days = parseInt(input.value) || 7;
             extendCustomerTrial(email, days);
             showToast('Trial extendido ' + days + ' dias', '✅');
-            refreshCustomerList();
+            await refreshCustomerList();
             editCustomerSubscription(email);
         }
 
-        function refreshCustomerList() {
+        async function refreshCustomerList() {
             if (isConnected) {
-                loadCustomers();
+                await loadCustomers();
             } else {
                 loadLocalCustomers();
             }
