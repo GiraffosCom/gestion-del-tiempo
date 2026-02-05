@@ -412,32 +412,58 @@
             <section id="section-dashboard" class="section">
                 <!-- Stats Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                    <div class="stat-card">
-                        <p class="text-[var(--text-muted)] text-sm mb-3">Ingresos mensuales</p>
-                        <p id="statMRR" class="stat-value">$0</p>
+                    <div class="stat-card flex items-start justify-between">
+                        <div>
+                            <p class="text-[var(--text-muted)] text-sm mb-3">Ingresos mensuales</p>
+                            <p id="statMRR" class="stat-value">$0</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <p class="text-[var(--text-muted)] text-sm mb-3">Clientes activos</p>
-                        <p id="statActiveCustomers" class="stat-value">0</p>
+                    <div class="stat-card flex items-start justify-between">
+                        <div>
+                            <p class="text-[var(--text-muted)] text-sm mb-3">Clientes activos</p>
+                            <p id="statActiveCustomers" class="stat-value">0</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <p class="text-[var(--text-muted)] text-sm mb-3">Nuevos este mes</p>
-                        <p id="statNewCustomers" class="stat-value">0</p>
+                    <div class="stat-card flex items-start justify-between">
+                        <div>
+                            <p class="text-[var(--text-muted)] text-sm mb-3">Nuevos este mes</p>
+                            <p id="statNewCustomers" class="stat-value">0</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <p class="text-[var(--text-muted)] text-sm mb-3">Tasa de abandono</p>
-                        <p id="statChurnRate" class="stat-value">0%</p>
+                    <div class="stat-card flex items-start justify-between">
+                        <div>
+                            <p class="text-[var(--text-muted)] text-sm mb-3">Tasa de abandono</p>
+                            <p id="statChurnRate" class="stat-value">0%</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Charts Row -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
                     <div class="card p-8">
-                        <h3 class="text-lg font-medium mb-6">Ingresos mensuales</h3>
+                        <h3 class="text-lg font-medium mb-6 flex items-center gap-3">
+                            <svg class="w-5 h-5 text-[var(--text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+                            Ingresos mensuales
+                        </h3>
                         <canvas id="revenueChart" height="200"></canvas>
                     </div>
                     <div class="card p-8">
-                        <h3 class="text-lg font-medium mb-6">Distribución por plan</h3>
+                        <h3 class="text-lg font-medium mb-6 flex items-center gap-3">
+                            <svg class="w-5 h-5 text-[var(--text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+                            Distribución por plan
+                        </h3>
                         <canvas id="planDistributionChart" height="200"></canvas>
                     </div>
                 </div>
@@ -445,7 +471,10 @@
                 <!-- Recent Activity -->
                 <div class="card">
                     <div class="p-6 border-b border-[var(--border)]">
-                        <h3 class="text-lg font-medium">Actividad reciente</h3>
+                        <h3 class="text-lg font-medium flex items-center gap-3">
+                            <svg class="w-5 h-5 text-[var(--text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Actividad reciente
+                        </h3>
                     </div>
                     <div id="recentActivity" class="p-6">
                         <p class="text-[var(--text-muted)] text-center py-8">Cargando actividad...</p>
@@ -462,13 +491,16 @@
                         Nuevo cliente
                     </button>
                     <div class="h-6 w-px bg-[var(--border)]"></div>
-                    <button onclick="bulkActivatePro()" class="quick-action bg-emerald-50 text-emerald-700 hover:bg-emerald-100">
+                    <button onclick="bulkActivatePro()" class="quick-action bg-emerald-50 text-emerald-700 hover:bg-emerald-100 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         Activar Pro
                     </button>
-                    <button onclick="bulkExtendTrial()" class="quick-action bg-blue-50 text-blue-700 hover:bg-blue-100">
+                    <button onclick="bulkExtendTrial()" class="quick-action bg-blue-50 text-blue-700 hover:bg-blue-100 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         +7 días trial
                     </button>
-                    <button onclick="bulkDeactivate()" class="quick-action bg-red-50 text-red-700 hover:bg-red-100">
+                    <button onclick="bulkDeactivate()" class="quick-action bg-red-50 text-red-700 hover:bg-red-100 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
                         Desactivar
                     </button>
                     <span id="selectedCount" class="ml-auto text-sm text-[var(--text-muted)] hidden">0 seleccionados</span>
