@@ -98,3 +98,20 @@ Editar las variables CSS en `:root` y `.theme-male` en `app.html`.
 1. Crear DocType en Frappe
 2. Agregar función fetch en el frontend
 3. Manejar respuesta y actualizar UI
+
+## Agent Team Commands
+
+| Command | Role | Use |
+|---------|------|-----|
+| `/po` | Product Owner | Roadmap, backlog, priorización |
+| `/ux` | UX/UI Designer | Diseño de interfaces, prototipos |
+| `/tech-lead` | Tech Lead | Decisiones técnicas, arquitectura |
+| `/fullstack` | Full Stack Developer | Desarrollo general |
+| `/frontend` | Frontend Developer | HTML/CSS/JS, UI |
+| `/backend` | Backend Developer | Frappe, API, Docker |
+| `/qa` | QA Engineer | Testing, validación |
+| `/devops` | DevOps / SRE | Vercel, Docker, despliegue |
+| `/ai-engineer` | AI/Prompt Engineer | Integraciones con AI |
+| `/team` | Team Coordinator | Coordinación entre agentes |
+| `/sprint` | Sprint Manager | Planificación de sprints |
+| `/handoff` | Handoff Manager | Transferencia entre agentes |
