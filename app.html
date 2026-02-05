@@ -431,6 +431,55 @@
         </div>
     </div>
 
+    <!-- Modal Upgrade Pro -->
+    <div id="upgradeModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] hidden flex items-center justify-center p-4" onclick="closeUpgradeModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all" onclick="event.stopPropagation()">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-amber-400 to-orange-500 p-6 text-white text-center">
+                <span class="text-4xl block mb-2">👑</span>
+                <h3 class="text-2xl font-bold">Plan Pro</h3>
+                <p id="upgradeReason" class="text-sm opacity-90 mt-1"></p>
+            </div>
+            <!-- Features -->
+            <div class="p-6">
+                <div class="space-y-3 mb-6">
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-500 text-lg">✅</span>
+                        <span class="text-gray-700">Gastos ilimitados <span class="text-xs text-gray-400">(Free: 10/mes)</span></span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-500 text-lg">✅</span>
+                        <span class="text-gray-700">Escaneo de boletas con OCR</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-500 text-lg">✅</span>
+                        <span class="text-gray-700">Comandos de voz ilimitados <span class="text-xs text-gray-400">(Free: 1/día)</span></span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-500 text-lg">✅</span>
+                        <span class="text-gray-700">Estadísticas e historial completo</span>
+                    </div>
+                </div>
+                <!-- Pricing -->
+                <div class="text-center mb-6 p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl">
+                    <p class="text-gray-400 line-through text-sm">$9.990/mes</p>
+                    <p class="text-3xl font-bold text-orange-600">$4.990<span class="text-base font-normal text-gray-500">/mes</span></p>
+                    <p class="text-xs text-orange-500 font-medium mt-1">🔥 50% descuento de lanzamiento</p>
+                </div>
+                <!-- Actions -->
+                <button onclick="openWhatsAppUpgrade()" class="w-full py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-semibold transition flex items-center justify-center gap-2 mb-3">
+                    <span class="text-xl">💬</span> Contratar por WhatsApp
+                </button>
+                <button onclick="handleAlreadyPaid()" class="w-full py-3 bg-gradient-to-r from-amber-400 to-orange-500 hover:opacity-90 text-white rounded-xl font-semibold transition flex items-center justify-center gap-2 mb-3">
+                    <span class="text-xl">✅</span> Ya pagué, activar Pro
+                </button>
+                <button onclick="closeUpgradeModal()" class="w-full py-2 text-gray-400 hover:text-gray-600 text-sm transition">
+                    Ahora no
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal para Editar Actividad -->
     <div id="editModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
@@ -2111,6 +2160,162 @@
 
         // User-specific storage key prefix
         const userKey = currentUser ? currentUser.email.replace(/[^a-z0-9]/gi, '_') : 'guest';
+
+        // ==================== SUBSCRIPTION / FREEMIUM SYSTEM ====================
+        function getSubscription() {
+            const key = `${userKey}-subscription`;
+            let sub = JSON.parse(localStorage.getItem(key));
+            if (!sub) {
+                const now = new Date();
+                const trialEnd = new Date(now);
+                trialEnd.setDate(trialEnd.getDate() + 7);
+                sub = {
+                    plan: 'free',
+                    trialStartDate: now.toISOString(),
+                    trialEndDate: trialEnd.toISOString(),
+                    trialUsed: false,
+                    proActivatedDate: null,
+                    monthlyExpenseCount: 0,
+                    monthlyExpenseResetMonth: now.toISOString().substring(0, 7),
+                    dailyVoiceCount: 0,
+                    dailyVoiceResetDate: now.toISOString().substring(0, 10)
+                };
+                localStorage.setItem(key, JSON.stringify(sub));
+            }
+            return sub;
+        }
+
+        function saveSubscription(sub) {
+            localStorage.setItem(`${userKey}-subscription`, JSON.stringify(sub));
+        }
+
+        function isDemoUser() {
+            return currentUser && (currentUser.email === 'demo@demo.com' || currentUser.isDemo);
+        }
+
+        function isPro() {
+            if (isDemoUser()) return true;
+            const sub = getSubscription();
+            if (sub.plan === 'pro') return true;
+            return isTrialActive();
+        }
+
+        function isTrialActive() {
+            const sub = getSubscription();
+            if (sub.trialUsed && sub.plan !== 'pro') {
+                return false;
+            }
+            const now = new Date();
+            const trialEnd = new Date(sub.trialEndDate);
+            return now <= trialEnd;
+        }
+
+        function getTrialDaysRemaining() {
+            const sub = getSubscription();
+            const now = new Date();
+            const trialEnd = new Date(sub.trialEndDate);
+            const diff = trialEnd - now;
+            return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+        }
+
+        function getMonthlyExpenseCount() {
+            const sub = getSubscription();
+            const currentMonth = new Date().toISOString().substring(0, 7);
+            if (sub.monthlyExpenseResetMonth !== currentMonth) {
+                sub.monthlyExpenseCount = 0;
+                sub.monthlyExpenseResetMonth = currentMonth;
+                saveSubscription(sub);
+            }
+            return sub.monthlyExpenseCount;
+        }
+
+        function canAddExpense() {
+            if (isPro()) return true;
+            return getMonthlyExpenseCount() < 10;
+        }
+
+        function canUseOCR() {
+            return isPro();
+        }
+
+        function canUseVoice() {
+            if (isPro()) return true;
+            const sub = getSubscription();
+            const today = new Date().toISOString().substring(0, 10);
+            if (sub.dailyVoiceResetDate !== today) {
+                sub.dailyVoiceCount = 0;
+                sub.dailyVoiceResetDate = today;
+                saveSubscription(sub);
+            }
+            return sub.dailyVoiceCount < 1;
+        }
+
+        function incrementExpenseCount() {
+            if (isPro()) return;
+            const sub = getSubscription();
+            const currentMonth = new Date().toISOString().substring(0, 7);
+            if (sub.monthlyExpenseResetMonth !== currentMonth) {
+                sub.monthlyExpenseCount = 0;
+                sub.monthlyExpenseResetMonth = currentMonth;
+            }
+            sub.monthlyExpenseCount++;
+            saveSubscription(sub);
+        }
+
+        function incrementVoiceCount() {
+            if (isPro()) return;
+            const sub = getSubscription();
+            const today = new Date().toISOString().substring(0, 10);
+            if (sub.dailyVoiceResetDate !== today) {
+                sub.dailyVoiceCount = 0;
+                sub.dailyVoiceResetDate = today;
+            }
+            sub.dailyVoiceCount++;
+            saveSubscription(sub);
+        }
+
+        function activatePro() {
+            const sub = getSubscription();
+            sub.plan = 'pro';
+            sub.proActivatedDate = new Date().toISOString();
+            sub.trialUsed = true;
+            saveSubscription(sub);
+            render();
+        }
+
+        function getPlanLabel() {
+            const sub = getSubscription();
+            if (sub.plan === 'pro') return 'Pro';
+            if (isTrialActive()) return `Trial (${getTrialDaysRemaining()}d)`;
+            return 'Free';
+        }
+
+        function showUpgradeModal(reason) {
+            const modal = document.getElementById('upgradeModal');
+            const reasonEl = document.getElementById('upgradeReason');
+            if (reasonEl) reasonEl.textContent = reason || '';
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeUpgradeModal() {
+            const modal = document.getElementById('upgradeModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function handleAlreadyPaid() {
+            if (confirm('¿Confirmas que ya realizaste el pago? Se activará tu plan Pro.')) {
+                activatePro();
+                closeUpgradeModal();
+                showToast('¡Plan Pro activado! 🎉', 'success');
+            }
+        }
+
+        function openWhatsAppUpgrade() {
+            const email = currentUser ? currentUser.email : '';
+            const msg = encodeURIComponent(`Hola! Quiero activar el Plan Pro de la App de Gestión del Tiempo. Mi email: ${email}`);
+            window.open(`https://wa.me/56955110639?text=${msg}`, '_blank');
+        }
+        // ==================== END SUBSCRIPTION SYSTEM ====================
 
         // Initialize Supabase sync service
         if (currentUser && currentUser.email && typeof syncService !== 'undefined') {
@@ -7212,6 +7417,11 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 <div class="header-badges flex flex-col items-end gap-1 text-xs flex-shrink-0">
+                                    ${isPro() ? `
+                                        <span class="px-2 py-0.5 bg-gradient-to-r from-amber-100 to-orange-100 text-orange-700 rounded-full font-medium cursor-pointer" onclick="showUpgradeModal()">👑 Pro${isTrialActive() && getSubscription().plan !== 'pro' ? ` (${getTrialDaysRemaining()}d)` : ''}</span>
+                                    ` : `
+                                        <button onclick="showUpgradeModal('Desbloquea todo el potencial de la app')" class="px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full font-medium hover:bg-orange-100 hover:text-orange-600 transition">Free → Pro</button>
+                                    `}
                                     <span class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium">S${weekNum}/${totalWeeks}</span>
                                     <span class="px-2 py-0.5 bg-rose-100 text-rose-700 rounded-full font-medium">D${dayNum}/${userDuration}</span>
                                 </div>
@@ -7282,6 +7492,13 @@
 
                                             <!-- CUENTA -->
                                             <p class="px-4 py-1 text-xs text-gray-400 font-medium uppercase">Cuenta</p>
+                                            <button onclick="showUpgradeModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-amber-50 transition text-left">
+                                                <span class="text-xl">👑</span>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-gray-700">Mi Plan</span>
+                                                    <span class="px-1.5 py-0.5 text-xs rounded-full font-medium ${isPro() ? 'bg-gradient-to-r from-amber-100 to-orange-100 text-orange-700' : 'bg-gray-100 text-gray-500'}">${getPlanLabel()}</span>
+                                                </div>
+                                            </button>
                                             <button onclick="openPhotoModal(); toggleSettingsMenu();" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition text-left">
                                                 <span class="text-xl">👤</span>
                                                 <span class="text-gray-700">Mi Perfil</span>
@@ -7484,6 +7701,15 @@
 
                 <!-- Content -->
                 <main class="max-w-4xl mx-auto px-4 py-3">
+                    ${isTrialActive() && getSubscription().plan !== 'pro' ? `
+                    <div class="mb-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-3 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-lg">👑</span>
+                            <span class="text-sm font-medium text-amber-800">Prueba Pro Gratis — ${getTrialDaysRemaining()} días restantes</span>
+                        </div>
+                        <button onclick="showUpgradeModal('Tu prueba gratis termina pronto')" class="px-3 py-1 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-semibold rounded-lg hover:opacity-90 transition">Mantener Pro</button>
+                    </div>
+                    ` : ''}
                     ${activeTab === 'agenda' ? renderAgenda(schedule, gym, dateKey, dailyProgress, isCustomized) : ''}
                     ${activeTab === 'habits' ? renderHabits(dateKey) : ''}
                     ${activeTab === 'gym' ? renderGym(gym, dayIndex, weekNum) : ''}
@@ -12417,13 +12643,19 @@
                             <h3 class="text-lg font-bold text-gray-800">💰 Control de Gastos</h3>
                             <div class="flex gap-2">
                                 <button onclick="openScanReceiptModal()" class="px-4 py-2 theme-btn rounded-xl font-medium hover:opacity-90 transition flex items-center gap-2 text-sm">
-                                    📸 Escanear Boleta
+                                    ${canUseOCR() ? '📸' : '🔒 PRO'} Escanear
                                 </button>
                                 <button onclick="openAddExpenseModal()" class="px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition flex items-center gap-2 text-sm">
                                     ✏️ Manual
                                 </button>
                             </div>
                         </div>
+                        ${!isPro() ? `
+                        <div class="flex items-center justify-between mb-3 px-3 py-2 bg-gray-50 rounded-lg text-sm">
+                            <span class="text-gray-600">📊 Gastos este mes: <strong>${getMonthlyExpenseCount()}/10</strong></span>
+                            ${getMonthlyExpenseCount() >= 8 ? `<button onclick="showUpgradeModal('Estás cerca del límite de gastos')" class="text-orange-600 font-medium text-xs hover:underline">Ampliar →</button>` : ''}
+                        </div>
+                        ` : ''}
 
                         <!-- Monthly Summary -->
                         <div class="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-4 text-white">
@@ -12499,6 +12731,10 @@
 
         // Modal functions
         function openScanReceiptModal() {
+            if (!canUseOCR()) {
+                showUpgradeModal('El escaneo de boletas es una función Pro');
+                return;
+            }
             document.getElementById('scanReceiptModal').classList.remove('hidden');
             resetScanModal();
         }
@@ -12821,6 +13057,10 @@
         }
 
         async function saveExpenseFromScan() {
+            if (!canAddExpense()) {
+                showUpgradeModal('Has alcanzado el límite de 10 gastos/mes del plan Free');
+                return;
+            }
             const store = document.getElementById('expenseStore').value.trim();
             const date = document.getElementById('expenseDate').value;
             const total = document.getElementById('expenseTotal').value;
@@ -12847,6 +13087,7 @@
             const expenses = getExpenses();
             expenses.push(expense);
             saveExpenses(expenses); // This uses setStorage which syncs to Supabase user_data
+            incrementExpenseCount();
 
             // ALSO try to save to expenses table directly
             if (typeof syncService !== 'undefined' && syncService.userId) {
@@ -12864,6 +13105,10 @@
         }
 
         async function saveManualExpense() {
+            if (!canAddExpense()) {
+                showUpgradeModal('Has alcanzado el límite de 10 gastos/mes del plan Free');
+                return;
+            }
             const store = document.getElementById('manualExpenseStore').value.trim();
             const date = document.getElementById('manualExpenseDate').value;
             const total = document.getElementById('manualExpenseTotal').value;
@@ -12890,6 +13135,7 @@
             const expenses = getExpenses();
             expenses.push(expense);
             saveExpenses(expenses); // This uses setStorage which syncs to Supabase user_data
+            incrementExpenseCount();
 
             // ALSO try to save to expenses table directly
             if (typeof syncService !== 'undefined' && syncService.userId) {
@@ -13073,12 +13319,14 @@
                             <h3 class="font-bold text-gray-800">📅 Período</h3>
                         </div>
                         <div class="flex flex-wrap gap-2">
-                            ${Object.entries(periodLabels).map(([key, label]) => `
-                                <button onclick="changeStatsPeriod('${key}')"
-                                    class="px-3 py-1.5 rounded-lg text-sm font-medium transition ${statsPeriod === key ? 'theme-btn' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
-                                    ${label}
+                            ${Object.entries(periodLabels).map(([key, label]) => {
+                                const isLocked = !isPro() && key !== 'month';
+                                return `
+                                <button onclick="${isLocked ? `showUpgradeModal('El período ${label} es exclusivo del Plan Pro')` : `changeStatsPeriod('${key}')`}"
+                                    class="px-3 py-1.5 rounded-lg text-sm font-medium transition ${statsPeriod === key ? 'theme-btn' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} ${isLocked ? 'opacity-60' : ''}">
+                                    ${isLocked ? '🔒 ' : ''}${label}
                                 </button>
-                            `).join('')}
+                            `}).join('')}
                         </div>
                     </div>
 
@@ -13098,7 +13346,8 @@
                                 <p class="text-2xl font-bold text-purple-600">${expenseStats.count}</p>
                                 <p class="text-sm text-gray-500">Transacciones</p>
                             </div>
-                            <div class="text-center p-4 bg-gradient-to-br ${expenseStats.comparison.percentageChange > 0 ? 'from-red-50 to-orange-50' : 'from-green-50 to-teal-50'} rounded-xl">
+                            <div class="text-center p-4 bg-gradient-to-br ${expenseStats.comparison.percentageChange > 0 ? 'from-red-50 to-orange-50' : 'from-green-50 to-teal-50'} rounded-xl relative ${!isPro() ? 'cursor-pointer' : ''}" ${!isPro() ? `onclick="showUpgradeModal('La comparación con períodos anteriores es exclusiva de Pro')"` : ''}>
+                                ${!isPro() ? '<div class="absolute inset-0 backdrop-blur-sm bg-white/50 rounded-xl flex items-center justify-center z-10"><span class="text-lg">🔒</span></div>' : ''}
                                 <p class="text-2xl font-bold ${expenseStats.comparison.percentageChange > 0 ? 'text-red-600' : 'text-green-600'}">
                                     ${expenseStats.comparison.percentageChange > 0 ? '↑' : '↓'} ${Math.abs(expenseStats.comparison.percentageChange)}%
                                 </p>
@@ -13126,6 +13375,11 @@
 
                         <!-- Gastos por Mes (Gráfica de Barras) -->
                         <h4 class="font-semibold text-gray-700 mb-3">📈 Evolución Mensual</h4>
+                        <div class="relative">
+                        ${!isPro() ? `<div class="absolute inset-0 backdrop-blur-sm bg-white/60 rounded-xl flex flex-col items-center justify-center z-10 cursor-pointer" onclick="showUpgradeModal('El historial de evolución mensual es exclusivo de Pro')">
+                            <span class="text-2xl mb-1">🔒</span>
+                            <span class="text-sm font-medium text-gray-600">Desbloquear con Pro</span>
+                        </div>` : ''}
                         ${expenseStats.byMonth.length > 0 ? `
                             <div class="flex items-end justify-between gap-2 h-40">
                                 ${expenseStats.byMonth.map(month => {
@@ -13145,6 +13399,7 @@
                                 }).join('')}
                             </div>
                         ` : `<p class="text-center text-gray-400 py-4">No hay datos</p>`}
+                        </div>
 
                         <!-- Top Gastos -->
                         ${expenseStats.topExpenses.length > 0 ? `
@@ -13618,6 +13873,10 @@
         }
 
         function executeVoiceExpense(text) {
+            if (!canAddExpense()) {
+                showUpgradeModal('Has alcanzado el límite de 10 gastos/mes del plan Free');
+                return { success: false, message: 'Límite de gastos alcanzado (Plan Free: 10/mes)' };
+            }
             console.log('[Voice] Parsing expense from:', text);
 
             // Extract amount - try multiple strategies
@@ -13717,6 +13976,7 @@
             const expenses = getExpenses();
             expenses.push(expense);
             saveExpenses(expenses);
+            incrementExpenseCount();
 
             const catNames = { food: 'Comida', transport: 'Transporte', entertainment: 'Entretenimiento',
                 shopping: 'Compras', health: 'Salud', bills: 'Servicios', other: 'Otros',
@@ -13768,6 +14028,7 @@
                     showVoiceResult(execResult);
 
                     if (execResult.success) {
+                        incrementVoiceCount();
                         setTimeout(() => render(), 500);
                     }
                 } else {
@@ -13820,6 +14081,11 @@
         function toggleVoiceAssistant() {
             if (!isVoiceSupported()) {
                 showToast('Tu navegador no soporta reconocimiento de voz', 'error');
+                return;
+            }
+
+            if (!canUseVoice() && !voiceIsListening) {
+                showUpgradeModal('Has usado tu comando de voz gratuito de hoy (Free: 1/día)');
                 return;
             }
 
