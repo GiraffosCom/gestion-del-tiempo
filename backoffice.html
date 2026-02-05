@@ -966,7 +966,8 @@
                 const td3 = document.createElement('td');
                 td3.className = 'px-6 py-4';
                 const planBadge = document.createElement('span');
-                var planName = c.email ? getCustomerPlanLabel(c.email) : (c.plan_name || 'Free');
+                var localPlan = c.email ? getCustomerPlanLabel(c.email) : 'Free';
+                var planName = localPlan !== 'Free' ? localPlan : (c.plan_name && c.plan_name !== 'Sin plan' ? c.plan_name : 'Free');
                 var planStyle = planName === 'Pro' ? 'bg-amber-600/20 text-amber-400' :
                     planName.startsWith('Trial') ? 'bg-blue-600/20 text-blue-400' :
                     'bg-slate-600/20 text-slate-400';
@@ -1237,7 +1238,7 @@
                         btnInline.className = 'px-3 py-1.5 bg-green-500/20 text-green-400 rounded-lg text-sm font-medium hover:bg-green-500/30 transition-all';
                         btnInline.textContent = 'Activar Pro';
                         btnInline.addEventListener('click', async function() {
-                            activateCustomerPro(customer.email);
+                            await activateCustomerPro(customer.email);
                             showToast('Plan Pro activado', '✅');
                             await refreshCustomerList();
                             viewCustomer(customer.id, customer.email);
@@ -1247,7 +1248,7 @@
                         btnInline.textContent = 'Desactivar Pro';
                         btnInline.addEventListener('click', async function() {
                             if (!confirm('Desactivar Pro?')) return;
-                            deactivateCustomerPro(customer.email);
+                            await deactivateCustomerPro(customer.email);
                             showToast('Plan cambiado a Free', '✅');
                             await refreshCustomerList();
                             viewCustomer(customer.id, customer.email);
@@ -1322,28 +1323,67 @@
             localStorage.setItem(key, JSON.stringify(sub));
         }
 
-        function activateCustomerPro(email) {
+        async function activateCustomerPro(email) {
             var sub = getCustomerSubscription(email) || createDefaultSubscription();
             sub.plan = 'pro';
             sub.proActivatedDate = new Date().toISOString();
             sub.trialUsed = true;
             saveCustomerSubscription(email, sub);
+
+            if (isConnected) {
+                try {
+                    var customer = allCustomers.find(function(c) { return c.email === email; });
+                    var proPlan = subscriptionPlans.find(function(p) { return p.plan_name === 'Pro'; });
+                    if (customer && customer.id && proPlan) {
+                        var existing = await supabaseAPI.checkSubscriptionStatus(email);
+                        if (existing.has_subscription && existing.subscription) {
+                            await supabaseAPI.upgradePlan(existing.subscription.id, proPlan.id);
+                        } else {
+                            await supabaseAPI.createSubscription(customer.id, proPlan.id, 'Monthly');
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error syncing Pro to Supabase:', e);
+                }
+            }
         }
 
-        function deactivateCustomerPro(email) {
+        async function deactivateCustomerPro(email) {
             var sub = getCustomerSubscription(email) || createDefaultSubscription();
             sub.plan = 'free';
             sub.proActivatedDate = null;
             saveCustomerSubscription(email, sub);
+
+            if (isConnected) {
+                try {
+                    var existing = await supabaseAPI.checkSubscriptionStatus(email);
+                    if (existing.has_subscription && existing.subscription) {
+                        await supabaseAPI.cancelSubscription(existing.subscription.id, 'Desactivado desde backoffice');
+                    }
+                } catch (e) {
+                    console.error('Error syncing deactivation to Supabase:', e);
+                }
+            }
         }
 
-        function extendCustomerTrial(email, days) {
+        async function extendCustomerTrial(email, days) {
             var sub = getCustomerSubscription(email) || createDefaultSubscription();
             var newEnd = new Date();
             newEnd.setDate(newEnd.getDate() + days);
             sub.trialEndDate = newEnd.toISOString();
             sub.trialUsed = false;
             saveCustomerSubscription(email, sub);
+
+            if (isConnected) {
+                try {
+                    var existing = await supabaseAPI.checkSubscriptionStatus(email);
+                    if (existing.has_subscription && existing.subscription) {
+                        await supabaseAPI.extendSubscription(existing.subscription.id, days);
+                    }
+                } catch (e) {
+                    console.error('Error syncing trial extension to Supabase:', e);
+                }
+            }
         }
 
         function createDefaultSubscription() {
@@ -1475,7 +1515,7 @@
         }
 
         async function handleActivatePro(email) {
-            activateCustomerPro(email);
+            await activateCustomerPro(email);
             showToast('Plan Pro activado correctamente', '✅');
             await refreshCustomerList();
             editCustomerSubscription(email);
@@ -1483,7 +1523,7 @@
 
         async function handleDeactivatePro(email) {
             if (!confirm('Desactivar Pro para ' + email + '? Volvera al plan Free.')) return;
-            deactivateCustomerPro(email);
+            await deactivateCustomerPro(email);
             showToast('Plan cambiado a Free', '✅');
             await refreshCustomerList();
             editCustomerSubscription(email);
@@ -1492,7 +1532,7 @@
         async function handleExtendTrial(email) {
             var input = document.getElementById('trialDaysInput');
             var days = parseInt(input.value) || 7;
-            extendCustomerTrial(email, days);
+            await extendCustomerTrial(email, days);
             showToast('Trial extendido ' + days + ' dias', '✅');
             await refreshCustomerList();
             editCustomerSubscription(email);
