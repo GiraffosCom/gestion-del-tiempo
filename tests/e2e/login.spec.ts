@@ -84,8 +84,12 @@ test.describe('Login Page', () => {
     page,
   }) => {
     await setupAuthenticatedUser(page);
-    // Use waitUntil: 'commit' because the page redirects before fully loading
-    await page.goto(PAGES.login, { waitUntil: 'commit' });
+    // The redirect happens so fast it can interrupt goto, so catch that
+    try {
+      await page.goto(PAGES.login, { waitUntil: 'commit' });
+    } catch {
+      // Navigation interrupted by redirect is expected
+    }
     await page.waitForURL(/app\.html/, { timeout: 10000 });
     expect(page.url()).toContain('app.html');
   });

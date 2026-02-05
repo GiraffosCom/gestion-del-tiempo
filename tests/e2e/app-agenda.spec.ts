@@ -7,7 +7,8 @@ test.describe('App Agenda', () => {
     await page.goto(PAGES.app);
     await page.waitForLoadState('networkidle');
 
-    // Make sure we're on the Agenda tab (default tab)
+    // Wait for the app to render tabs, then ensure Agenda tab is active
+    await page.locator('[data-tab="agenda"]').waitFor({ state: 'visible' });
     await page.locator('[data-tab="agenda"]').click();
     await page.waitForTimeout(500);
   });
