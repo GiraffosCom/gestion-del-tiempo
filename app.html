@@ -3953,6 +3953,7 @@
         if (currentDate > endDate) currentDate = new Date(endDate);
 
         let activeTab = 'agenda';
+        let showTrialBanner = true;
         let checkedHabits = JSON.parse(getStorage('habits') || '{}');
         let completedActivities = JSON.parse(getStorage('activities') || '{}');
         let customSchedules = JSON.parse(getStorage('custom-schedules') || '{}');
@@ -7701,7 +7702,7 @@
 
                 <!-- Content -->
                 <main class="max-w-4xl mx-auto px-4 py-3">
-                    ${isTrialActive() && getSubscription().plan !== 'pro' ? `
+                    ${showTrialBanner && isTrialActive() && getSubscription().plan !== 'pro' ? `
                     <div class="mb-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-3 flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <span class="text-lg">👑</span>
@@ -13682,6 +13683,11 @@
         // Initial render
         render();
         updateFloatingButtons();
+
+        // Hide trial banner after 60 seconds
+        if (isTrialActive() && getSubscription().plan !== 'pro') {
+            setTimeout(() => { showTrialBanner = false; render(); }, 60000);
+        }
 
         // ==================== Voice Assistant ====================
 
