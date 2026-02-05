@@ -898,7 +898,7 @@
                     name: email,
                     full_name: users[email].name,
                     email: email,
-                    plan_name: 'Free (Local)',
+                    plan_name: getCustomerPlanLabel(email),
                     subscription: { status: 'Active' },
                     creation: users[email].createdAt
                 };
@@ -913,7 +913,7 @@
                     name: email,
                     full_name: users[email].name,
                     email: email,
-                    plan_name: 'Free',
+                    plan_name: getCustomerPlanLabel(email),
                     subscription: { status: 'Active' },
                     creation: users[email].createdAt
                 };
@@ -966,8 +966,12 @@
                 const td3 = document.createElement('td');
                 td3.className = 'px-6 py-4';
                 const planBadge = document.createElement('span');
-                planBadge.className = 'px-3 py-1 bg-blue-600/20 text-blue-400 rounded-full text-sm';
-                planBadge.textContent = c.plan_name || 'Free';
+                var planName = c.plan_name || 'Free';
+                var planStyle = planName === 'Pro' ? 'bg-amber-600/20 text-amber-400' :
+                    planName.startsWith('Trial') ? 'bg-blue-600/20 text-blue-400' :
+                    'bg-slate-600/20 text-slate-400';
+                planBadge.className = 'px-3 py-1 rounded-full text-sm ' + planStyle;
+                planBadge.textContent = planName;
                 td3.appendChild(planBadge);
 
                 // Status cell
@@ -1194,11 +1198,70 @@
                 subSection.appendChild(grid);
                 wrapper.appendChild(subSection);
             } else {
-                const noSub = document.createElement('div');
-                noSub.className = 'p-4 bg-slate-700/50 rounded-xl text-center';
-                noSub.textContent = 'Sin suscripcion activa';
-                noSub.style.color = '#94a3b8';
-                wrapper.appendChild(noSub);
+                var subSection2 = document.createElement('div');
+                subSection2.className = 'p-4 bg-slate-700/50 rounded-xl';
+
+                var subTitle2 = document.createElement('h5');
+                subTitle2.className = 'font-bold text-white mb-3';
+                subTitle2.textContent = 'Suscripcion';
+                subSection2.appendChild(subTitle2);
+
+                var localSub = getCustomerSubscription(customer.email);
+                if (localSub) {
+                    var planLabel = getCustomerPlanLabel(customer.email);
+                    var grid2 = document.createElement('div');
+                    grid2.className = 'grid grid-cols-2 gap-3 text-sm mb-3';
+
+                    var fields2 = [
+                        { label: 'Plan', value: planLabel },
+                        { label: 'Trial hasta', value: new Date(localSub.trialEndDate).toLocaleDateString() },
+                        { label: 'Pro desde', value: localSub.proActivatedDate ? new Date(localSub.proActivatedDate).toLocaleDateString() : 'N/A' }
+                    ];
+
+                    fields2.forEach(function(f) {
+                        var cell = document.createElement('div');
+                        var lbl = document.createElement('p');
+                        lbl.className = 'text-slate-400';
+                        lbl.textContent = f.label;
+                        var val = document.createElement('p');
+                        val.className = 'text-white';
+                        val.textContent = f.value;
+                        cell.appendChild(lbl);
+                        cell.appendChild(val);
+                        grid2.appendChild(cell);
+                    });
+                    subSection2.appendChild(grid2);
+
+                    var btnInline = document.createElement('button');
+                    if (localSub.plan !== 'pro') {
+                        btnInline.className = 'px-3 py-1.5 bg-green-500/20 text-green-400 rounded-lg text-sm font-medium hover:bg-green-500/30 transition-all';
+                        btnInline.textContent = 'Activar Pro';
+                        btnInline.addEventListener('click', function() {
+                            activateCustomerPro(customer.email);
+                            showToast('Plan Pro activado', '✅');
+                            refreshCustomerList();
+                            viewCustomer(customer.id, customer.email);
+                        });
+                    } else {
+                        btnInline.className = 'px-3 py-1.5 bg-red-500/20 text-red-400 rounded-lg text-sm font-medium hover:bg-red-500/30 transition-all';
+                        btnInline.textContent = 'Desactivar Pro';
+                        btnInline.addEventListener('click', function() {
+                            if (!confirm('Desactivar Pro?')) return;
+                            deactivateCustomerPro(customer.email);
+                            showToast('Plan cambiado a Free', '✅');
+                            refreshCustomerList();
+                            viewCustomer(customer.id, customer.email);
+                        });
+                    }
+                    subSection2.appendChild(btnInline);
+                } else {
+                    var noData2 = document.createElement('p');
+                    noData2.className = 'text-slate-400 text-sm';
+                    noData2.textContent = 'Sin datos de suscripcion';
+                    subSection2.appendChild(noData2);
+                }
+
+                wrapper.appendChild(subSection2);
             }
 
             // Payments
@@ -1243,8 +1306,204 @@
             content.appendChild(wrapper);
         }
 
+        // ==================== SUBSCRIPTION HELPERS ====================
+        function getUserKey(email) {
+            return email.replace(/[^a-z0-9]/gi, '_');
+        }
+
+        function getCustomerSubscription(email) {
+            const key = getUserKey(email) + '-subscription';
+            const raw = localStorage.getItem(key);
+            return raw ? JSON.parse(raw) : null;
+        }
+
+        function saveCustomerSubscription(email, sub) {
+            const key = getUserKey(email) + '-subscription';
+            localStorage.setItem(key, JSON.stringify(sub));
+        }
+
+        function activateCustomerPro(email) {
+            var sub = getCustomerSubscription(email) || createDefaultSubscription();
+            sub.plan = 'pro';
+            sub.proActivatedDate = new Date().toISOString();
+            sub.trialUsed = true;
+            saveCustomerSubscription(email, sub);
+        }
+
+        function deactivateCustomerPro(email) {
+            var sub = getCustomerSubscription(email) || createDefaultSubscription();
+            sub.plan = 'free';
+            sub.proActivatedDate = null;
+            saveCustomerSubscription(email, sub);
+        }
+
+        function extendCustomerTrial(email, days) {
+            var sub = getCustomerSubscription(email) || createDefaultSubscription();
+            var newEnd = new Date();
+            newEnd.setDate(newEnd.getDate() + days);
+            sub.trialEndDate = newEnd.toISOString();
+            sub.trialUsed = false;
+            saveCustomerSubscription(email, sub);
+        }
+
+        function createDefaultSubscription() {
+            var now = new Date();
+            var trialEnd = new Date(now);
+            trialEnd.setDate(trialEnd.getDate() + 7);
+            return {
+                plan: 'free',
+                trialStartDate: now.toISOString(),
+                trialEndDate: trialEnd.toISOString(),
+                trialUsed: false,
+                proActivatedDate: null,
+                monthlyExpenseCount: 0,
+                monthlyExpenseResetMonth: now.toISOString().substring(0, 7),
+                dailyVoiceCount: 0,
+                dailyVoiceResetDate: now.toISOString().substring(0, 10)
+            };
+        }
+
+        function getCustomerPlanLabel(email) {
+            var sub = getCustomerSubscription(email);
+            if (!sub) return 'Free';
+            if (sub.plan === 'pro') return 'Pro';
+            var now = new Date();
+            var trialEnd = new Date(sub.trialEndDate);
+            if (!sub.trialUsed && now <= trialEnd) {
+                var diff = trialEnd - now;
+                var days = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+                return 'Trial (' + days + 'd)';
+            }
+            return 'Free';
+        }
+
         function editCustomerSubscription(customerId) {
-            showToast('Funcion disponible con backend conectado', '⚠️');
+            var customer = allCustomers.find(function(c) { return c.id === customerId; });
+            if (!customer) {
+                showToast('Cliente no encontrado', '⚠️');
+                return;
+            }
+            var email = customer.email;
+            var sub = getCustomerSubscription(email);
+
+            var modal = document.getElementById('subscriptionModal');
+            var titleEl = document.getElementById('subscriptionModalTitle');
+            var content = document.getElementById('subscriptionModalContent');
+
+            titleEl.textContent = 'Suscripcion - ' + (customer.full_name || email);
+            content.textContent = '';
+
+            // Info section
+            var infoDiv = document.createElement('div');
+            infoDiv.className = 'grid grid-cols-2 gap-3 text-sm mb-4';
+
+            function addInfoCell(label, valueText, valueClass) {
+                var cell = document.createElement('div');
+                var lbl = document.createElement('p');
+                lbl.className = 'text-slate-400';
+                lbl.textContent = label;
+                var val = document.createElement('p');
+                val.className = valueClass || 'text-white';
+                val.textContent = valueText;
+                cell.appendChild(lbl);
+                cell.appendChild(val);
+                infoDiv.appendChild(cell);
+            }
+
+            if (sub) {
+                var trialEnd = new Date(sub.trialEndDate);
+                var now = new Date();
+                var trialActive = !sub.trialUsed && now <= trialEnd;
+                var daysLeft = Math.max(0, Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24)));
+
+                var planText = sub.plan === 'pro' ? 'Pro' : trialActive ? 'Trial' : 'Free';
+                addInfoCell('Plan', planText, sub.plan === 'pro' ? 'text-amber-400 font-bold' : trialActive ? 'text-blue-400 font-bold' : 'text-white');
+                addInfoCell('Estado Trial', trialActive ? 'Activo (' + daysLeft + ' dias)' : sub.trialUsed ? 'Usado' : 'Expirado');
+                addInfoCell('Activacion Pro', sub.proActivatedDate ? new Date(sub.proActivatedDate).toLocaleDateString() : 'N/A');
+                addInfoCell('Trial hasta', trialEnd.toLocaleDateString());
+            } else {
+                var noData = document.createElement('p');
+                noData.className = 'text-slate-400 text-sm mb-4';
+                noData.textContent = 'Sin datos de suscripcion. Se creara al activar.';
+                content.appendChild(noData);
+            }
+            content.appendChild(infoDiv);
+
+            // Actions
+            var actionsDiv = document.createElement('div');
+            actionsDiv.className = 'space-y-3';
+
+            if (!sub || sub.plan !== 'pro') {
+                var btnPro = document.createElement('button');
+                btnPro.className = 'w-full py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-medium hover:from-green-600 hover:to-emerald-700 transition-all';
+                btnPro.textContent = 'Activar Pro';
+                btnPro.addEventListener('click', function() { handleActivatePro(email); });
+                actionsDiv.appendChild(btnPro);
+            } else {
+                var btnDeactivate = document.createElement('button');
+                btnDeactivate.className = 'w-full py-2 px-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg font-medium hover:from-red-600 hover:to-red-700 transition-all';
+                btnDeactivate.textContent = 'Desactivar Pro → Free';
+                btnDeactivate.addEventListener('click', function() { handleDeactivatePro(email); });
+                actionsDiv.appendChild(btnDeactivate);
+            }
+
+            var trialRow = document.createElement('div');
+            trialRow.className = 'flex gap-2';
+            var trialInput = document.createElement('input');
+            trialInput.type = 'number';
+            trialInput.id = 'trialDaysInput';
+            trialInput.value = '7';
+            trialInput.min = '1';
+            trialInput.max = '365';
+            trialInput.className = 'flex-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-center';
+            var btnTrial = document.createElement('button');
+            btnTrial.className = 'px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition-all';
+            btnTrial.textContent = 'Extender Trial';
+            btnTrial.addEventListener('click', function() { handleExtendTrial(email); });
+            trialRow.appendChild(trialInput);
+            trialRow.appendChild(btnTrial);
+            actionsDiv.appendChild(trialRow);
+
+            var btnClose = document.createElement('button');
+            btnClose.className = 'w-full py-2 px-4 bg-slate-600 text-white rounded-lg font-medium hover:bg-slate-500 transition-all';
+            btnClose.textContent = 'Cerrar';
+            btnClose.addEventListener('click', function() { closeModal('subscriptionModal'); });
+            actionsDiv.appendChild(btnClose);
+
+            content.appendChild(actionsDiv);
+            modal.classList.remove('hidden');
+        }
+
+        function handleActivatePro(email) {
+            activateCustomerPro(email);
+            showToast('Plan Pro activado correctamente', '✅');
+            refreshCustomerList();
+            editCustomerSubscription(email);
+        }
+
+        function handleDeactivatePro(email) {
+            if (!confirm('Desactivar Pro para ' + email + '? Volvera al plan Free.')) return;
+            deactivateCustomerPro(email);
+            showToast('Plan cambiado a Free', '✅');
+            refreshCustomerList();
+            editCustomerSubscription(email);
+        }
+
+        function handleExtendTrial(email) {
+            var input = document.getElementById('trialDaysInput');
+            var days = parseInt(input.value) || 7;
+            extendCustomerTrial(email, days);
+            showToast('Trial extendido ' + days + ' dias', '✅');
+            refreshCustomerList();
+            editCustomerSubscription(email);
+        }
+
+        function refreshCustomerList() {
+            if (isConnected) {
+                loadCustomers();
+            } else {
+                loadLocalCustomers();
+            }
         }
 
         async function exportCustomers() {
