@@ -158,10 +158,31 @@
 
             <!-- Customers Section -->
             <section id="section-customers" class="section hidden">
+                <!-- Quick Actions Bar -->
+                <div class="bg-white rounded-2xl border border-gray-200 p-4 mb-4 flex flex-wrap items-center gap-3">
+                    <button onclick="openCreateCustomerModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2 font-medium">
+                        <span>➕</span> Crear Cliente
+                    </button>
+                    <div class="h-8 w-px bg-gray-200"></div>
+                    <span class="text-sm text-gray-500">Acciones rápidas:</span>
+                    <button onclick="bulkActivatePro()" class="px-3 py-1.5 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition text-sm">
+                        👑 Dar Pro
+                    </button>
+                    <button onclick="bulkExtendTrial()" class="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition text-sm">
+                        ⏰ +7 días trial
+                    </button>
+                    <button onclick="bulkDeactivate()" class="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition text-sm">
+                        ❌ Quitar Pro
+                    </button>
+                </div>
+
                 <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
                     <div class="p-6 border-b border-gray-200">
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <h3 class="text-lg font-bold text-gray-900">👥 Clientes</h3>
+                            <div class="flex items-center gap-3">
+                                <h3 class="text-lg font-bold text-gray-900">👥 Clientes</h3>
+                                <span id="selectedCount" class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium hidden">0 seleccionados</span>
+                            </div>
                             <div class="flex flex-wrap gap-3">
                                 <input type="text" id="customerSearch" onkeyup="filterCustomers()" placeholder="🔍 Buscar..."
                                     class="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 outline-none">
@@ -182,16 +203,19 @@
                         <table class="w-full">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Cliente</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Email</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Plan</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Estado</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Registro</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Acciones</th>
+                                    <th class="px-4 py-4 text-left">
+                                        <input type="checkbox" onclick="toggleSelectAll()" class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" title="Seleccionar todos">
+                                    </th>
+                                    <th class="px-4 py-4 text-left text-xs font-medium text-gray-600 uppercase">Cliente</th>
+                                    <th class="px-4 py-4 text-left text-xs font-medium text-gray-600 uppercase">Email</th>
+                                    <th class="px-4 py-4 text-left text-xs font-medium text-gray-600 uppercase">Plan</th>
+                                    <th class="px-4 py-4 text-left text-xs font-medium text-gray-600 uppercase">Estado</th>
+                                    <th class="px-4 py-4 text-left text-xs font-medium text-gray-600 uppercase">Registro</th>
+                                    <th class="px-4 py-4 text-left text-xs font-medium text-gray-600 uppercase">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody id="customersTableBody" class="divide-y divide-gray-200">
-                                <tr><td colspan="6" class="px-6 py-12 text-center text-gray-500">Cargando clientes...</td></tr>
+                                <tr><td colspan="7" class="px-6 py-12 text-center text-gray-500">Cargando clientes...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -553,6 +577,51 @@
             </section>
         </div>
     </main>
+
+    <!-- Create/Edit Customer Modal -->
+    <div id="createCustomerModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md border border-gray-200">
+            <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+                <h3 id="createCustomerModalTitle" class="text-xl font-bold text-gray-900">➕ Crear Cliente</h3>
+                <button onclick="closeModal('createCustomerModal')" class="text-gray-500 hover:text-gray-900 text-2xl">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="editCustomerId" value="">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Nombre completo</label>
+                    <input type="text" id="newCustomerName" placeholder="Juan Pérez"
+                        class="w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Email</label>
+                    <input type="email" id="newCustomerEmail" placeholder="cliente@email.com"
+                        class="w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Contraseña</label>
+                    <input type="password" id="newCustomerPassword" placeholder="••••••••"
+                        class="w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 outline-none">
+                    <p class="text-xs text-gray-400 mt-1">Mínimo 6 caracteres</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Plan inicial</label>
+                    <select id="newCustomerPlan" class="w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="free">Free</option>
+                        <option value="trial">Trial Pro (7 días)</option>
+                        <option value="pro">Pro</option>
+                    </select>
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button onclick="closeModal('createCustomerModal')" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                        Cancelar
+                    </button>
+                    <button onclick="saveCustomer()" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
+                        💾 Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Customer Detail Modal -->
     <div id="customerModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
@@ -934,12 +1003,14 @@
 
         function renderCustomersTable(customers) {
             const tbody = document.getElementById('customersTableBody');
-            tbody.innerHTML = '';
+            tbody.textContent = '';
+            selectedCustomers = [];
+            updateSelectedCount();
 
             if (customers.length === 0) {
                 const tr = document.createElement('tr');
                 const td = document.createElement('td');
-                td.colSpan = 6;
+                td.colSpan = 7;
                 td.className = 'px-6 py-12 text-center text-gray-500';
                 td.textContent = 'No hay clientes';
                 tr.appendChild(td);
@@ -951,9 +1022,18 @@
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-gray-50 transition';
 
+                // Checkbox cell
+                const td0 = document.createElement('td');
+                td0.className = 'px-4 py-4';
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'customer-checkbox w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500';
+                checkbox.onchange = function() { toggleCustomerSelection(c.email); };
+                td0.appendChild(checkbox);
+
                 // Client cell
                 const td1 = document.createElement('td');
-                td1.className = 'px-6 py-4';
+                td1.className = 'px-4 py-4';
                 const div1 = document.createElement('div');
                 div1.className = 'flex items-center gap-3';
                 const avatar = document.createElement('div');
@@ -968,21 +1048,34 @@
 
                 // Email cell
                 const td2 = document.createElement('td');
-                td2.className = 'px-6 py-4 text-gray-600';
+                td2.className = 'px-4 py-4 text-gray-600 text-sm';
                 td2.textContent = c.email;
 
-                // Plan cell
+                // Plan cell with quick change dropdown
                 const td3 = document.createElement('td');
-                td3.className = 'px-6 py-4';
-                const planBadge = document.createElement('span');
+                td3.className = 'px-4 py-4';
                 var localPlan = c.email ? getCustomerPlanLabel(c.email) : 'Free';
                 var planName = localPlan !== 'Free' ? localPlan : (c.plan_name && c.plan_name !== 'Sin plan' ? c.plan_name : 'Free');
-                var planStyle = planName === 'Pro' ? 'bg-amber-600/20 text-amber-400' :
-                    planName.startsWith('Trial') ? 'bg-blue-600/20 text-blue-400' :
-                    'bg-gray-200/20 text-gray-500';
-                planBadge.className = 'px-3 py-1 rounded-full text-sm ' + planStyle;
-                planBadge.textContent = planName;
-                td3.appendChild(planBadge);
+
+                const planSelect = document.createElement('select');
+                planSelect.className = 'px-2 py-1 text-sm rounded-lg border border-gray-200 bg-white cursor-pointer focus:ring-2 focus:ring-blue-500 outline-none';
+                var opt1 = document.createElement('option');
+                opt1.value = 'free';
+                opt1.textContent = 'Free';
+                if (planName === 'Free') opt1.selected = true;
+                var opt2 = document.createElement('option');
+                opt2.value = 'trial';
+                opt2.textContent = 'Trial';
+                if (planName.startsWith('Trial')) opt2.selected = true;
+                var opt3 = document.createElement('option');
+                opt3.value = 'pro';
+                opt3.textContent = '👑 Pro';
+                if (planName === 'Pro') opt3.selected = true;
+                planSelect.appendChild(opt1);
+                planSelect.appendChild(opt2);
+                planSelect.appendChild(opt3);
+                planSelect.onchange = function() { quickChangePlan(c.email, this.value); };
+                td3.appendChild(planSelect);
 
                 // Status cell
                 const td4 = document.createElement('td');
@@ -1010,17 +1103,17 @@
                 const actionsDiv = document.createElement('div');
                 actionsDiv.className = 'flex gap-2';
 
+                const editBtn = document.createElement('button');
+                editBtn.className = 'p-2 bg-green-600/20 text-green-500 rounded-lg hover:bg-green-600/40 transition';
+                editBtn.title = 'Editar cliente';
+                editBtn.textContent = '✏️';
+                editBtn.onclick = function() { openEditCustomerModal(c.email); };
+
                 const viewBtn = document.createElement('button');
                 viewBtn.className = 'p-2 bg-blue-600/20 text-blue-400 rounded-lg hover:bg-blue-600/40 transition';
                 viewBtn.title = 'Ver detalle';
                 viewBtn.textContent = '👁️';
                 viewBtn.onclick = function() { viewCustomer(c.id, c.email); };
-
-                const manageBtn = document.createElement('button');
-                manageBtn.className = 'p-2 bg-purple-600/20 text-purple-400 rounded-lg hover:bg-purple-600/40 transition';
-                manageBtn.title = 'Gestionar suscripcion';
-                manageBtn.textContent = '💳';
-                manageBtn.onclick = function() { editCustomerSubscription(c.id); };
 
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'p-2 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/40 transition';
@@ -1028,11 +1121,12 @@
                 deleteBtn.textContent = '🗑️';
                 deleteBtn.onclick = function() { deleteCustomer(c.id, c.email); };
 
+                actionsDiv.appendChild(editBtn);
                 actionsDiv.appendChild(viewBtn);
-                actionsDiv.appendChild(manageBtn);
                 actionsDiv.appendChild(deleteBtn);
                 td6.appendChild(actionsDiv);
 
+                tr.appendChild(td0);
                 tr.appendChild(td1);
                 tr.appendChild(td2);
                 tr.appendChild(td3);
@@ -2928,6 +3022,217 @@
             renderGoalTemplate();
             renderExerciseTemplate();
             renderHabitCatalog();
+        }
+
+        // ==================== Create/Edit Customer ====================
+
+        let selectedCustomers = [];
+
+        function openCreateCustomerModal() {
+            document.getElementById('createCustomerModalTitle').textContent = '➕ Crear Cliente';
+            document.getElementById('editCustomerId').value = '';
+            document.getElementById('newCustomerName').value = '';
+            document.getElementById('newCustomerEmail').value = '';
+            document.getElementById('newCustomerPassword').value = '';
+            document.getElementById('newCustomerPassword').disabled = false;
+            document.getElementById('newCustomerPlan').value = 'free';
+            document.getElementById('createCustomerModal').classList.remove('hidden');
+        }
+
+        function openEditCustomerModal(email) {
+            const users = JSON.parse(localStorage.getItem('gestion-users') || '{}');
+            const user = users[email];
+            if (!user) {
+                showToast('Cliente no encontrado', '❌');
+                return;
+            }
+
+            document.getElementById('createCustomerModalTitle').textContent = '✏️ Editar Cliente';
+            document.getElementById('editCustomerId').value = email;
+            document.getElementById('newCustomerName').value = user.name || '';
+            document.getElementById('newCustomerEmail').value = email;
+            document.getElementById('newCustomerPassword').value = '';
+            document.getElementById('newCustomerPassword').disabled = true;
+            document.getElementById('newCustomerPassword').placeholder = '(sin cambios)';
+
+            const sub = getCustomerSubscription(email);
+            if (sub && sub.plan === 'pro') {
+                document.getElementById('newCustomerPlan').value = 'pro';
+            } else if (sub && !sub.trialUsed && new Date(sub.trialEndDate) > new Date()) {
+                document.getElementById('newCustomerPlan').value = 'trial';
+            } else {
+                document.getElementById('newCustomerPlan').value = 'free';
+            }
+
+            document.getElementById('createCustomerModal').classList.remove('hidden');
+        }
+
+        async function saveCustomer() {
+            const editId = document.getElementById('editCustomerId').value;
+            const name = document.getElementById('newCustomerName').value.trim();
+            const email = document.getElementById('newCustomerEmail').value.trim().toLowerCase();
+            const password = document.getElementById('newCustomerPassword').value;
+            const plan = document.getElementById('newCustomerPlan').value;
+
+            if (!name || !email) {
+                showToast('Nombre y email son requeridos', '❌');
+                return;
+            }
+
+            if (!editId && password.length < 6) {
+                showToast('La contraseña debe tener al menos 6 caracteres', '❌');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('gestion-users') || '{}');
+
+            if (!editId) {
+                // Create new user
+                if (users[email]) {
+                    showToast('Ya existe un cliente con ese email', '❌');
+                    return;
+                }
+                users[email] = {
+                    name: name,
+                    password: password,
+                    createdAt: new Date().toISOString()
+                };
+            } else {
+                // Edit existing user
+                if (editId !== email && users[email]) {
+                    showToast('Ya existe un cliente con ese email', '❌');
+                    return;
+                }
+                if (editId !== email) {
+                    // Email changed - migrate data
+                    users[email] = users[editId];
+                    delete users[editId];
+                    // Migrate subscription
+                    const oldSub = getCustomerSubscription(editId);
+                    if (oldSub) {
+                        saveCustomerSubscription(email, oldSub);
+                        localStorage.removeItem(getUserKey(editId) + '-subscription');
+                    }
+                }
+                users[email].name = name;
+            }
+
+            localStorage.setItem('gestion-users', JSON.stringify(users));
+
+            // Set plan
+            if (plan === 'pro') {
+                await activateCustomerPro(email);
+            } else if (plan === 'trial') {
+                await extendCustomerTrial(email, 7);
+            } else {
+                await deactivateCustomerPro(email);
+            }
+
+            closeModal('createCustomerModal');
+            showToast(editId ? 'Cliente actualizado' : 'Cliente creado', '✅');
+            loadCustomers();
+        }
+
+        // ==================== Bulk Actions ====================
+
+        function toggleCustomerSelection(email) {
+            const idx = selectedCustomers.indexOf(email);
+            if (idx === -1) {
+                selectedCustomers.push(email);
+            } else {
+                selectedCustomers.splice(idx, 1);
+            }
+            updateSelectedCount();
+        }
+
+        function toggleSelectAll() {
+            const checkboxes = document.querySelectorAll('.customer-checkbox');
+            const allChecked = selectedCustomers.length === allCustomers.length;
+
+            if (allChecked) {
+                selectedCustomers = [];
+            } else {
+                selectedCustomers = allCustomers.map(function(c) { return c.email; });
+            }
+
+            checkboxes.forEach(function(cb) {
+                cb.checked = !allChecked;
+            });
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            const countEl = document.getElementById('selectedCount');
+            if (selectedCustomers.length > 0) {
+                countEl.textContent = selectedCustomers.length + ' seleccionados';
+                countEl.classList.remove('hidden');
+            } else {
+                countEl.classList.add('hidden');
+            }
+        }
+
+        async function bulkActivatePro() {
+            if (selectedCustomers.length === 0) {
+                showToast('Selecciona al menos un cliente', '⚠️');
+                return;
+            }
+            if (!confirm('¿Activar Pro para ' + selectedCustomers.length + ' cliente(s)?')) return;
+
+            for (const email of selectedCustomers) {
+                await activateCustomerPro(email);
+            }
+            selectedCustomers = [];
+            updateSelectedCount();
+            showToast('Pro activado para todos', '✅');
+            loadCustomers();
+        }
+
+        async function bulkExtendTrial() {
+            if (selectedCustomers.length === 0) {
+                showToast('Selecciona al menos un cliente', '⚠️');
+                return;
+            }
+            if (!confirm('¿Extender trial 7 días para ' + selectedCustomers.length + ' cliente(s)?')) return;
+
+            for (const email of selectedCustomers) {
+                await extendCustomerTrial(email, 7);
+            }
+            selectedCustomers = [];
+            updateSelectedCount();
+            showToast('Trial extendido para todos', '✅');
+            loadCustomers();
+        }
+
+        async function bulkDeactivate() {
+            if (selectedCustomers.length === 0) {
+                showToast('Selecciona al menos un cliente', '⚠️');
+                return;
+            }
+            if (!confirm('¿Quitar Pro a ' + selectedCustomers.length + ' cliente(s)?')) return;
+
+            for (const email of selectedCustomers) {
+                await deactivateCustomerPro(email);
+            }
+            selectedCustomers = [];
+            updateSelectedCount();
+            showToast('Pro desactivado para todos', '✅');
+            loadCustomers();
+        }
+
+        // ==================== Quick Actions (Inline) ====================
+
+        async function quickChangePlan(email, newPlan) {
+            if (newPlan === 'pro') {
+                await activateCustomerPro(email);
+                showToast('Plan cambiado a Pro', '✅');
+            } else if (newPlan === 'trial') {
+                await extendCustomerTrial(email, 7);
+                showToast('Trial activado (+7 días)', '✅');
+            } else {
+                await deactivateCustomerPro(email);
+                showToast('Plan cambiado a Free', '✅');
+            }
+            loadCustomers();
         }
 
         // ==================== Initialize ====================
