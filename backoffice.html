@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-primary: #faf9f7;
@@ -29,8 +29,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        .font-serif { font-family: 'Instrument Serif', Georgia, serif; }
-
+        
         body {
             background: var(--bg-primary);
             color: var(--text-primary);
@@ -87,10 +86,9 @@
         }
 
         .stat-value {
-            font-family: 'Instrument Serif', Georgia, serif;
             font-size: 2.5rem;
-            font-weight: 400;
-            letter-spacing: -0.02em;
+            font-weight: 600;
+            letter-spacing: -0.03em;
             line-height: 1;
         }
 
@@ -284,10 +282,9 @@
 
         /* Section title */
         .section-title {
-            font-family: 'Instrument Serif', Georgia, serif;
             font-size: 1.75rem;
-            font-weight: 400;
-            letter-spacing: -0.01em;
+            font-weight: 600;
+            letter-spacing: -0.02em;
         }
 
         /* Checkbox */
@@ -339,7 +336,7 @@
     <aside id="sidebar" class="sidebar fixed left-0 top-0 h-full w-64 z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
         <!-- Logo -->
         <div class="p-8 pb-6">
-            <h1 class="font-serif text-2xl tracking-tight">Gestión</h1>
+            <h1 class="font-semibold text-2xl tracking-tight">Gestión</h1>
             <p class="text-sm text-[var(--text-muted)] mt-1">Panel de administración</p>
         </div>
 
@@ -1522,7 +1519,7 @@
                             ${(customer.full_name || '?').charAt(0).toUpperCase()}
                         </div>
                         <div>
-                            <h4 class="font-serif text-xl">${escapeHTML(customer.full_name || '-')}</h4>
+                            <h4 class="font-semibold text-xl">${escapeHTML(customer.full_name || '-')}</h4>
                             <p class="text-[var(--text-secondary)]">${escapeHTML(customer.email)}</p>
                             <p class="text-sm text-[var(--text-muted)]">Registrado: ${formatDate(customer.created_at)}</p>
                         </div>
@@ -1761,7 +1758,7 @@
                 tr.innerHTML = `
                     <td class="px-6 py-4 text-[var(--text-secondary)] text-sm">${escapeHTML(p.name)}</td>
                     <td class="px-6 py-4 font-medium">${escapeHTML(p.customer_name || '-')}</td>
-                    <td class="px-6 py-4 font-serif text-lg">${formatCurrency(p.amount)}</td>
+                    <td class="px-6 py-4 font-semibold text-lg">${formatCurrency(p.amount)}</td>
                     <td class="px-6 py-4 text-[var(--text-secondary)]">${formatDate(p.payment_date)}</td>
                     <td class="px-6 py-4 text-[var(--text-secondary)]">${escapeHTML(p.payment_method || '-')}</td>
                     <td class="px-6 py-4"><span class="badge ${statusClass}">${p.status}</span></td>
@@ -1873,14 +1870,14 @@
                         <p class="font-medium">Free</p>
                         <p class="text-sm text-[var(--text-muted)]">Funciones básicas</p>
                     </div>
-                    <span class="text-lg font-serif">$0</span>
+                    <span class="text-lg font-semibold">$0</span>
                 </div>
                 <div class="p-4 bg-[var(--bg-elevated)] rounded-xl flex items-center justify-between">
                     <div>
                         <p class="font-medium">Pro</p>
                         <p class="text-sm text-[var(--text-muted)]">Todas las funciones</p>
                     </div>
-                    <span class="text-lg font-serif">$9.99/mes</span>
+                    <span class="text-lg font-semibold">$9.99/mes</span>
                 </div>
             `;
         }
