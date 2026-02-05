@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#6366f1">
     <meta name="description" content="Aplicación para gestionar tu tiempo, hábitos, metas y gastos">
     <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏰</text></svg>">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
     <title>Mi Plan - Gestión del Tiempo</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -229,6 +230,71 @@
         .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Tab bar scroll fade indicator */
+        .tabs-scroll-wrapper { position: relative; }
+        .tabs-scroll-wrapper::after {
+            content: '';
+            position: absolute;
+            right: 0; top: 0; bottom: 0;
+            width: 40px;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.9));
+            pointer-events: none;
+            z-index: 2;
+            transition: opacity 0.3s;
+        }
+        .tabs-scroll-wrapper.scrolled-end::after { opacity: 0; }
+        .dark .tabs-scroll-wrapper::after { background: linear-gradient(to right, transparent, rgba(30,41,59,0.9)); }
+
+        /* Current time indicator */
+        .time-indicator-line { position: relative; }
+        .time-indicator-line::before {
+            content: '';
+            position: absolute;
+            left: 0; right: 0; top: 50%;
+            height: 2px;
+            background: linear-gradient(to right, #ec4899, #8b5cf6);
+            z-index: 1;
+        }
+        .time-indicator-line::after {
+            content: 'AHORA';
+            position: absolute;
+            right: 0; top: 50%;
+            transform: translateY(-50%);
+            font-size: 10px;
+            font-weight: 700;
+            color: #ec4899;
+            background: white;
+            padding: 1px 6px;
+            border-radius: 4px;
+            z-index: 2;
+        }
+        .dark .time-indicator-line::after { background: #1e293b; }
+
+        /* Agenda action buttons - hidden by default, visible on hover/focus */
+        .schedule-item .item-actions { opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+        .schedule-item:hover .item-actions,
+        .schedule-item:focus-within .item-actions,
+        .schedule-item .item-actions.show { opacity: 1; pointer-events: auto; }
+        @media (max-width: 768px) {
+            .schedule-item .item-actions { opacity: 1; pointer-events: auto; }
+        }
+
+        /* Completion pulse animation */
+        @keyframes completionPulse {
+            0% { transform: scale(1); }
+            30% { transform: scale(1.3); }
+            60% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+        .completion-pulse { animation: completionPulse 0.4s ease-out; }
+
+        /* Floating buttons - higher position to avoid overlap */
+        @media (max-width: 768px) {
+            #pomodoroFloatBtn { bottom: 80px !important; right: 16px !important; width: 48px !important; height: 48px !important; }
+            #expensesFloatBtn { bottom: 80px !important; right: 72px !important; width: 48px !important; height: 48px !important; }
+            #voiceFloatBtn { bottom: 136px !important; right: 16px !important; width: 48px !important; height: 48px !important; }
+        }
 
         /* Prevent scroll chaining and improve scroll stability */
         html, body {
@@ -5264,6 +5330,14 @@
             }
         }
 
+        function goToToday() {
+            const today = new Date();
+            if (today >= startDate && today <= endDate) {
+                currentDate = today;
+                render();
+            }
+        }
+
         // Calendar Modal Functions
         let calendarMonth = new Date();
 
@@ -7417,14 +7491,12 @@
                                 <p class="header-subtext text-xs text-gray-500">${getGoalText(currentUser.goal)}</p>
                             </div>
                             <div class="flex items-center gap-2">
-                                <div class="header-badges flex flex-col items-end gap-1 text-xs flex-shrink-0">
+                                <div class="header-badges flex items-center gap-1 text-xs flex-shrink-0">
                                     ${isPro() ? `
                                         <span class="px-2 py-0.5 bg-gradient-to-r from-amber-100 to-orange-100 text-orange-700 rounded-full font-medium cursor-pointer" onclick="showUpgradeModal()">👑 Pro${isTrialActive() && getSubscription().plan !== 'pro' ? ` (${getTrialDaysRemaining()}d)` : ''}</span>
                                     ` : `
                                         <button onclick="showUpgradeModal('Desbloquea todo el potencial de la app')" class="px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full font-medium hover:bg-orange-100 hover:text-orange-600 transition">Free → Pro</button>
                                     `}
-                                    <span class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium">S${weekNum}/${totalWeeks}</span>
-                                    <span class="px-2 py-0.5 bg-rose-100 text-rose-700 rounded-full font-medium">D${dayNum}/${userDuration}</span>
                                 </div>
                                 <!-- Notifications -->
                                 <div class="relative">
@@ -7445,6 +7517,10 @@
                                         </div>
                                     </div>
                                 </div>
+                                <!-- Dark Mode Toggle -->
+                                <button onclick="toggleDarkMode()" class="p-2 text-gray-400 hover:text-purple-500 transition text-lg" title="Modo Oscuro">
+                                    ${isDarkMode() ? '☀️' : '🌙'}
+                                </button>
                                 <!-- Settings Menu -->
                                 <div class="relative">
                                     <button onclick="toggleSettingsMenu()" class="p-2 text-gray-400 hover:text-purple-500 transition text-xl" title="Configuración">
@@ -7661,9 +7737,16 @@
                     <div class="max-w-4xl mx-auto px-4 py-2">
                         <div class="flex items-center justify-between">
                             <button onclick="navigateDay(-1)" class="p-2 hover:bg-white rounded-full transition text-xl ${currentDate <= startDate ? 'opacity-30' : ''}">◀️</button>
-                            <div class="text-center cursor-pointer hover:bg-white/50 px-3 py-1 rounded-xl transition" onclick="openCalendarModal()">
-                                <p class="text-lg font-bold text-gray-800">${daysSpanish[dayIndex]} <span class="font-normal text-gray-500 text-sm">📅 ${currentDate.getDate()} ${monthsSpanish[currentDate.getMonth()]}</span></p>
-                                ${isCustomized ? '<span class="text-xs text-purple-500">✏️ Personalizado</span>' : ''}
+                            <div class="flex items-center gap-2">
+                                <div class="text-center cursor-pointer hover:bg-white/50 px-3 py-1 rounded-xl transition" onclick="openCalendarModal()">
+                                    <p class="text-lg font-bold text-gray-800">${daysSpanish[dayIndex]} <span class="font-normal text-gray-500 text-sm">📅 ${currentDate.getDate()} ${monthsSpanish[currentDate.getMonth()]}</span></p>
+                                    ${isCustomized ? '<span class="text-xs text-purple-500">✏️ Personalizado</span>' : ''}
+                                </div>
+                                ${getDateKey() !== getDateKey(new Date()) ? `<button onclick="goToToday()" class="px-2 py-1 text-xs bg-purple-100 text-purple-600 rounded-full font-medium hover:bg-purple-200 transition" title="Ir a hoy">Hoy</button>` : ''}
+                                <span class="hidden sm:inline-flex items-center gap-1 text-xs">
+                                    <span class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium">S${weekNum}/${totalWeeks}</span>
+                                    <span class="px-2 py-0.5 bg-rose-100 text-rose-700 rounded-full font-medium">D${dayNum}/${userDuration}</span>
+                                </span>
                             </div>
                             <button onclick="navigateDay(1)" class="p-2 hover:bg-white rounded-full transition text-xl ${currentDate >= endDate ? 'opacity-30' : ''}">▶️</button>
                         </div>
@@ -7673,7 +7756,8 @@
                 <!-- Tabs -->
                 <div class="bg-white/40 border-b sticky top-[56px] z-40 mt-1">
                     <div class="max-w-4xl mx-auto px-4 py-2">
-                        <div data-tabs-container="main" class="flex gap-2 overflow-x-auto no-scrollbar py-1 relative" style="-webkit-overflow-scrolling: touch;">
+                        <div class="tabs-scroll-wrapper">
+                        <div data-tabs-container="main" class="flex gap-2 overflow-x-auto no-scrollbar py-1 relative" style="-webkit-overflow-scrolling: touch;" onscroll="this.parentElement.classList.toggle('scrolled-end', this.scrollLeft + this.clientWidth >= this.scrollWidth - 10)">
                             ${getMainTabsOrder().map((tabId, index) => {
                                 const tabsConfig = getMainTabsConfig();
                                 const tab = tabsConfig[tabId];
@@ -7696,6 +7780,7 @@
                                 `;
                             }).join('')}
                             <div class="drag-indicator hidden absolute top-0 bottom-0 w-0.5 bg-purple-500 rounded-full z-10"></div>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -7723,10 +7808,17 @@
                 </main>
 
                 <!-- Footer -->
-                <footer class="bg-white/80 backdrop-blur-sm border-t mt-8">
-                    <div class="max-w-4xl mx-auto px-4 py-6 text-center">
-                        <p class="text-lg font-medium text-gray-700">"El éxito es la suma de pequeños esfuerzos repetidos día tras día"</p>
-                        <p class="text-purple-500 mt-2 text-xl">✨ ¡Tú puedes, ${currentUser.name.split(' ')[0]}! ✨</p>
+                <footer class="bg-white/60 border-t mt-8">
+                    <div class="max-w-4xl mx-auto px-4 py-3 text-center">
+                        <p class="text-sm text-gray-400">${(() => {
+                            const quotes = [
+                                '"El éxito es la suma de pequeños esfuerzos repetidos día tras día"',
+                                '"La disciplina es el puente entre metas y logros"',
+                                '"No cuentes los días, haz que los días cuenten"',
+                                '"Tu único límite eres tú"'
+                            ];
+                            return quotes[Math.floor(new Date().getDate() % quotes.length)];
+                        })()}</p>
                     </div>
                 </footer>
             `;
@@ -7738,6 +7830,52 @@
 
             // Initialize Lucide icons if in lucide mode
             initLucideIcons();
+        }
+
+        function renderAgendaItems(schedule, dateKey, completedActivities, searchQuery, activeFilter) {
+            const isToday = dateKey === getDateKey(new Date());
+            const now = new Date();
+            const nowMinutes = isToday ? now.getHours() * 60 + now.getMinutes() : -1;
+            let timeIndicatorInserted = false;
+
+            return schedule.filter(item => {
+                const searchTerm = (searchQuery || '').toLowerCase();
+                const matchesSearch = !searchTerm || item.activity.toLowerCase().includes(searchTerm) || item.time.includes(searchTerm);
+                const matchesFilter = !activeFilter || item.category === activeFilter;
+                return matchesSearch && matchesFilter;
+            }).map(item => {
+                const originalIdx = schedule.indexOf(item);
+                const colors = categoryColors[item.category] || categoryColors.personal;
+                const isCompleted = completedActivities[dateKey + '-' + originalIdx];
+                let indicator = '';
+                if (isToday && !timeIndicatorInserted) {
+                    const parts = item.time.split(':').map(Number);
+                    const itemMin = parts[0] * 60 + (parts[1] || 0);
+                    if (itemMin > nowMinutes) {
+                        timeIndicatorInserted = true;
+                        indicator = '<div class="time-indicator-line my-2 h-0"></div>';
+                    }
+                }
+                return indicator +
+                    '<div class="schedule-item ' + colors.bg + ' ' + colors.border + ' border rounded-xl p-4 transition-all card-hover ' + (isCompleted ? 'checked-item' : '') + '" onclick="toggleActivity(' + originalIdx + ')">' +
+                        '<div class="flex items-start gap-3">' +
+                            '<div class="emoji-indicator w-10 h-10 rounded-full ' + (isCompleted ? 'bg-green-500' : colors.badge) + ' flex items-center justify-center flex-shrink-0 text-lg transition-all cursor-pointer hover:scale-110 ' + (isCompleted ? 'text-white' : '') + '">' +
+                                (isCompleted ? '✓' : '○') +
+                            '</div>' +
+                            '<div class="flex-1 min-w-0 cursor-pointer">' +
+                                '<div class="flex items-center gap-2 mb-1 flex-wrap">' +
+                                    '<span class="font-mono text-sm text-gray-500">' + item.time + '</span>' +
+                                    '<span class="duration-badge text-xs px-2 py-0.5 rounded-full ' + colors.badge + ' ' + colors.text + '">' + item.duration + '</span>' +
+                                '</div>' +
+                                '<p class="font-medium ' + (isCompleted ? 'line-through text-gray-400' : 'text-gray-800') + '">' + item.activity + '</p>' +
+                            '</div>' +
+                            '<div class="item-actions flex gap-1 flex-shrink-0" onclick="event.stopPropagation()">' +
+                                '<button onclick="openEditModal(' + originalIdx + ')" class="btn-icon w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200 text-sm" title="Editar">✏️</button>' +
+                                '<button onclick="openDeleteModal(' + originalIdx + ', \'activity\')" class="btn-icon w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-200 text-sm" title="Eliminar">🗑️</button>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+            }).join('');
         }
 
         function renderAgenda(schedule, gym, dateKey, dailyProgress, isCustomized) {
@@ -7809,48 +7947,7 @@
                     </div>
                     ` : ''}
 
-                    ${schedule.filter((item, idx) => {
-                        const searchTerm = (searchQuery || '').toLowerCase();
-                        const matchesSearch = !searchTerm || item.activity.toLowerCase().includes(searchTerm) || item.time.includes(searchTerm);
-                        const matchesFilter = !activeFilter || item.category === activeFilter;
-                        return matchesSearch && matchesFilter;
-                    }).map((item) => {
-                        const originalIdx = schedule.indexOf(item);
-                        const colors = categoryColors[item.category] || categoryColors.personal;
-                        const isCompleted = completedActivities[`${dateKey}-${originalIdx}`];
-                        return `
-                            <div class="schedule-item ${colors.bg} ${colors.border} border rounded-xl p-4 transition-all card-hover ${isCompleted ? 'checked-item' : ''}">
-                                <div class="flex items-start gap-4">
-                                    <div onclick="toggleActivity(${originalIdx})" class="emoji-indicator w-12 h-12 rounded-full ${isCompleted ? 'bg-green-500' : colors.badge} flex items-center justify-center flex-shrink-0 text-xl transition-all cursor-pointer hover:scale-110 ${isCompleted ? 'text-white' : ''}">
-                                        ${isCompleted ? '✓' : '○'}
-                                    </div>
-                                    <div class="flex-1 min-w-0" onclick="toggleActivity(${originalIdx})" style="cursor: pointer;">
-                                        <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                            <span class="font-mono text-sm text-gray-500">${item.time}</span>
-                                            <span class="duration-badge text-xs px-2 py-0.5 rounded-full ${colors.badge} ${colors.text}">${item.duration}</span>
-                                        </div>
-                                        <p class="font-medium ${isCompleted ? 'line-through text-gray-400' : 'text-gray-800'}">${item.activity}</p>
-                                    </div>
-                                    <div class="flex gap-1 flex-shrink-0">
-                                        <div class="flex flex-col gap-0.5 mr-1">
-                                            <button onclick="moveActivity(${originalIdx}, -1)" class="btn-icon w-7 h-7 rounded bg-gray-100 text-gray-500 flex items-center justify-center hover:bg-gray-200 text-xs ${originalIdx === 0 ? 'opacity-30 cursor-not-allowed' : ''}" title="Subir" ${originalIdx === 0 ? 'disabled' : ''}>
-                                                ▲
-                                            </button>
-                                            <button onclick="moveActivity(${originalIdx}, 1)" class="btn-icon w-7 h-7 rounded bg-gray-100 text-gray-500 flex items-center justify-center hover:bg-gray-200 text-xs ${originalIdx === schedule.length - 1 ? 'opacity-30 cursor-not-allowed' : ''}" title="Bajar" ${originalIdx === schedule.length - 1 ? 'disabled' : ''}>
-                                                ▼
-                                            </button>
-                                        </div>
-                                        <button onclick="openEditModal(${originalIdx})" class="btn-icon w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200" title="Editar">
-                                            ✏️
-                                        </button>
-                                        <button onclick="openDeleteModal(${originalIdx}, 'activity')" class="btn-icon w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-200" title="Eliminar">
-                                            🗑️
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
+                    ${renderAgendaItems(schedule, dateKey, completedActivities, searchQuery, activeFilter)}
 
                     ${schedule.length === 0 ? `
                         <div class="text-center py-12 text-gray-400">
@@ -7861,6 +7958,55 @@
                     ` : ''}
                 </div>
             `;
+        }
+
+        function renderHabitItems(habits, dateKey, checkedHabits) {
+            const morningKeys = ['despertar', 'agua', 'suplemento', 'meditación', 'afirmacion', 'desayuno', 'skincare am', 'inglés', 'clase'];
+            const nightKeys = ['cena', 'skincare pm', 'gratitud', 'cama', 'noctur', 'dormir'];
+            function getGroup(name) {
+                var n = name.toLowerCase();
+                if (morningKeys.some(function(k) { return n.includes(k); })) return 'morning';
+                if (nightKeys.some(function(k) { return n.includes(k); })) return 'night';
+                return 'afternoon';
+            }
+            var groups = { morning: [], afternoon: [], night: [] };
+            habits.forEach(function(h, idx) { groups[getGroup(h.name)].push({ habit: h, idx: idx }); });
+            var sections = [
+                { key: 'morning', label: '☀️ Mañana', items: groups.morning },
+                { key: 'afternoon', label: '☀️ Día', items: groups.afternoon },
+                { key: 'night', label: '🌙 Noche', items: groups.night }
+            ];
+            var html = '';
+            sections.forEach(function(section) {
+                if (section.items.length === 0) return;
+                var sectionChecked = section.items.filter(function(item) { return checkedHabits[dateKey + '-' + item.habit.id]; }).length;
+                html += '<div class="mb-2">';
+                html += '<div class="flex items-center justify-between mb-2 px-1">';
+                html += '<span class="text-sm font-semibold text-gray-500">' + section.label + '</span>';
+                html += '<span class="text-xs text-gray-400">' + sectionChecked + '/' + section.items.length + '</span>';
+                html += '</div>';
+                html += '<div class="grid gap-2">';
+                section.items.forEach(function(item) {
+                    var habit = item.habit;
+                    var idx = item.idx;
+                    var isChecked = checkedHabits[dateKey + '-' + habit.id];
+                    html += '<div class="habit-item flex items-center gap-2 p-3 rounded-xl border-2 transition-all ' + (isChecked ? 'habit-checked' : 'bg-white border-gray-100 hover:border-gray-200') + '">';
+                    html += '<button onclick="toggleHabit(' + habit.id + ')" class="flex items-center gap-3 flex-1 text-left">';
+                    html += '<div class="w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0 ' + (isChecked ? 'bg-purple-500 border-purple-500 text-white completion-pulse' : 'border-gray-300') + '" style="font-size: 12px;">';
+                    html += isChecked ? '✓' : '';
+                    html += '</div>';
+                    html += '<span class="emoji-indicator text-xl">' + habit.icon + '</span>';
+                    html += '<span class="font-medium text-sm ' + (isChecked ? 'text-purple-700' : 'text-gray-700') + '">' + habit.name + '</span>';
+                    html += '</button>';
+                    html += '<div class="item-actions flex gap-1 flex-shrink-0">';
+                    html += '<button onclick="openEditHabitModal(' + idx + ')" class="btn-icon w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200 text-xs" title="Editar">✏️</button>';
+                    html += '<button onclick="openDeleteModal(' + idx + ', \'habit\')" class="btn-icon w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-200 text-xs" title="Eliminar">🗑️</button>';
+                    html += '</div>';
+                    html += '</div>';
+                });
+                html += '</div></div>';
+            });
+            return html;
         }
 
         function renderHabits(dateKey) {
@@ -7899,30 +8045,7 @@
                         </button>
                     </div>
 
-                    <div class="grid gap-3">
-                        ${habits.map((habit, idx) => {
-                            const isChecked = checkedHabits[`${dateKey}-${habit.id}`];
-                            return `
-                                <div class="habit-item flex items-center gap-2 p-4 rounded-xl border-2 transition-all ${isChecked ? 'habit-checked' : 'bg-white border-gray-100 hover:border-gray-200'}">
-                                    <button onclick="toggleHabit(${habit.id})" class="flex items-center gap-4 flex-1 text-left">
-                                        <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0 ${isChecked ? 'bg-purple-500 border-purple-500 text-white' : 'border-gray-300'}">
-                                            ${isChecked ? '✓' : ''}
-                                        </div>
-                                        <span class="emoji-indicator text-2xl">${habit.icon}</span>
-                                        <span class="font-medium ${isChecked ? 'text-purple-700' : 'text-gray-700'}">${habit.name}</span>
-                                    </button>
-                                    <div class="flex gap-1 flex-shrink-0">
-                                        <button onclick="openEditHabitModal(${idx})" class="btn-icon w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200 text-sm" title="Editar">
-                                            ✏️
-                                        </button>
-                                        <button onclick="openDeleteModal(${idx}, 'habit')" class="btn-icon w-9 h-9 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-200 text-sm" title="Eliminar">
-                                            🗑️
-                                        </button>
-                                    </div>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
+                    ${renderHabitItems(habits, dateKey, checkedHabits)}
                 </div>
             `;
         }
@@ -9607,8 +9730,26 @@
             if (textarea) {
                 setStorage(`notes-${dateKey}`, textarea.value);
                 showNotification('📝 Nota guardada');
-                render(); // Actualizar la vista para mostrar la nota en el historial
+                render();
             }
+        }
+
+        function insertNotesFormat(before, after) {
+            const ta = document.getElementById('notesTextarea');
+            if (!ta) return;
+            const start = ta.selectionStart, end = ta.selectionEnd;
+            const selected = ta.value.substring(start, end);
+            ta.value = ta.value.substring(0, start) + before + selected + after + ta.value.substring(end);
+            ta.focus();
+            ta.selectionStart = start + before.length;
+            ta.selectionEnd = start + before.length + selected.length;
+            updateNoteCharCount();
+        }
+
+        function updateNoteCharCount() {
+            const ta = document.getElementById('notesTextarea');
+            const counter = document.getElementById('noteCharCount');
+            if (ta && counter) counter.textContent = ta.value.length + ' caracteres';
         }
 
         function showNotification(message) {
@@ -9634,14 +9775,25 @@
                                 <p class="text-gray-500 text-sm">Escribe tus pensamientos, reflexiones o recordatorios</p>
                             </div>
                         </div>
+                        <div class="flex gap-1 mb-2 flex-wrap">
+                            <button onclick="insertNotesFormat('**','**')" class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 transition font-bold" title="Negrita">B</button>
+                            <button onclick="insertNotesFormat('_','_')" class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 transition italic" title="Cursiva">I</button>
+                            <button onclick="insertNotesFormat('\\n- ','')" class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 transition" title="Lista">- Lista</button>
+                            <button onclick="insertNotesFormat('\\n[ ] ','')" class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 transition" title="Checkbox">[ ] Check</button>
+                            <button onclick="insertNotesFormat('\\n---\\n','')" class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 transition" title="Separador">---</button>
+                        </div>
                         <textarea
                             id="notesTextarea"
                             class="w-full h-48 p-4 border border-gray-200 rounded-xl resize-none focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none text-gray-700"
                             placeholder="¿Qué quieres recordar de hoy? ✨"
                             onblur="saveNotes('${dateKey}')"
+                            oninput="updateNoteCharCount()"
                         >${notes}</textarea>
                         <div class="flex justify-between items-center mt-3">
-                            <span class="text-sm text-gray-400">Se guarda automáticamente</span>
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm text-gray-400">Se guarda automáticamente</span>
+                                <span id="noteCharCount" class="text-xs text-gray-300">${notes.length} caracteres</span>
+                            </div>
                             <button onclick="saveNotes('${dateKey}')" class="px-4 py-2 theme-btn rounded-xl hover:opacity-90 transition font-medium text-sm">
                                 💾 Guardar
                             </button>
@@ -12673,18 +12825,20 @@
                             <div class="space-y-2">
                                 ${Object.entries(byCategory)
                                     .sort((a, b) => b[1] - a[1])
-                                    .map(([cat, amount]) => {
+                                    .map(([cat, amount], i) => {
                                         const percentage = totalMonth > 0 ? (amount / totalMonth * 100) : 0;
+                                        const barColors = ['from-purple-500 to-pink-500', 'from-blue-500 to-cyan-500', 'from-green-500 to-emerald-500', 'from-orange-500 to-amber-500', 'from-red-500 to-rose-500', 'from-indigo-500 to-violet-500'];
+                                        const barColor = barColors[i % barColors.length];
                                         return `
                                             <div class="flex items-center gap-3">
                                                 <span class="text-xl">${getExpenseCategoryIcon(cat)}</span>
                                                 <div class="flex-1">
                                                     <div class="flex justify-between text-sm mb-1">
                                                         <span class="text-gray-700">${getExpenseCategoryName(cat)}</span>
-                                                        <span class="font-medium text-gray-800">$${amount.toLocaleString('es-CL', {minimumFractionDigits: 0})}</span>
+                                                        <span class="font-medium text-gray-800">$${amount.toLocaleString('es-CL', {minimumFractionDigits: 0})} <span class="text-gray-400 text-xs">(${Math.round(percentage)}%)</span></span>
                                                     </div>
-                                                    <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
-                                                        <div class="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" style="width: ${percentage}%"></div>
+                                                    <div class="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                                                        <div class="h-full bg-gradient-to-r ${barColor} rounded-full transition-all" style="width: ${percentage}%"></div>
                                                     </div>
                                                 </div>
                                             </div>

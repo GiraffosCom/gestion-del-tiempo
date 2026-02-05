@@ -92,6 +92,12 @@ test.describe('App Agenda', () => {
   });
 
   test('delete activity from list', async ({ page }) => {
+    // Hover over the first schedule item to reveal action buttons
+    const scheduleItem = page.locator('.schedule-item').first();
+    if (await scheduleItem.isVisible()) {
+      await scheduleItem.hover();
+      await page.waitForTimeout(300);
+    }
     // Look for a delete button (trash icon) on any activity row
     const deleteBtn = page.locator('[onclick*="deleteSchedule"], [onclick*="removeSchedule"], [onclick*="confirmDelete"], button:has-text("Eliminar"), button[title*="Eliminar"], button[aria-label*="eliminar"]').first();
     if (await deleteBtn.isVisible()) {
