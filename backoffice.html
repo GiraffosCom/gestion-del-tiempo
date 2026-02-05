@@ -966,7 +966,7 @@
                 const td3 = document.createElement('td');
                 td3.className = 'px-6 py-4';
                 const planBadge = document.createElement('span');
-                var planName = c.plan_name || 'Free';
+                var planName = c.email ? getCustomerPlanLabel(c.email) : (c.plan_name || 'Free');
                 var planStyle = planName === 'Pro' ? 'bg-amber-600/20 text-amber-400' :
                     planName.startsWith('Trial') ? 'bg-blue-600/20 text-blue-400' :
                     'bg-slate-600/20 text-slate-400';
