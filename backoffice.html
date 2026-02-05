@@ -10,55 +10,55 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Poppins', sans-serif; }
-        .gradient-bg { background: linear-gradient(135deg, #1e3a8a, #4338ca); }
+        .gradient-bg { background: linear-gradient(135deg, #eff6ff, #eef2ff); }
         .card-hover { transition: all 0.3s ease; }
-        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
-        .modal-backdrop { background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(0,0,0,0.08); }
+        .modal-backdrop { background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); }
         .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; }
         .sidebar-item { transition: all 0.2s ease; }
-        .sidebar-item:hover { background: rgba(59, 130, 246, 0.1); }
-        .sidebar-item.active { background: rgba(59, 130, 246, 0.2); border-left: 3px solid #3b82f6; }
+        .sidebar-item:hover { background: rgba(59, 130, 246, 0.08); }
+        .sidebar-item.active { background: rgba(59, 130, 246, 0.1); border-left: 3px solid #3b82f6; }
     </style>
 </head>
-<body class="min-h-screen bg-slate-900">
+<body class="min-h-screen bg-gray-50">
 
     <!-- Sidebar -->
-    <aside id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-slate-800 border-r border-slate-700 z-40 transform -translate-x-full md:translate-x-0 transition-transform">
-        <div class="p-6 border-b border-slate-700">
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-40 transform -translate-x-full md:translate-x-0 transition-transform">
+        <div class="p-6 border-b border-gray-200">
             <div class="flex items-center gap-3">
                 <span class="text-3xl">🔐</span>
                 <div>
-                    <h1 class="text-xl font-bold text-white">Backoffice</h1>
-                    <p class="text-sm text-slate-400">Gestion del Tiempo</p>
+                    <h1 class="text-xl font-bold text-gray-900">Backoffice</h1>
+                    <p class="text-sm text-gray-500">Gestion del Tiempo</p>
                 </div>
             </div>
         </div>
 
         <nav class="p-4 space-y-2">
-            <button onclick="showSection('dashboard')" class="sidebar-item active w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white" data-section="dashboard">
+            <button onclick="showSection('dashboard')" class="sidebar-item active w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:text-gray-900" data-section="dashboard">
                 <span>📊</span> Dashboard
             </button>
-            <button onclick="showSection('customers')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white" data-section="customers">
+            <button onclick="showSection('customers')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:text-gray-900" data-section="customers">
                 <span>👥</span> Clientes
             </button>
-            <button onclick="showSection('subscriptions')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white" data-section="subscriptions">
+            <button onclick="showSection('subscriptions')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:text-gray-900" data-section="subscriptions">
                 <span>💳</span> Suscripciones
             </button>
-            <button onclick="showSection('payments')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white" data-section="payments">
+            <button onclick="showSection('payments')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:text-gray-900" data-section="payments">
                 <span>💰</span> Pagos
             </button>
-            <button onclick="showSection('reports')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white" data-section="reports">
+            <button onclick="showSection('reports')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:text-gray-900" data-section="reports">
                 <span>📈</span> Reportes
             </button>
-            <button onclick="showSection('templates')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white" data-section="templates">
+            <button onclick="showSection('templates')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:text-gray-900" data-section="templates">
                 <span>🎯</span> Plantillas
             </button>
-            <button onclick="showSection('settings')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white" data-section="settings">
+            <button onclick="showSection('settings')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:text-gray-900" data-section="settings">
                 <span>⚙️</span> Configuracion
             </button>
         </nav>
 
-        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700">
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
             <button onclick="logout()" class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm flex items-center justify-center gap-2">
                 <span>🚪</span> Cerrar Sesion
             </button>
@@ -66,7 +66,7 @@
     </aside>
 
     <!-- Mobile menu toggle -->
-    <button onclick="toggleSidebar()" class="md:hidden fixed top-4 left-4 z-50 p-2 bg-slate-800 rounded-lg text-white">
+    <button onclick="toggleSidebar()" class="md:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg text-gray-900">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
@@ -75,13 +75,13 @@
     <!-- Main Content -->
     <main class="md:ml-64 min-h-screen">
         <!-- Top Bar -->
-        <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-30">
+        <header class="bg-white border-b border-gray-200 sticky top-0 z-30">
             <div class="px-6 py-4 flex items-center justify-between">
-                <h2 id="pageTitle" class="text-xl font-bold text-white">Dashboard</h2>
+                <h2 id="pageTitle" class="text-xl font-bold text-gray-900">Dashboard</h2>
                 <div class="flex items-center gap-4">
                     <div id="connectionStatus" class="flex items-center gap-2 px-3 py-1 rounded-full text-sm">
                         <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
-                        <span class="text-slate-400">Conectando...</span>
+                        <span class="text-gray-500">Conectando...</span>
                     </div>
                     <button onclick="refreshData()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm flex items-center gap-2">
                         <span>🔄</span> Actualizar
@@ -135,37 +135,37 @@
 
                 <!-- Charts Row -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700">
-                        <h3 class="text-lg font-bold text-white mb-4">📈 Ingresos Mensuales</h3>
+                    <div class="bg-white rounded-2xl p-6 border border-gray-200">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">📈 Ingresos Mensuales</h3>
                         <canvas id="revenueChart" height="200"></canvas>
                     </div>
-                    <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700">
-                        <h3 class="text-lg font-bold text-white mb-4">🥧 Clientes por Plan</h3>
+                    <div class="bg-white rounded-2xl p-6 border border-gray-200">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">🥧 Clientes por Plan</h3>
                         <canvas id="planDistributionChart" height="200"></canvas>
                     </div>
                 </div>
 
                 <!-- Recent Activity -->
-                <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
-                    <div class="p-6 border-b border-slate-700">
-                        <h3 class="text-lg font-bold text-white">🕐 Actividad Reciente</h3>
+                <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                    <div class="p-6 border-b border-gray-200">
+                        <h3 class="text-lg font-bold text-gray-900">🕐 Actividad Reciente</h3>
                     </div>
                     <div id="recentActivity" class="p-6 space-y-4">
-                        <p class="text-slate-400 text-center">Cargando actividad...</p>
+                        <p class="text-gray-500 text-center">Cargando actividad...</p>
                     </div>
                 </div>
             </section>
 
             <!-- Customers Section -->
             <section id="section-customers" class="section hidden">
-                <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
-                    <div class="p-6 border-b border-slate-700">
+                <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                    <div class="p-6 border-b border-gray-200">
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <h3 class="text-lg font-bold text-white">👥 Clientes</h3>
+                            <h3 class="text-lg font-bold text-gray-900">👥 Clientes</h3>
                             <div class="flex flex-wrap gap-3">
                                 <input type="text" id="customerSearch" onkeyup="filterCustomers()" placeholder="🔍 Buscar..."
-                                    class="px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 outline-none">
-                                <select id="customerPlanFilter" onchange="filterCustomers()" class="px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                                    class="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 outline-none">
+                                <select id="customerPlanFilter" onchange="filterCustomers()" class="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none">
                                     <option value="">Todos los planes</option>
                                     <option value="Free">Free</option>
                                     <option value="Pro">Pro</option>
@@ -180,27 +180,27 @@
 
                     <div class="overflow-x-auto">
                         <table class="w-full">
-                            <thead class="bg-slate-700/50">
+                            <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Cliente</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Email</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Plan</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Estado</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Registro</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Acciones</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Cliente</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Email</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Plan</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Estado</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Registro</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="customersTableBody" class="divide-y divide-slate-700">
-                                <tr><td colspan="6" class="px-6 py-12 text-center text-slate-400">Cargando clientes...</td></tr>
+                            <tbody id="customersTableBody" class="divide-y divide-gray-200">
+                                <tr><td colspan="6" class="px-6 py-12 text-center text-gray-500">Cargando clientes...</td></tr>
                             </tbody>
                         </table>
                     </div>
 
-                    <div id="customersPagination" class="p-4 border-t border-slate-700 flex items-center justify-between">
-                        <p class="text-slate-400 text-sm">Mostrando <span id="customersShowing">0</span> de <span id="customersTotal">0</span></p>
+                    <div id="customersPagination" class="p-4 border-t border-gray-200 flex items-center justify-between">
+                        <p class="text-gray-500 text-sm">Mostrando <span id="customersShowing">0</span> de <span id="customersTotal">0</span></p>
                         <div class="flex gap-2">
-                            <button onclick="loadCustomers(currentCustomerPage - 1)" id="customersPrevBtn" class="px-3 py-1 bg-slate-700 text-white rounded hover:bg-slate-600 disabled:opacity-50" disabled>Anterior</button>
-                            <button onclick="loadCustomers(currentCustomerPage + 1)" id="customersNextBtn" class="px-3 py-1 bg-slate-700 text-white rounded hover:bg-slate-600 disabled:opacity-50">Siguiente</button>
+                            <button onclick="loadCustomers(currentCustomerPage - 1)" id="customersPrevBtn" class="px-3 py-1 bg-gray-100 text-gray-900 rounded hover:bg-gray-200 disabled:opacity-50" disabled>Anterior</button>
+                            <button onclick="loadCustomers(currentCustomerPage + 1)" id="customersNextBtn" class="px-3 py-1 bg-gray-100 text-gray-900 rounded hover:bg-gray-200 disabled:opacity-50">Siguiente</button>
                         </div>
                     </div>
                 </div>
@@ -208,12 +208,12 @@
 
             <!-- Subscriptions Section -->
             <section id="section-subscriptions" class="section hidden">
-                <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
-                    <div class="p-6 border-b border-slate-700">
+                <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                    <div class="p-6 border-b border-gray-200">
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <h3 class="text-lg font-bold text-white">💳 Suscripciones</h3>
+                            <h3 class="text-lg font-bold text-gray-900">💳 Suscripciones</h3>
                             <div class="flex flex-wrap gap-3">
-                                <select id="subscriptionStatusFilter" onchange="filterSubscriptions()" class="px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                                <select id="subscriptionStatusFilter" onchange="filterSubscriptions()" class="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none">
                                     <option value="">Todos los estados</option>
                                     <option value="Active">Activas</option>
                                     <option value="Paused">Pausadas</option>
@@ -229,28 +229,28 @@
 
                     <div class="overflow-x-auto">
                         <table class="w-full">
-                            <thead class="bg-slate-700/50">
+                            <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">ID</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Cliente</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Plan</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Ciclo</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Estado</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Vence</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Acciones</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">ID</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Cliente</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Plan</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Ciclo</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Estado</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Vence</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="subscriptionsTableBody" class="divide-y divide-slate-700">
-                                <tr><td colspan="7" class="px-6 py-12 text-center text-slate-400">Cargando suscripciones...</td></tr>
+                            <tbody id="subscriptionsTableBody" class="divide-y divide-gray-200">
+                                <tr><td colspan="7" class="px-6 py-12 text-center text-gray-500">Cargando suscripciones...</td></tr>
                             </tbody>
                         </table>
                     </div>
 
-                    <div id="subscriptionsPagination" class="p-4 border-t border-slate-700 flex items-center justify-between">
-                        <p class="text-slate-400 text-sm">Mostrando <span id="subscriptionsShowing">0</span> de <span id="subscriptionsTotal">0</span></p>
+                    <div id="subscriptionsPagination" class="p-4 border-t border-gray-200 flex items-center justify-between">
+                        <p class="text-gray-500 text-sm">Mostrando <span id="subscriptionsShowing">0</span> de <span id="subscriptionsTotal">0</span></p>
                         <div class="flex gap-2">
-                            <button onclick="loadSubscriptions(currentSubscriptionPage - 1)" id="subscriptionsPrevBtn" class="px-3 py-1 bg-slate-700 text-white rounded hover:bg-slate-600 disabled:opacity-50" disabled>Anterior</button>
-                            <button onclick="loadSubscriptions(currentSubscriptionPage + 1)" id="subscriptionsNextBtn" class="px-3 py-1 bg-slate-700 text-white rounded hover:bg-slate-600 disabled:opacity-50">Siguiente</button>
+                            <button onclick="loadSubscriptions(currentSubscriptionPage - 1)" id="subscriptionsPrevBtn" class="px-3 py-1 bg-gray-100 text-gray-900 rounded hover:bg-gray-200 disabled:opacity-50" disabled>Anterior</button>
+                            <button onclick="loadSubscriptions(currentSubscriptionPage + 1)" id="subscriptionsNextBtn" class="px-3 py-1 bg-gray-100 text-gray-900 rounded hover:bg-gray-200 disabled:opacity-50">Siguiente</button>
                         </div>
                     </div>
                 </div>
@@ -258,13 +258,13 @@
 
             <!-- Payments Section -->
             <section id="section-payments" class="section hidden">
-                <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
-                    <div class="p-6 border-b border-slate-700">
+                <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                    <div class="p-6 border-b border-gray-200">
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <h3 class="text-lg font-bold text-white">💰 Pagos</h3>
+                            <h3 class="text-lg font-bold text-gray-900">💰 Pagos</h3>
                             <div class="flex flex-wrap gap-3">
-                                <input type="date" id="paymentDateFrom" class="px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
-                                <input type="date" id="paymentDateTo" class="px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                                <input type="date" id="paymentDateFrom" class="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none">
+                                <input type="date" id="paymentDateTo" class="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none">
                                 <button onclick="filterPayments()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                                     Filtrar
                                 </button>
@@ -277,28 +277,28 @@
 
                     <div class="overflow-x-auto">
                         <table class="w-full">
-                            <thead class="bg-slate-700/50">
+                            <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">ID</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Cliente</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Monto</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Fecha</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Metodo</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Estado</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase">Transaccion</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">ID</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Cliente</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Monto</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Fecha</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Metodo</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Estado</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase">Transaccion</th>
                                 </tr>
                             </thead>
-                            <tbody id="paymentsTableBody" class="divide-y divide-slate-700">
-                                <tr><td colspan="7" class="px-6 py-12 text-center text-slate-400">Cargando pagos...</td></tr>
+                            <tbody id="paymentsTableBody" class="divide-y divide-gray-200">
+                                <tr><td colspan="7" class="px-6 py-12 text-center text-gray-500">Cargando pagos...</td></tr>
                             </tbody>
                         </table>
                     </div>
 
-                    <div id="paymentsPagination" class="p-4 border-t border-slate-700 flex items-center justify-between">
-                        <p class="text-slate-400 text-sm">Mostrando <span id="paymentsShowing">0</span> de <span id="paymentsTotal">0</span></p>
+                    <div id="paymentsPagination" class="p-4 border-t border-gray-200 flex items-center justify-between">
+                        <p class="text-gray-500 text-sm">Mostrando <span id="paymentsShowing">0</span> de <span id="paymentsTotal">0</span></p>
                         <div class="flex gap-2">
-                            <button onclick="loadPayments(currentPaymentPage - 1)" id="paymentsPrevBtn" class="px-3 py-1 bg-slate-700 text-white rounded hover:bg-slate-600 disabled:opacity-50" disabled>Anterior</button>
-                            <button onclick="loadPayments(currentPaymentPage + 1)" id="paymentsNextBtn" class="px-3 py-1 bg-slate-700 text-white rounded hover:bg-slate-600 disabled:opacity-50">Siguiente</button>
+                            <button onclick="loadPayments(currentPaymentPage - 1)" id="paymentsPrevBtn" class="px-3 py-1 bg-gray-100 text-gray-900 rounded hover:bg-gray-200 disabled:opacity-50" disabled>Anterior</button>
+                            <button onclick="loadPayments(currentPaymentPage + 1)" id="paymentsNextBtn" class="px-3 py-1 bg-gray-100 text-gray-900 rounded hover:bg-gray-200 disabled:opacity-50">Siguiente</button>
                         </div>
                     </div>
                 </div>
@@ -307,25 +307,25 @@
             <!-- Reports Section -->
             <section id="section-reports" class="section hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6 card-hover cursor-pointer" onclick="generateReport('customers')">
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6 card-hover cursor-pointer" onclick="generateReport('customers')">
                         <div class="text-4xl mb-4">👥</div>
-                        <h3 class="text-lg font-bold text-white mb-2">Reporte de Clientes</h3>
-                        <p class="text-slate-400 text-sm">Lista completa de clientes con informacion de contacto y plan.</p>
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">Reporte de Clientes</h3>
+                        <p class="text-gray-500 text-sm">Lista completa de clientes con informacion de contacto y plan.</p>
                     </div>
-                    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6 card-hover cursor-pointer" onclick="generateReport('subscriptions')">
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6 card-hover cursor-pointer" onclick="generateReport('subscriptions')">
                         <div class="text-4xl mb-4">💳</div>
-                        <h3 class="text-lg font-bold text-white mb-2">Reporte de Suscripciones</h3>
-                        <p class="text-slate-400 text-sm">Estado de todas las suscripciones, activas y canceladas.</p>
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">Reporte de Suscripciones</h3>
+                        <p class="text-gray-500 text-sm">Estado de todas las suscripciones, activas y canceladas.</p>
                     </div>
-                    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6 card-hover cursor-pointer" onclick="generateReport('payments')">
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6 card-hover cursor-pointer" onclick="generateReport('payments')">
                         <div class="text-4xl mb-4">💰</div>
-                        <h3 class="text-lg font-bold text-white mb-2">Reporte de Pagos</h3>
-                        <p class="text-slate-400 text-sm">Historial de pagos con montos, fechas y metodos.</p>
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">Reporte de Pagos</h3>
+                        <p class="text-gray-500 text-sm">Historial de pagos con montos, fechas y metodos.</p>
                     </div>
-                    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6 card-hover cursor-pointer" onclick="generateReport('revenue')">
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6 card-hover cursor-pointer" onclick="generateReport('revenue')">
                         <div class="text-4xl mb-4">📈</div>
-                        <h3 class="text-lg font-bold text-white mb-2">Reporte de Ingresos</h3>
-                        <p class="text-slate-400 text-sm">Ingresos mensuales con totales y tendencias.</p>
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">Reporte de Ingresos</h3>
+                        <p class="text-gray-500 text-sm">Ingresos mensuales con totales y tendencias.</p>
                     </div>
                 </div>
             </section>
@@ -334,11 +334,11 @@
             <section id="section-templates" class="section hidden">
                 <div class="space-y-6">
                     <!-- Goal Templates -->
-                    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6">
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6">
                         <div class="flex items-center justify-between mb-6">
                             <div>
-                                <h3 class="text-lg font-bold text-white">🎯 Plantillas por Objetivo</h3>
-                                <p class="text-slate-400 text-sm mt-1">Define qué hábitos y metas se asignan según el objetivo del usuario</p>
+                                <h3 class="text-lg font-bold text-gray-900">🎯 Plantillas por Objetivo</h3>
+                                <p class="text-gray-500 text-sm mt-1">Define qué hábitos y metas se asignan según el objetivo del usuario</p>
                             </div>
                             <button onclick="saveAllTemplates()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2">
                                 <span>💾</span> Guardar Todo
@@ -346,23 +346,23 @@
                         </div>
 
                         <!-- Goal Type Tabs -->
-                        <div class="flex flex-wrap gap-2 mb-6 border-b border-slate-700 pb-4">
+                        <div class="flex flex-wrap gap-2 mb-6 border-b border-gray-200 pb-4">
                             <button onclick="selectGoalTab('fitness')" class="goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white" data-goal="fitness">
                                 💪 Fitness
                             </button>
-                            <button onclick="selectGoalTab('productivity')" class="goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-goal="productivity">
+                            <button onclick="selectGoalTab('productivity')" class="goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200" data-goal="productivity">
                                 📈 Productividad
                             </button>
-                            <button onclick="selectGoalTab('learning')" class="goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-goal="learning">
+                            <button onclick="selectGoalTab('learning')" class="goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200" data-goal="learning">
                                 📚 Aprendizaje
                             </button>
-                            <button onclick="selectGoalTab('business')" class="goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-goal="business">
+                            <button onclick="selectGoalTab('business')" class="goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200" data-goal="business">
                                 💼 Negocio
                             </button>
-                            <button onclick="selectGoalTab('competition')" class="goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-goal="competition">
+                            <button onclick="selectGoalTab('competition')" class="goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200" data-goal="competition">
                                 👑 Competencia
                             </button>
-                            <button onclick="selectGoalTab('wellness')" class="goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-goal="wellness">
+                            <button onclick="selectGoalTab('wellness')" class="goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200" data-goal="wellness">
                                 🧘 Bienestar
                             </button>
                         </div>
@@ -370,9 +370,9 @@
                         <!-- Goal Content -->
                         <div id="goalTemplateContent" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             <!-- Habits for this goal -->
-                            <div class="bg-slate-700/50 rounded-xl p-4">
+                            <div class="bg-gray-50 rounded-xl p-4">
                                 <div class="flex items-center justify-between mb-4">
-                                    <h4 class="font-medium text-white">✨ Hábitos Sugeridos</h4>
+                                    <h4 class="font-medium text-gray-900">✨ Hábitos Sugeridos</h4>
                                     <button onclick="addHabitToGoal()" class="text-blue-400 hover:text-blue-300 text-sm">+ Agregar</button>
                                 </div>
                                 <div id="goalHabitsList" class="space-y-2">
@@ -381,26 +381,26 @@
                             </div>
 
                             <!-- Weekly goals for this goal -->
-                            <div class="bg-slate-700/50 rounded-xl p-4">
+                            <div class="bg-gray-50 rounded-xl p-4">
                                 <div class="flex items-center justify-between mb-4">
-                                    <h4 class="font-medium text-white">📋 Metas Semanales</h4>
+                                    <h4 class="font-medium text-gray-900">📋 Metas Semanales</h4>
                                 </div>
                                 <div class="space-y-3">
                                     <div>
-                                        <label class="text-xs text-slate-400">Meta Física</label>
-                                        <input type="text" id="goalMetaFisica" class="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white text-sm mt-1" placeholder="Ej: Establecer rutina de ejercicio">
+                                        <label class="text-xs text-gray-500">Meta Física</label>
+                                        <input type="text" id="goalMetaFisica" class="w-full px-3 py-2 bg-gray-200 border border-gray-300 rounded-lg text-gray-900 text-sm mt-1" placeholder="Ej: Establecer rutina de ejercicio">
                                     </div>
                                     <div>
-                                        <label class="text-xs text-slate-400">Meta Personal</label>
-                                        <input type="text" id="goalMetaPersonal" class="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white text-sm mt-1" placeholder="Ej: Mejorar autoestima">
+                                        <label class="text-xs text-gray-500">Meta Personal</label>
+                                        <input type="text" id="goalMetaPersonal" class="w-full px-3 py-2 bg-gray-200 border border-gray-300 rounded-lg text-gray-900 text-sm mt-1" placeholder="Ej: Mejorar autoestima">
                                     </div>
                                     <div>
-                                        <label class="text-xs text-slate-400">Meta Digital</label>
-                                        <input type="text" id="goalMetaDigital" class="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white text-sm mt-1" placeholder="Ej: Documentar progreso">
+                                        <label class="text-xs text-gray-500">Meta Digital</label>
+                                        <input type="text" id="goalMetaDigital" class="w-full px-3 py-2 bg-gray-200 border border-gray-300 rounded-lg text-gray-900 text-sm mt-1" placeholder="Ej: Documentar progreso">
                                     </div>
                                     <div>
-                                        <label class="text-xs text-slate-400">Meta Espiritual</label>
-                                        <input type="text" id="goalMetaEspiritual" class="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white text-sm mt-1" placeholder="Ej: Practicar gratitud">
+                                        <label class="text-xs text-gray-500">Meta Espiritual</label>
+                                        <input type="text" id="goalMetaEspiritual" class="w-full px-3 py-2 bg-gray-200 border border-gray-300 rounded-lg text-gray-900 text-sm mt-1" placeholder="Ej: Practicar gratitud">
                                     </div>
                                 </div>
                             </div>
@@ -408,65 +408,65 @@
                     </div>
 
                     <!-- Exercise Templates -->
-                    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6">
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6">
                         <div class="flex items-center justify-between mb-6">
                             <div>
-                                <h3 class="text-lg font-bold text-white">🏋️ Rutinas de Ejercicio por Objetivo</h3>
-                                <p class="text-slate-400 text-sm mt-1">Define rutinas personalizadas según el objetivo y tipo de ejercicio del usuario</p>
+                                <h3 class="text-lg font-bold text-gray-900">🏋️ Rutinas de Ejercicio por Objetivo</h3>
+                                <p class="text-gray-500 text-sm mt-1">Define rutinas personalizadas según el objetivo y tipo de ejercicio del usuario</p>
                             </div>
                         </div>
 
                         <!-- Exercise Type Tabs -->
                         <div class="mb-4">
-                            <label class="text-xs text-slate-400 mb-2 block">Tipo de Ejercicio</label>
+                            <label class="text-xs text-gray-500 mb-2 block">Tipo de Ejercicio</label>
                             <div class="flex flex-wrap gap-2">
                                 <button onclick="selectExerciseTab('gym')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 text-white" data-exercise="gym">
                                     🏋️ Gimnasio
                                 </button>
-                                <button onclick="selectExerciseTab('cardio')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-exercise="cardio">
+                                <button onclick="selectExerciseTab('cardio')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200" data-exercise="cardio">
                                     🏃 Cardio
                                 </button>
-                                <button onclick="selectExerciseTab('yoga')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-exercise="yoga">
+                                <button onclick="selectExerciseTab('yoga')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200" data-exercise="yoga">
                                     🧘 Yoga
                                 </button>
-                                <button onclick="selectExerciseTab('dance')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-exercise="dance">
+                                <button onclick="selectExerciseTab('dance')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200" data-exercise="dance">
                                     💃 Baile
                                 </button>
-                                <button onclick="selectExerciseTab('sports')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600" data-exercise="sports">
+                                <button onclick="selectExerciseTab('sports')" class="exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200" data-exercise="sports">
                                     ⚽ Deportes
                                 </button>
                             </div>
                         </div>
 
                         <!-- Goal/Objective Tabs -->
-                        <div class="mb-6 border-b border-slate-700 pb-4">
-                            <label class="text-xs text-slate-400 mb-2 block">Objetivo del Usuario</label>
+                        <div class="mb-6 border-b border-gray-200 pb-4">
+                            <label class="text-xs text-gray-500 mb-2 block">Objetivo del Usuario</label>
                             <div class="flex flex-wrap gap-2">
                                 <button onclick="selectExerciseGoal('fitness')" class="exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-green-600 text-white" data-goal="fitness">
                                     💪 Fitness
                                 </button>
-                                <button onclick="selectExerciseGoal('competition')" class="exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-600 text-slate-300 hover:bg-slate-500" data-goal="competition">
+                                <button onclick="selectExerciseGoal('competition')" class="exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-200 text-gray-600 hover:bg-gray-300" data-goal="competition">
                                     👑 Competencia
                                 </button>
-                                <button onclick="selectExerciseGoal('wellness')" class="exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-600 text-slate-300 hover:bg-slate-500" data-goal="wellness">
+                                <button onclick="selectExerciseGoal('wellness')" class="exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-200 text-gray-600 hover:bg-gray-300" data-goal="wellness">
                                     🧘 Bienestar
                                 </button>
-                                <button onclick="selectExerciseGoal('weightloss')" class="exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-600 text-slate-300 hover:bg-slate-500" data-goal="weightloss">
+                                <button onclick="selectExerciseGoal('weightloss')" class="exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-200 text-gray-600 hover:bg-gray-300" data-goal="weightloss">
                                     🔥 Bajar de Peso
                                 </button>
-                                <button onclick="selectExerciseGoal('muscle')" class="exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-600 text-slate-300 hover:bg-slate-500" data-goal="muscle">
+                                <button onclick="selectExerciseGoal('muscle')" class="exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-200 text-gray-600 hover:bg-gray-300" data-goal="muscle">
                                     💪 Ganar Músculo
                                 </button>
-                                <button onclick="selectExerciseGoal('beginner')" class="exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-600 text-slate-300 hover:bg-slate-500" data-goal="beginner">
+                                <button onclick="selectExerciseGoal('beginner')" class="exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-200 text-gray-600 hover:bg-gray-300" data-goal="beginner">
                                     🌱 Principiante
                                 </button>
                             </div>
                         </div>
 
                         <!-- Current Selection Label -->
-                        <div id="exerciseSelectionLabel" class="mb-4 p-3 bg-slate-700/50 rounded-lg">
-                            <span class="text-sm text-slate-300">Editando: </span>
-                            <span class="text-sm font-medium text-white">🏋️ Gimnasio + 💪 Fitness</span>
+                        <div id="exerciseSelectionLabel" class="mb-4 p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm text-gray-600">Editando: </span>
+                            <span class="text-sm font-medium text-gray-900">🏋️ Gimnasio + 💪 Fitness</span>
                         </div>
 
                         <!-- Weekly Routine Grid -->
@@ -476,11 +476,11 @@
                     </div>
 
                     <!-- Habit Options -->
-                    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6">
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6">
                         <div class="flex items-center justify-between mb-6">
                             <div>
-                                <h3 class="text-lg font-bold text-white">✨ Catálogo de Hábitos</h3>
-                                <p class="text-slate-400 text-sm mt-1">Hábitos disponibles que los usuarios pueden seleccionar</p>
+                                <h3 class="text-lg font-bold text-gray-900">✨ Catálogo de Hábitos</h3>
+                                <p class="text-gray-500 text-sm mt-1">Hábitos disponibles que los usuarios pueden seleccionar</p>
                             </div>
                             <button onclick="addNewHabit()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                                 + Nuevo Hábito
@@ -498,18 +498,18 @@
             <section id="section-settings" class="section hidden">
                 <div class="max-w-2xl space-y-6">
                     <!-- API Configuration -->
-                    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6">
-                        <h3 class="text-lg font-bold text-white mb-4">🔗 Configuracion de Supabase</h3>
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">🔗 Configuracion de Supabase</h3>
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-slate-300 mb-2">URL del Proyecto Supabase</label>
+                                <label class="block text-sm font-medium text-gray-600 mb-2">URL del Proyecto Supabase</label>
                                 <input type="url" id="apiUrlInput" placeholder="https://xxxxx.supabase.co"
-                                    class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 outline-none">
+                                    class="w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 outline-none">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-slate-300 mb-2">API Key (anon public)</label>
+                                <label class="block text-sm font-medium text-gray-600 mb-2">API Key (anon public)</label>
                                 <input type="password" id="apiKeyInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                                    class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 outline-none">
+                                    class="w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 outline-none">
                             </div>
                             <button onclick="saveApiConfig()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                                 Guardar y Conectar
@@ -518,23 +518,23 @@
                     </div>
 
                     <!-- Admin Password -->
-                    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6">
-                        <h3 class="text-lg font-bold text-white mb-4">🔑 Cambiar Contrasena Admin</h3>
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">🔑 Cambiar Contrasena Admin</h3>
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-slate-300 mb-2">Contrasena Actual</label>
+                                <label class="block text-sm font-medium text-gray-600 mb-2">Contrasena Actual</label>
                                 <input type="password" id="currentPassword"
-                                    class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                                    class="w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-slate-300 mb-2">Nueva Contrasena</label>
+                                <label class="block text-sm font-medium text-gray-600 mb-2">Nueva Contrasena</label>
                                 <input type="password" id="newPassword"
-                                    class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                                    class="w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-slate-300 mb-2">Confirmar Nueva Contrasena</label>
+                                <label class="block text-sm font-medium text-gray-600 mb-2">Confirmar Nueva Contrasena</label>
                                 <input type="password" id="confirmPassword"
-                                    class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                                    class="w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none">
                             </div>
                             <button onclick="changePassword()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                                 Cambiar Contrasena
@@ -543,10 +543,10 @@
                     </div>
 
                     <!-- Subscription Plans -->
-                    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6">
-                        <h3 class="text-lg font-bold text-white mb-4">📋 Planes de Suscripcion</h3>
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">📋 Planes de Suscripcion</h3>
                         <div id="plansContainer" class="space-y-4">
-                            <p class="text-slate-400">Cargando planes...</p>
+                            <p class="text-gray-500">Cargando planes...</p>
                         </div>
                     </div>
                 </div>
@@ -556,10 +556,10 @@
 
     <!-- Customer Detail Modal -->
     <div id="customerModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden border border-slate-700">
-            <div class="p-6 border-b border-slate-700 flex items-center justify-between">
-                <h3 class="text-xl font-bold text-white">👤 Detalle del Cliente</h3>
-                <button onclick="closeModal('customerModal')" class="text-slate-400 hover:text-white text-2xl">&times;</button>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden border border-gray-200">
+            <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-xl font-bold text-gray-900">👤 Detalle del Cliente</h3>
+                <button onclick="closeModal('customerModal')" class="text-gray-500 hover:text-gray-900 text-2xl">&times;</button>
             </div>
             <div id="customerModalContent" class="p-6 overflow-y-auto max-h-[70vh]">
                 <!-- Content loaded dynamically -->
@@ -569,9 +569,9 @@
 
     <!-- Subscription Action Modal -->
     <div id="subscriptionModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md border border-slate-700">
-            <div class="p-6 border-b border-slate-700">
-                <h3 id="subscriptionModalTitle" class="text-xl font-bold text-white">Accion de Suscripcion</h3>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md border border-gray-200">
+            <div class="p-6 border-b border-gray-200">
+                <h3 id="subscriptionModalTitle" class="text-xl font-bold text-gray-900">Accion de Suscripcion</h3>
             </div>
             <div id="subscriptionModalContent" class="p-6">
                 <!-- Content loaded dynamically -->
@@ -581,9 +581,9 @@
 
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-4 right-4 transform translate-y-full transition-transform duration-300 z-50">
-        <div class="bg-slate-800 border border-slate-700 rounded-lg p-4 shadow-xl flex items-center gap-3">
+        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-xl flex items-center gap-3">
             <span id="toastIcon" class="text-2xl">✅</span>
-            <span id="toastMessage" class="text-white">Mensaje</span>
+            <span id="toastMessage" class="text-gray-900">Mensaje</span>
         </div>
     </div>
 
@@ -787,11 +787,11 @@
                     },
                     scales: {
                         y: {
-                            ticks: { color: '#94a3b8' },
-                            grid: { color: '#334155' }
+                            ticks: { color: '#6b7280' },
+                            grid: { color: '#e5e7eb' }
                         },
                         x: {
-                            ticks: { color: '#94a3b8' },
+                            ticks: { color: '#6b7280' },
                             grid: { display: false }
                         }
                     }
@@ -818,7 +818,7 @@
                     plugins: {
                         legend: {
                             position: 'bottom',
-                            labels: { color: '#94a3b8' }
+                            labels: { color: '#6b7280' }
                         }
                     }
                 }
@@ -829,7 +829,7 @@
             const container = document.getElementById('recentActivity');
             if (activities.length === 0) {
                 container.textContent = 'No hay actividad reciente';
-                container.className = 'p-6 text-slate-400 text-center';
+                container.className = 'p-6 text-gray-500 text-center';
                 return;
             }
             // Clear and rebuild using DOM methods
@@ -837,7 +837,7 @@
             container.className = 'p-6 space-y-4';
             activities.forEach(function(a) {
                 const div = document.createElement('div');
-                div.className = 'flex items-center gap-4 p-3 bg-slate-700/50 rounded-lg';
+                div.className = 'flex items-center gap-4 p-3 bg-gray-50 rounded-lg';
 
                 const icon = document.createElement('span');
                 icon.className = 'text-2xl';
@@ -845,10 +845,10 @@
 
                 const info = document.createElement('div');
                 const msg = document.createElement('p');
-                msg.className = 'text-white';
+                msg.className = 'text-gray-900';
                 msg.textContent = a.message;
                 const time = document.createElement('p');
-                time.className = 'text-slate-500 text-sm';
+                time.className = 'text-gray-400 text-sm';
                 time.textContent = a.time;
                 info.appendChild(msg);
                 info.appendChild(time);
@@ -931,7 +931,7 @@
                 const tr = document.createElement('tr');
                 const td = document.createElement('td');
                 td.colSpan = 6;
-                td.className = 'px-6 py-12 text-center text-slate-400';
+                td.className = 'px-6 py-12 text-center text-gray-500';
                 td.textContent = 'No hay clientes';
                 tr.appendChild(td);
                 tbody.appendChild(tr);
@@ -940,7 +940,7 @@
 
             customers.forEach(function(c) {
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-700/50 transition';
+                tr.className = 'hover:bg-gray-50 transition';
 
                 // Client cell
                 const td1 = document.createElement('td');
@@ -951,7 +951,7 @@
                 avatar.className = 'w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold';
                 avatar.textContent = (c.full_name || '?').charAt(0).toUpperCase();
                 const nameSpan = document.createElement('span');
-                nameSpan.className = 'text-white font-medium';
+                nameSpan.className = 'text-gray-900 font-medium';
                 nameSpan.textContent = c.full_name || '-';
                 div1.appendChild(avatar);
                 div1.appendChild(nameSpan);
@@ -959,7 +959,7 @@
 
                 // Email cell
                 const td2 = document.createElement('td');
-                td2.className = 'px-6 py-4 text-slate-300';
+                td2.className = 'px-6 py-4 text-gray-600';
                 td2.textContent = c.email;
 
                 // Plan cell
@@ -970,7 +970,7 @@
                 var planName = localPlan !== 'Free' ? localPlan : (c.plan_name && c.plan_name !== 'Sin plan' ? c.plan_name : 'Free');
                 var planStyle = planName === 'Pro' ? 'bg-amber-600/20 text-amber-400' :
                     planName.startsWith('Trial') ? 'bg-blue-600/20 text-blue-400' :
-                    'bg-slate-600/20 text-slate-400';
+                    'bg-gray-200/20 text-gray-500';
                 planBadge.className = 'px-3 py-1 rounded-full text-sm ' + planStyle;
                 planBadge.textContent = planName;
                 td3.appendChild(planBadge);
@@ -984,7 +984,7 @@
                     Active: 'bg-green-600/20 text-green-400',
                     Paused: 'bg-yellow-600/20 text-yellow-400',
                     Cancelled: 'bg-red-600/20 text-red-400',
-                    Expired: 'bg-slate-600/20 text-slate-400'
+                    Expired: 'bg-gray-200/20 text-gray-500'
                 };
                 statusBadge.className = 'px-3 py-1 rounded-full text-sm ' + (statusStyles[status] || statusStyles.Active);
                 statusBadge.textContent = status;
@@ -992,7 +992,7 @@
 
                 // Date cell
                 const td5 = document.createElement('td');
-                td5.className = 'px-6 py-4 text-slate-300';
+                td5.className = 'px-6 py-4 text-gray-600';
                 td5.textContent = formatDate(c.creation);
 
                 // Actions cell
@@ -1053,7 +1053,7 @@
             const content = document.getElementById('customerModalContent');
 
             content.textContent = 'Cargando...';
-            content.className = 'p-6 text-slate-400 text-center';
+            content.className = 'p-6 text-gray-500 text-center';
             modal.classList.remove('hidden');
 
             // Try to load from localStorage first (for local customers)
@@ -1139,7 +1139,7 @@
 
             // Header
             const header = document.createElement('div');
-            header.className = 'flex items-center gap-4 p-4 bg-slate-700/50 rounded-xl';
+            header.className = 'flex items-center gap-4 p-4 bg-gray-50 rounded-xl';
 
             const avatar = document.createElement('div');
             avatar.className = 'w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold';
@@ -1147,13 +1147,13 @@
 
             const info = document.createElement('div');
             const nameEl = document.createElement('h4');
-            nameEl.className = 'text-xl font-bold text-white';
+            nameEl.className = 'text-xl font-bold text-gray-900';
             nameEl.textContent = customer.full_name || '-';
             const emailEl = document.createElement('p');
-            emailEl.className = 'text-slate-400';
+            emailEl.className = 'text-gray-500';
             emailEl.textContent = customer.email;
             const dateEl = document.createElement('p');
-            dateEl.className = 'text-slate-500 text-sm';
+            dateEl.className = 'text-gray-400 text-sm';
             dateEl.textContent = 'Registrado: ' + formatDate(customer.created_at);
             info.appendChild(nameEl);
             info.appendChild(emailEl);
@@ -1166,10 +1166,10 @@
             // Subscription info
             if (subscription) {
                 const subSection = document.createElement('div');
-                subSection.className = 'p-4 bg-slate-700/50 rounded-xl';
+                subSection.className = 'p-4 bg-gray-50 rounded-xl';
 
                 const subTitle = document.createElement('h5');
-                subTitle.className = 'font-bold text-white mb-3';
+                subTitle.className = 'font-bold text-gray-900 mb-3';
                 subTitle.textContent = '💳 Suscripcion';
                 subSection.appendChild(subTitle);
 
@@ -1186,10 +1186,10 @@
                 fields.forEach(function(f) {
                     const cell = document.createElement('div');
                     const label = document.createElement('p');
-                    label.className = 'text-slate-400';
+                    label.className = 'text-gray-500';
                     label.textContent = f.label;
                     const val = document.createElement('p');
-                    val.className = 'text-white';
+                    val.className = 'text-gray-900';
                     val.textContent = f.value;
                     cell.appendChild(label);
                     cell.appendChild(val);
@@ -1200,10 +1200,10 @@
                 wrapper.appendChild(subSection);
             } else {
                 var subSection2 = document.createElement('div');
-                subSection2.className = 'p-4 bg-slate-700/50 rounded-xl';
+                subSection2.className = 'p-4 bg-gray-50 rounded-xl';
 
                 var subTitle2 = document.createElement('h5');
-                subTitle2.className = 'font-bold text-white mb-3';
+                subTitle2.className = 'font-bold text-gray-900 mb-3';
                 subTitle2.textContent = 'Suscripcion';
                 subSection2.appendChild(subTitle2);
 
@@ -1222,10 +1222,10 @@
                     fields2.forEach(function(f) {
                         var cell = document.createElement('div');
                         var lbl = document.createElement('p');
-                        lbl.className = 'text-slate-400';
+                        lbl.className = 'text-gray-500';
                         lbl.textContent = f.label;
                         var val = document.createElement('p');
-                        val.className = 'text-white';
+                        val.className = 'text-gray-900';
                         val.textContent = f.value;
                         cell.appendChild(lbl);
                         cell.appendChild(val);
@@ -1257,7 +1257,7 @@
                     subSection2.appendChild(btnInline);
                 } else {
                     var noData2 = document.createElement('p');
-                    noData2.className = 'text-slate-400 text-sm';
+                    noData2.className = 'text-gray-500 text-sm';
                     noData2.textContent = 'Sin datos de suscripcion';
                     subSection2.appendChild(noData2);
                 }
@@ -1268,10 +1268,10 @@
             // Payments
             if (payments && payments.length > 0) {
                 const paySection = document.createElement('div');
-                paySection.className = 'p-4 bg-slate-700/50 rounded-xl';
+                paySection.className = 'p-4 bg-gray-50 rounded-xl';
 
                 const payTitle = document.createElement('h5');
-                payTitle.className = 'font-bold text-white mb-3';
+                payTitle.className = 'font-bold text-gray-900 mb-3';
                 payTitle.textContent = '💰 Ultimos Pagos';
                 paySection.appendChild(payTitle);
 
@@ -1283,11 +1283,11 @@
                     row.className = 'flex justify-between items-center text-sm';
 
                     const date = document.createElement('span');
-                    date.className = 'text-slate-300';
+                    date.className = 'text-gray-600';
                     date.textContent = formatDate(p.payment_date);
 
                     const amount = document.createElement('span');
-                    amount.className = 'text-white font-medium';
+                    amount.className = 'text-gray-900 font-medium';
                     amount.textContent = formatCurrency(p.amount);
 
                     const status = document.createElement('span');
@@ -1440,10 +1440,10 @@
             function addInfoCell(label, valueText, valueClass) {
                 var cell = document.createElement('div');
                 var lbl = document.createElement('p');
-                lbl.className = 'text-slate-400';
+                lbl.className = 'text-gray-500';
                 lbl.textContent = label;
                 var val = document.createElement('p');
-                val.className = valueClass || 'text-white';
+                val.className = valueClass || 'text-gray-900';
                 val.textContent = valueText;
                 cell.appendChild(lbl);
                 cell.appendChild(val);
@@ -1457,13 +1457,13 @@
                 var daysLeft = Math.max(0, Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24)));
 
                 var planText = sub.plan === 'pro' ? 'Pro' : trialActive ? 'Trial' : 'Free';
-                addInfoCell('Plan', planText, sub.plan === 'pro' ? 'text-amber-400 font-bold' : trialActive ? 'text-blue-400 font-bold' : 'text-white');
+                addInfoCell('Plan', planText, sub.plan === 'pro' ? 'text-amber-400 font-bold' : trialActive ? 'text-blue-400 font-bold' : 'text-gray-900');
                 addInfoCell('Estado Trial', trialActive ? 'Activo (' + daysLeft + ' dias)' : sub.trialUsed ? 'Usado' : 'Expirado');
                 addInfoCell('Activacion Pro', sub.proActivatedDate ? new Date(sub.proActivatedDate).toLocaleDateString() : 'N/A');
                 addInfoCell('Trial hasta', trialEnd.toLocaleDateString());
             } else {
                 var noData = document.createElement('p');
-                noData.className = 'text-slate-400 text-sm mb-4';
+                noData.className = 'text-gray-500 text-sm mb-4';
                 noData.textContent = 'Sin datos de suscripcion. Se creara al activar.';
                 content.appendChild(noData);
             }
@@ -1495,7 +1495,7 @@
             trialInput.value = '7';
             trialInput.min = '1';
             trialInput.max = '365';
-            trialInput.className = 'flex-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-center';
+            trialInput.className = 'flex-1 px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 text-center';
             var btnTrial = document.createElement('button');
             btnTrial.className = 'px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition-all';
             btnTrial.textContent = 'Extender Trial';
@@ -1505,7 +1505,7 @@
             actionsDiv.appendChild(trialRow);
 
             var btnClose = document.createElement('button');
-            btnClose.className = 'w-full py-2 px-4 bg-slate-600 text-white rounded-lg font-medium hover:bg-slate-500 transition-all';
+            btnClose.className = 'w-full py-2 px-4 bg-gray-200 text-gray-900 rounded-lg font-medium hover:bg-gray-300 transition-all';
             btnClose.textContent = 'Cerrar';
             btnClose.addEventListener('click', function() { closeModal('subscriptionModal'); });
             actionsDiv.appendChild(btnClose);
@@ -1599,7 +1599,7 @@
                 const tr = document.createElement('tr');
                 const td = document.createElement('td');
                 td.colSpan = 7;
-                td.className = 'px-6 py-12 text-center text-slate-400';
+                td.className = 'px-6 py-12 text-center text-gray-500';
                 td.textContent = 'No hay suscripciones (conectar backend)';
                 tr.appendChild(td);
                 tbody.appendChild(tr);
@@ -1608,11 +1608,11 @@
 
             subscriptions.forEach(function(s) {
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-700/50 transition';
+                tr.className = 'hover:bg-gray-50 transition';
 
                 // ID
                 const td1 = document.createElement('td');
-                td1.className = 'px-6 py-4 text-slate-300';
+                td1.className = 'px-6 py-4 text-gray-600';
                 td1.textContent = s.name;
 
                 // Customer
@@ -1620,10 +1620,10 @@
                 td2.className = 'px-6 py-4';
                 const custDiv = document.createElement('div');
                 const custName = document.createElement('p');
-                custName.className = 'text-white';
+                custName.className = 'text-gray-900';
                 custName.textContent = s.customer_name || '-';
                 const custEmail = document.createElement('p');
-                custEmail.className = 'text-slate-500 text-sm';
+                custEmail.className = 'text-gray-400 text-sm';
                 custEmail.textContent = s.customer_email || '-';
                 custDiv.appendChild(custName);
                 custDiv.appendChild(custEmail);
@@ -1639,7 +1639,7 @@
 
                 // Billing cycle
                 const td4 = document.createElement('td');
-                td4.className = 'px-6 py-4 text-slate-300';
+                td4.className = 'px-6 py-4 text-gray-600';
                 td4.textContent = s.billing_cycle;
 
                 // Status
@@ -1650,7 +1650,7 @@
                     Active: 'bg-green-600/20 text-green-400',
                     Paused: 'bg-yellow-600/20 text-yellow-400',
                     Cancelled: 'bg-red-600/20 text-red-400',
-                    Expired: 'bg-slate-600/20 text-slate-400'
+                    Expired: 'bg-gray-200/20 text-gray-500'
                 };
                 statusBadge.className = 'px-3 py-1 rounded-full text-sm ' + (statusStyles[s.status] || statusStyles.Active);
                 statusBadge.textContent = s.status;
@@ -1658,7 +1658,7 @@
 
                 // End date
                 const td6 = document.createElement('td');
-                td6.className = 'px-6 py-4 text-slate-300';
+                td6.className = 'px-6 py-4 text-gray-600';
                 td6.textContent = formatDate(s.end_date);
 
                 // Actions
@@ -1719,7 +1719,7 @@
 
             const inputDiv = document.createElement('div');
             const label = document.createElement('label');
-            label.className = 'block text-sm font-medium text-slate-300 mb-2';
+            label.className = 'block text-sm font-medium text-gray-600 mb-2';
             label.textContent = 'Dias a extender';
             const input = document.createElement('input');
             input.type = 'number';
@@ -1727,7 +1727,7 @@
             input.value = '30';
             input.min = '1';
             input.max = '365';
-            input.className = 'w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none';
+            input.className = 'w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none';
             inputDiv.appendChild(label);
             inputDiv.appendChild(input);
 
@@ -1735,7 +1735,7 @@
             btnDiv.className = 'flex gap-3';
 
             const cancelBtn = document.createElement('button');
-            cancelBtn.className = 'flex-1 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition';
+            cancelBtn.className = 'flex-1 px-4 py-2 bg-gray-100 text-gray-900 rounded-lg hover:bg-gray-200 transition';
             cancelBtn.textContent = 'Cancelar';
             cancelBtn.onclick = function() { closeModal('subscriptionModal'); };
 
@@ -1777,17 +1777,17 @@
             wrapper.className = 'space-y-4';
 
             const msg = document.createElement('p');
-            msg.className = 'text-slate-300';
+            msg.className = 'text-gray-600';
             msg.textContent = '¿Estas seguro de cancelar esta suscripcion?';
 
             const inputDiv = document.createElement('div');
             const label = document.createElement('label');
-            label.className = 'block text-sm font-medium text-slate-300 mb-2';
+            label.className = 'block text-sm font-medium text-gray-600 mb-2';
             label.textContent = 'Razon (opcional)';
             const textarea = document.createElement('textarea');
             textarea.id = 'cancelReason';
             textarea.rows = 3;
-            textarea.className = 'w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none';
+            textarea.className = 'w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none';
             inputDiv.appendChild(label);
             inputDiv.appendChild(textarea);
 
@@ -1795,7 +1795,7 @@
             btnDiv.className = 'flex gap-3';
 
             const keepBtn = document.createElement('button');
-            keepBtn.className = 'flex-1 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition';
+            keepBtn.className = 'flex-1 px-4 py-2 bg-gray-100 text-gray-900 rounded-lg hover:bg-gray-200 transition';
             keepBtn.textContent = 'No, mantener';
             keepBtn.onclick = function() { closeModal('subscriptionModal'); };
 
@@ -1839,11 +1839,11 @@
 
             const inputDiv = document.createElement('div');
             const label = document.createElement('label');
-            label.className = 'block text-sm font-medium text-slate-300 mb-2';
+            label.className = 'block text-sm font-medium text-gray-600 mb-2';
             label.textContent = 'Nuevo plan';
             const select = document.createElement('select');
             select.id = 'newPlan';
-            select.className = 'w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none';
+            select.className = 'w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none';
 
             subscriptionPlans.forEach(function(p) {
                 const opt = document.createElement('option');
@@ -1860,7 +1860,7 @@
             btnDiv.className = 'flex gap-3';
 
             const cancelBtn = document.createElement('button');
-            cancelBtn.className = 'flex-1 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition';
+            cancelBtn.className = 'flex-1 px-4 py-2 bg-gray-100 text-gray-900 rounded-lg hover:bg-gray-200 transition';
             cancelBtn.textContent = 'Cancelar';
             cancelBtn.onclick = function() { closeModal('subscriptionModal'); };
 
@@ -1932,7 +1932,7 @@
                 const tr = document.createElement('tr');
                 const td = document.createElement('td');
                 td.colSpan = 7;
-                td.className = 'px-6 py-12 text-center text-slate-400';
+                td.className = 'px-6 py-12 text-center text-gray-500';
                 td.textContent = 'No hay pagos registrados (conectar backend)';
                 tr.appendChild(td);
                 tbody.appendChild(tr);
@@ -1941,11 +1941,11 @@
 
             payments.forEach(function(p) {
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-700/50 transition';
+                tr.className = 'hover:bg-gray-50 transition';
 
                 // ID
                 const td1 = document.createElement('td');
-                td1.className = 'px-6 py-4 text-slate-300';
+                td1.className = 'px-6 py-4 text-gray-600';
                 td1.textContent = p.name;
 
                 // Customer
@@ -1953,10 +1953,10 @@
                 td2.className = 'px-6 py-4';
                 const custDiv = document.createElement('div');
                 const custName = document.createElement('p');
-                custName.className = 'text-white';
+                custName.className = 'text-gray-900';
                 custName.textContent = p.customer_name || '-';
                 const custEmail = document.createElement('p');
-                custEmail.className = 'text-slate-500 text-sm';
+                custEmail.className = 'text-gray-400 text-sm';
                 custEmail.textContent = p.customer_email || '-';
                 custDiv.appendChild(custName);
                 custDiv.appendChild(custEmail);
@@ -1964,17 +1964,17 @@
 
                 // Amount
                 const td3 = document.createElement('td');
-                td3.className = 'px-6 py-4 text-white font-medium';
+                td3.className = 'px-6 py-4 text-gray-900 font-medium';
                 td3.textContent = formatCurrency(p.amount);
 
                 // Date
                 const td4 = document.createElement('td');
-                td4.className = 'px-6 py-4 text-slate-300';
+                td4.className = 'px-6 py-4 text-gray-600';
                 td4.textContent = formatDate(p.payment_date);
 
                 // Method
                 const td5 = document.createElement('td');
-                td5.className = 'px-6 py-4 text-slate-300';
+                td5.className = 'px-6 py-4 text-gray-600';
                 td5.textContent = p.payment_method;
 
                 // Status
@@ -1993,7 +1993,7 @@
 
                 // Transaction ID
                 const td7 = document.createElement('td');
-                td7.className = 'px-6 py-4 text-slate-400 text-sm';
+                td7.className = 'px-6 py-4 text-gray-500 text-sm';
                 td7.textContent = p.transaction_id || '-';
 
                 tr.appendChild(td1);
@@ -2069,14 +2069,14 @@
 
             plans.forEach(function(p) {
                 const div = document.createElement('div');
-                div.className = 'flex items-center justify-between p-4 bg-slate-700/50 rounded-lg';
+                div.className = 'flex items-center justify-between p-4 bg-gray-50 rounded-lg';
 
                 const info = document.createElement('div');
                 const name = document.createElement('p');
-                name.className = 'text-white font-medium';
+                name.className = 'text-gray-900 font-medium';
                 name.textContent = p.plan_name;
                 const price = document.createElement('p');
-                price.className = 'text-slate-400 text-sm';
+                price.className = 'text-gray-500 text-sm';
                 price.textContent = formatCurrency(p.price_monthly) + '/mes - ' + formatCurrency(p.price_yearly) + '/año';
                 info.appendChild(name);
                 info.appendChild(price);
@@ -2681,7 +2681,7 @@
                 if (tab.dataset.goal === goalType) {
                     tab.className = 'goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white';
                 } else {
-                    tab.className = 'goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600';
+                    tab.className = 'goal-tab px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200';
                 }
             });
             renderGoalTemplate();
@@ -2694,7 +2694,7 @@
                 if (tab.dataset.exercise === exerciseType) {
                     tab.className = 'exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 text-white';
                 } else {
-                    tab.className = 'exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-slate-700 text-slate-300 hover:bg-slate-600';
+                    tab.className = 'exercise-tab px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200';
                 }
             });
             updateExerciseSelectionLabel();
@@ -2708,7 +2708,7 @@
                 if (tab.dataset.goal === goal) {
                     tab.className = 'exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-green-600 text-white';
                 } else {
-                    tab.className = 'exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-600 text-slate-300 hover:bg-slate-500';
+                    tab.className = 'exercise-goal-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-200 text-gray-600 hover:bg-gray-300';
                 }
             });
             updateExerciseSelectionLabel();
@@ -2733,7 +2733,7 @@
             };
             var label = document.getElementById('exerciseSelectionLabel');
             if (label) {
-                label.innerHTML = '<span class="text-sm text-slate-300">Editando: </span><span class="text-sm font-medium text-white">' +
+                label.innerHTML = '<span class="text-sm text-gray-600">Editando: </span><span class="text-sm font-medium text-gray-900">' +
                     (typeLabels[currentExerciseType] || currentExerciseType) + ' + ' +
                     (goalLabels[currentExerciseGoal] || currentExerciseGoal) + '</span>';
             }
@@ -2748,18 +2748,18 @@
 
             goal.habits.forEach(function(h, idx) {
                 var div = document.createElement('div');
-                div.className = 'flex items-center gap-2 bg-slate-600 rounded-lg p-2';
+                div.className = 'flex items-center gap-2 bg-gray-200 rounded-lg p-2';
 
                 var iconInput = document.createElement('input');
                 iconInput.type = 'text';
                 iconInput.value = h.icon;
-                iconInput.className = 'w-10 text-center bg-slate-500 rounded px-1 py-1 text-white';
+                iconInput.className = 'w-10 text-center bg-gray-300 rounded px-1 py-1 text-gray-900';
                 iconInput.onchange = function() { updateGoalHabit(idx, 'icon', this.value); };
 
                 var nameInput = document.createElement('input');
                 nameInput.type = 'text';
                 nameInput.value = h.name;
-                nameInput.className = 'flex-1 bg-slate-500 rounded px-2 py-1 text-white text-sm';
+                nameInput.className = 'flex-1 bg-gray-300 rounded px-2 py-1 text-gray-900 text-sm';
                 nameInput.onchange = function() { updateGoalHabit(idx, 'name', this.value); };
 
                 var removeBtn = document.createElement('button');
@@ -2787,7 +2787,7 @@
             if (!exercise) {
                 // If goal doesn't exist for this type, show message
                 var container = document.getElementById('exerciseTemplateContent');
-                container.innerHTML = '<div class="col-span-4 text-center py-8 text-slate-400">No hay rutina configurada para esta combinación. Los datos se crearán al guardar.</div>';
+                container.innerHTML = '<div class="col-span-4 text-center py-8 text-gray-500">No hay rutina configurada para esta combinación. Los datos se crearán al guardar.</div>';
                 return;
             }
 
@@ -2798,10 +2798,10 @@
             for (var dayIdx = 0; dayIdx < 7; dayIdx++) {
                 var day = exercise[dayIdx] || { name: '', icon: '💪', exercises: [] };
                 var card = document.createElement('div');
-                card.className = 'bg-slate-700/50 rounded-xl p-4';
+                card.className = 'bg-gray-50 rounded-xl p-4';
 
                 var dayLabel = document.createElement('div');
-                dayLabel.className = 'text-xs text-slate-400 mb-2';
+                dayLabel.className = 'text-xs text-gray-500 mb-2';
                 dayLabel.textContent = days[dayIdx];
 
                 var inputsDiv = document.createElement('div');
@@ -2814,20 +2814,20 @@
                 iconInput.type = 'text';
                 iconInput.id = 'exercise-' + dayIdx + '-icon';
                 iconInput.value = day.icon || '💪';
-                iconInput.className = 'w-12 text-center bg-slate-600 rounded px-1 py-1 text-white text-lg';
+                iconInput.className = 'w-12 text-center bg-gray-200 rounded px-1 py-1 text-gray-900 text-lg';
 
                 var nameInput = document.createElement('input');
                 nameInput.type = 'text';
                 nameInput.id = 'exercise-' + dayIdx + '-name';
                 nameInput.value = day.name || '';
-                nameInput.className = 'flex-1 bg-slate-600 rounded px-2 py-1 text-white text-sm font-medium';
+                nameInput.className = 'flex-1 bg-gray-200 rounded px-2 py-1 text-gray-900 text-sm font-medium';
 
                 row.appendChild(iconInput);
                 row.appendChild(nameInput);
 
                 var textarea = document.createElement('textarea');
                 textarea.id = 'exercise-' + dayIdx + '-exercises';
-                textarea.className = 'w-full bg-slate-600 rounded px-2 py-1 text-white text-xs h-20 resize-none';
+                textarea.className = 'w-full bg-gray-200 rounded px-2 py-1 text-gray-900 text-xs h-20 resize-none';
                 textarea.placeholder = 'Ejercicios (uno por línea)';
                 textarea.value = (day.exercises || []).join('\n');
 
@@ -2845,14 +2845,14 @@
 
             templates.habitCatalog.forEach(function(h, idx) {
                 var div = document.createElement('div');
-                div.className = 'bg-slate-700/50 rounded-lg p-3 flex items-center gap-2';
+                div.className = 'bg-gray-50 rounded-lg p-3 flex items-center gap-2';
 
                 var icon = document.createElement('span');
                 icon.className = 'text-xl';
                 icon.textContent = h.icon;
 
                 var name = document.createElement('span');
-                name.className = 'text-white text-sm flex-1';
+                name.className = 'text-gray-900 text-sm flex-1';
                 name.textContent = h.name;
 
                 var editBtn = document.createElement('button');
