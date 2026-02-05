@@ -800,6 +800,15 @@
         }
 
         function updatePlanChart(data) {
+            if (!Array.isArray(data)) {
+                if (data && typeof data === 'object') {
+                    data = Object.keys(data).map(function(key) {
+                        return { plan_name: key, customer_count: data[key] };
+                    });
+                } else {
+                    data = [];
+                }
+            }
             const ctx = document.getElementById('planDistributionChart').getContext('2d');
 
             if (planChart) planChart.destroy();
